@@ -1,0 +1,11 @@
+fastapi[standard]
+uvicorn[standard]
+jinja2
+Babel
+python-multipart
+itsdangerous
+
+# Dependências de teste
+pytest
+pytest-asyncio
+pytest-cov
