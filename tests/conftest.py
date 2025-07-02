@@ -39,3 +39,21 @@ def lista_usuarios_exemplo():
         usuario = Usuario(0, f"Usuário {i:02d}", f"(28) 99999-00{i:02d}", f"usuario{i:02d}@email.com", "123456", 0)
         usuarios.append(usuario)
     return usuarios
+
+@pytest.fixture
+def servicos_exemplo():
+    # Cria um serviço de exemplo para os testes
+    from model.servico_model import Servico
+    servico = Servico(0, "Serviço Teste", "Descrição do serviço", 100.0)
+    return servico
+
+@pytest.fixture
+def lista_servicos_exemplo():
+    # Cria uma lista de 10 serviços de exemplo para os testes
+    from model.servico_model import Servico
+    servicos = []
+    for i in range(1, 11):
+        servico = Servico(0, f"Serviço {i:02d}", f"Descrição do serviço {i:02d}", 100.0 * i)
+        servicos.append(servico)
+    return servicos
+        
