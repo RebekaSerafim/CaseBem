@@ -1,6 +1,4 @@
 from dataclasses import dataclass
-import datetime
-from typing import Optional
 
 @dataclass
 class Usuario:
@@ -8,6 +6,6 @@ class Usuario:
     nome: str
     telefone: str
     email: str    
-    senha_hash: Optional[str] = None
-    tipo: Optional[str] = None
+    senha_hash: str
+    tipo: str
     

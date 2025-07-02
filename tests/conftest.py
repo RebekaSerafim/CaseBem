@@ -42,6 +42,13 @@ def lista_usuarios_exemplo():
     return usuarios
 
 @pytest.fixture
+def prestador_exemplo():
+    # Cria um prestador de serviços de exemplo para os testes
+    from model.prestador_model import Prestador
+    prestador = Prestador(0, "Prestador Teste", "(28) 99999-0000", "prestador@email.com", "123456", "PRESTADOR", "FISICA", "123.456.789-00")
+    return prestador
+
+@pytest.fixture
 def servicos_exemplo():
     # Cria um serviço de exemplo para os testes
     from model.servico_model import Servico
