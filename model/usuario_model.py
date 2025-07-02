@@ -9,5 +9,5 @@ class Usuario:
     telefone: str
     email: str    
     senha_hash: Optional[str] = None
-    tipo: int = 0
+    tipo: Optional[str] = None
     

@@ -27,16 +27,17 @@ def test_db():
 def usuario_exemplo():
     # Cria um usuário de exemplo para os testes
     from model.usuario_model import Usuario
-    usuario = Usuario(0, "Usuário Teste", "(28) 99999-0000", "usuario@email.com", "123456", 0)
+    usuario = Usuario(0, "Usuário Teste", "(28) 99999-0000", "usuario@email.com", "123456", "ADMIN")
     return usuario
 
 @pytest.fixture
 def lista_usuarios_exemplo():
     # Cria uma lista de 10 usuários de exemplo para os testes
+    tipos = ["ADMIN", "NOIVO", "PRESTADOR", "FORNECEDOR"]
     from model.usuario_model import Usuario
     usuarios = []
     for i in range(1, 11):
-        usuario = Usuario(0, f"Usuário {i:02d}", f"(28) 99999-00{i:02d}", f"usuario{i:02d}@email.com", "123456", 0)
+        usuario = Usuario(0, f"Usuário {i:02d}", f"(28) 99999-00{i:02d}", f"usuario{i:02d}@email.com", "123456", tipos[i % 4])
         usuarios.append(usuario)
     return usuarios
 

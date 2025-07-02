@@ -1,3 +1,4 @@
+#from model.usuario_model import Usuario
 from model.usuario_model import Usuario
 from repo import usuario_repo
 
@@ -7,7 +8,7 @@ class TestUsuarioRepo:
         # Act
         resultado = usuario_repo.criar_tabela_usuarios()
         # Assert
-        assert resultado == True, "A criação da tabela deveria retornar True"
+        assert resultado == True, "A criação da tabela deveria retornar True"        
 
     def test_inserir_usuario(self, test_db, usuario_exemplo):
         # Arrange
@@ -22,7 +23,7 @@ class TestUsuarioRepo:
         assert usuario_db.telefone == "(28) 99999-0000", "O telefone do usuário inserido não confere"
         assert usuario_db.email == "usuario@email.com", "O email do usuário inserido não confere"
         assert usuario_db.senha_hash == "123456", "A senha hash do usuário inserido não confere"
-        assert usuario_db.tipo == 0, "O tipo do usuário inserido não confere"
+        assert usuario_db.tipo == "ADMIN", "O tipo do usuário inserido não confere"
 
     def test_obter_usuario_por_id_existente(self, test_db, usuario_exemplo):
         # Arrange
@@ -83,7 +84,7 @@ class TestUsuarioRepo:
         assert usuario_db.telefone == "(28) 88888-0000", "O telefone do usuário atualizado não confere"
         assert usuario_db.email == "usuario_atualizado@email.com", "O email do usuário atualizado não confere"
         assert usuario_db.senha_hash == "123456", "A senha hash do usuário atualizado não confere"
-        assert usuario_db.tipo == 0, "O tipo do usuário atualizado não confere"
+        assert usuario_db.tipo == "ADMIN", "O tipo do usuário atualizado não confere"
 
     def test_atualizar_usuario_inexistente(self, test_db, usuario_exemplo):
         # Arrange
@@ -112,17 +113,6 @@ class TestUsuarioRepo:
         resultado = usuario_repo.excluir_usuario(999)
         # Assert
         assert resultado == False, "A exclusão de um usuário inexistente deveria retornar False"
-
-    def test_atualizar_tipo_usuario(self, test_db, usuario_exemplo):
-        # Arrange
-        usuario_repo.criar_tabela_usuarios()
-        id_usuario_inserido = usuario_repo.inserir_usuario(usuario_exemplo)
-        # Act
-        resultado = usuario_repo.atualizar_tipo_usuario(id_usuario_inserido, 1)
-        # Assert
-        assert resultado == True, "A atualização do tipo de usuário deveria retornar True"
-        usuario_db = usuario_repo.obter_usuario_por_id(id_usuario_inserido)
-        assert usuario_db.tipo == 1, "O tipo do usuário atualizado não confere"
 
     def test_atualizar_senha_usuario(self, test_db, usuario_exemplo):
         # Arrange

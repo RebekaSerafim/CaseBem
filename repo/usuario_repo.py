@@ -41,16 +41,6 @@ def atualizar_usuario(usuario: Usuario) -> bool:
         # Retorna True se alguma linha foi afetada
         return (cursor.rowcount > 0)
     
-def atualizar_tipo_usuario(id: int, tipo: int) -> bool:
-    # Obtém conexão com o banco de dados
-    with obter_conexao() as conexao:
-        # Cria cursor para executar comandos SQL
-        cursor = conexao.cursor()
-        # Executa comando SQL para atualizar tipo do usuário (0=comum, 1=admin)
-        cursor.execute(ATUALIZAR_TIPO_USUARIO, (tipo, id))
-        # Retorna True se alguma linha foi afetada
-        return (cursor.rowcount > 0)
-    
 def atualizar_senha_usuario(id: int, senha_hash: str) -> bool:
     # Obtém conexão com o banco de dados
     with obter_conexao() as conexao:

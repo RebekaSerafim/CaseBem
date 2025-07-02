@@ -5,7 +5,8 @@ CREATE TABLE IF NOT EXISTS Usuario (
     telefone TEXT NOT NULL UNIQUE,
     email TEXT NOT NULL UNIQUE,
     senha_hash TEXT NOT NULL,
-    tipo INTEGER NOT NULL DEFAULT 0);
+    tipo TEXT NOT NULL CHECK(tipo IN ('ADMIN', 'NOIVO', 'PRESTADOR', 'FORNECEDOR'))
+);
 """
 
 INSERIR_USUARIO = """

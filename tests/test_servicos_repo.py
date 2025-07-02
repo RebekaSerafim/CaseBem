@@ -1,11 +1,6 @@
 from model.servico_model import Servico
 from repo import servico_repo
-import pytest
-@pytest.fixture
-def servico_exemplo(servicos_exemplo):
-    return servicos_exemplo[0]
 
-class TestServicoRepo:
 class TestServicoRepo:
     def test_criar_tabela_servicos(self, test_db):
         # Arrange
