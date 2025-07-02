@@ -39,3 +39,20 @@ def lista_usuarios_exemplo():
         usuario = Usuario(0, f"Usuário {i:02d}", f"(28) 99999-00{i:02d}", f"usuario{i:02d}@email.com", "123456", 0)
         usuarios.append(usuario)
     return usuarios
+
+@pytest.fixture
+def produto_exemplo():
+    # Cria um produto de exemplo para os testes
+    from model.produto_model import Produto
+    produto = Produto(0, "Produto Teste", 19.99, 10, "Descrição do produto teste")
+    return produto
+
+@pytest.fixture
+def lista_produtos_exemplo():  
+    # Cria uma lista de 10 produtos de exemplo para os testes
+    from model.produto_model import Produto
+    produtos = []
+    for i in range(1, 11):
+        produto = Produto(0, f"Produto {i:02d}", 19.99 + i, 10 + i, f"Descrição do produto {i:02d}")
+        produtos.append(produto)
+    return produtos
