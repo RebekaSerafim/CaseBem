@@ -55,7 +55,8 @@ def lista_administradores_exemplo():
     administradores = []
     for i in range(1, 11):
         administrador = Administrador(0, "Administrador Teste", "(28) 99999-9999", "administrador@email.com", "654321", "ADMIN")
-
+        administradores.append(administrador)
+    return administradores
 @pytest.fixture
 def servicos_exemplo():
     # Cria um serviço de exemplo para os testes
