@@ -49,6 +49,14 @@ def prestador_exemplo():
     return prestador
 
 @pytest.fixture
+def lista_administradores_exemplo():
+    # Cria uma lista de 10 administradores de exemplo para os testes
+    from model.administrador_model import Administrador
+    administradores = []
+    for i in range(1, 11):
+        administrador = Administrador(0, "Administrador Teste", "(28) 99999-9999", "administrador@email.com", "654321", "ADMIN")
+
+@pytest.fixture
 def servicos_exemplo():
     # Cria um serviço de exemplo para os testes
     from model.servico_model import Servico
