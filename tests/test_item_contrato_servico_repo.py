@@ -1,13 +1,14 @@
 
-from model.item_contrato_model import ItemContrato
+from model.item_contrato_servico_model import ItemContrato
 from repo import item_contrato_repo
 
 class TestItemContratoRepo:
-    def test_criar_tabela_itens_contrato(self, test_db):
-        assert item_contrato_repo.criar_tabela_itens_contrato() == True
+    def test_criar_tabela_itens_contrato_servico(self, test_db):
+        assert item_contrato_repo.criar_tabela_itens_contrato_servico
+() == True
 
     def test_inserir_item(self, test_db, item_exemplo):
-        id_inserido = item_contrato_repo.inserir_item_contrato(item_exemplo)
+        id_inserido = item_contrato_servico_repo.inserir_item_contrato_servico(item_exemplo)
         item = item_contrato_repo.obter_item_contrato_por_id(id_inserido)
         assert item.id == id_inserido
 

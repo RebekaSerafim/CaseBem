@@ -1,23 +1,24 @@
 CRIAR_TABELA_CONTRATO = """
-CREATE TABLE IF NOT EXISTS servico (
+CREATE TABLE IF NOT EXISTS contrato (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
+    nome TEXT NOT NULL,
     valor REAL NOT NULL,
 
 """
 
 INSERIR_CONTRATO = """
-INSERT INTO servico (valor)
+INSERT INTO contrato (valor)
 VALUES (?);
 """
 
 ATUALIZAR_CONTRATO= """
-UPDATE servico
+UPDATE contrato
 SET valor = ?
 WHERE id = ?;
 """
 
 ATUALIZAR_TIPO_CONTRATO = """
-UPDATE servico
+UPDATE contrato
 SET tipo = ?
 WHERE id = ?;
 """
@@ -25,7 +26,7 @@ WHERE id = ?;
 
 
 EXCLUIR_CONTRATO = """
-DELETE FROM servico
+DELETE FROM contrato
 WHERE id = ?;
 """
 
