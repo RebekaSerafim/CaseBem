@@ -124,6 +124,7 @@ def obter_usuarios_por_pagina(numero_pagina: int, tamanho_pagina: int) -> list[U
             nome=resultado["nome"],
             telefone=resultado["telefone"],
             email=resultado["email"],
+            senha_hash=resultado["senha_hash"],
             tipo=resultado["tipo"]
         ) for resultado in resultados]
     # Retorna lista vazia se não encontrou usuários

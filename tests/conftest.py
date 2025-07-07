@@ -42,6 +42,33 @@ def lista_usuarios_exemplo():
     return usuarios
 
 @pytest.fixture
+def lista_noivos_exemplo():
+    # Cria uma lista de 10 usuários de exemplo para os testes
+    from model.usuario_model import Usuario
+    usuarios = []
+    for i in range(1, 11):
+        usuario = Usuario(0, f"Usuário {i:02d}", f"(28) 99999-00{i:02d}", f"usuario{i:02d}@email.com", "123456", "NOIVO")
+        usuarios.append(usuario)
+    return usuarios
+
+@pytest.fixture
+def casal_exemplo():
+    # Cria um casal de exemplo para os testes    
+    from model.casal_model import Casal
+    casal = Casal(1, 2, 10000.0)
+    return casal
+
+@pytest.fixture
+def lista_casais_exemplo():
+    # Cria uma lista de 10 casais de exemplo para os testes    
+    from model.casal_model import Casal
+    casais = []
+    for i in range(1, 11, 2):
+        casal = Casal(i, i + 1, 10000.0 + (i * 100))
+        casais.append(casal)
+    return casais
+
+@pytest.fixture
 def prestador_exemplo():
     # Cria um prestador de serviços de exemplo para os testes
     from model.prestador_model import Prestador
