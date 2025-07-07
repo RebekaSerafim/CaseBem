@@ -91,3 +91,20 @@ def lista_produtos_exemplo():
         produto = Produto(0, f"Produto {i:02d}", 19.99 + i, 10 + i, f"Descrição do produto {i:02d}")
         produtos.append(produto)
     return produtos    
+
+@pytest.fixture
+def contrato_exemplo():
+    # Cria um contrato de exemplo para os testes
+    from model.contrato_model import Contrato
+    contrato = Contrato(0, "Contrato Teste", datetime.now(), 1000.0, "Descrição do contrato teste")
+    return contrato
+
+@pytest.fixture
+def lista_contratos_exemplo():
+    # Cria uma lista de 10 contratos de exemplo para os testes
+    from model.contrato_model import Contrato
+    contratos = []
+    for i in range(1, 11):
+        contrato = Contrato(0, f"Contrato {i:02d}", datetime.now(), 1000.0 + (i * 100), f"Descrição do contrato {i:02d}")
+        contratos.append(contrato)
+    return contratos
