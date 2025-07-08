@@ -39,8 +39,8 @@ def obter_fornecedor_produto_por_id(id_fornecedor: int, id_produto: int) -> Opti
         resultado = cursor.fetchone()
         if resultado:
             return FornecedorProduto(
-                id_fornecedor=resultado["idFornecedor"],
-                id_produto=resultado["idProduto"],
+                id_fornecedor=resultado["id_fornecedor"],
+                id_produto=resultado["id_produto"],
                 observacoes=resultado["observacoes"],
                 preco=resultado["preco"]
             )
@@ -53,8 +53,8 @@ def obter_fornecedores_produto_por_pagina(numero_pagina: int, tamanho_pagina: in
         cursor = conexao.execute(OBTER_FORNECEDORES_PRODUTO_POR_PAGINA, (limite, offset))
         resultados = cursor.fetchall()
         return [FornecedorProduto(
-            id_fornecedor=r["idFornecedor"],
-            id_produto=r["idProduto"],
+            id_fornecedor=r["id_fornecedor"],
+            id_produto=r["id_produto"],
             observacoes=r["observacoes"],
             preco=r["preco"]
         ) for r in resultados]

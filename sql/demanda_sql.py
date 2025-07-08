@@ -1,25 +1,20 @@
 CRIAR_TABELA_DEMANDA = """
 CREATE TABLE IF NOT EXISTS demanda (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
-    nome TEXT NOT NULL,
-    valor REAL NOT NULL,
-
+    id_casal INTEGER NOT NULL,
+    data_hora_cadastro TIMESTAMP NOT NULL,
+    FOREIGN KEY (id_casal) REFERENCES casal(id) ON DELETE CASCADE
+);
 """
 
 INSERIR_DEMANDA = """
-INSERT INTO demanda (valor)
-VALUES (?);
+INSERT INTO demanda (id_casal, data_hora_cadastro)
+VALUES (?, ?);
 """
 
-ATUALIZAR_DEMANDA= """
+ATUALIZAR_DEMANDA = """
 UPDATE demanda
-SET valor = ?
-WHERE id = ?;
-"""
-
-ATUALIZAR_TIPO_DEMANDA = """
-UPDATE demanda
-SET tipo = ?
+SET id_casal = ?, data_hora_cadastro = ?
 WHERE id = ?;
 """
 
@@ -29,14 +24,21 @@ WHERE id = ?;
 """
 
 OBTER_DEMANDA_POR_ID = """
-SELECT id, valor
-FROM Contrato
+SELECT id, id_casal, data_hora_cadastro
+FROM demanda
 WHERE id = ?;
 """
 
 OBTER_DEMANDAS_POR_PAGINA = """
-SELECT id, valor
-FROM Contrato
-ORDER BY id ASC
+SELECT id, id_casal, data_hora_cadastro
+FROM demanda
+ORDER BY data_hora_cadastro DESC
 LIMIT ? OFFSET ?;
+"""
+
+OBTER_DEMANDAS_POR_CASAL = """
+SELECT id, id_casal, data_hora_cadastro
+FROM demanda
+WHERE id_casal = ?
+ORDER BY data_hora_cadastro DESC;
 """

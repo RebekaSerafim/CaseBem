@@ -19,8 +19,7 @@ class TestProdutoRepo:
         assert produto_db is not None, "O produto inserido não deveria ser None"
         assert produto_db.id == 1, "O produto inserido deveria ter um ID igual a 1"
         assert produto_db.nome == "Produto Teste", "O nome do produto inserido não confere"
-        assert produto_db.preco == "19.99", "O preço do produto inserido não confere"
-        assert produto_db.quantidade == "10", "A quantidade do produto inserido não confere"
+        assert produto_db.preco == 19.99, "O preço do produto inserido não confere"
         assert produto_db.descricao == "Descrição do produto teste", "A descrição do produto inserido não confere"
 
     def test_obter_produto_por_id_existente(self, test_db, produto_exemplo):
@@ -34,7 +33,6 @@ class TestProdutoRepo:
         assert produto_db.id == id_produto_inserido, "O id do produto buscado deveria ser igual ao id do produto inserido"
         assert produto_db.nome == produto_exemplo.nome, "O nome do produto buscado deveria ser igual ao nome do produto inserido"
         assert produto_db.preco == produto_exemplo.preco, "O preço do produto buscado deveria ser igual ao preço do produto inserido"
-        assert produto_db.quantidade == produto_exemplo.quantidade, "A quantidade do produto buscado deveria ser igual à quantidade do produto inserida"
         assert produto_db.descricao == produto_exemplo.descricao, "A descrição do produto buscado deveria ser igual à descrição do produto inserido"
 
     def test_obter_produto_por_id_inexistente(self, test_db):
@@ -71,16 +69,14 @@ class TestProdutoRepo:
         produto_inserido = produto_repo.obter_produto_por_id(id_produto_inserido)
         # Act
         produto_inserido.nome = "Produto Atualizado"
-        produto_inserido.preco = "20.99"
-        produto_inserido.quantidade = "15"
+        produto_inserido.preco = 20.99
         produto_inserido.descricao = "Descrição do produto atualizado"
         resultado = produto_repo.atualizar_produto(produto_inserido)
         # Assert
         assert resultado == True, "A atualização do produto deveria retornar True"
         produto_db = produto_repo.obter_produto_por_id(id_produto_inserido)
         assert produto_db.nome == "Produto Atualizado", "O nome do produto atualizado não confere"
-        assert produto_db.preco == "20.99", "O preço do produto atualizado não confere"
-        assert produto_db.quantidade == "15", "A quantidade do produto atualizado não confere"
+        assert produto_db.preco == 20.99, "O preço do produto atualizado não confere"
         assert produto_db.descricao == "Descrição do produto atualizado", "A descrição atualizada não confere"
 
     def test_atualizar_produto_inexistente(self, test_db, produto_exemplo):
@@ -111,17 +107,6 @@ class TestProdutoRepo:
         # Assert
         assert resultado == False, "A exclusão de um produto inexistente deveria retornar False"
 
-    def test_atualizar_tipo_produto(self, test_db, produto_exemplo):
-        # Arrange
-        produto_repo.criar_tabela_produtos()
-        id_produto_inserido = produto_repo.inserir_produto(produto_exemplo)
-        # Act
-        resultado = produto_repo.atualizar_tipo_produto(id_produto_inserido, 1)
-        # Assert
-        assert resultado == True, "A atualização do tipo de produto deveria retornar True"
-        produto_db = produto_repo.obter_produto_por_id(id_produto_inserido)
-        assert produto_db.tipo == 1, "O tipo do produto atualizado não confere"
-
     def test_obter_produtos_por_pagina_primeira_pagina(self, test_db, lista_produtos_exemplo):
         # Arrange
         produto_repo.criar_tabela_produtos()
@@ -145,4 +130,4 @@ class TestProdutoRepo:
         pagina_produtos = produto_repo.obter_produtos_por_pagina(3, 4)
         # Assert: verifica se retornou a quantidade correta (2 produtos na terceira página)
         assert len(pagina_produtos) == 2, "Deveria retornar 2 produtos na terceira página"
-        assert (isinstance(u, Produto) for u in pagina_produtos), "Todos os itens da página devem ser do tipo Produto"
+        assert all(isinstance(u, Produto) for u in pagina_produtos), "Todos os itens da página devem ser do tipo Produto"

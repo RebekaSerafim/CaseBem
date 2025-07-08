@@ -26,7 +26,7 @@ def inserir_produto(produto: Produto) -> Optional[int]:
         cursor = conexao.cursor()
         # Executa comando SQL para inserir produto com todos os campos
         cursor.execute(INSERIR_PRODUTO, 
-            (produto.nome, produto.preco, produto.quantidade, produto.descricao))
+            (produto.nome, produto.preco, produto.descricao))
         # Retorna o ID do produto inserido
         return cursor.lastrowid        
 
@@ -37,7 +37,7 @@ def atualizar_produto(produto: Produto) -> bool:
         cursor = conexao.cursor()
         # Executa comando SQL para atualizar dados do produto pelo ID
         cursor.execute(ATUALIZAR_PRODUTO, 
-            (produto.nome, produto.preco, produto.quantidade, produto.descricao, produto.id))    
+            (produto.nome, produto.preco, produto.descricao, produto.id))    
         # Retorna True se alguma linha foi afetada
         return (cursor.rowcount > 0)
     
@@ -68,7 +68,6 @@ def obter_produto_por_id(id: int) -> Optional[Produto]:
                 id=resultado["id"],
                 nome=resultado["nome"],
                 preco=resultado["preco"],
-                quantidade=resultado["quantidade"],
                 descricao=resultado["descricao"])
     # Retorna None se não encontrou produto
     return None
@@ -89,7 +88,6 @@ def obter_produto_por_nome(nome: str) -> Optional[Produto]:
                 id=resultado["id"],
                 nome=resultado["nome"],
                 preco=resultado["preco"],
-                quantidade=resultado["quantidade"],
                 descricao=resultado["descricao"])
     # Retorna None se não encontrou produto
     return None
@@ -112,7 +110,6 @@ def obter_produtos_por_pagina(numero_pagina: int, tamanho_pagina: int) -> list[P
             id=resultado["id"],
             nome=resultado["nome"],
             preco=resultado["preco"],
-            quantidade=resultado["quantidade"],
             descricao=resultado["descricao"]
         ) for resultado in resultados]
     # Retorna lista vazia se não encontrou produtos

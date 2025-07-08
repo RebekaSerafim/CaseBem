@@ -1,60 +1,71 @@
 from typing import Optional, List
 from util.database import obter_conexao
-from sql.item_contrato_servico_sql import *
+from sql.item_demanda_servico_sql import *
 from model.item_demanda_servico_model import ItemDemandaServico
 
-def criar_tabela_item_contrato_servico() -> bool:
+def criar_tabela_item_demanda_servico() -> bool:
     try:
         with obter_conexao() as conexao:
-            conexao.execute(CRIAR_TABELA_ITEM_CONTRATO_SERVICO)
+            conexao.execute(CRIAR_TABELA_ITEM_DEMANDA_SERVICO)
         return True
     except Exception as e:
         print(f"Erro ao criar tabela ItemDemandaServico: {e}")
         return False
 
-def inserir_item_contrato_servico(item: ItemDemandaServico) -> Optional[int]:
+def inserir_item_demanda_servico(item: ItemDemandaServico) -> bool:
     with obter_conexao() as conexao:
         cursor = conexao.execute(
-            INSERIR_ITEM_CONTRATO_SERVICO,
-            (item.valor, item.quantidade, item.id_servico)
-        )
-        return cursor.lastrowid
-
-def atualizar_item_contrato_servico(item: ItemDemandaServico) -> bool:
-    with obter_conexao() as conexao:
-        cursor = conexao.execute(
-            ATUALIZAR_ITEM_CONTRATO_SERVICO,
-            (item.valor, item.quantidade, item.id_servico, item.id_item_contrato_servico)
+            INSERIR_ITEM_DEMANDA_SERVICO,
+            (item.id_demanda, item.id_servico, item.quantidade, item.observacoes)
         )
         return cursor.rowcount > 0
 
-def excluir_item_contrato_servico(id_item: int) -> bool:
+def atualizar_item_demanda_servico(item: ItemDemandaServico) -> bool:
     with obter_conexao() as conexao:
-        cursor = conexao.execute(EXCLUIR_ITEM_CONTRATO_SERVICO, (id_item,))
+        cursor = conexao.execute(
+            ATUALIZAR_ITEM_DEMANDA_SERVICO,
+            (item.quantidade, item.observacoes, item.id_demanda, item.id_servico)
+        )
         return cursor.rowcount > 0
 
-def obter_item_contrato_servico_por_id(id_item: int) -> Optional[ItemDemandaServico]:
+def excluir_item_demanda_servico(id_demanda: int, id_servico: int) -> bool:
     with obter_conexao() as conexao:
-        cursor = conexao.execute(OBTER_ITEM_CONTRATO_SERVICO_POR_ID, (id_item,))
+        cursor = conexao.execute(EXCLUIR_ITEM_DEMANDA_SERVICO, (id_demanda, id_servico))
+        return cursor.rowcount > 0
+
+def obter_item_demanda_servico_por_id(id_demanda: int, id_servico: int) -> Optional[ItemDemandaServico]:
+    with obter_conexao() as conexao:
+        cursor = conexao.execute(OBTER_ITEM_DEMANDA_SERVICO_POR_ID, (id_demanda, id_servico))
         resultado = cursor.fetchone()
         if resultado:
             return ItemDemandaServico(
-                id_item_contrato_servico=resultado["idItemDemandaServico"],
-                valor=resultado["valor"],
+                id_demanda=resultado["id_demanda"],
+                id_servico=resultado["id_servico"],
                 quantidade=resultado["quantidade"],
-                id_servico=resultado["idServico"]
+                observacoes=resultado["observacoes"]
             )
     return None
 
-def obter_itens_contrato_servico_por_pagina(numero_pagina: int, tamanho_pagina: int) -> List[ItemDemandaServico]:
+def obter_itens_por_demanda(id_demanda: int) -> List[ItemDemandaServico]:
+    with obter_conexao() as conexao:
+        cursor = conexao.execute(OBTER_ITENS_POR_DEMANDA, (id_demanda,))
+        resultados = cursor.fetchall()
+        return [ItemDemandaServico(
+            id_demanda=r["id_demanda"],
+            id_servico=r["id_servico"],
+            quantidade=r["quantidade"],
+            observacoes=r["observacoes"]
+        ) for r in resultados]
+
+def obter_itens_demanda_servico_por_pagina(numero_pagina: int, tamanho_pagina: int) -> List[ItemDemandaServico]:
     with obter_conexao() as conexao:
         limite = tamanho_pagina
         offset = (numero_pagina - 1) * tamanho_pagina
-        cursor = conexao.execute(OBTER_ITENS_CONTRATO_SERVICO_POR_PAGINA, (limite, offset))
+        cursor = conexao.execute(OBTER_ITENS_DEMANDA_SERVICO_POR_PAGINA, (limite, offset))
         resultados = cursor.fetchall()
         return [ItemDemandaServico(
-            id_item_contrato_servico=r["idItemDemandaServico"],
-            valor=r["valor"],
+            id_demanda=r["id_demanda"],
+            id_servico=r["id_servico"],
             quantidade=r["quantidade"],
-            id_servico=r["idServico"]
+            observacoes=r["observacoes"]
         ) for r in resultados]

@@ -21,7 +21,6 @@ class TestServicoRepo:
         assert servico_db.nome == "Serviço Teste", "O nome do serviço inserido não confere"
         assert servico_db.descricao == "Descrição do serviço", "A descrição do serviço inserido não confere"
         assert servico_db.preco == 100.0, "O preço do serviço inserido não confere"
-        assert servico_db.tipo == 0, "O tipo do serviço inserido não confere"
 
     def test_obter_servico_por_id_existente(self, test_db, servico_exemplo):
         # Arrange
@@ -35,8 +34,6 @@ class TestServicoRepo:
         assert servico_db.nome == servico_exemplo.nome, "O nome do serviço buscado deveria ser igual ao nome do serviço inserido"
         assert servico_db.descricao == servico_exemplo.descricao, "A descrição do serviço buscado deveria ser igual à descrição do serviço inserido"
         assert servico_db.preco == servico_exemplo.preco, "O preço do serviço buscado deveria ser igual ao preço do serviço inserido"
-        assert servico_db.tipo == servico_exemplo.tipo, "O tipo do serviço buscado deveria ser igual ao tipo do serviço inserido"
-        assert servico_db.tipo == servico_exemplo.tipo, "O tipo do serviço buscado deveria ser igual ao tipo do serviço inserido"
 
     def test_obter_servico_por_id_inexistente(self, test_db):
         # Arrange
@@ -46,7 +43,24 @@ class TestServicoRepo:
         # Assert
         assert servico_db is None, "O serviço buscado com ID inexistente deveria retornar None"
 
-    
+    def test_obter_servico_por_nome_existente(self, test_db, servico_exemplo):
+        # Arrange
+        servico_repo.criar_tabela_servicos()
+        id_servico_inserido = servico_repo.inserir_servico(servico_exemplo)
+        # Act
+        servico_db = servico_repo.obter_servico_por_nome(servico_exemplo.nome)
+        # Assert
+        assert servico_db is not None, "O serviço buscado por nome deveria ser diferente de None"
+        assert servico_db.id == id_servico_inserido, "O id do serviço buscado por nome deveria ser igual ao id do serviço inserido"
+        assert servico_db.nome == servico_exemplo.nome, "O nome do serviço buscado deveria ser igual ao nome do serviço inserido"
+
+    def test_obter_servico_por_nome_inexistente(self, test_db):
+        # Arrange
+        servico_repo.criar_tabela_servicos()
+        # Act
+        servico_db = servico_repo.obter_servico_por_nome("Serviço Inexistente")
+        # Assert
+        assert servico_db is None, "O serviço buscado por nome inexistente deveria retornar None"
 
     def test_atualizar_servico_existente(self, test_db, servico_exemplo):
         # Arrange
@@ -57,7 +71,6 @@ class TestServicoRepo:
         servico_db.nome = "Serviço Atualizado"
         servico_db.descricao = "Descrição Atualizada"
         servico_db.preco = 150.0
-        servico_db.tipo = 1
         resultado = servico_repo.atualizar_servico(servico_db)
         # Assert
         assert resultado == True, "A atualização do serviço deveria retornar True"
@@ -65,7 +78,6 @@ class TestServicoRepo:
         assert servico_db.nome == "Serviço Atualizado", "O nome do serviço atualizado não confere"
         assert servico_db.descricao == "Descrição Atualizada", "A descrição do serviço atualizado não confere"
         assert servico_db.preco == 150.0, "O preço do serviço atualizado não confere"
-        assert servico_db.tipo == 1, "O tipo do serviço atualizado não confere"
 
     def test_atualizar_servico_inexistente(self, test_db, servico_exemplo):
         # Arrange
@@ -94,18 +106,6 @@ class TestServicoRepo:
         resultado = servico_repo.excluir_servico(999)
         # Assert
         assert resultado == False, "A exclusão de um serviço inexistente deveria retornar False"
-
-    def test_atualizar_tipo_servico(self, test_db, servico_exemplo):
-        # Arrange
-        servico_repo.criar_tabela_servicos()
-        id_servico_inserido = servico_repo.inserir_servico(servico_exemplo)
-        # Act
-        resultado = servico_repo.atualizar_tipo_servico(id_servico_inserido, 1)
-        # Assert
-        assert resultado == True, "A atualização do tipo de serviço deveria retornar True"
-        servico_db = servico_repo.obter_servico_por_id(id_servico_inserido)
-        assert servico_db.tipo == 1, "O tipo do serviço atualizado não confere"
-
    
     def test_obter_servicos_por_pagina_primeira_pagina(self, test_db, lista_servicos_exemplo):
         # Arrange
@@ -130,4 +130,4 @@ class TestServicoRepo:
         pagina_servicos = servico_repo.obter_servicos_por_pagina(3, 4)
         # Assert: verifica se retornou a quantidade correta (2 serviços na terceira página)
         assert len(pagina_servicos) == 2, "Deveria retornar 2 serviços na terceira página"
-        assert (isinstance(s, Servico) for s in pagina_servicos), "Todos os itens da página devem ser do tipo Servico"
+        assert all(isinstance(s, Servico) for s in pagina_servicos), "Todos os itens da página devem ser do tipo Servico"

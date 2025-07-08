@@ -143,8 +143,8 @@ def obter_usuarios_por_tipo_por_pagina(tipo: TipoUsuario, numero_pagina: int, ta
         offset = (numero_pagina - 1) * tamanho_pagina
         # Cria cursor para executar comandos SQL
         cursor = conexao.cursor()
-        # Executa comando SQL para buscar usuários com paginação
-        cursor.execute(OBTER_USUARIOS_POR_PAGINA, (tipo, limite, offset))
+        # Executa comando SQL para buscar usuários por tipo com paginação
+        cursor.execute(OBTER_USUARIOS_POR_TIPO_POR_PAGINA, (tipo, limite, offset))
         # Obtém todos os resultados da consulta
         resultados = cursor.fetchall()
         # Cria lista de objetos Usuario a partir dos resultados

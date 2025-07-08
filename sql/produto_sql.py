@@ -1,43 +1,43 @@
 CRIAR_TABELA_PRODUTO = """
-CREATE TABLE IF NOT EXISTS Produto (
+CREATE TABLE IF NOT EXISTS produto (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     nome TEXT NOT NULL,
-    preco FLOAT NOT NULL DEFAULT 0,
-    quantidade INTEGER NOT NULL DEFAULT 0,
-    descricao TEXT NOT NULL);
+    preco REAL NOT NULL,
+    descricao TEXT NOT NULL
+);
 """
 
 INSERIR_PRODUTO = """
-INSERT INTO Produto (nome, preco, quantidade, descricao)
-VALUES (?, ?, ?, ?);
+INSERT INTO produto (nome, preco, descricao)
+VALUES (?, ?, ?);
 """
 
 ATUALIZAR_PRODUTO = """
-UPDATE Produto
-SET nome = ?, preco = ?, quantidade = ?, descricao = ?
+UPDATE produto
+SET nome = ?, preco = ?, descricao = ?
 WHERE id = ?;
 """
 
 EXCLUIR_PRODUTO = """
-DELETE FROM Produto
+DELETE FROM produto
 WHERE id = ?;
 """
 
 OBTER_PRODUTO_POR_ID = """
-SELECT id, nome, preco, quantidade, descricao
-FROM Produto
+SELECT id, nome, preco, descricao
+FROM produto
 WHERE id = ?;
 """
 
 OBTER_PRODUTO_POR_NOME = """
-SELECT id, nome, preco, quantidade, descricao
-FROM Produto
-WHERE email = ?;
+SELECT id, nome, preco, descricao
+FROM produto
+WHERE nome = ?;
 """
 
 OBTER_PRODUTOS_POR_PAGINA = """
-SELECT id, nome, preco, quantidade, descricao
-FROM Produto
+SELECT id, nome, preco, descricao
+FROM produto
 ORDER BY nome ASC
 LIMIT ? OFFSET ?;
 """

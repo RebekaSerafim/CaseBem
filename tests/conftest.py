@@ -124,15 +124,15 @@ def lista_casais_exemplo():
     from model.casal_model import Casal
     casais = []
     for i in range(1, 11, 2):
-        casal = Casal(i, i + 1, 10000.0 + (i * 100))
+        casal = Casal(0, i, i + 1, 10000.0 + (i * 100))
         casais.append(casal)
     return casais
 
 @pytest.fixture
-def servicos_exemplo():
+def servico_exemplo():
     # Cria um serviço de exemplo para os testes
     from model.servico_model import Servico
-    servico = Servico(0, "Serviço Teste", "Descrição do serviço", 100.0)
+    servico = Servico(0, "Serviço Teste", 100.0, "Descrição do serviço")
     return servico
 
 @pytest.fixture
@@ -141,7 +141,7 @@ def lista_servicos_exemplo():
     from model.servico_model import Servico
     servicos = []
     for i in range(1, 11):
-        servico = Servico(0, f"Serviço {i:02d}", f"Descrição do serviço {i:02d}", 100.0 * i)
+        servico = Servico(0, f"Serviço {i:02d}", 100.0 * i, f"Descrição do serviço {i:02d}")
         servicos.append(servico)
     return servicos
 
@@ -149,7 +149,7 @@ def lista_servicos_exemplo():
 def produto_exemplo():
     # Cria um produto de exemplo para os testes
     from model.produto_model import Produto
-    produto = Produto(0, "Produto Teste", 19.99, 10, "Descrição do produto teste")
+    produto = Produto(0, "Produto Teste", 19.99, "Descrição do produto teste")
     return produto
 
 @pytest.fixture
@@ -158,7 +158,7 @@ def lista_produtos_exemplo():
     from model.produto_model import Produto
     produtos = []
     for i in range(1, 11):
-        produto = Produto(0, f"Produto {i:02d}", 19.99 + i, 10 + i, f"Descrição do produto {i:02d}")
+        produto = Produto(0, f"Produto {i:02d}", 19.99 + i, f"Descrição do produto {i:02d}")
         produtos.append(produto)
     return produtos    
 
@@ -166,7 +166,7 @@ def lista_produtos_exemplo():
 def demanda_exemplo():
     # Cria um demanda de exemplo para os testes
     from model.demanda_model import Demanda
-    demanda = Demanda(0, "Contrato Teste", datetime.now(), 1000.0, "Descrição do demanda teste")
+    demanda = Demanda(0, 1, datetime.now())
     return demanda
 
 @pytest.fixture
@@ -175,6 +175,41 @@ def lista_demandas_exemplo():
     from model.demanda_model import Demanda
     demandas = []
     for i in range(1, 11):
-        demanda = Demanda(0, f"Contrato {i:02d}", datetime.now(), 1000.0 + (i * 100), f"Descrição do demanda {i:02d}")
+        demanda = Demanda(0, i, datetime.now())
         demandas.append(demanda)
     return demandas
+
+@pytest.fixture
+def chat_exemplo():
+    # Cria um chat de exemplo para os testes
+    from model.chat_model import Chat
+    chat = Chat(1, 2, datetime.now(), "Mensagem de teste", None)
+    return chat
+
+@pytest.fixture
+def fornecedor_produto_exemplo():
+    # Cria uma relação fornecedor-produto de exemplo para os testes
+    from model.fornecedor_produto_model import FornecedorProduto
+    fp = FornecedorProduto(1, 1, "Observações teste", 50.0)
+    return fp
+
+@pytest.fixture
+def prestador_servico_exemplo():
+    # Cria uma relação prestador-serviço de exemplo para os testes
+    from model.prestador_servico_model import PrestadorServico
+    ps = PrestadorServico(1, 1, "Observações teste", 100.0)
+    return ps
+
+@pytest.fixture
+def item_demanda_produto_exemplo():
+    # Cria um item demanda produto de exemplo para os testes
+    from model.item_demanda_produto_model import ItemDemandaProduto
+    item = ItemDemandaProduto(1, 1, 2, "Observações do item")
+    return item
+
+@pytest.fixture
+def item_demanda_servico_exemplo():
+    # Cria um item demanda serviço de exemplo para os testes
+    from model.item_demanda_servico_model import ItemDemandaServico
+    item = ItemDemandaServico(1, 1, 1, "Observações do serviço")
+    return item

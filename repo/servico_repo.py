@@ -9,8 +9,8 @@ def criar_tabela_servicos() -> bool:
         with obter_conexao() as conexao:
             # Cria cursor para executar comandos SQL
             cursor = conexao.cursor()
-            # Executa comando SQL para criar tabela de usuários
-            cursor.execute(criar_tabela_servicos)
+            # Executa comando SQL para criar tabela de serviços
+            cursor.execute(CRIAR_TABELA_SERVICO)
             # Retorna True indicando sucesso
             return True
     except Exception as e:
@@ -41,22 +41,13 @@ def atualizar_servico(servico: Servico) -> bool:
         # Retorna True se alguma linha foi afetada
         return (cursor.rowcount > 0)
     
-def atualizar_tipo_servico(id: int, tipo: int) -> bool:
-    # Obtém conexão com o banco de dados
-    with obter_conexao() as conexao:
-        # Cria cursor para executar comandos SQL
-        cursor = conexao.cursor()
-        # Executa comando SQL para atualizar tipo do usuário (0=comum, 1=admin)
-        cursor.execute(ATUALIZAR_TIPO_SERVICO, (tipo, id))
-        # Retorna True se alguma linha foi afetada
-        return (cursor.rowcount > 0)
 
 def excluir_servico(id: int) -> bool:
     # Obtém conexão com o banco de dados
     with obter_conexao() as conexao:
         # Cria cursor para executar comandos SQL
         cursor = conexao.cursor()
-        # Executa comando SQL para deletar usuário pelo ID
+        # Executa comando SQL para deletar serviço pelo ID
         cursor.execute(EXCLUIR_SERVICO, (id,))
         # Retorna True se alguma linha foi afetada
         return (cursor.rowcount > 0)    
@@ -82,10 +73,6 @@ def obter_servico_por_id(id: int) -> Optional[Servico]:
     # Retorna None se não encontrou serviço
     return None
 
-
-    # Retorna None se não encontrou usuário
-    return None
-
 def obter_servicos_por_pagina(numero_pagina: int, tamanho_pagina: int) -> list[Servico]:
     # Obtém conexão com o banco de dados
     with obter_conexao() as conexao:
@@ -96,7 +83,7 @@ def obter_servicos_por_pagina(numero_pagina: int, tamanho_pagina: int) -> list[S
         # Cria cursor para executar comandos SQL
         cursor = conexao.cursor()
         # Executa comando SQL para buscar serviços com paginação
-        cursor.execute(obter_servicos_por_pagina, (limite, offset))
+        cursor.execute(OBTER_SERVICOS_POR_PAGINA, (limite, offset))
         # Obtém todos os resultados da consulta
         resultados = cursor.fetchall()
         # Cria lista de objetos Servico a partir dos resultados
@@ -108,3 +95,24 @@ def obter_servicos_por_pagina(numero_pagina: int, tamanho_pagina: int) -> list[S
         ) for resultado in resultados]
     # Retorna lista vazia se não encontrou serviços
     return []
+
+def obter_servico_por_nome(nome: str) -> Optional[Servico]:
+    # Obtém conexão com o banco de dados
+    with obter_conexao() as conexao:
+        # Cria cursor para executar comandos SQL
+        cursor = conexao.cursor()
+        # Executa comando SQL para buscar serviço pelo nome
+        cursor.execute(OBTER_SERVICO_POR_NOME, (nome,))
+        # Obtém primeiro resultado da consulta
+        resultado = cursor.fetchone()
+        # Verifica se encontrou resultado
+        if resultado:
+            # Cria e retorna objeto Servico com dados do banco
+            return Servico(
+                id=resultado["id"],
+                nome=resultado["nome"],
+                preco=resultado["preco"],
+                descricao=resultado["descricao"]
+            )
+    # Retorna None se não encontrou serviço
+    return None

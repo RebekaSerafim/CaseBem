@@ -1,4 +1,5 @@
-from typing import Optional, List, Tuple
+from typing import Optional
+from repo import usuario_repo
 from util.database import obter_conexao
 from sql.casal_sql import *
 from model.casal_model import Casal
@@ -41,7 +42,9 @@ def obter_casal_por_id(id: int) -> Optional[Casal]:
                 id=resultado["id"],          
                 id_noivo1=resultado["id_noivo1"],
                 id_noivo2=resultado["id_noivo2"],
-                orcamento=resultado["orcamento"]
+                orcamento=resultado["orcamento"],
+                noivo1=usuario_repo.obter_usuario_por_id(resultado["id_noivo1"]),
+                noivo2=usuario_repo.obter_usuario_por_id(resultado["id_noivo2"])
             )
     return None
 
@@ -58,3 +61,17 @@ def obter_casais_por_pagina(numero_pagina: int, tamanho_pagina: int) -> list[Cas
             id_noivo2=resultado["id_noivo2"],
             orcamento=resultado["orcamento"]
         ) for resultado in resultados]
+
+def obter_casal_por_noivo(id_noivo: int) -> Optional[Casal]:
+    with obter_conexao() as conexao:
+        cursor = conexao.cursor()
+        cursor.execute(OBTER_CASAL_POR_NOIVO, (id_noivo, id_noivo))
+        resultado = cursor.fetchone()
+        if resultado:
+            return Casal(
+                id=resultado["id"],
+                id_noivo1=resultado["id_noivo1"],
+                id_noivo2=resultado["id_noivo2"],
+                orcamento=resultado["orcamento"]
+            )
+    return None
