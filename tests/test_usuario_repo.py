@@ -25,6 +25,21 @@ class TestUsuarioRepo:
         assert usuario_db.senha_hash == "123456", "A senha hash do usuário inserido não confere"
         assert usuario_db.tipo == "ADMIN", "O tipo do usuário inserido não confere"
 
+    def test_inserir_noivo(self, test_db, usuario_exemplo):
+        # Arrange
+        usuario_repo.criar_tabela_usuarios()
+        # Act
+        id_usuario_inserido = usuario_repo.inserir_usuario(usuario_exemplo)
+        # Assert
+        usuario_db = usuario_repo.obter_usuario_por_id(id_usuario_inserido)
+        assert usuario_db is not None, "O usuário inserido não deveria ser None"
+        assert usuario_db.id == 1, "O usuário inserido deveria ter um ID igual a 1"
+        assert usuario_db.nome == "Usuário Teste", "O nome do usuário inserido não confere"
+        assert usuario_db.telefone == "(28) 99999-0000", "O telefone do usuário inserido não confere"
+        assert usuario_db.email == "usuario@email.com", "O email do usuário inserido não confere"
+        assert usuario_db.senha_hash == "123456", "A senha hash do usuário inserido não confere"
+        assert usuario_db.tipo == "ADMIN", "O tipo do usuário inserido não confere"
+
     def test_obter_usuario_por_id_existente(self, test_db, usuario_exemplo):
         # Arrange
         usuario_repo.criar_tabela_usuarios()        
@@ -85,6 +100,7 @@ class TestUsuarioRepo:
         assert usuario_db.email == "usuario_atualizado@email.com", "O email do usuário atualizado não confere"
         assert usuario_db.senha_hash == "123456", "A senha hash do usuário atualizado não confere"
         assert usuario_db.tipo == "ADMIN", "O tipo do usuário atualizado não confere"
+        assert usuario_db.documento == "123.456.789-00", "O documento do usuário atualizado não confere"
 
     def test_atualizar_usuario_inexistente(self, test_db, usuario_exemplo):
         # Arrange
@@ -157,3 +173,5 @@ class TestUsuarioRepo:
         # Assert: verifica se retornou a quantidade correta (2 usuários na terceira página)
         assert len(pagina_usuarios) == 2, "Deveria retornar 2 usuários na terceira página"
         assert (isinstance(u, Usuario) for u in pagina_usuarios), "Todos os itens da página devem ser do tipo Usuario"
+
+    

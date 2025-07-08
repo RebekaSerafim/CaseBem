@@ -4,6 +4,8 @@ import os
 import sys
 import tempfile
 
+from model.usuario_model import Usuario
+
 # Adiciona o diretório raiz do projeto ao PYTHONPATH
 # Isso permite importar módulos do projeto nos testes
 project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -27,7 +29,7 @@ def test_db():
 def usuario_exemplo():
     # Cria um usuário de exemplo para os testes
     from model.usuario_model import Usuario
-    usuario = Usuario(0, "Usuário Teste", "(28) 99999-0000", "usuario@email.com", "123456", "ADMIN")
+    usuario = Usuario(0, "Usuário Teste", "(28) 99999-0000", "usuario@email.com", "123456", "ADMIN", "123.456.789-00")
     return usuario
 
 @pytest.fixture
@@ -42,12 +44,70 @@ def lista_usuarios_exemplo():
     return usuarios
 
 @pytest.fixture
+def noivo_exemplo():
+    # Cria um noivo de exemplo para os testes
+    from model.usuario_model import Usuario
+    noivo = Usuario(0, "Noivo Teste", "(28) 99999-0000", "noivo@email.com", "123456", "NOIVO", "123.456.789-00")
+    return noivo
+
+@pytest.fixture
 def lista_noivos_exemplo():
-    # Cria uma lista de 10 usuários de exemplo para os testes
+    # Cria uma lista de 10 noivos de exemplo para os testes
     from model.usuario_model import Usuario
     usuarios = []
     for i in range(1, 11):
-        usuario = Usuario(0, f"Usuário {i:02d}", f"(28) 99999-00{i:02d}", f"usuario{i:02d}@email.com", "123456", "NOIVO")
+        usuario = Usuario(0, f"Noivo {i:02d}", f"(28) 99999-00{i:02d}", f"usuario{i:02d}@email.com", "123456", "NOIVO", f"123.456.789-{i:02d}")
+        usuarios.append(usuario)
+    return usuarios
+
+@pytest.fixture
+def prestador_exemplo():
+    # Cria um prestador de exemplo para os testes
+    from model.usuario_model import Usuario
+    prestador = Usuario(0, "Prestador Teste", "(28) 99999-0000", "prestador@email.com", "123456", "PRESTADOR", "223.456.789-00")
+    return prestador
+
+@pytest.fixture
+def lista_prestadores_exemplo():
+    # Cria uma lista de 10 prestadores de exemplo para os testes
+    from model.usuario_model import Usuario
+    usuarios = []
+    for i in range(1, 11):
+        usuario = Usuario(0, f"Prestador {i:02d}", f"(28) 99999-00{i:02d}", f"usuario{i:02d}@email.com", "123456", "PRESTADOR", f"223.456.789-{i:02d}")
+        usuarios.append(usuario)
+    return usuarios
+
+@pytest.fixture
+def fornecedor_exemplo():
+    # Cria um fornecedor de exemplo para os testes
+    from model.usuario_model import Usuario
+    fornecedor = Usuario(0, "Fornecedor Teste", "(28) 99999-0000", "fornecedor@email.com", "123456", "FORNECEDOR", "323.456.789-00")
+    return fornecedor
+
+@pytest.fixture
+def lista_fornecedores_exemplo():
+    # Cria uma lista de 10 fornecedores de exemplo para os testes
+    from model.usuario_model import Usuario
+    usuarios = []
+    for i in range(1, 11):
+        usuario = Usuario(0, f"Fornecedor {i:02d}", f"(28) 99999-00{i:02d}", f"usuario{i:02d}@email.com", "123456", "FORNECEDOR", f"323.456.789-{i:02d}")
+        usuarios.append(usuario)
+    return usuarios
+
+@pytest.fixture
+def administrador_exemplo():
+    # Cria um administrador de exemplo para os testes
+    from model.usuario_model import Usuario
+    administrador = Usuario(0, "Administrador Teste", "(28) 99999-0000", "admin@email.com", "123456", "ADMIN", "423.456.789-00")
+    return administrador
+
+@pytest.fixture
+def lista_administradores_exemplo():
+    # Cria uma lista de 10 administradores de exemplo para os testes
+    from model.usuario_model import Usuario
+    usuarios = []
+    for i in range(1, 11):
+        usuario = Usuario(0, f"Administrador {i:02d}", f"(28) 99999-00{i:02d}", f"usuario{i:02d}@email.com", "123456", "ADMIN", f"423.456.789-{i:02d}")
         usuarios.append(usuario)
     return usuarios
 
@@ -55,7 +115,7 @@ def lista_noivos_exemplo():
 def casal_exemplo():
     # Cria um casal de exemplo para os testes    
     from model.casal_model import Casal
-    casal = Casal(1, 2, 10000.0)
+    casal = Casal(0, 1, 2, 10000.0)
     return casal
 
 @pytest.fixture
@@ -67,23 +127,6 @@ def lista_casais_exemplo():
         casal = Casal(i, i + 1, 10000.0 + (i * 100))
         casais.append(casal)
     return casais
-
-@pytest.fixture
-def prestador_exemplo():
-    # Cria um prestador de serviços de exemplo para os testes
-    from model.prestador_model import Prestador
-    prestador = Prestador(0, "Prestador Teste", "(28) 99999-0000", "prestador@email.com", "123456", "PRESTADOR", "FISICA", "123.456.789-00")
-    return prestador
-
-@pytest.fixture
-def lista_administradores_exemplo():
-    # Cria uma lista de 10 administradores de exemplo para os testes
-    from model.administrador_model import Administrador
-    administradores = []
-    for i in range(1, 11):
-        administrador = Administrador(0, "Administrador Teste", "(28) 99999-9999", "administrador@email.com", "654321", "ADMIN")
-        administradores.append(administrador)
-    return administradores
 
 @pytest.fixture
 def servicos_exemplo():
@@ -120,18 +163,18 @@ def lista_produtos_exemplo():
     return produtos    
 
 @pytest.fixture
-def contrato_exemplo():
-    # Cria um contrato de exemplo para os testes
-    from model.contrato_model import Contrato
-    contrato = Contrato(0, "Contrato Teste", datetime.now(), 1000.0, "Descrição do contrato teste")
-    return contrato
+def demanda_exemplo():
+    # Cria um demanda de exemplo para os testes
+    from model.demanda_model import Demanda
+    demanda = Demanda(0, "Contrato Teste", datetime.now(), 1000.0, "Descrição do demanda teste")
+    return demanda
 
 @pytest.fixture
-def lista_contratos_exemplo():
-    # Cria uma lista de 10 contratos de exemplo para os testes
-    from model.contrato_model import Contrato
-    contratos = []
+def lista_demandas_exemplo():
+    # Cria uma lista de 10 demandas de exemplo para os testes
+    from model.demanda_model import Demanda
+    demandas = []
     for i in range(1, 11):
-        contrato = Contrato(0, f"Contrato {i:02d}", datetime.now(), 1000.0 + (i * 100), f"Descrição do contrato {i:02d}")
-        contratos.append(contrato)
-    return contratos
+        demanda = Demanda(0, f"Contrato {i:02d}", datetime.now(), 1000.0 + (i * 100), f"Descrição do demanda {i:02d}")
+        demandas.append(demanda)
+    return demandas

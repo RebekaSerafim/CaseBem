@@ -5,6 +5,7 @@ from model.usuario_model import Usuario
 
 @dataclass
 class Casal:
+    id: int
     id_noivo1: int
     id_noivo2: int
     orcamento: float

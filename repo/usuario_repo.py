@@ -1,7 +1,7 @@
 from typing import Optional
 from util.database import obter_conexao
 from sql.usuario_sql import *
-from model.usuario_model import Usuario
+from model.usuario_model import TipoUsuario, Usuario
 
 def criar_tabela_usuarios() -> bool:
     try:
@@ -26,7 +26,7 @@ def inserir_usuario(usuario: Usuario) -> Optional[int]:
         cursor = conexao.cursor()
         # Executa comando SQL para inserir usuário com todos os campos
         cursor.execute(INSERIR_USUARIO, 
-            (usuario.nome, usuario.telefone, usuario.email, usuario.senha_hash, usuario.tipo))
+            (usuario.nome, usuario.telefone, usuario.email, usuario.senha_hash, usuario.tipo, usuario.documento))
         # Retorna o ID do usuário inserido
         return cursor.lastrowid        
 
@@ -37,7 +37,7 @@ def atualizar_usuario(usuario: Usuario) -> bool:
         cursor = conexao.cursor()
         # Executa comando SQL para atualizar dados do usuário pelo ID
         cursor.execute(ATUALIZAR_USUARIO, 
-            (usuario.nome, usuario.telefone, usuario.email, usuario.id))    
+            (usuario.nome, usuario.telefone, usuario.email, usuario.documento, usuario.id))    
         # Retorna True se alguma linha foi afetada
         return (cursor.rowcount > 0)
     
@@ -79,7 +79,8 @@ def obter_usuario_por_id(id: int) -> Optional[Usuario]:
                 telefone=resultado["telefone"],
                 email=resultado["email"],
                 senha_hash=resultado["senha_hash"],
-                tipo=resultado["tipo"])
+                tipo=resultado["tipo"],
+                documento=resultado["documento"])
     # Retorna None se não encontrou usuário
     return None
 
@@ -101,7 +102,8 @@ def obter_usuario_por_email(email: str) -> Optional[Usuario]:
                 telefone=resultado["telefone"],
                 email=resultado["email"],
                 senha_hash=resultado["senha_hash"],
-                tipo=resultado["tipo"])
+                tipo=resultado["tipo"], 
+                documento=resultado["documento"])
     # Retorna None se não encontrou usuário
     return None
 
@@ -125,7 +127,35 @@ def obter_usuarios_por_pagina(numero_pagina: int, tamanho_pagina: int) -> list[U
             telefone=resultado["telefone"],
             email=resultado["email"],
             senha_hash=resultado["senha_hash"],
-            tipo=resultado["tipo"]
+            tipo=resultado["tipo"],
+            documento=resultado["documento"]
+        ) for resultado in resultados]
+    # Retorna lista vazia se não encontrou usuários
+    return []
+
+
+def obter_usuarios_por_tipo_por_pagina(tipo: TipoUsuario, numero_pagina: int, tamanho_pagina: int) -> list[Usuario]:
+    # Obtém conexão com o banco de dados
+    with obter_conexao() as conexao:
+        # Define limite de registros por página
+        limite = tamanho_pagina
+        # Calcula offset baseado no número da página
+        offset = (numero_pagina - 1) * tamanho_pagina
+        # Cria cursor para executar comandos SQL
+        cursor = conexao.cursor()
+        # Executa comando SQL para buscar usuários com paginação
+        cursor.execute(OBTER_USUARIOS_POR_PAGINA, (tipo, limite, offset))
+        # Obtém todos os resultados da consulta
+        resultados = cursor.fetchall()
+        # Cria lista de objetos Usuario a partir dos resultados
+        return [Usuario(
+            id=resultado["id"],
+            nome=resultado["nome"],
+            telefone=resultado["telefone"],
+            email=resultado["email"],
+            senha_hash=resultado["senha_hash"],
+            tipo=resultado["tipo"],
+            documento=resultado["documento"]
         ) for resultado in resultados]
     # Retorna lista vazia se não encontrou usuários
     return []

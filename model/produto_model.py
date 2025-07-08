@@ -6,8 +6,7 @@ from typing import Optional
 class Produto:
     id: int
     nome: str
-    preco: float
-    quantidade: int
-    descricao: str    
+    preco: float    
+    descricao: str
     
     

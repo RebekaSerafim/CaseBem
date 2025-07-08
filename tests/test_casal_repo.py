@@ -5,18 +5,18 @@ class TestCasalRepo:
     def test_criar_tabela_casal(self, test_db):
         assert casal_repo.criar_tabela_casal() is True
 
-    def test_inserir_casal(self, test_db, lista_noivos_exemplo):
+    def test_inserir_casal(self, test_db, lista_noivos_exemplo, casal_exemplo):
         # Arrange
         usuario_repo.criar_tabela_usuarios()
         for noivo in lista_noivos_exemplo:
             usuario_repo.inserir_usuario(noivo)
-        novo_casal = Casal(1, 2, 10000.0)
+        novo_casal = Casal(0, 1, 2, 10000.0)
         casal_repo.criar_tabela_casal()
         # Act
-        ids_noivos = casal_repo.inserir_casal(novo_casal)        
+        id_casal = casal_repo.inserir_casal(novo_casal)        
         # Assert
-        assert ids_noivos is not None, "ID do casal inserido não pode ser None"
-        casal = casal_repo.obter_casal_por_ids(ids_noivos[0], ids_noivos[1])
+        assert id_casal is not None, "ID do casal inserido não pode ser None"
+        casal = casal_repo.obter_casal_por_id(id_casal)
         assert casal is not None, "Casal não encontrado após inserção"
         assert casal.id_noivo1 == 1
         assert casal.id_noivo2 == 2
@@ -26,7 +26,7 @@ class TestCasalRepo:
         # Arrange        
         casal_repo.criar_tabela_casal()
         # Act        
-        casal = casal_repo.obter_casal_por_ids(1, 2)
+        casal = casal_repo.obter_casal_por_id(1, 2)
         # Assert
         assert casal is None, "Não deveria encontrar casal com IDs inexistentes"
         
@@ -44,7 +44,7 @@ class TestCasalRepo:
         sucesso = casal_repo.atualizar_casal(casal_atualizado)
         # Assert
         assert sucesso is True, "Atualização do casal deveria ser bem-sucedida"
-        casal = casal_repo.obter_casal_por_ids(ids_noivos[0], ids_noivos[1])
+        casal = casal_repo.obter_casal_por_id(ids_noivos[0], ids_noivos[1])
         assert casal is not None, "Casal não encontrado após atualização"
         assert casal.orcamento == 15000.0, "Orçamento do casal não foi atualizado corretamente"
 
@@ -70,7 +70,7 @@ class TestCasalRepo:
         sucesso = casal_repo.excluir_casal(casal_atualizado)
         # Assert
         assert sucesso is True, "Atualização do casal deveria ser bem-sucedida"
-        casal_excluido = casal_repo.obter_casal_por_ids(ids_noivos[0], ids_noivos[1])
+        casal_excluido = casal_repo.obter_casal_por_id(ids_noivos[0], ids_noivos[1])
         assert casal_excluido is None, "Casal não foi excluído corretamente"
 
     def test_excluir_casal_inexistente(self, test_db):

@@ -13,31 +13,32 @@ def criar_tabela_casal() -> bool:
         print(f"Erro ao criar tabela de noivos: {e}")
         return False
 
-def inserir_casal(casal: Casal) -> Optional[Tuple[int, int]]:
+def inserir_casal(casal: Casal) -> Optional[int]:
     with obter_conexao() as conexao:
         cursor = conexao.cursor()
         cursor.execute(INSERIR_CASAL, (casal.id_noivo1, casal.id_noivo2, casal.orcamento))
-        return (casal.id_noivo1, casal.id_noivo2) if cursor.rowcount > 0 else None
+        return cursor.lastrowid
 
 def atualizar_casal(casal: Casal) -> bool:
     with obter_conexao() as conexao:
         cursor = conexao.cursor()
-        cursor.execute(ATUALIZAR_CASAL, (casal.orcamento, casal.id_noivo1, casal.id_noivo2))
+        cursor.execute(ATUALIZAR_CASAL, (casal.orcamento, casal.id))
         return (cursor.rowcount > 0)
 
-def excluir_casal(casal: Casal) -> bool:
+def excluir_casal(id: int) -> bool:
     with obter_conexao() as conexao:
         cursor = conexao.cursor()
-        cursor.execute(EXCLUIR_CASAL, (casal.id_noivo1, casal.id_noivo2))
+        cursor.execute(EXCLUIR_CASAL, (id,))
         return (cursor.rowcount > 0)
 
-def obter_casal_por_ids(id_noivo1: int, id_noivo2) -> Optional[Casal]:
+def obter_casal_por_id(id: int) -> Optional[Casal]:
     with obter_conexao() as conexao:
         cursor = conexao.cursor()
-        cursor.execute(OBTER_CASAL_POR_IDS, (id_noivo1, id_noivo2))
+        cursor.execute(OBTER_CASAL_POR_ID, (id,))
         resultado = cursor.fetchone()
         if resultado:
-            return Casal(                
+            return Casal(      
+                id=resultado["id"],          
                 id_noivo1=resultado["id_noivo1"],
                 id_noivo2=resultado["id_noivo2"],
                 orcamento=resultado["orcamento"]
@@ -52,6 +53,7 @@ def obter_casais_por_pagina(numero_pagina: int, tamanho_pagina: int) -> list[Cas
         cursor.execute(OBTER_CASAL_POR_PAGINA, (limite, offset))
         resultados = cursor.fetchall()
         return [Casal(
+            id=resultado["id"],
             id_noivo1=resultado["id_noivo1"],
             id_noivo2=resultado["id_noivo2"],
             orcamento=resultado["orcamento"]

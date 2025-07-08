@@ -5,24 +5,19 @@ CREATE TABLE IF NOT EXISTS Usuario (
     telefone TEXT NOT NULL UNIQUE,
     email TEXT NOT NULL UNIQUE,
     senha_hash TEXT NOT NULL,
-    tipo TEXT NOT NULL CHECK(tipo IN ('ADMIN', 'NOIVO', 'PRESTADOR', 'FORNECEDOR'))
+    tipo TEXT NOT NULL CHECK(tipo IN ('ADMIN', 'NOIVO', 'PRESTADOR', 'FORNECEDOR')),
+    documento TEXT
 );
 """
 
 INSERIR_USUARIO = """
-INSERT INTO Usuario (nome, telefone, email, senha_hash, tipo)
-VALUES (?, ?, ?, ?, ?);
+INSERT INTO Usuario (nome, telefone, email, senha_hash, tipo, documento)
+VALUES (?, ?, ?, ?, ?, ?);
 """
 
 ATUALIZAR_USUARIO = """
 UPDATE Usuario
-SET nome = ?, telefone = ?, email = ?
-WHERE id = ?;
-"""
-
-ATUALIZAR_TIPO_USUARIO = """
-UPDATE Usuario
-SET tipo = ?
+SET nome = ?, telefone = ?, email = ?, documento = ?
 WHERE id = ?;
 """
 
@@ -38,20 +33,28 @@ WHERE id = ?;
 """
 
 OBTER_USUARIO_POR_ID = """
-SELECT id, nome, telefone, email, senha_hash, tipo
+SELECT id, nome, telefone, email, senha_hash, tipo, documento
 FROM Usuario
 WHERE id = ?;
 """
 
 OBTER_USUARIO_POR_EMAIL = """
-SELECT id, nome, telefone, email, senha_hash, tipo
+SELECT id, nome, telefone, email, senha_hash, tipo, documento
 FROM Usuario
 WHERE email = ?;
 """
 
 OBTER_USUARIOS_POR_PAGINA = """
-SELECT id, nome, telefone, email, senha_hash, tipo
+SELECT id, nome, telefone, email, senha_hash, tipo, documento
 FROM Usuario
+ORDER BY nome ASC
+LIMIT ? OFFSET ?;
+"""
+
+OBTER_USUARIOS_POR_TIPO_POR_PAGINA = """
+SELECT id, nome, telefone, email, senha_hash, tipo, documento
+FROM Usuario
+WHERE tipo = ?
 ORDER BY nome ASC
 LIMIT ? OFFSET ?;
 """

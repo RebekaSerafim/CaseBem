@@ -1,7 +1,7 @@
 from typing import Optional
 from util.database import obter_conexao
 from sql.contrato_sql import *
-from model.contrato_model import Contrato
+from model.demanda_model import Demanda
 
 def criar_tabela_contratos() -> bool:
     try:
@@ -19,7 +19,7 @@ def criar_tabela_contratos() -> bool:
         # Retorna False indicando falha
         return False
 
-def inserir_contrato(contrato: Contrato) -> Optional[int]:
+def inserir_contrato(contrato: Demanda) -> Optional[int]:
     # Obtém conexão com o banco de dados
     with obter_conexao() as conexao:
         # Cria cursor para executar comandos SQL
@@ -30,7 +30,7 @@ def inserir_contrato(contrato: Contrato) -> Optional[int]:
         # Retorna o ID do contrato inserido
         return cursor.lastrowid
 
-def atualizar_contrato(contrato: Contrato) -> bool:
+def atualizar_contrato(contrato: Demanda) -> bool:
     # Obtém conexão com o banco de dados
     with obter_conexao() as conexao:
         # Cria cursor para executar comandos SQL
@@ -62,7 +62,7 @@ def excluir_contrato(id: int) -> bool:
         # Retorna True se alguma linha foi afetada
         return (cursor.rowcount > 0)    
 
-def obter_contrato_por_id(id: int) -> Optional[Contrato]:
+def obter_contrato_por_id(id: int) -> Optional[Demanda]:
     # Obtém conexão com o banco de dados
     with obter_conexao() as conexao:
         # Cria cursor para executar comandos SQL
@@ -74,7 +74,7 @@ def obter_contrato_por_id(id: int) -> Optional[Contrato]:
         # Verifica se encontrou resultado
         if resultado:
             # Cria e retorna objeto Contrato com dados do banco
-            return Contrato(
+            return Demanda(
                 id=resultado["id"],
                 valor=resultado["valor"]
     # Retorna None se não encontrou usuário
