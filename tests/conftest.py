@@ -64,7 +64,7 @@ def lista_noivos_exemplo():
 def prestador_exemplo():
     # Cria um prestador de exemplo para os testes
     from model.usuario_model import Usuario
-    prestador = Usuario(0, "Prestador Teste", "(28) 99999-0000", "prestador@email.com", "123456", "PRESTADOR", "223.456.789-00")
+    prestador = Usuario(0, "Prestador Teste", "(28) 99999-2000", "prestador@email.com", "123456", "PRESTADOR", "223.456.789-00")
     return prestador
 
 @pytest.fixture
@@ -73,7 +73,7 @@ def lista_prestadores_exemplo():
     from model.usuario_model import Usuario
     usuarios = []
     for i in range(1, 11):
-        usuario = Usuario(0, f"Prestador {i:02d}", f"(28) 99999-00{i:02d}", f"usuario{i:02d}@email.com", "123456", "PRESTADOR", f"223.456.789-{i:02d}")
+        usuario = Usuario(0, f"Prestador {i:02d}", f"(28) 99999-20{i:02d}", f"prestador{i:02d}@email.com", "123456", "PRESTADOR", f"223.456.789-{i:02d}")
         usuarios.append(usuario)
     return usuarios
 
@@ -81,7 +81,7 @@ def lista_prestadores_exemplo():
 def fornecedor_exemplo():
     # Cria um fornecedor de exemplo para os testes
     from model.usuario_model import Usuario
-    fornecedor = Usuario(0, "Fornecedor Teste", "(28) 99999-0000", "fornecedor@email.com", "123456", "FORNECEDOR", "323.456.789-00")
+    fornecedor = Usuario(0, "Fornecedor Teste", "(28) 99999-3000", "fornecedor@email.com", "123456", "FORNECEDOR", "323.456.789-00")
     return fornecedor
 
 @pytest.fixture
@@ -90,7 +90,7 @@ def lista_fornecedores_exemplo():
     from model.usuario_model import Usuario
     usuarios = []
     for i in range(1, 11):
-        usuario = Usuario(0, f"Fornecedor {i:02d}", f"(28) 99999-00{i:02d}", f"usuario{i:02d}@email.com", "123456", "FORNECEDOR", f"323.456.789-{i:02d}")
+        usuario = Usuario(0, f"Fornecedor {i:02d}", f"(28) 99999-30{i:02d}", f"fornecedor{i:02d}@email.com", "123456", "FORNECEDOR", f"323.456.789-{i:02d}")
         usuarios.append(usuario)
     return usuarios
 
@@ -98,7 +98,7 @@ def lista_fornecedores_exemplo():
 def administrador_exemplo():
     # Cria um administrador de exemplo para os testes
     from model.usuario_model import Usuario
-    administrador = Usuario(0, "Administrador Teste", "(28) 99999-0000", "admin@email.com", "123456", "ADMIN", "423.456.789-00")
+    administrador = Usuario(0, "Administrador Teste", "(28) 99999-4000", "admin@email.com", "123456", "ADMIN", "423.456.789-00")
     return administrador
 
 @pytest.fixture
@@ -107,7 +107,7 @@ def lista_administradores_exemplo():
     from model.usuario_model import Usuario
     usuarios = []
     for i in range(1, 11):
-        usuario = Usuario(0, f"Administrador {i:02d}", f"(28) 99999-00{i:02d}", f"usuario{i:02d}@email.com", "123456", "ADMIN", f"423.456.789-{i:02d}")
+        usuario = Usuario(0, f"Administrador {i:02d}", f"(28) 99999-40{i:02d}", f"admin{i:02d}@email.com", "123456", "ADMIN", f"423.456.789-{i:02d}")
         usuarios.append(usuario)
     return usuarios
 
@@ -212,4 +212,65 @@ def item_demanda_servico_exemplo():
     # Cria um item demanda serviço de exemplo para os testes
     from model.item_demanda_servico_model import ItemDemandaServico
     item = ItemDemandaServico(1, 1, 1, "Observações do serviço")
+    return item
+
+@pytest.fixture
+def orcamento_exemplo():
+    # Cria um orçamento de exemplo para os testes
+    from model.orcamento_model import Orcamento
+    orcamento = Orcamento(
+        id=0,
+        id_demanda=1,
+        id_fornecedor_prestador=1,
+        data_hora_cadastro=datetime.now(),
+        data_hora_validade=None,
+        status="PENDENTE",
+        observacoes="Orçamento de teste",
+        valor_total=1000.00
+    )
+    return orcamento
+
+@pytest.fixture
+def lista_orcamentos_exemplo():
+    # Cria uma lista de 10 orçamentos de exemplo para os testes
+    from model.orcamento_model import Orcamento
+    orcamentos = []
+    for i in range(1, 11):
+        orcamento = Orcamento(
+            id=0,
+            id_demanda=1,
+            id_fornecedor_prestador=i,
+            data_hora_cadastro=datetime.now(),
+            data_hora_validade=None,
+            status="PENDENTE",
+            observacoes=f"Orçamento {i:02d}",
+            valor_total=1000.00 * i
+        )
+        orcamentos.append(orcamento)
+    return orcamentos
+
+@pytest.fixture
+def item_orcamento_produto_exemplo():
+    # Cria um item orçamento produto de exemplo para os testes
+    from model.item_orcamento_produto_model import ItemOrcamentoProduto
+    item = ItemOrcamentoProduto(
+        id_orcamento=1,
+        id_produto=1,
+        preco_unitario=50.00,
+        quantidade=2,
+        observacoes="Item de produto de teste"
+    )
+    return item
+
+@pytest.fixture
+def item_orcamento_servico_exemplo():
+    # Cria um item orçamento serviço de exemplo para os testes
+    from model.item_orcamento_servico_model import ItemOrcamentoServico
+    item = ItemOrcamentoServico(
+        id_orcamento=1,
+        id_servico=1,
+        preco_unitario=200.00,
+        quantidade=1,
+        observacoes="Item de serviço de teste"
+    )
     return item
