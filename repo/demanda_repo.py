@@ -1,74 +1,74 @@
 from typing import Optional
 from util.database import obter_conexao
-from sql.contrato_sql import *
+from sql.demanda_sql import *
 from model.demanda_model import Demanda
 
-def criar_tabela_contratos() -> bool:
+def criar_tabela_demandas() -> bool:
     try:
         # Obtém conexão com o banco de dados
         with obter_conexao() as conexao:
             # Cria cursor para executar comandos SQL
             cursor = conexao.cursor()
-            # Executa comando SQL para criar tabela de contratos
-            cursor.execute(CRIAR_TABELA_CONTRATO)
+            # Executa comando SQL para criar tabela de demandas
+            cursor.execute(CRIAR_TABELA_DEMANDA)
             # Retorna True indicando sucesso
             return True
     except Exception as e:
         # Imprime mensagem de erro caso ocorra exceção
-        print(f"Erro ao criar tabela de contratos: {e}")
+        print(f"Erro ao criar tabela de demandas: {e}")
         # Retorna False indicando falha
         return False
 
-def inserir_contrato(contrato: Demanda) -> Optional[int]:
+def inserir_demanda(demanda: Demanda) -> Optional[int]:
     # Obtém conexão com o banco de dados
     with obter_conexao() as conexao:
         # Cria cursor para executar comandos SQL
         cursor = conexao.cursor()
-        # Executa comando SQL para inserir contrato com todos os campos
-        cursor.execute(INSERIR_CONTRATO, 
-            (contrato.valor,))
-        # Retorna o ID do contrato inserido
+        # Executa comando SQL para inserir demanda com todos os campos
+        cursor.execute(INSERIR_DEMANDA, 
+            (demanda.valor,))
+        # Retorna o ID do demanda inserido
         return cursor.lastrowid
 
-def atualizar_contrato(contrato: Demanda) -> bool:
+def atualizar_demanda(demanda: Demanda) -> bool:
     # Obtém conexão com o banco de dados
     with obter_conexao() as conexao:
         # Cria cursor para executar comandos SQL
         cursor = conexao.cursor()
-        # Executa comando SQL para atualizar dados do contrato pelo ID
-        cursor.execute(ATUALIZAR_CONTRATO, 
-            (contrato.valor, contrato.id))    
+        # Executa comando SQL para atualizar dados do demanda pelo ID
+        cursor.execute(ATUALIZAR_DEMANDA, 
+            (demanda.valor, demanda.id))    
         # Retorna True se alguma linha foi afetada
         return (cursor.rowcount > 0)
 
-def atualizar_tipo_contrato(id: int, tipo: int) -> bool:
+def atualizar_tipo_demanda(id: int, tipo: int) -> bool:
     # Obtém conexão com o banco de dados
     with obter_conexao() as conexao:
         # Cria cursor para executar comandos SQL
         cursor = conexao.cursor()
-        # Executa comando SQL para atualizar tipo do contrato (0=serviço, 1=produto)
-        cursor.execute(ATUALIZAR_TIPO_CONTRATO, (tipo, id))
+        # Executa comando SQL para atualizar tipo do demanda (0=serviço, 1=produto)
+        cursor.execute(ATUALIZAR_TIPO_DEMANDA, (tipo, id))
         # Retorna True se alguma linha foi afetada
         return (cursor.rowcount > 0)
 
 
-def excluir_contrato(id: int) -> bool:
+def excluir_demanda(id: int) -> bool:
     # Obtém conexão com o banco de dados
     with obter_conexao() as conexao:
         # Cria cursor para executar comandos SQL
         cursor = conexao.cursor()
-        # Executa comando SQL para deletar contrato pelo ID
-        cursor.execute(EXCLUIR_CONTRATO, (id,))
+        # Executa comando SQL para deletar demanda pelo ID
+        cursor.execute(EXCLUIR_DEMANDA, (id,))
         # Retorna True se alguma linha foi afetada
         return (cursor.rowcount > 0)    
 
-def obter_contrato_por_id(id: int) -> Optional[Demanda]:
+def obter_demanda_por_id(id: int) -> Optional[Demanda]:
     # Obtém conexão com o banco de dados
     with obter_conexao() as conexao:
         # Cria cursor para executar comandos SQL
         cursor = conexao.cursor()
-        # Executa comando SQL para buscar contrato pelo ID
-        cursor.execute(OBTER_CONTRATO_POR_ID, (id,))
+        # Executa comando SQL para buscar demanda pelo ID
+        cursor.execute(OBTER_DEMANDA_POR_ID, (id,))
         # Obtém primeiro resultado da consulta
         resultado = cursor.fetchone()
         # Verifica se encontrou resultado
@@ -76,7 +76,6 @@ def obter_contrato_por_id(id: int) -> Optional[Demanda]:
             # Cria e retorna objeto Contrato com dados do banco
             return Demanda(
                 id=resultado["id"],
-                valor=resultado["valor"]
+                valor=resultado["valor"])
     # Retorna None se não encontrou usuário
     return None
-            )

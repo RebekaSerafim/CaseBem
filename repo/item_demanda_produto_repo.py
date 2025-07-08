@@ -1,7 +1,7 @@
 from typing import Optional, List
 from util.database import obter_conexao
 from sql.item_contrato_produto_sql import *
-from model.item_contrato_produto_model import ItemContratoProduto
+from model.item_demanda_produto_model import ItemDemandaProduto
 
 def criar_tabela_item_contrato_produto() -> bool:
     try:
@@ -9,10 +9,10 @@ def criar_tabela_item_contrato_produto() -> bool:
             conexao.execute(CRIAR_TABELA_ITEM_CONTRATO_PRODUTO)
         return True
     except Exception as e:
-        print(f"Erro ao criar tabela ItemContratoProduto: {e}")
+        print(f"Erro ao criar tabela ItemDemandaProduto: {e}")
         return False
 
-def inserir_item_contrato_produto(item: ItemContratoProduto) -> Optional[int]:
+def inserir_item_contrato_produto(item: ItemDemandaProduto) -> Optional[int]:
     with obter_conexao() as conexao:
         cursor = conexao.execute(
             INSERIR_ITEM_CONTRATO_PRODUTO,
@@ -20,7 +20,7 @@ def inserir_item_contrato_produto(item: ItemContratoProduto) -> Optional[int]:
         )
         return cursor.lastrowid
 
-def atualizar_item_contrato_produto(item: ItemContratoProduto) -> bool:
+def atualizar_item_contrato_produto(item: ItemDemandaProduto) -> bool:
     with obter_conexao() as conexao:
         cursor = conexao.execute(
             ATUALIZAR_ITEM_CONTRATO_PRODUTO,
@@ -33,27 +33,27 @@ def excluir_item_contrato_produto(id_item: int) -> bool:
         cursor = conexao.execute(EXCLUIR_ITEM_CONTRATO_PRODUTO, (id_item,))
         return cursor.rowcount > 0
 
-def obter_item_contrato_produto_por_id(id_item: int) -> Optional[ItemContratoProduto]:
+def obter_item_contrato_produto_por_id(id_item: int) -> Optional[ItemDemandaProduto]:
     with obter_conexao() as conexao:
         cursor = conexao.execute(OBTER_ITEM_CONTRATO_PRODUTO_POR_ID, (id_item,))
         row = cursor.fetchone()
         if row:
-            return ItemContratoProduto(
-                id_item_contrato_produto=row["idItemContratoProduto"],
+            return ItemDemandaProduto(
+                id_item_contrato_produto=row["idItemDemandaProduto"],
                 valor=row["valor"],
                 quantidade=row["quantidade"],
                 id_produto=row["idProduto"]
             )
     return None
 
-def obter_itens_contrato_produto(pagina: int, tamanho: int) -> List[ItemContratoProduto]:
+def obter_itens_contrato_produto(pagina: int, tamanho: int) -> List[ItemDemandaProduto]:
     offset = (pagina - 1) * tamanho
     with obter_conexao() as conexao:
         cursor = conexao.execute(OBTER_ITENS_CONTRATO_PRODUTO, (tamanho, offset))
         rows = cursor.fetchall()
         return [
-            ItemContratoProduto(
-                id_item_contrato_produto=row["idItemContratoProduto"],
+            ItemDemandaProduto(
+                id_item_contrato_produto=row["idItemDemandaProduto"],
                 valor=row["valor"],
                 quantidade=row["quantidade"],
                 id_produto=row["idProduto"]

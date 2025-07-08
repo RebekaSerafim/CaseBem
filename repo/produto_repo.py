@@ -108,7 +108,7 @@ def obter_produtos_por_pagina(numero_pagina: int, tamanho_pagina: int) -> list[P
         # Obtém todos os resultados da consulta
         resultados = cursor.fetchall()
         # Cria lista de objetos Produto a partir dos resultados
-        return [Produtoo(
+        return [Produto(
             id=resultado["id"],
             nome=resultado["nome"],
             preco=resultado["preco"],
