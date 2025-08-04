@@ -10,7 +10,7 @@ templates = Jinja2Templates(directory="templates")
 
 @app.get("/")
 async def get_root():
-    response = templates.TemplateResponse("index.html", {"request": {}})
+    response = templates.TemplateResponse("home.html", {"request": {}})
     return response
 
 if __name__ == "__main__":
