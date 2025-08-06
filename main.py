@@ -13,7 +13,7 @@ async def get_root():
     response = templates.TemplateResponse("home.html", {"request": {}})
     return response
 
-@app.get("/")
+@app.get("/produtoseservicos")
 async def get_root():
     response = templates.TemplateResponse("produtoseservicos.html", {"request": {}})
     return response
