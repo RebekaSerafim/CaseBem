@@ -1,6 +1,9 @@
 {% extends "base.html" %}
 {% block conteudo %}
 <body>
+
+    <!-- DROPDOWN -->
+
     <div class="dropdown text-center">
         <button
             type="button"
@@ -12,7 +15,7 @@
         </button>
         <ul class="dropdown-menu">
             <li>
-                <a class="dropdown-item" href="produtoseservicos_vestidos.html">Vestidos</a>
+                <a class="dropdown-item" href="/templates/produtoseservicos/vestidos/cards_vestidos.html">Vestidos</a>
             </li>
             <li>
                 <a class="dropdown-item" href="produtoseservicos_bolos.html">Bolos</a>
@@ -52,6 +55,10 @@
             </li>
         </ul>
     </div>
+    
+
+<!-- VESTIDOS -->
+
     <section class="container-fluid py-5">
         <div class="row align-items-center">
             <div class="col-md-6 text-center text-md-start px-5">
@@ -80,7 +87,7 @@
                         </h6>
                         <p class="preco">R$ 44.800,00</p>
                         <p class="parcelado">Ou em até 10x de R$ 4.480,00</p>
-                        <a href="#" class="btn btn-outline-dark btn-sm mt-2">Ver Detalhes</a>
+                        <a href="/templates/produtoseservicos/vestidos/card_vestido1.html" class="btn btn-outline-dark btn-sm mt-2">Ver Detalhes</a>
                     </div>
                 </div>
             </div>
