@@ -1,0 +1,112 @@
+{% extends "base.html" %}
+{% block conteudo %}
+
+<body>
+
+    <!-- Menu Flutuante -->
+
+    <nav class="menu-topo shadow-sm">
+        <div class="container-fluid d-flex align-items-center">
+            <span class="menu-title fw-bold">Encontre o que você precisa</span>
+            <ul class="nav ms-4">
+                <li class="nav-item"><a href="#" class="nav-link">Acessórios</a></li>
+                <li class="nav-item"><a href="#" class="nav-link">Alianças</a></li>
+                <li class="nav-item"><a href="#" class="nav-link">Bolos</a></li>
+                <li class="nav-item"><a href="#" class="nav-link">Bridal Day</a></li>
+                <li class="nav-item"><a href="#" class="nav-link">Buffet</a></li>
+                <li class="nav-item"><a href="#" class="nav-link">Cenografia e Sonoplastia</a></li>
+                <li class="nav-item"><a href="#" class="nav-link">Convites</a></li>
+                <li class="nav-item"><a href="#" class="nav-link">Floristas</a></li>
+                <li class="nav-item"><a href="#" class="nav-link">Fotógrafos</a></li>
+                <li class="nav-item"><a href="#" class="nav-link">Lembranças</a></li>
+                <li class="nav-item"><a href="#" class="nav-link">Locais</a></li>
+                <li class="nav-item"><a href="#" class="nav-link">Ternos</a></li>
+                <li class="nav-item"><a href="#" class="nav-link active">Vestidos</a></li>
+            </ul>
+        </div>
+    </nav>
+
+
+    <!-- VESTIDOS -->
+
+    <section class="container-fluid py-5">
+        <div class="row align-items-center">
+            <div class="col-md-6 text-center text-md-start px-5">
+                <h2 class="titulo">Vestidos</h2>
+                <p class="descricao">
+                    Lorem ipsum dolor, sit amet consectetur adipisicing elit. Perferendis sapiente earum, ea, dolorem
+                    veritatis
+                    laboriosam labore, laborum aspernatur fuga at ut? Sunt odio aut pariatur optio ut? Officia esse
+                    incidunt
+                    tempora ex iusto sunt illum nulla. Aliquam mollitia iste, quos laborum vitae pariatur nemo impedit
+                    possimus
+                    eos! Perspiciatis, alias dolores.
+                </p>
+            </div>
+            <div class="col-md-6 text-center">
+                <img src="/static/img/img_produtoseservicos/produtoseserviços_fotoprincipal_vestido.jpg" alt=""
+                    class="img-fluid rounded">
+            </div>
+        </div>
+    </section>
+    <section class="container my-5">
+        <div class="row text-center">
+            <h3 class="mb-4">Coleção</h3>
+            <div class="col-md-3 mb-4">
+                <div class="card h-100 produto-hover">
+                    <img src="/static/img/img_produtoseservicos/card_vestido1.jpg" class="card-img-top" alt="">
+                    <div class="card-body">
+                        <h6 class="card-title">
+                            Lorem ipsum dolor sit amet consectetur adipisicing elit. Ut, facilis.
+                        </h6>
+                        <p class="preco">R$ 44.800,00</p>
+                        <p class="parcelado">Ou em até 10x de R$ 4.480,00</p>
+                        <a href="/templates/produtoseservicos/vestidos/card_vestido1.html"
+                            class="btn btn-outline-dark btn-sm mt-2">Ver Detalhes</a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 mb-4">
+                <div class="card h-100 produto-hover">
+                    <img src="/static/img/img_produtoseservicos/card_vestido2.jpg" class="card-img-top"
+                        alt="Anel Ouro Amarelo">
+                    <div class="card-body">
+                        <h6 class="card-title">
+                            Lorem ipsum dolor sit, amet consectetur adipisicing elit. Illum, quia?
+                        </h6>
+                        <p class="preco">R$ 44.800,00</p>
+                        <p class="parcelado">Ou em até 10x de R$ 4.480,00</p>
+                        <a href="#" class="btn btn-outline-dark btn-sm mt-2">Ver Detalhes</a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 mb-4">
+                <div class="card h-100 produto-hover">
+                    <img src="/static/img/img_produtoseservicos/card_vestido3.jpg" class="card-img-top"
+                        alt="Anel Ouro Amarelo">
+                    <div class="card-body">
+                        <h6 class="card-title">
+                            Lorem ipsum dolor sit amet, consectetur adipisicing elit. Debitis, ad.
+                        </h6>
+                        <p class="preco">R$ 44.800,00</p>
+                        <p class="parcelado">Ou em até 10x de R$ 4.480,00</p>
+                        <a href="#" class="btn btn-outline-dark btn-sm mt-2">Ver Detalhes</a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 mb-4">
+                <div class="card h-100 produto-hover">
+                    <img src="/static/img/img_produtoseservicos/card_vestido4.jpg" class="card-img-top"
+                        alt="Anel Ouro Amarelo">
+                    <div class="card-body">
+                        <h6 class="card-title">
+                            Lorem ipsum dolor sit amet consectetur adipisicing elit. A, illum.
+                        </h6>
+                        <p class="preco">R$ 44.800,00</p>
+                        <p class="parcelado">Ou em até 10x de R$ 4.480,00</p>
+                        <a href="#" class="btn btn-outline-dark btn-sm mt-2">Ver Detalhes</a>
+                    </div>
+                </div>
+            </div>
+    </section>
+    {% endblock conteudo %}
