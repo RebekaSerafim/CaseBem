@@ -1,0 +1,91 @@
+{% extends "base.html" %}
+{% block conteudo %}
+
+<div class="container-fluid bg-light min-vh-100">
+        <div class="row h-100">
+            <!-- Seção da Imagem -->
+            <div class="col-lg-6 d-flex align-items-center justify-content-center p-5">
+                <div class="product-image-container">
+                    <img src="https://via.placeholder.com/500x400/f5f5f5/333333?text=Dior+Bag" 
+                         alt="Minibolsa 30 Montaigne Diorling" 
+                         class="img-fluid product-image">
+                </div>
+            </div>
+
+            <!-- Seção das Informações do Produto -->
+            <div class="col-lg-6 d-flex align-items-center">
+                <div class="product-info w-100 p-5">
+                    <!-- Título e Marca -->
+                    <div class="mb-4">
+                        <h1 class="product-title mb-2">Minibolsa 30 Montaigne Diorling com alça de corrente</h1>
+                        <p class="product-brand text-muted mb-1">Jacquard Dior Oblique azul</p>
+                        <p class="product-reference text-muted small">Referência: S4509UTZO_M928</p>
+                    </div>
+
+                    <!-- Disponibilidade -->
+                    <div class="availability-section mb-4">
+                        <div class="availability-box p-3 rounded">
+                            <p class="mb-0 text-center">Disponibilidade na(s) boutique(s)</p>
+                        </div>
+                    </div>
+
+                    <!-- Botão de Contato -->
+                    <div class="contact-section mb-4">
+                        <button class="btn btn-contact w-100 py-3">Contato</button>
+                    </div>
+
+                    <!-- Abas de Informações -->
+                    <div class="product-tabs">
+                        <ul class="nav nav-tabs border-0" id="productTabs" role="tablist">
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link active custom-tab" id="description-tab" data-bs-toggle="tab" 
+                                        data-bs-target="#description" type="button" role="tab">
+                                    Descrição
+                                </button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link custom-tab" id="size-tab" data-bs-toggle="tab" 
+                                        data-bs-target="#size" type="button" role="tab">
+                                    Tamanho e corte
+                                </button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link custom-tab" id="contact-info-tab" data-bs-toggle="tab" 
+                                        data-bs-target="#contact-info" type="button" role="tab">
+                                    Contato e disponibilidade na loja
+                                </button>
+                            </li>
+                        </ul>
+                        
+                        <div class="tab-content mt-3" id="productTabsContent">
+                            <div class="tab-pane fade show active" id="description" role="tabpanel">
+                                <p class="tab-text">
+                                    Novidade da coleção Inverno 2025, a minibolsa 30 Montaigne Diorling apresenta um design moderno e 
+                                    prático. Confeccionada em jacquard Dior Oblique azul, a peça é valorizada por uma inscrição CD de metal 
+                                    com acabamento dourado na frente e exibe um compartimento com zíper para guardar todos os itens...
+                                </p>
+                            </div>
+                            <div class="tab-pane fade" id="size" role="tabpanel">
+                                <p class="tab-text">
+                                    Informações sobre tamanho e corte da minibolsa 30 Montaigne Diorling.
+                                </p>
+                            </div>
+                            <div class="tab-pane fade" id="contact-info" role="tabpanel">
+                                <p class="tab-text">
+                                    Informações de contato e disponibilidade nas boutiques Dior.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</body>
+</html>
+
+
+
+
+{% endblock conteudo %}

@@ -174,3 +174,217 @@ body {
     font-weight: bold;
     color: #000;
 }
+
+/*vermais vestido */
+
+/* Reset e configurações gerais */
+* {
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #f8f9fa;
+    color: #333;
+    line-height: 1.6;
+}
+
+/* Container principal */
+.container-fluid {
+    padding: 0;
+}
+
+/* Seção da imagem do produto */
+.product-image-container {
+    max-width: 500px;
+    width: 100%;
+}
+
+.product-image {
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease;
+}
+
+.product-image:hover {
+    transform: scale(1.02);
+}
+
+/* Seção de informações do produto */
+.product-info {
+    max-width: 600px;
+}
+
+/* Título do produto */
+.product-title {
+    font-size: 2rem;
+    font-weight: 400;
+    color: #2c3e50;
+    margin-bottom: 0.5rem;
+    line-height: 1.3;
+}
+
+/* Marca e referência */
+.product-brand {
+    font-size: 1.1rem;
+    color: #6c757d;
+    margin-bottom: 0.25rem;
+}
+
+.product-reference {
+    font-size: 0.9rem;
+    color: #adb5bd;
+    margin-bottom: 1.5rem;
+}
+
+/* Seção de disponibilidade */
+.availability-section {
+    margin-bottom: 2rem;
+}
+
+.availability-box {
+    background-color: #ffffff;
+    border: 1px solid #e9ecef;
+    border-radius: 6px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.availability-box p {
+    color: #6c757d;
+    font-size: 0.95rem;
+    margin: 0;
+}
+
+/* Botão de contato */
+.btn-contact {
+    background-color: #495057;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-size: 1.1rem;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.btn-contact:hover {
+    background-color: #343a40;
+    color: white;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.btn-contact:focus {
+    box-shadow: 0 0 0 3px rgba(73, 80, 87, 0.25);
+}
+
+/* Abas personalizadas */
+.nav-tabs {
+    border-bottom: 1px solid #dee2e6;
+    margin-bottom: 1rem;
+}
+
+.custom-tab {
+    border: none;
+    background: none;
+    color: #6c757d;
+    font-size: 0.95rem;
+    padding: 0.75rem 1rem;
+    margin-right: 2rem;
+    border-bottom: 2px solid transparent;
+    transition: all 0.3s ease;
+}
+
+.custom-tab:hover {
+    color: #495057;
+    border-bottom-color: #dee2e6;
+}
+
+.custom-tab.active {
+    color: #495057;
+    border-bottom-color: #495057;
+    font-weight: 500;
+}
+
+.custom-tab:focus {
+    box-shadow: none;
+}
+
+/* Conteúdo das abas */
+.tab-content {
+    padding-top: 1rem;
+}
+
+.tab-text {
+    color: #6c757d;
+    font-size: 0.95rem;
+    line-height: 1.6;
+    margin: 0;
+}
+
+/* Responsividade */
+@media (max-width: 991.98px) {
+    .product-title {
+        font-size: 1.75rem;
+    }
+    
+    .product-info {
+        padding: 2rem !important;
+    }
+    
+    .custom-tab {
+        margin-right: 1rem;
+        font-size: 0.9rem;
+    }
+}
+
+@media (max-width: 767.98px) {
+    .product-title {
+        font-size: 1.5rem;
+    }
+    
+    .product-info {
+        padding: 1.5rem !important;
+    }
+    
+    .custom-tab {
+        margin-right: 0.5rem;
+        padding: 0.5rem 0.75rem;
+        font-size: 0.85rem;
+    }
+    
+    .btn-contact {
+        font-size: 1rem;
+    }
+}
+
+/* Animações suaves */
+.product-info > * {
+    animation: fadeInUp 0.6s ease-out;
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Melhorias de acessibilidade */
+.btn-contact:focus,
+.custom-tab:focus {
+    outline: 2px solid #495057;
+    outline-offset: 2px;
+}
+
+/* Hover states para melhor UX */
+.availability-box:hover {
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    transition: box-shadow 0.3s ease;
+}
