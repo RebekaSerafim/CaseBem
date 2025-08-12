@@ -18,6 +18,12 @@ async def get_root():
     response = templates.TemplateResponse("produtoseservicos.html", {"request": {}})
     return response
 
+@app.get("/vestidos")
+async def get_root():
+    response = templates.TemplateResponse("/templates/produtoseservicos_vestidos.html", {"request": {}})
+    return response
+
+
 
 
 if __name__ == "__main__":
