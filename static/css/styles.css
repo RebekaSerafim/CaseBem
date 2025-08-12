@@ -148,32 +148,29 @@ body {
     z-index: 2;
 }
 
-.floating-menu {
-    position: fixed;
-    top: 50%;
-    left: 10px;
-    transform: translateY(-50%);
-    background: rgba(255, 255, 255, 0.95);
-    border-radius: 12px;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+/*menu */
+
+.menu-topo {
+    position: sticky;
+    top: 0;
+    background-color: #fff;
     z-index: 1000;
-    padding: 10px 0;
+    padding: 0.5rem 1rem;
 }
 
-.floating-menu .nav-link {
-    color: #6c757d;
+.menu-title {
+    font-size: 1rem;
+    text-transform: uppercase;
+}
+
+.menu-topo .nav-link {
+    color: #000;
     font-size: 0.9rem;
-    padding: 10px;
-    transition: all 0.3s ease;
+    padding: 0.5rem 0.75rem;
 }
 
-.floating-menu .nav-link i {
-    font-size: 1.4rem;
-    margin-bottom: 5px;
-}
-
-.floating-menu .nav-link:hover {
-    background-color: #f8f9fa;
-    color: #d87093;
-    border-radius: 8px;
+.menu-topo .nav-link.active,
+.menu-topo .nav-link:hover {
+    font-weight: bold;
+    color: #000;
 }
