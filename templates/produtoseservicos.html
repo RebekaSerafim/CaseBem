@@ -1,77 +1,63 @@
 {% extends "base.html" %}
 {% block conteudo %}
+
 <body>
 
-    <!-- DROPDOWN -->
+    <!-- Menu Flutuante -->
 
-    <div class="dropdown text-center">
-        <button
-            type="button"
-            class="btn btn-light dropdown-toggle"
-            data-bs-toggle="dropdown"
-            aria-expanded="false"
-        >
-            Ver Mais
-        </button>
-        <ul class="dropdown-menu">
-            <li>
-                <a class="dropdown-item" href="/templates/produtoseservicos/vestidos/cards_vestidos.html">Vestidos</a>
+    <div class="floating-menu">
+        <ul class="nav flex-column text-center">
+            <li class="nav-item">
+                <a class="nav-link" href="#">
+                    <i class="bi bi-house"></i><br>
+                    Início
+                </a>
             </li>
-            <li>
-                <a class="dropdown-item" href="produtoseservicos_bolos.html">Bolos</a>
+            <li class="nav-item">
+                <a class="nav-link" href="#">
+                    <i class="bi bi-heart"></i><br>
+                    Vestidos
+                </a>
             </li>
-            <li>
-                <a class="dropdown-item" href="produtoseservicos_ternos.html">Ternos</a>
+            <li class="nav-item">
+                <a class="nav-link" href="#">
+                    <i class="bi bi-geo-alt"></i><br>
+                    Locais
+                </a>
             </li>
-            <li>
-                <a class="dropdown-item" href="produtoseservicos_locais.html">Locais</a>
-            </li>
-            <li>
-                <a class="dropdown-item" href="produtoseservicos_fotografos.html">Fotógrafos</a>
-            </li>
-            <li>
-                <a class="dropdown-item" href="produtoseservicos_bridalday.html">Bridal Day</a>
-            </li>
-            <li>
-                <a class="dropdown-item" href="produtoseservicos_acessorios.html">Acessórios</a>
-            </li>
-            <li>
-                <a class="dropdown-item" href="produtoseservicos_cenografia.html">Cenografia e Sonoplastia</a>
-            </li>
-            <li>
-                <a class="dropdown-item" href="produtoseservicos_florista.html">Florista</a>
-            </li>
-            <li>
-                <a class="dropdown-item" href="produtoseservicos_buffet.html">Buffet</a>
-            </li>
-            <li>
-                <a class="dropdown-item" href="produtoseservicos_alianca.html">Aliança</a>
-            </li>
-            <li>
-                <a class="dropdown-item" href="produtoseservicos_convite.html">Convite</a>
-            </li>
-            <li>
-                <a class="dropdown-item" href="produtoseservicos_lembrancinhas.html">Lembrancinhas</a>
+            <li class="nav-item">
+                <a class="nav-link" href="#">
+                    <i class="bi bi-bag"></i><br>
+                    Serviços
+                </a>
             </li>
         </ul>
     </div>
-    
 
-<!-- VESTIDOS -->
+    <div class="container mt-5">
+        <h1 class="text-center">Conteúdo da Página</h1>
+        <p class="text-center">Role para ver o menu sempre fixo.</p>
+    </div>
+
+    <!-- VESTIDOS -->
 
     <section class="container-fluid py-5">
         <div class="row align-items-center">
             <div class="col-md-6 text-center text-md-start px-5">
                 <h2 class="titulo">Vestidos</h2>
                 <p class="descricao">
-                    Lorem ipsum dolor, sit amet consectetur adipisicing elit. Perferendis sapiente earum, ea, dolorem veritatis
-          laboriosam labore, laborum aspernatur fuga at ut? Sunt odio aut pariatur optio ut? Officia esse incidunt
-          tempora ex iusto sunt illum nulla. Aliquam mollitia iste, quos laborum vitae pariatur nemo impedit possimus
-          eos! Perspiciatis, alias dolores.
+                    Lorem ipsum dolor, sit amet consectetur adipisicing elit. Perferendis sapiente earum, ea, dolorem
+                    veritatis
+                    laboriosam labore, laborum aspernatur fuga at ut? Sunt odio aut pariatur optio ut? Officia esse
+                    incidunt
+                    tempora ex iusto sunt illum nulla. Aliquam mollitia iste, quos laborum vitae pariatur nemo impedit
+                    possimus
+                    eos! Perspiciatis, alias dolores.
                 </p>
             </div>
             <div class="col-md-6 text-center">
-                <img src="/static/img/img_produtoseservicos/produtoseserviços_fotoprincipal_vestido.jpg" alt="" class="img-fluid rounded">
+                <img src="/static/img/img_produtoseservicos/produtoseserviços_fotoprincipal_vestido.jpg" alt=""
+                    class="img-fluid rounded">
             </div>
         </div>
     </section>
@@ -87,13 +73,15 @@
                         </h6>
                         <p class="preco">R$ 44.800,00</p>
                         <p class="parcelado">Ou em até 10x de R$ 4.480,00</p>
-                        <a href="/templates/produtoseservicos/vestidos/card_vestido1.html" class="btn btn-outline-dark btn-sm mt-2">Ver Detalhes</a>
+                        <a href="/templates/produtoseservicos/vestidos/card_vestido1.html"
+                            class="btn btn-outline-dark btn-sm mt-2">Ver Detalhes</a>
                     </div>
                 </div>
             </div>
             <div class="col-md-3 mb-4">
                 <div class="card h-100 produto-hover">
-                    <img src="/static/img/img_produtoseservicos/card_vestido2.jpg" class="card-img-top" alt="Anel Ouro Amarelo">
+                    <img src="/static/img/img_produtoseservicos/card_vestido2.jpg" class="card-img-top"
+                        alt="Anel Ouro Amarelo">
                     <div class="card-body">
                         <h6 class="card-title">
                             Lorem ipsum dolor sit, amet consectetur adipisicing elit. Illum, quia?
@@ -106,7 +94,8 @@
             </div>
             <div class="col-md-3 mb-4">
                 <div class="card h-100 produto-hover">
-                    <img src="/static/img/img_produtoseservicos/card_vestido3.jpg" class="card-img-top" alt="Anel Ouro Amarelo">
+                    <img src="/static/img/img_produtoseservicos/card_vestido3.jpg" class="card-img-top"
+                        alt="Anel Ouro Amarelo">
                     <div class="card-body">
                         <h6 class="card-title">
                             Lorem ipsum dolor sit amet, consectetur adipisicing elit. Debitis, ad.
@@ -119,7 +108,8 @@
             </div>
             <div class="col-md-3 mb-4">
                 <div class="card h-100 produto-hover">
-                    <img src="/static/img/img_produtoseservicos/card_vestido4.jpg" class="card-img-top" alt="Anel Ouro Amarelo">
+                    <img src="/static/img/img_produtoseservicos/card_vestido4.jpg" class="card-img-top"
+                        alt="Anel Ouro Amarelo">
                     <div class="card-body">
                         <h6 class="card-title">
                             Lorem ipsum dolor sit amet consectetur adipisicing elit. A, illum.
@@ -131,5 +121,5 @@
                 </div>
             </div>
             <button type="button" class="btn btn-light">Ver Mais</button>
-        </section>
-        {% endblock conteudo %}
+    </section>
+    {% endblock conteudo %}

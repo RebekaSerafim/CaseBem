@@ -116,35 +116,64 @@ body {
 
 body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  }
-  
+}
+
 .titulo {
     font-size: 2.5rem;
     font-weight: 600;
 }
-  
+
 .descricao {
     font-size: 1.1rem;
     color: #444;
-  }
-  
+}
+
 .preco {
     font-weight: bold;
     color: #111;
 }
-  
+
 .parcelado {
     font-size: 0.9rem;
     color: #777;
 }
-  
+
 .produto-hover {
     transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
-  
+
 .produto-hover:hover {
     transform: scale(1.05);
     box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
     z-index: 2;
 }
-  
+
+.floating-menu {
+    position: fixed;
+    top: 50%;
+    left: 10px;
+    transform: translateY(-50%);
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 12px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    z-index: 1000;
+    padding: 10px 0;
+}
+
+.floating-menu .nav-link {
+    color: #6c757d;
+    font-size: 0.9rem;
+    padding: 10px;
+    transition: all 0.3s ease;
+}
+
+.floating-menu .nav-link i {
+    font-size: 1.4rem;
+    margin-bottom: 5px;
+}
+
+.floating-menu .nav-link:hover {
+    background-color: #f8f9fa;
+    color: #d87093;
+    border-radius: 8px;
+}
