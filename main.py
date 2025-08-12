@@ -19,10 +19,6 @@ async def get_root():
     return response
 
 
-@app.get("/produtoseservicos_vestidos")
-async def get_root():
-    response = templates.TemplateResponse("cards_vestidos.html", {"request": {}})
-    return response
 
 if __name__ == "__main__":
     uvicorn.run(app="main:app", host="127.0.0.1", port=8000, reload=True)
