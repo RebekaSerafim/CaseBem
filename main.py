@@ -18,9 +18,9 @@ async def get_root():
     response = templates.TemplateResponse("produtoseservicos.html", {"request": {}})
     return response
 
-@app.get("/vestidos")
+@app.get("produtoseservicos_vestidos")
 async def get_root():
-    response = templates.TemplateResponse("/templates/produtoseservicos_vestidos.html", {"request": {}})
+    response = templates.TemplateResponse("produtoseservicos_vestidos.html", {"request": {}})
     return response
 
 
