@@ -146,3 +146,5 @@ CaseBem/
 3. **Demandas** são criadas pelos casais com itens desejados
 4. **Fornecedores/Prestadores** enviam orçamentos para as demandas
 5. **Casais** podem aceitar orçamentos (rejeitando automaticamente os demais)
+
+Modificado
