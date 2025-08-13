@@ -28,10 +28,13 @@ async def get_root():
     response = templates.TemplateResponse("produtoseservicos/produtoseservicos_vestidos/card_vestido1.html", {"request": {}})
     return response
 
-@app.get("/card_vestido2")
+@app.get("/contato_vestido1")
 async def get_root():
-    response = templates.TemplateResponse("produtoseservicos/produtoseservicos_vestidos/card_vestido2.html", {"request": {}})
+    response = templates.TemplateResponse("produtoseservicos/produtoseservicos_vestidos/contato_vestido1.html", {"request": {}})
     return response
+
+
+
 
 if __name__ == "__main__":
     uvicorn.run(app="main:app", host="127.0.0.1", port=8000, reload=True)
