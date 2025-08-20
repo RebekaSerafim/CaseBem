@@ -8,6 +8,15 @@ body {
     background-color: #fefefe;
 }
 
+.cor_texto_rosa_empoeirado {
+    color: #f8b4c2 !important;
+}
+
+.cor_fundo_rosa_empoeirado {
+    background-color: #f8b4c2 !important;
+}
+
+
 .navbar-custom {
     background-color: #f8f4f2;
     box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
