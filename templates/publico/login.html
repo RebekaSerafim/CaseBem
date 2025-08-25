@@ -17,6 +17,11 @@
       text-align: center;
       color: white;
     }
+    .wrapper {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
     .container-login {
       background: white;
       border-radius: 15px;
@@ -44,53 +49,57 @@
 </head>
 <body>
 
-<div class="text-center mb-4">
-  <h2><strong>Bem-vindo de volta!</strong></h2>
-  <p>Acesse sua conta para continuar</p>
-</div>
+<div class="wrapper">
+  <!-- Mensagem em cima -->
+  <div class="text-center mb-4">
+    <h2><strong>Bem-vindo de volta!</strong></h2>
+    <p>Acesse sua conta para continuar</p>
+  </div>
 
-<div class="container-login">
-  <h4 class="mb-3"><i class="fas fa-sign-in-alt"></i> Entrar</h4>
-  <p class="text-muted">Digite suas credenciais para acessar</p>
+  <!-- Quadrado do login -->
+  <div class="container-login">
+    <h4 class="mb-3"><i class="fas fa-sign-in-alt"></i> Entrar</h4>
+    <p class="text-muted">Digite suas credenciais para acessar</p>
 
-  <form id="formLogin">
-    <div class="mb-3 text-start">
-      <label class="form-label">Email</label>
-      <input type="email" class="form-control" required>
-    </div>
+    <form id="formLogin">
+      <div class="mb-3 text-start">
+        <label class="form-label">Email</label>
+        <input type="email" class="form-control" required>
+      </div>
 
-    <div class="mb-3 text-start">
-      <label class="form-label">Senha</label>
-      <input type="password" id="senhaLogin" class="form-control" required>
-    </div>
+      <div class="mb-3 text-start">
+        <label class="form-label">Senha</label>
+        <input type="password" id="senhaLogin" class="form-control" required>
+      </div>
 
-    <div class="form-check mb-3 text-start">
-      <input class="form-check-input" type="checkbox" id="lembrar">
-      <label class="form-check-label" for="lembrar">
-        Lembrar de mim
-      </label>
-    </div>
+      <div class="form-check mb-3 text-start">
+        <input class="form-check-input" type="checkbox" id="lembrar">
+        <label class="form-check-label" for="lembrar">
+          Lembrar de mim
+        </label>
+      </div>
 
-    <button type="submit" class="btn btn-custom mb-3">
-      <i class="fas fa-sign-in-alt"></i> Entrar
-    </button>
-
-    <div class="mb-3">
-      <a href="#">Esqueceu sua senha?</a>
-    </div>
-
-    <p class="text-muted">Ou entre com</p>
-    <div class="d-flex justify-content-between social-login mb-3">
-      <button type="button" class="btn btn-outline-danger">
-        <i class="fab fa-google"></i> Google
+      <button type="submit" class="btn btn-custom mb-3">
+        <i class="fas fa-sign-in-alt"></i> Entrar
       </button>
-      <button type="button" class="btn btn-outline-primary">
-        <i class="fab fa-facebook-f"></i> Facebook
-      </button>
-    </div>
 
-    <p class="mt-3">Não tem uma conta? <a href="cadastro.html">Cadastre-se aqui</a></p>
-  </form>
+      <div class="mb-3">
+        <a href="#">Esqueceu sua senha?</a>
+      </div>
+
+      <p class="text-muted">Ou entre com</p>
+      <div class="d-flex justify-content-between social-login mb-3">
+        <button type="button" class="btn btn-outline-danger">
+          <i class="fab fa-google"></i> Google
+        </button>
+        <button type="button" class="btn btn-outline-primary">
+          <i class="fab fa-facebook-f"></i> Facebook
+        </button>
+      </div>
+
+      <p class="mt-3">Não tem uma conta? <a href="cadastro.html">Cadastre-se aqui</a></p>
+    </form>
+  </div>
 </div>
 
 <!-- Bootstrap JS -->
@@ -114,3 +123,4 @@
 
 </body>
 </html>
+
