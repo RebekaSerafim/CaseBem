@@ -1,9 +1,9 @@
-{% extends "base.html" %}
+{% extends "publico/base.html" %}
 {% block conteudo %}
 <div class="container mt-5">
     <div class="row justify-content-center">
         <div class="col-md-6">
-            <h2>Login</h2>
+            <center><h2>Login</h2></center>
             
             {% if erro %}
             <div class="alert alert-danger">{{ erro }}</div>
@@ -26,8 +26,8 @@
                            name="senha" required>
                 </div>
                 
-                <button type="submit" class="btn btn-primary">Entrar</button>
-                <a href="/esqueci-senha" class="btn btn-link">Esqueci minha senha</a>
+               <center><button type="submit" class="btn btn-primary">Entrar</button></center> 
+                <center><a href="/esqueci-senha" class="btn btn-link">Esqueci minha senha</a><center>
             </form>
         </div>
     </div>

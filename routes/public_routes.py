@@ -145,10 +145,12 @@ async def post_login(
     usuario = usuario_repo.obter_por_email(email)
     
     if not usuario or not verificar_senha(senha, usuario.senha):
-        return templates.TemplateResponse(
-            "login.html",
-            {"request": request, "erro": "Email ou senha inválidos"}
-        )
+       return templates.TemplateResponse(
+    "publico/login.html",
+    {"request": request, "erro": "Email ou senha inválidos"}
+)
+
+
     
     # Criar sessão
     usuario_dict = {
