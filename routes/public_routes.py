@@ -4,7 +4,8 @@ from fastapi.templating import Jinja2Templates
 
 from model.usuario_model import TipoUsuario, Usuario
 from repo import usuario_repo
-from util.security import criar_hash_senha
+from util.auth_decorator import criar_sessao
+from util.security import criar_hash_senha, verificar_senha
 
 router = APIRouter()
 templates = Jinja2Templates(directory="templates")
@@ -132,6 +133,42 @@ async def get_root():
 async def get_root():
     response = templates.TemplateResponse("publico/login.html", {"request": {}})
     return response
+
+
+@router.post("/login")
+async def post_login(
+    request: Request,
+    email: str = Form(...),
+    senha: str = Form(...),
+    redirect: str = Form(None)
+):
+    usuario = usuario_repo.obter_por_email(email)
+    
+    if not usuario or not verificar_senha(senha, usuario.senha):
+        return templates.TemplateResponse(
+            "login.html",
+            {"request": request, "erro": "Email ou senha inválidos"}
+        )
+    
+    # Criar sessão
+    usuario_dict = {
+        "id": usuario.id,
+        "nome": usuario.nome,
+        "email": usuario.email,
+        "perfil": usuario.perfil,
+        "foto": usuario.foto
+    }
+    criar_sessao(request, usuario_dict)
+    
+    # Redirecionar
+    if redirect:
+        return RedirectResponse(redirect, status.HTTP_303_SEE_OTHER)
+    
+    if usuario.perfil == "admin":
+        return RedirectResponse("/admin", status.HTTP_303_SEE_OTHER)
+    
+    return RedirectResponse("/", status.HTTP_303_SEE_OTHER)
+
 
 @router.get("/logout")
 async def logout(request: Request):
