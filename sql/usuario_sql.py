@@ -2,11 +2,13 @@ CRIAR_TABELA_USUARIO = """
 CREATE TABLE IF NOT EXISTS Usuario (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     nome TEXT NOT NULL,
-    telefone TEXT NOT NULL UNIQUE,
     email TEXT NOT NULL UNIQUE,
-    senha_hash TEXT NOT NULL,
-    tipo TEXT NOT NULL CHECK(tipo IN ('ADMIN', 'NOIVO', 'PRESTADOR', 'FORNECEDOR')),
-    documento TEXT
+    senha TEXT NOT NULL,
+    perfil TEXT NOT NULL DEFAULT 'cliente',
+    foto TEXT,
+    token_redefinicao TEXT,
+    data_token TIMESTAMP,
+    data_cadastro TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 """
 

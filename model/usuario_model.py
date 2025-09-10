@@ -12,8 +12,10 @@ class TipoUsuario(Enum):
 class Usuario:
     id: int
     nome: str
-    telefone: str
-    email: str    
-    senha_hash: str
-    tipo: TipoUsuario
-    documento: Optional[str] = None
+    email: str
+    senha: str
+    perfil: str = 'cliente'
+    foto: Optional[str] = None
+    token_redefinicao: Optional[str] = None
+    data_token: Optional[str] = None
+    data_cadastro: Optional[str] = None

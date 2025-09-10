@@ -1,5 +1,8 @@
 from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
+from starlette.middleware.sessions import SessionMiddleware
+import secrets
+
 import uvicorn
 
 from routes import locador_routes 
@@ -18,6 +21,8 @@ app.include_router(locador_routes.router)
 app.include_router(noivo_routes.router)
 app.include_router(prestador_routes.router)
 app.include_router(fornecedor_routes.router)
+app.include_router(auth_routes.router)
+app.include_router(perfil_routes.router)
 
 if __name__ == "__main__":
     uvicorn.run(app="main:app", host="127.0.0.1", port=8000, reload=True)

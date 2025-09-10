@@ -4,6 +4,9 @@ jinja2
 Babel
 python-multipart
 itsdangerous
+passlib[bcrypt]
+python-jose[cryptography]
+itsdangerous
 
 # Dependências de teste
 pytest
