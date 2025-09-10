@@ -7,6 +7,7 @@ class TipoUsuario(Enum):
     NOIVO = "NOIVO"        
     FORNECEDOR = "FORNECEDOR"
     PRESTADOR = "PRESTADOR"
+    LOCADOR = "LOCADOR"
 
 @dataclass
 class Usuario:

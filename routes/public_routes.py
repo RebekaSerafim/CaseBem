@@ -2,7 +2,6 @@ from fastapi import APIRouter, Form, Request, status
 from fastapi.responses import RedirectResponse
 from fastapi.templating import Jinja2Templates
 
-from model.fornecedor_model import Fornecedor
 from model.usuario_model import TipoUsuario, Usuario
 from repo import usuario_repo
 from util.security import criar_hash_senha
@@ -10,22 +9,26 @@ from util.security import criar_hash_senha
 router = APIRouter()
 templates = Jinja2Templates(directory="templates")
 
+
 @router.get("/")
 async def get_root():
     response = templates.TemplateResponse("publico/home.html", {"request": {}})
     return response
+
 
 @router.get("/cadastro")
 async def get_root():
     response = templates.TemplateResponse("publico/cadastro.html", {"request": {}})
     return response
 
-@router.get("/cadastro/noivos")
+
+@router.get("/cadastro_noivos")
 async def get_root():
     response = templates.TemplateResponse("publico/cadastro_noivos.html", {"request": {}})
     return response
 
-@router.post("/cadastro/noivos")
+
+@router.post("/cadastro_noivos")
 async def post_root(request: Request,
     nome_noivo: str = Form(...),
     telefone_noivo: str = Form(None),
@@ -72,20 +75,22 @@ async def post_root(request: Request,
         perfil=TipoUsuario.NOIVO
     )    
     usuario_noiva_id = usuario_repo.inserir(usuario_noiva)
-    
     return RedirectResponse("/login", status.HTTP_303_SEE_OTHER)
 
-@router.get("/cadastro/fornecedor")
+
+@router.get("/cadastro_geral")
 async def get_root():
     response = templates.TemplateResponse("publico/cadastro_fornecedor.html", {"request": {}})
     return response
 
-@router.post("/cadastro/fornecedor")
+
+@router.post("/cadastro_geral")
 async def post_root(request: Request,
     nome: str = Form(...),
     telefone: str = Form(None),
     email: str = Form(...),
-    senha: str = Form(...)
+    senha: str = Form(...),
+    tipo: str = Form(...)
 ):
     # Verificar se email já existe
     if usuario_repo.obter_por_email(email):
@@ -95,32 +100,30 @@ async def post_root(request: Request,
         )
     
     # Criar hash da senha
-    senha_hash_noivo = criar_hash_senha(senha)    
-    
+    senha_hash_noivo = criar_hash_senha(senha)  
+    perfil = None
+    match (tipo):
+        case "F":
+            perfil = TipoUsuario.FORNECEDOR            
+        case  "P":
+            perfil = TipoUsuario.PRESTADOR
+        case "L":
+            perfil = TipoUsuario.LOCADOR
+
     # Criar usuário
-    usuario_noivo = Fornecedor(
+    usuario_fornecedor = Usuario(
         id=0,
         nome=nome,
         telefone=telefone,
         email=email,
         senha=senha_hash_noivo,
-        perfil=TipoUsuario.FORNECEDOR
+        perfil=perfil
     )
-    usuario_noivo_id = usuario_repo.inserir(usuario_noivo)
-    
+    usuario_id = usuario_repo.inserir(usuario_fornecedor)
     return RedirectResponse("/login", status.HTTP_303_SEE_OTHER)
 
-@router.get("/cadastro/prestador")
-async def get_root():
-    response = templates.TemplateResponse("publico/cadastro_prestador.html", {"request": {}})
-    return response
 
-@router.get("/cadastro/locador")
-async def get_root():
-    response = templates.TemplateResponse("publico/cadastro_locador.html", {"request": {}})
-    return response
-
-@router.get("/cadastro/confirmacao")
+@router.get("/cadastro_confirmacao")
 async def get_root():
     response = templates.TemplateResponse("publico/cadastro_confirmacao.html", {"request": {}})
     return response
