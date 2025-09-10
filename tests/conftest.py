@@ -189,15 +189,15 @@ def chat_exemplo():
 @pytest.fixture
 def fornecedor_produto_exemplo():
     # Cria uma relação fornecedor-produto de exemplo para os testes
-    from model.fornecedor_produto_model import FornecedorProduto
-    fp = FornecedorProduto(1, 1, "Observações teste", 50.0)
+    from model.fornecedor_model import Fornecedor
+    fp = Fornecedor(1, 1, "Observações teste", 50.0)
     return fp
 
 @pytest.fixture
 def prestador_servico_exemplo():
     # Cria uma relação prestador-serviço de exemplo para os testes
-    from model.prestador_servico_model import PrestadorServico
-    ps = PrestadorServico(1, 1, "Observações teste", 100.0)
+    from model.prestador_servico_model import Prestador
+    ps = Prestador(1, 1, "Observações teste", 100.0)
     return ps
 
 @pytest.fixture

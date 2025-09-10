@@ -1,3 +1,15 @@
+from fastapi import APIRouter, Form, Request, status
+from fastapi.responses import RedirectResponse
+from fastapi.templating import Jinja2Templates
+
+from repo import usuario_repo
+from util.auth_decorator import criar_sessao
+from util.security import verificar_senha
+
+router = APIRouter()
+templates = Jinja2Templates(directory="templates")
+
+
 @router.post("/login")
 async def post_login(
     request: Request,

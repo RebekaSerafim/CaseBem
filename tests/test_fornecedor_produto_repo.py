@@ -1,4 +1,4 @@
-from model.fornecedor_produto_model import FornecedorProduto
+from model.fornecedor_model import Fornecedor
 from repo import fornecedor_produto_repo, usuario_repo, produto_repo
 
 class TestFornecedorProdutoRepo:
@@ -29,11 +29,11 @@ class TestFornecedorProdutoRepo:
         usuario_repo.inserir_usuario(fornecedor_exemplo)
         produto_repo.inserir_produto(produto_exemplo)
         
-        fp = FornecedorProduto(1, 1, "Observações iniciais", 50.0)
+        fp = Fornecedor(1, 1, "Observações iniciais", 50.0)
         fornecedor_produto_repo.inserir_fornecedor_produto(fp)
         
         # Act
-        fp_atualizado = FornecedorProduto(1, 1, "Observações atualizadas", 75.0)
+        fp_atualizado = Fornecedor(1, 1, "Observações atualizadas", 75.0)
         sucesso = fornecedor_produto_repo.atualizar_fornecedor_produto(fp_atualizado)
         
         # Assert
@@ -91,7 +91,7 @@ class TestFornecedorProdutoRepo:
         
         # Inserir relações
         for i in range(1, 6):
-            fp = FornecedorProduto(1, i, f"Observações {i}", 50.0 * i)
+            fp = Fornecedor(1, i, f"Observações {i}", 50.0 * i)
             fornecedor_produto_repo.inserir_fornecedor_produto(fp)
         
         # Act
@@ -99,4 +99,4 @@ class TestFornecedorProdutoRepo:
         
         # Assert
         assert len(pagina) == 3
-        assert all(isinstance(fp, FornecedorProduto) for fp in pagina)
+        assert all(isinstance(fp, Fornecedor) for fp in pagina)

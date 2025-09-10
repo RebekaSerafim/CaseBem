@@ -18,6 +18,7 @@ def criar_tabela_usuarios() -> bool:
         print(f"Erro ao criar tabela de usuários: {e}")
         # Retorna False indicando falha
         return False
+   
 
 def inserir_usuario(usuario: Usuario) -> Optional[int]:
     # Obtém conexão com o banco de dados
