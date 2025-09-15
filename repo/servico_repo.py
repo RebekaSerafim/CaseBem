@@ -64,7 +64,7 @@ def obter_servico_por_id(id: int) -> Optional[Servico]:
         # Verifica se encontrou resultado
         if resultado:
             # Cria e retorna objeto Servico com dados do banco
-            return Servico(
+            return Servico( 
                 id=resultado["id"],
                 nome=resultado["nome"],
                 preco=resultado["preco"],

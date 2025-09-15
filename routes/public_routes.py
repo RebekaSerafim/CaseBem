@@ -12,20 +12,20 @@ templates = Jinja2Templates(directory="templates")
 
 
 @router.get("/")
-async def get_root():
-    response = templates.TemplateResponse("publico/home.html", {"request": {}})
+async def get_root(request: Request, usuario_logado: dict = None):
+    response = templates.TemplateResponse("publico/home.html", {"request": request, "usuario": usuario_logado})
     return response
 
 
 @router.get("/cadastro")
-async def get_root():
-    response = templates.TemplateResponse("publico/cadastro.html", {"request": {}})
+async def get_root(request: Request, usuario_logado: dict = None):
+    response = templates.TemplateResponse("publico/cadastro.html", {"request": request, "usuario": usuario_logado})
     return response
 
 
 @router.get("/cadastro_noivos")
-async def get_root():
-    response = templates.TemplateResponse("publico/cadastro_noivos.html", {"request": {}})
+async def get_root(request: Request, usuario_logado: dict = None):
+    response = templates.TemplateResponse("publico/cadastro_noivos.html", {"request": request, "usuario": usuario_logado})
     return response
 
 
@@ -81,7 +81,7 @@ async def post_root(request: Request,
 
 @router.get("/cadastro_geral")
 async def get_root():
-    response = templates.TemplateResponse("publico/cadastro_fornecedor.html", {"request": {}})
+    response = templates.TemplateResponse("publico/cadastro_fornecedor.html", {"request": request, "usuario": usuario_logado})
     return response
 
 
@@ -125,13 +125,13 @@ async def post_root(request: Request,
 
 
 @router.get("/cadastro_confirmacao")
-async def get_root():
-    response = templates.TemplateResponse("publico/cadastro_confirmacao.html", {"request": {}})
+async def get_root(request: Request, usuario_logado: dict = None):
+    response = templates.TemplateResponse("publico/cadastro_confirmacao.html", {"request": request, "usuario": usuario_logado})
     return response
 
 @router.get("/login")
-async def get_root():
-    response = templates.TemplateResponse("publico/login.html", {"request": {}})
+async def get_root(request: Request, usuario_logado: dict = None):
+    response = templates.TemplateResponse("publico/login.html", {"request": request, "usuario": usuario_logado})
     return response
 
 
@@ -178,62 +178,67 @@ async def logout(request: Request):
     return RedirectResponse("/", status.HTTP_303_SEE_OTHER)
 
 @router.get("/contato")
-async def get_root():
-    response = templates.TemplateResponse("publico/contato.html", {"request": {}})
+async def get_root(request: Request, usuario_logado: dict = None):
+    response = templates.TemplateResponse("publico/contato.html", {"request": request, "usuario": usuario_logado})
     return response
 
 @router.get("/sobre")
-async def get_root():
-    response = templates.TemplateResponse("publico/sobre.html", {"request": {}})
+async def get_root(request: Request, usuario_logado: dict = None):
+    response = templates.TemplateResponse("publico/sobre.html", {"request": request, "usuario": usuario_logado})
     return response
 
 @router.get("/produtos")
-async def get_root():
-    response = templates.TemplateResponse("publico/produtos.html", {"request": {}})
+async def get_root(request: Request, usuario_logado: dict = None):
+    response = templates.TemplateResponse("publico/produtos.html", {"request": request, "usuario": usuario_logado})
     return response
 
 @router.get("/servicos")
-async def get_root():
-    response = templates.TemplateResponse("publico/servicos.html", {"request": {}})
+async def get_root(request: Request, usuario_logado: dict = None):
+    response = templates.TemplateResponse("publico/servicos.html", {"request": request, "usuario": usuario_logado})
     return response
 
 @router.get("/locais")
-async def get_root():
-    response = templates.TemplateResponse("publico/locais.html", {"request": {}})
+async def get_root(request: Request, usuario_logado: dict = None):
+    response = templates.TemplateResponse("publico/locais.html", {"request": request, "usuario": usuario_logado})
     return response
 
 @router.get("/fornecedores")
-async def get_root():
-    response = templates.TemplateResponse("publico/fornecedores.html", {"request": {}})
+async def get_root(request: Request, usuario_logado: dict = None):
+    response = templates.TemplateResponse("publico/fornecedores.html", {"request": request, "usuario": usuario_logado})
     return response
 
 @router.get("/prestadores")
-async def get_root():
-    response = templates.TemplateResponse("publico/prestadores.html", {"request": {}})
+async def get_root(request: Request, usuario_logado: dict = None):
+    response = templates.TemplateResponse("publico/prestadores.html", {"request": request, "usuario": usuario_logado})
     return response
 
 @router.get("/locais/{id}")
-async def get_root(id: int):
-    response = templates.TemplateResponse("publico/detalhes_local.html", {"request": {}, "id": id})
-    return response
+async def get_root(id: int, request: Request, usuario_logado: dict = None):
+    response = templates.TemplateResponse("publico/detalhes_local.html", {"request": request, "usuario": usuario_logado})
+    
+    
 
 @router.get("/fornecedores/{id}")
-async def get_root(id: int):
-    response = templates.TemplateResponse("publico/detalhes_fornecedor.html", {"request": {}, "id": id})
+async def get_root(id: int, request: Request, usuario_logado: dict = None):
+    response = templates.TemplateResponse("publico/detalhes_fornecedor.html", {"request": request, "usuario": usuario_logado})
     return response
+   
 
 @router.get("/prestadores/{id}")
-async def get_root(id: int):
-    response = templates.TemplateResponse("publico/detalhes_prestador.html", {"request": {}, "id": id})
+async def get_root(id: int, request: Request, usuario_logado: dict = None):
+    response = templates.TemplateResponse("publico/detalhes_prestador.html", {"request": request, "usuario": usuario_logado})
     return response
+ 
 
 @router.get("/produtos/{id}")
-async def get_root(id: int):
-    response = templates.TemplateResponse("publico/detalhes_produto.html", {"request": {}, "id": id})
+async def get_root(id: int, request: Request, usuario_logado: dict = None):
+    response = templates.TemplateResponse("publico/detalhes_produto.html", {"request": request, "usuario": usuario_logado})
     return response
+   
 
 @router.get("/servicos/{id}")
-async def get_root(id: int):
-    response = templates.TemplateResponse("publico/detalhes_servico.html", {"request": {}, "id": id})
+async def get_root(id: int, request: Request, usuario_logado: dict = None):
+    response = templates.TemplateResponse("publico/detalhes_servico.html", {"request": request, "usuario": usuario_logado})
     return response
+ 
 
