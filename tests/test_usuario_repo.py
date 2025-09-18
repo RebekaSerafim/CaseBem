@@ -22,8 +22,8 @@ class TestUsuarioRepo:
         assert usuario_db.nome == "Usuário Teste", "O nome do usuário inserido não confere"
         assert usuario_db.telefone == "(28) 99999-0000", "O telefone do usuário inserido não confere"
         assert usuario_db.email == "usuario@email.com", "O email do usuário inserido não confere"
-        assert usuario_db.senha_hash == "123456", "A senha hash do usuário inserido não confere"
-        assert usuario_db.tipo == "ADMIN", "O tipo do usuário inserido não confere"
+        assert usuario_db.senha == "123456", "A senha do usuário inserido não confere"
+        assert usuario_db.perfil.value == "ADMIN", "O perfil do usuário inserido não confere"
 
     def test_inserir_noivo(self, test_db, usuario_exemplo):
         # Arrange
@@ -37,8 +37,8 @@ class TestUsuarioRepo:
         assert usuario_db.nome == "Usuário Teste", "O nome do usuário inserido não confere"
         assert usuario_db.telefone == "(28) 99999-0000", "O telefone do usuário inserido não confere"
         assert usuario_db.email == "usuario@email.com", "O email do usuário inserido não confere"
-        assert usuario_db.senha_hash == "123456", "A senha hash do usuário inserido não confere"
-        assert usuario_db.tipo == "ADMIN", "O tipo do usuário inserido não confere"
+        assert usuario_db.senha == "123456", "A senha do usuário inserido não confere"
+        assert usuario_db.perfil.value == "ADMIN", "O perfil do usuário inserido não confere"
 
     def test_obter_usuario_por_id_existente(self, test_db, usuario_exemplo):
         # Arrange
@@ -52,8 +52,8 @@ class TestUsuarioRepo:
         assert usuario_db.nome == usuario_exemplo.nome, "O nome do usuário buscado deveria ser igual ao nome do usuário inserido"
         assert usuario_db.telefone == usuario_exemplo.telefone, "O telefone do usuário buscado deveria ser igual ao telefone do usuário inserido"
         assert usuario_db.email == usuario_exemplo.email, "O email do usuário buscado deveria ser igual ao email do usuário inserido"
-        assert usuario_db.senha_hash == usuario_exemplo.senha_hash, "A senha hash do usuário buscado deveria ser igual à senha hash do usuário inserido"
-        assert usuario_db.tipo == usuario_exemplo.tipo, "O tipo do usuário buscado deveria ser igual ao tipo do usuário inserido"
+        assert usuario_db.senha == usuario_exemplo.senha, "A senha do usuário buscado deveria ser igual à senha do usuário inserido"
+        assert usuario_db.perfil == usuario_exemplo.perfil, "O perfil do usuário buscado deveria ser igual ao perfil do usuário inserido"
 
     def test_obter_usuario_por_id_inexistente(self, test_db):
         # Arrange
@@ -98,9 +98,8 @@ class TestUsuarioRepo:
         assert usuario_db.nome == "Usuário Atualizado", "O nome do usuário atualizado não confere"
         assert usuario_db.telefone == "(28) 88888-0000", "O telefone do usuário atualizado não confere"
         assert usuario_db.email == "usuario_atualizado@email.com", "O email do usuário atualizado não confere"
-        assert usuario_db.senha_hash == "123456", "A senha hash do usuário atualizado não confere"
-        assert usuario_db.tipo == "ADMIN", "O tipo do usuário atualizado não confere"
-        assert usuario_db.documento == "123.456.789-00", "O documento do usuário atualizado não confere"
+        assert usuario_db.senha == "123456", "A senha do usuário atualizado não confere"
+        assert usuario_db.perfil.value == "ADMIN", "O perfil do usuário atualizado não confere"
 
     def test_atualizar_usuario_inexistente(self, test_db, usuario_exemplo):
         # Arrange
@@ -139,7 +138,7 @@ class TestUsuarioRepo:
         # Assert
         assert resultado == True, "A atualização da senha do usuário deveria retornar True"
         usuario_db = usuario_repo.obter_usuario_por_id(id_usuario_inserido)
-        assert usuario_db.senha_hash == "nova_senha_hash", "A senha do usuário atualizado não confere"
+        assert usuario_db.senha == "nova_senha_hash", "A senha do usuário atualizado não confere"
 
     def test_atualizar_senha_usuario_inexistente(self, test_db):
         # Arrange

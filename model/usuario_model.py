@@ -4,7 +4,7 @@ from typing import Optional
 
 class TipoUsuario(Enum):
     ADMIN = "ADMIN"
-    NOIVO = "NOIVO"        
+    NOIVO = "NOIVO"
     FORNECEDOR = "FORNECEDOR"
     PRESTADOR = "PRESTADOR"
     LOCADOR = "LOCADOR"

@@ -28,86 +28,86 @@ def test_db():
 @pytest.fixture
 def usuario_exemplo():
     # Cria um usuário de exemplo para os testes
-    from model.usuario_model import Usuario
-    usuario = Usuario(0, "Usuário Teste", "(28) 99999-0000", "usuario@email.com", "123456", "ADMIN", "123.456.789-00")
+    from model.usuario_model import Usuario, TipoUsuario
+    usuario = Usuario(0, "Usuário Teste", "(28) 99999-0000", "usuario@email.com", "123456", TipoUsuario.ADMIN, None, None, None, None)
     return usuario
 
 @pytest.fixture
 def lista_usuarios_exemplo():
     # Cria uma lista de 10 usuários de exemplo para os testes
-    tipos = ["ADMIN", "NOIVO", "PRESTADOR", "FORNECEDOR"]
-    from model.usuario_model import Usuario
+    from model.usuario_model import Usuario, TipoUsuario
+    tipos = [TipoUsuario.ADMIN, TipoUsuario.NOIVO, TipoUsuario.PRESTADOR, TipoUsuario.FORNECEDOR]
     usuarios = []
     for i in range(1, 11):
-        usuario = Usuario(0, f"Usuário {i:02d}", f"(28) 99999-00{i:02d}", f"usuario{i:02d}@email.com", "123456", tipos[i % 4])
+        usuario = Usuario(0, f"Usuário {i:02d}", f"(28) 99999-00{i:02d}", f"usuario{i:02d}@email.com", "123456", tipos[i % 4], None, None, None, None)
         usuarios.append(usuario)
     return usuarios
 
 @pytest.fixture
 def noivo_exemplo():
     # Cria um noivo de exemplo para os testes
-    from model.usuario_model import Usuario
-    noivo = Usuario(0, "Noivo Teste", "(28) 99999-0000", "noivo@email.com", "123456", "NOIVO", "123.456.789-00")
+    from model.usuario_model import Usuario, TipoUsuario
+    noivo = Usuario(0, "Noivo Teste", "(28) 99999-0000", "noivo@email.com", "123456", TipoUsuario.NOIVO, None, None, None, None)
     return noivo
 
 @pytest.fixture
 def lista_noivos_exemplo():
     # Cria uma lista de 10 noivos de exemplo para os testes
-    from model.usuario_model import Usuario
+    from model.usuario_model import Usuario, TipoUsuario
     usuarios = []
     for i in range(1, 11):
-        usuario = Usuario(0, f"Noivo {i:02d}", f"(28) 99999-00{i:02d}", f"usuario{i:02d}@email.com", "123456", "NOIVO", f"123.456.789-{i:02d}")
+        usuario = Usuario(0, f"Noivo {i:02d}", f"(28) 99999-00{i:02d}", f"usuario{i:02d}@email.com", "123456", TipoUsuario.NOIVO, None, None, None, None)
         usuarios.append(usuario)
     return usuarios
 
 @pytest.fixture
 def prestador_exemplo():
     # Cria um prestador de exemplo para os testes
-    from model.usuario_model import Usuario
-    prestador = Usuario(0, "Prestador Teste", "(28) 99999-2000", "prestador@email.com", "123456", "PRESTADOR", "223.456.789-00")
+    from model.usuario_model import Usuario, TipoUsuario
+    prestador = Usuario(0, "Prestador Teste", "(28) 99999-2000", "prestador@email.com", "123456", TipoUsuario.PRESTADOR, None, None, None, None)
     return prestador
 
 @pytest.fixture
 def lista_prestadores_exemplo():
     # Cria uma lista de 10 prestadores de exemplo para os testes
-    from model.usuario_model import Usuario
+    from model.usuario_model import Usuario, TipoUsuario
     usuarios = []
     for i in range(1, 11):
-        usuario = Usuario(0, f"Prestador {i:02d}", f"(28) 99999-20{i:02d}", f"prestador{i:02d}@email.com", "123456", "PRESTADOR", f"223.456.789-{i:02d}")
+        usuario = Usuario(0, f"Prestador {i:02d}", f"(28) 99999-20{i:02d}", f"prestador{i:02d}@email.com", "123456", TipoUsuario.PRESTADOR, None, None, None, None)
         usuarios.append(usuario)
     return usuarios
 
 @pytest.fixture
 def fornecedor_exemplo():
     # Cria um fornecedor de exemplo para os testes
-    from model.usuario_model import Usuario
-    fornecedor = Usuario(0, "Fornecedor Teste", "(28) 99999-3000", "fornecedor@email.com", "123456", "FORNECEDOR", "323.456.789-00")
+    from model.usuario_model import Usuario, TipoUsuario
+    fornecedor = Usuario(0, "Fornecedor Teste", "(28) 99999-3000", "fornecedor@email.com", "123456", TipoUsuario.FORNECEDOR, None, None, None, None)
     return fornecedor
 
 @pytest.fixture
 def lista_fornecedores_exemplo():
     # Cria uma lista de 10 fornecedores de exemplo para os testes
-    from model.usuario_model import Usuario
+    from model.usuario_model import Usuario, TipoUsuario
     usuarios = []
     for i in range(1, 11):
-        usuario = Usuario(0, f"Fornecedor {i:02d}", f"(28) 99999-30{i:02d}", f"fornecedor{i:02d}@email.com", "123456", "FORNECEDOR", f"323.456.789-{i:02d}")
+        usuario = Usuario(0, f"Fornecedor {i:02d}", f"(28) 99999-30{i:02d}", f"fornecedor{i:02d}@email.com", "123456", TipoUsuario.FORNECEDOR, None, None, None, None)
         usuarios.append(usuario)
     return usuarios
 
 @pytest.fixture
 def administrador_exemplo():
     # Cria um administrador de exemplo para os testes
-    from model.usuario_model import Usuario
-    administrador = Usuario(0, "Administrador Teste", "(28) 99999-4000", "admin@email.com", "123456", "ADMIN", "423.456.789-00")
+    from model.usuario_model import Usuario, TipoUsuario
+    administrador = Usuario(0, "Administrador Teste", "(28) 99999-4000", "admin@email.com", "123456", TipoUsuario.ADMIN, None, None, None, None)
     return administrador
 
 @pytest.fixture
 def lista_administradores_exemplo():
     # Cria uma lista de 10 administradores de exemplo para os testes
-    from model.usuario_model import Usuario
+    from model.usuario_model import Usuario, TipoUsuario
     usuarios = []
     for i in range(1, 11):
-        usuario = Usuario(0, f"Administrador {i:02d}", f"(28) 99999-40{i:02d}", f"admin{i:02d}@email.com", "123456", "ADMIN", f"423.456.789-{i:02d}")
+        usuario = Usuario(0, f"Administrador {i:02d}", f"(28) 99999-40{i:02d}", f"admin{i:02d}@email.com", "123456", TipoUsuario.ADMIN, None, None, None, None)
         usuarios.append(usuario)
     return usuarios
 

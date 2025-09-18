@@ -29,11 +29,11 @@ class TestPrestadorServicoRepo:
         usuario_repo.inserir_usuario(prestador_exemplo)
         servico_repo.inserir_servico(servico_exemplo)
         
-        ps = Prestador(1, 1, "Observações iniciais", 100.0)
+        ps = PrestadorServico(1, 1, "Observações iniciais", 100.0)
         prestador_servico_repo.inserir_prestador_servico(ps)
         
         # Act
-        ps_atualizado = Prestador(1, 1, "Observações atualizadas", 150.0)
+        ps_atualizado = PrestadorServico(1, 1, "Observações atualizadas", 150.0)
         sucesso = prestador_servico_repo.atualizar_prestador_servico(ps_atualizado)
         
         # Assert
@@ -91,7 +91,7 @@ class TestPrestadorServicoRepo:
         
         # Inserir relações
         for i in range(1, 6):
-            ps = Prestador(1, i, f"Observações {i}", 100.0 * i)
+            ps = PrestadorServico(1, i, f"Observações {i}", 100.0 * i)
             prestador_servico_repo.inserir_prestador_servico(ps)
         
         # Act
@@ -99,7 +99,7 @@ class TestPrestadorServicoRepo:
         
         # Assert
         assert len(pagina) == 3
-        assert all(isinstance(ps, Prestador) for ps in pagina)
+        assert all(isinstance(ps, PrestadorServico) for ps in pagina)
 
     def test_obter_prestador_servico_inexistente(self, test_db):
         # Arrange
@@ -114,7 +114,7 @@ class TestPrestadorServicoRepo:
     def test_atualizar_prestador_servico_inexistente(self, test_db):
         # Arrange
         prestador_servico_repo.criar_tabela_prestador_servico()
-        ps = Prestador(999, 999, "Observações", 100.0)
+        ps = PrestadorServico(999, 999, "Observações", 100.0)
         
         # Act
         sucesso = prestador_servico_repo.atualizar_prestador_servico(ps)
