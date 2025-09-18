@@ -6,6 +6,7 @@ from model.usuario_model import TipoUsuario, Usuario
 from repo import usuario_repo
 from util.auth_decorator import criar_sessao
 from util.security import criar_hash_senha, verificar_senha
+from util.usuario_util import usuario_para_sessao
 
 router = APIRouter()
 templates = Jinja2Templates(directory="templates")
@@ -153,21 +154,15 @@ async def post_login(
 
     
     # Criar sessão
-    usuario_dict = {
-        "id": usuario.id,
-        "nome": usuario.nome,
-        "email": usuario.email,
-        "perfil": usuario.perfil,
-        "foto": usuario.foto
-    }
+    usuario_dict = usuario_para_sessao(usuario)
     criar_sessao(request, usuario_dict)
     
     # Redirecionar
     if redirect:
         return RedirectResponse(redirect, status.HTTP_303_SEE_OTHER)
     
-    if usuario.perfil == "admin":
-        return RedirectResponse("/admin", status.HTTP_303_SEE_OTHER)
+    if usuario.perfil == TipoUsuario.ADMIN:
+        return RedirectResponse("/administrador/dashboard", status.HTTP_303_SEE_OTHER)
     
     return RedirectResponse("/", status.HTTP_303_SEE_OTHER)
 

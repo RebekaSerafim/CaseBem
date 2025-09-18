@@ -11,6 +11,7 @@ from routes import prestador_routes
 from routes import fornecedor_routes
 from routes import noivo_routes
 from routes import public_routes
+from routes import admin_routes
 
 app = FastAPI()
 SECRET_KEY = secrets.token_urlsafe(32)
@@ -25,6 +26,7 @@ app.add_middleware(
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
 app.include_router(public_routes.router)
+app.include_router(admin_routes.router)
 app.include_router(usuario_routes.router)
 app.include_router(locador_routes.router)
 app.include_router(noivo_routes.router)

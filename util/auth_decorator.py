@@ -112,7 +112,7 @@ def requer_autenticacao(perfis_autorizados: List[str] = None):
             
             # Verifica autorização se perfis foram especificados
             if perfis_autorizados:
-                perfil_usuario = usuario.get('perfil', 'cliente')
+                perfil_usuario = usuario.get('perfil')
                 if perfil_usuario not in perfis_autorizados:
                     # Retorna erro 403 se não autorizado
                     raise HTTPException(
