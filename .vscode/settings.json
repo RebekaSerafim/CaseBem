@@ -4,5 +4,7 @@
     ],
     "python.testing.unittestEnabled": false,
     "python.testing.pytestEnabled": true,
+    "python.defaultInterpreter": "./venv/bin/python",
+    "python.pythonPath": "./venv/bin/python",
     "python-envs.pythonProjects": []
 }

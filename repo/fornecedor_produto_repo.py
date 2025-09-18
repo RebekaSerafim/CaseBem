@@ -1,7 +1,7 @@
 from typing import Optional, List
 from util.database import obter_conexao
 from sql.fornecedor_produto_sql import *
-from model.fornecedor_model import Fornecedor
+from model.fornecedor_produto_model import FornecedorProduto
 
 def criar_tabela_fornecedor_produto() -> bool:
     try:
@@ -12,7 +12,7 @@ def criar_tabela_fornecedor_produto() -> bool:
         print(f"Erro ao criar tabela FornecedorProduto: {e}")
         return False
 
-def inserir_fornecedor_produto(fp: Fornecedor) -> Optional[tuple]:
+def inserir_fornecedor_produto(fp: FornecedorProduto) -> Optional[tuple]:
     with obter_conexao() as conexao:
         cursor = conexao.execute(
             INSERIR_FORNECEDOR_PRODUTO,
@@ -20,7 +20,7 @@ def inserir_fornecedor_produto(fp: Fornecedor) -> Optional[tuple]:
         )
         return (fp.id_fornecedor, fp.id_produto)
 
-def atualizar_fornecedor_produto(fp: Fornecedor) -> bool:
+def atualizar_fornecedor_produto(fp: FornecedorProduto) -> bool:
     with obter_conexao() as conexao:
         cursor = conexao.execute(
             ATUALIZAR_FORNECEDOR_PRODUTO,
@@ -33,12 +33,12 @@ def excluir_fornecedor_produto(id_fornecedor: int, id_produto: int) -> bool:
         cursor = conexao.execute(EXCLUIR_FORNECEDOR_PRODUTO, (id_fornecedor, id_produto))
         return cursor.rowcount > 0
 
-def obter_fornecedor_produto_por_id(id_fornecedor: int, id_produto: int) -> Optional[Fornecedor]:
+def obter_fornecedor_produto_por_id(id_fornecedor: int, id_produto: int) -> Optional[FornecedorProduto]:
     with obter_conexao() as conexao:
         cursor = conexao.execute(OBTER_FORNECEDOR_PRODUTO_POR_ID, (id_fornecedor, id_produto))
         resultado = cursor.fetchone()
         if resultado:
-            return Fornecedor(
+            return FornecedorProduto(
                 id_fornecedor=resultado["id_fornecedor"],
                 id_produto=resultado["id_produto"],
                 observacoes=resultado["observacoes"],
@@ -46,13 +46,13 @@ def obter_fornecedor_produto_por_id(id_fornecedor: int, id_produto: int) -> Opti
             )
     return None
 
-def obter_fornecedores_produto_por_pagina(numero_pagina: int, tamanho_pagina: int) -> List[Fornecedor]:
+def obter_fornecedores_produto_por_pagina(numero_pagina: int, tamanho_pagina: int) -> List[FornecedorProduto]:
     with obter_conexao() as conexao:
         limite = tamanho_pagina
         offset = (numero_pagina - 1) * tamanho_pagina
         cursor = conexao.execute(OBTER_FORNECEDORES_PRODUTO_POR_PAGINA, (limite, offset))
         resultados = cursor.fetchall()
-        return [Fornecedor(
+        return [FornecedorProduto(
             id_fornecedor=r["id_fornecedor"],
             id_produto=r["id_produto"],
             observacoes=r["observacoes"],

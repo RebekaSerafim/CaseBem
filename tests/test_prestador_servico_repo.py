@@ -1,4 +1,4 @@
-from model.prestador_servico_model import Prestador
+from model.prestador_servico_model import PrestadorServico
 from repo import prestador_servico_repo, usuario_repo, servico_repo
 
 class TestPrestadorServicoRepo:

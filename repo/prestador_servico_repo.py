@@ -1,7 +1,7 @@
 from typing import Optional, List
 from util.database import obter_conexao
 from sql.prestador_servico_sql import *
-from model.prestador_servico_model import Prestador
+from model.prestador_servico_model import PrestadorServico
 
 def criar_tabela_prestador_servico() -> bool:
     try:
@@ -12,7 +12,7 @@ def criar_tabela_prestador_servico() -> bool:
         print(f"Erro ao criar tabela PrestadorServico: {e}")
         return False
 
-def inserir_prestador_servico(ps: Prestador) -> Optional[tuple]:
+def inserir_prestador_servico(ps: PrestadorServico) -> Optional[tuple]:
     with obter_conexao() as conexao:
         cursor = conexao.execute(
             INSERIR_PRESTADOR_SERVICO,
@@ -20,7 +20,7 @@ def inserir_prestador_servico(ps: Prestador) -> Optional[tuple]:
         )
         return (ps.id_prestador, ps.id_servico)
 
-def atualizar_prestador_servico(ps: Prestador) -> bool:
+def atualizar_prestador_servico(ps: PrestadorServico) -> bool:
     with obter_conexao() as conexao:
         cursor = conexao.execute(
             ATUALIZAR_PRESTADOR_SERVICO,
@@ -33,12 +33,12 @@ def excluir_prestador_servico(id_prestador: int, id_servico: int) -> bool:
         cursor = conexao.execute(EXCLUIR_PRESTADOR_SERVICO, (id_prestador, id_servico))
         return cursor.rowcount > 0
 
-def obter_prestador_servico_por_id(id_prestador: int, id_servico: int) -> Optional[Prestador]:
+def obter_prestador_servico_por_id(id_prestador: int, id_servico: int) -> Optional[PrestadorServico]:
     with obter_conexao() as conexao:
         cursor = conexao.execute(OBTER_PRESTADOR_SERVICO_POR_ID, (id_prestador, id_servico))
         resultado = cursor.fetchone()
         if resultado:
-            return Prestador(
+            return PrestadorServico(
                 id_prestador=resultado["id_prestador"],
                 id_servico=resultado["id_servico"],
                 observacoes=resultado["observacoes"],
@@ -46,13 +46,13 @@ def obter_prestador_servico_por_id(id_prestador: int, id_servico: int) -> Option
             )
     return None
 
-def obter_prestadores_servico_por_pagina(numero_pagina: int, tamanho_pagina: int) -> List[Prestador]:
+def obter_prestadores_servico_por_pagina(numero_pagina: int, tamanho_pagina: int) -> List[PrestadorServico]:
     with obter_conexao() as conexao:
         limite = tamanho_pagina
         offset = (numero_pagina - 1) * tamanho_pagina
         cursor = conexao.execute(OBTER_PRESTADORES_SERVICO_POR_PAGINA, (limite, offset))
         resultados = cursor.fetchall()
-        return [Prestador(
+        return [PrestadorServico(
             id_prestador=r["id_prestador"],
             id_servico=r["id_servico"],
             observacoes=r["observacoes"],

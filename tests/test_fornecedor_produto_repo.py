@@ -1,4 +1,4 @@
-from model.fornecedor_model import Fornecedor
+from model.fornecedor_produto_model import FornecedorProduto
 from repo import fornecedor_produto_repo, usuario_repo, produto_repo
 
 class TestFornecedorProdutoRepo:
