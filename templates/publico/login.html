@@ -1,8 +1,7 @@
 {% extends "publico/base.html" %}
 {% block conteudo %}
-<div class="container mt-5">
-    <div class="row justify-content-center">
-        <div class="col-md-6">
+<div class="container d-flex align-items-center justify-content-center w-100">
+    <div class="col-md-6 col-lg-4">
             <center><h2>Login</h2></center>
             
             {% if erro %}
@@ -29,7 +28,6 @@
                <center><button type="submit" class="btn btn-primary">Entrar</button></center> 
                 <center><a href="/esqueci-senha" class="btn btn-link">Esqueci minha senha</a><center>
             </form>
-        </div>
     </div>
 </div>
 {% endblock %}
