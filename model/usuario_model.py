@@ -5,16 +5,16 @@ from typing import Optional
 class TipoUsuario(Enum):
     ADMIN = "ADMIN"
     NOIVO = "NOIVO"
-    FORNECEDOR = "FORNECEDOR"
-    PRESTADOR = "PRESTADOR"
-    LOCADOR = "LOCADOR"
+    PROFISSIONAL = "PROFISSIONAL"
 
 @dataclass
 class Usuario:
     id: int
     nome: str
-    telefone: str
+    cpf: Optional[str]
+    data_nascimento: Optional[str]
     email: str
+    telefone: str
     senha: str
     perfil: TipoUsuario
     foto: Optional[str]

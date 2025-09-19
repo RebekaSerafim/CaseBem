@@ -3,7 +3,8 @@ from fastapi.responses import RedirectResponse
 from fastapi.templating import Jinja2Templates
 
 from model.usuario_model import TipoUsuario, Usuario
-from repo import usuario_repo
+from model.profissional_model import Profissional
+from repo import usuario_repo, profissional_repo
 from util.auth_decorator import criar_sessao
 from util.security import criar_hash_senha, verificar_senha
 from util.usuario_util import usuario_para_sessao
@@ -64,13 +65,13 @@ async def post_cadastro_noivos(request: Request,
         )
 
     # Verificar se emails já existem
-    if usuario_repo.obter_por_email(email1):
+    if usuario_repo.obter_usuario_por_email(email1):
         return templates.TemplateResponse(
             "publico/cadastro_noivos.html",
             {"request": request, "erro": f"E-mail {email1} já cadastrado"}
         )
 
-    if usuario_repo.obter_por_email(email2):
+    if usuario_repo.obter_usuario_por_email(email2):
         return templates.TemplateResponse(
             "publico/cadastro_noivos.html",
             {"request": request, "erro": f"E-mail {email2} já cadastrado"}
@@ -83,23 +84,35 @@ async def post_cadastro_noivos(request: Request,
     usuario1 = Usuario(
         id=0,
         nome=nome1,
-        telefone=telefone1,
+        cpf=cpf1,
+        data_nascimento=data_nascimento1,
         email=email1,
+        telefone=telefone1,
         senha=senha_hash,
-        perfil=TipoUsuario.NOIVO
+        perfil=TipoUsuario.NOIVO,
+        foto=None,
+        token_redefinicao=None,
+        data_token=None,
+        data_cadastro=None
     )
-    usuario1_id = usuario_repo.inserir(usuario1)
+    usuario1_id = usuario_repo.inserir_usuario(usuario1)
 
     # Criar segundo usuário
     usuario2 = Usuario(
         id=0,
         nome=nome2,
-        telefone=telefone2,
+        cpf=cpf2,
+        data_nascimento=data_nascimento2,
         email=email2,
+        telefone=telefone2,
         senha=senha_hash,
-        perfil=TipoUsuario.NOIVO
+        perfil=TipoUsuario.NOIVO,
+        foto=None,
+        token_redefinicao=None,
+        data_token=None,
+        data_cadastro=None
     )
-    usuario2_id = usuario_repo.inserir(usuario2)
+    usuario2_id = usuario_repo.inserir_usuario(usuario2)
 
     return RedirectResponse("/login", status.HTTP_303_SEE_OTHER)
 
@@ -133,7 +146,7 @@ async def post_cadastro_profissional(request: Request,
         )
 
     # Verificar se email já existe
-    if usuario_repo.obter_por_email(email):
+    if usuario_repo.obter_usuario_por_email(email):
         return templates.TemplateResponse(
             "publico/cadastro_profissional.html",
             {"request": request, "erro": "E-mail já cadastrado"}
@@ -149,30 +162,35 @@ async def post_cadastro_profissional(request: Request,
     # Criar hash da senha
     senha_hash = criar_hash_senha(senha)
 
-    # Para múltiplos perfis, criar um usuário para cada perfil selecionado
-    # ou adaptar o modelo para suportar múltiplos perfis
-    # Por enquanto, vou usar o primeiro perfil selecionado
-    primeiro_perfil = perfis[0] if isinstance(perfis, list) else perfis
+    # Verificar quais tipos de profissional foram selecionados
+    eh_prestador = "PRESTADOR" in perfis
+    eh_fornecedor = "FORNECEDOR" in perfis
+    eh_locador = "LOCADOR" in perfis
 
-    perfil_usuario = None
-    match primeiro_perfil:
-        case "FORNECEDOR":
-            perfil_usuario = TipoUsuario.FORNECEDOR
-        case "PRESTADOR":
-            perfil_usuario = TipoUsuario.PRESTADOR
-        case "LOCADOR":
-            perfil_usuario = TipoUsuario.LOCADOR
-
-    # Criar usuário
-    usuario = Usuario(
+    # Criar profissional (que herda de Usuario)
+    profissional = Profissional(
+        # Campos de Usuario na ordem correta
         id=0,
         nome=nome,
-        telefone=telefone,
+        cpf=cpf,
+        data_nascimento=data_nascimento,
         email=email,
+        telefone=telefone,
         senha=senha_hash,
-        perfil=perfil_usuario
+        perfil=TipoUsuario.PROFISSIONAL,
+        foto=None,
+        token_redefinicao=None,
+        data_token=None,
+        data_cadastro=None,
+        # Campos específicos de Profissional
+        nome_empresa=nome_empresa,
+        cnpj=cnpj,
+        descricao=descricao,
+        prestador=eh_prestador,
+        fornecedor=eh_fornecedor,
+        locador=eh_locador
     )
-    usuario_id = usuario_repo.inserir(usuario)
+    profissional_id = profissional_repo.inserir_profissional(profissional)
     return RedirectResponse("/login", status.HTTP_303_SEE_OTHER)
 
 
@@ -191,7 +209,7 @@ async def post_cadastro_geral(request: Request,
     tipo: str = Form(...)
 ):
     # Verificar se email já existe
-    if usuario_repo.obter_por_email(email):
+    if usuario_repo.obter_usuario_por_email(email):
         return templates.TemplateResponse(
             "publico/cadastro_fornecedor.html",
             {"request": request, "erro": "E-mail já cadastrado"}
@@ -199,25 +217,36 @@ async def post_cadastro_geral(request: Request,
 
     # Criar hash da senha
     senha_hash = criar_hash_senha(senha)
-    perfil = None
-    match (tipo):
-        case "F":
-            perfil = TipoUsuario.FORNECEDOR
-        case  "P":
-            perfil = TipoUsuario.PRESTADOR
-        case "L":
-            perfil = TipoUsuario.LOCADOR
 
-    # Criar usuário
-    usuario_fornecedor = Usuario(
+    # Definir qual tipo de profissional baseado no tipo
+    eh_prestador = tipo == "P"
+    eh_fornecedor = tipo == "F"
+    eh_locador = tipo == "L"
+
+    # Criar profissional
+    profissional = Profissional(
+        # Campos de Usuario na ordem correta
         id=0,
         nome=nome,
-        telefone=telefone,
+        cpf=None,
+        data_nascimento=None,
         email=email,
+        telefone=telefone,
         senha=senha_hash,
-        perfil=perfil
+        perfil=TipoUsuario.PROFISSIONAL,
+        foto=None,
+        token_redefinicao=None,
+        data_token=None,
+        data_cadastro=None,
+        # Campos específicos de Profissional
+        nome_empresa=None,
+        cnpj=None,
+        descricao=None,
+        prestador=eh_prestador,
+        fornecedor=eh_fornecedor,
+        locador=eh_locador
     )
-    usuario_id = usuario_repo.inserir(usuario_fornecedor)
+    profissional_id = profissional_repo.inserir_profissional(profissional)
     return RedirectResponse("/login", status.HTTP_303_SEE_OTHER)
 
 
@@ -239,7 +268,7 @@ async def post_login(
     senha: str = Form(...),
     redirect: str = Form(None)
 ):
-    usuario = usuario_repo.obter_por_email(email)
+    usuario = usuario_repo.obter_usuario_por_email(email)
     
     if not usuario or not verificar_senha(senha, usuario.senha):
        return templates.TemplateResponse(

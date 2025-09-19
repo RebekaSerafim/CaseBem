@@ -2,10 +2,12 @@ CRIAR_TABELA_USUARIO = """
 CREATE TABLE IF NOT EXISTS Usuario (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     nome TEXT NOT NULL,
-    telefone TEXT,
+    cpf TEXT,
+    data_nascimento TEXT,
     email TEXT NOT NULL UNIQUE,
+    telefone TEXT,
     senha TEXT NOT NULL,
-    perfil TEXT NOT NULL DEFAULT 'cliente',
+    perfil TEXT NOT NULL DEFAULT 'NOIVO',
     foto TEXT,
     token_redefinicao TEXT,
     data_token TIMESTAMP,
@@ -14,8 +16,8 @@ CREATE TABLE IF NOT EXISTS Usuario (
 """
 
 INSERIR_USUARIO = """
-INSERT INTO Usuario (nome, telefone, email, senha, perfil)
-VALUES (?, ?, ?, ?, ?);
+INSERT INTO Usuario (nome, cpf, data_nascimento, email, telefone, senha, perfil)
+VALUES (?, ?, ?, ?, ?, ?, ?);
 """
 
 ATUALIZAR_USUARIO = """
@@ -36,26 +38,26 @@ WHERE id = ?;
 """
 
 OBTER_USUARIO_POR_ID = """
-SELECT id, nome, telefone, email, senha, perfil, foto, token_redefinicao, data_token, data_cadastro
+SELECT id, nome, cpf, data_nascimento, email, telefone, senha, perfil, foto, token_redefinicao, data_token, data_cadastro
 FROM Usuario
 WHERE id = ?;
 """
 
 OBTER_USUARIO_POR_EMAIL = """
-SELECT id, nome, telefone, email, senha, perfil, foto, token_redefinicao, data_token, data_cadastro
+SELECT id, nome, cpf, data_nascimento, email, telefone, senha, perfil, foto, token_redefinicao, data_token, data_cadastro
 FROM Usuario
 WHERE email = ?;
 """
 
 OBTER_USUARIOS_POR_PAGINA = """
-SELECT id, nome, telefone, email, senha, perfil, foto, token_redefinicao, data_token, data_cadastro
+SELECT id, nome, cpf, data_nascimento, email, telefone, senha, perfil, foto, token_redefinicao, data_token, data_cadastro
 FROM Usuario
 ORDER BY nome ASC
 LIMIT ? OFFSET ?;
 """
 
 OBTER_USUARIOS_POR_TIPO_POR_PAGINA = """
-SELECT id, nome, telefone, email, senha, perfil, foto, token_redefinicao, data_token, data_cadastro
+SELECT id, nome, cpf, data_nascimento, email, telefone, senha, perfil, foto, token_redefinicao, data_token, data_cadastro
 FROM Usuario
 WHERE perfil = ?
 ORDER BY nome ASC

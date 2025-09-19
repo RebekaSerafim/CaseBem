@@ -27,7 +27,7 @@ def inserir_usuario(usuario: Usuario) -> Optional[int]:
         cursor = conexao.cursor()
         # Executa comando SQL para inserir usuário com todos os campos
         cursor.execute(INSERIR_USUARIO,
-            (usuario.nome, usuario.telefone, usuario.email, usuario.senha, usuario.perfil.value))
+            (usuario.nome, usuario.cpf, usuario.data_nascimento, usuario.email, usuario.telefone, usuario.senha, usuario.perfil.value))
         # Retorna o ID do usuário inserido
         return cursor.lastrowid        
 
@@ -77,8 +77,10 @@ def obter_usuario_por_id(id: int) -> Optional[Usuario]:
             return Usuario(
                 id=resultado["id"],
                 nome=resultado["nome"],
-                telefone=resultado["telefone"],
+                cpf=resultado["cpf"],
+                data_nascimento=resultado["data_nascimento"],
                 email=resultado["email"],
+                telefone=resultado["telefone"],
                 senha=resultado["senha"],
                 perfil=TipoUsuario(resultado["perfil"]),
                 foto=resultado["foto"],
@@ -103,8 +105,10 @@ def obter_usuario_por_email(email: str) -> Optional[Usuario]:
             return Usuario(
                 id=resultado["id"],
                 nome=resultado["nome"],
-                telefone=resultado["telefone"],
+                cpf=resultado["cpf"],
+                data_nascimento=resultado["data_nascimento"],
                 email=resultado["email"],
+                telefone=resultado["telefone"],
                 senha=resultado["senha"],
                 perfil=TipoUsuario(resultado["perfil"]),
                 foto=resultado["foto"],
@@ -131,8 +135,10 @@ def obter_usuarios_por_pagina(numero_pagina: int, tamanho_pagina: int) -> list[U
         return [Usuario(
             id=resultado["id"],
             nome=resultado["nome"],
-            telefone=resultado["telefone"],
+            cpf=resultado["cpf"],
+            data_nascimento=resultado["data_nascimento"],
             email=resultado["email"],
+            telefone=resultado["telefone"],
             senha=resultado["senha"],
             perfil=TipoUsuario(resultado["perfil"]),
             foto=resultado["foto"],
@@ -161,8 +167,10 @@ def obter_usuarios_por_tipo_por_pagina(tipo: TipoUsuario, numero_pagina: int, ta
         return [Usuario(
             id=resultado["id"],
             nome=resultado["nome"],
-            telefone=resultado["telefone"],
+            cpf=resultado["cpf"],
+            data_nascimento=resultado["data_nascimento"],
             email=resultado["email"],
+            telefone=resultado["telefone"],
             senha=resultado["senha"],
             perfil=TipoUsuario(resultado["perfil"]),
             foto=resultado["foto"],
