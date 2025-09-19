@@ -2,8 +2,13 @@ from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
 from starlette.middleware.sessions import SessionMiddleware
 import secrets
+import os
+from dotenv import load_dotenv
 
 import uvicorn
+
+# Carregar variáveis do arquivo .env
+load_dotenv()
 
 from routes import public_routes, admin_routes, fornecedor_routes, noivo_routes
 from util.startup import inicializar_sistema

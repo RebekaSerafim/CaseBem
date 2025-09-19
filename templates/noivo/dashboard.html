@@ -6,7 +6,7 @@
 <div class="row">
     <div class="col-12">
         <h1 class="mb-4">
-            Bem-vindos, {{ usuario_logado.nome }}{% if casal and casal.nome_parceiro %} e {{ casal.nome_parceiro }}{% endif %}! 💕
+            Bem-vindos, {{ usuario_logado.nome }}! 💕
         </h1>
     </div>
 </div>
@@ -23,20 +23,13 @@
                 <div class="row">
                     <div class="col-md-6">
                         <p><strong>Data do Casamento:</strong> {{ casal.data_casamento or 'Não definida' }}</p>
-                        <p><strong>Local da Cerimônia:</strong> {{ casal.local_cerimonia or 'Não definido' }}</p>
+                        <p><strong>Local Previsto:</strong> {{ casal.local_previsto or 'Não definido' }}</p>
                     </div>
                     <div class="col-md-6">
-                        <p><strong>Local da Festa:</strong> {{ casal.local_festa or 'Não definido' }}</p>
+                        <p><strong>Orçamento Estimado:</strong> {{ casal.orcamento_estimado or 'Não definido' }}</p>
                         <p><strong>Número de Convidados:</strong> {{ casal.numero_convidados or 'Não definido' }}</p>
                     </div>
                 </div>
-                {% if casal.observacoes %}
-                <div class="row mt-2">
-                    <div class="col-12">
-                        <p><strong>Observações:</strong> {{ casal.observacoes }}</p>
-                    </div>
-                </div>
-                {% endif %}
                 <div class="text-end">
                     <a href="/noivo/perfil" class="btn btn-sm btn-outline-success">Editar Informações</a>
                 </div>

@@ -25,10 +25,23 @@ class TestOrcamentoRepo:
             usuario_repo.inserir_usuario(noivo)
         id_fornecedor = usuario_repo.inserir_usuario(fornecedor_exemplo)
         
-        casal = Casal(0, 1, 2, 10000.0)
+        casal = Casal(
+            id=0,
+            id_noivo1=1,
+            id_noivo2=2,
+            data_casamento=None,
+            local_previsto=None,
+            orcamento_estimado="50k_100k",
+            numero_convidados=100
+        )
         casal_repo.inserir_casal(casal)
         
-        demanda = Demanda(0, 1, datetime.now())
+        demanda = Demanda(
+            id=0,
+            id_noivo=1,
+            titulo="Demanda de teste",
+            descricao="Descrição da demanda de teste"
+        )
         id_demanda = demanda_repo.inserir_demanda(demanda)
         
         # Criar orçamento
@@ -66,9 +79,22 @@ class TestOrcamentoRepo:
             usuario_repo.inserir_usuario(noivo)
         id_fornecedor = usuario_repo.inserir_usuario(fornecedor_exemplo)
         
-        casal = Casal(0, 1, 2, 10000.0)
+        casal = Casal(
+            id=0,
+            id_noivo1=1,
+            id_noivo2=2,
+            data_casamento=None,
+            local_previsto=None,
+            orcamento_estimado="50k_100k",
+            numero_convidados=100
+        )
         casal_repo.inserir_casal(casal)
-        demanda = Demanda(0, 1, datetime.now())
+        demanda = Demanda(
+            id=0,
+            id_noivo=1,
+            titulo="Demanda de teste",
+            descricao="Descrição da demanda de teste"
+        )
         id_demanda = demanda_repo.inserir_demanda(demanda)
         
         orcamento = Orcamento(0, id_demanda, id_fornecedor, datetime.now(), 
@@ -101,9 +127,22 @@ class TestOrcamentoRepo:
             usuario_repo.inserir_usuario(noivo)
         id_fornecedor = usuario_repo.inserir_usuario(fornecedor_exemplo)
         
-        casal = Casal(0, 1, 2, 10000.0)
+        casal = Casal(
+            id=0,
+            id_noivo1=1,
+            id_noivo2=2,
+            data_casamento=None,
+            local_previsto=None,
+            orcamento_estimado="50k_100k",
+            numero_convidados=100
+        )
         casal_repo.inserir_casal(casal)
-        demanda = Demanda(0, 1, datetime.now())
+        demanda = Demanda(
+            id=0,
+            id_noivo=1,
+            titulo="Demanda de teste",
+            descricao="Descrição da demanda de teste"
+        )
         id_demanda = demanda_repo.inserir_demanda(demanda)
         
         orcamento = Orcamento(0, id_demanda, id_fornecedor, datetime.now(), None, "PENDENTE", None, None)
@@ -128,9 +167,22 @@ class TestOrcamentoRepo:
             usuario_repo.inserir_usuario(noivo)
         id_fornecedor = usuario_repo.inserir_usuario(fornecedor_exemplo)
         
-        casal = Casal(0, 1, 2, 10000.0)
+        casal = Casal(
+            id=0,
+            id_noivo1=1,
+            id_noivo2=2,
+            data_casamento=None,
+            local_previsto=None,
+            orcamento_estimado="50k_100k",
+            numero_convidados=100
+        )
         casal_repo.inserir_casal(casal)
-        demanda = Demanda(0, 1, datetime.now())
+        demanda = Demanda(
+            id=0,
+            id_noivo=1,
+            titulo="Demanda de teste",
+            descricao="Descrição da demanda de teste"
+        )
         id_demanda = demanda_repo.inserir_demanda(demanda)
         
         orcamento = Orcamento(0, id_demanda, id_fornecedor, datetime.now(), None, "PENDENTE", None, 100.00)
@@ -157,9 +209,22 @@ class TestOrcamentoRepo:
         for fornecedor in lista_fornecedores_exemplo[:3]:
             ids_fornecedores.append(usuario_repo.inserir_usuario(fornecedor))
         
-        casal = Casal(0, 1, 2, 10000.0)
+        casal = Casal(
+            id=0,
+            id_noivo1=1,
+            id_noivo2=2,
+            data_casamento=None,
+            local_previsto=None,
+            orcamento_estimado="50k_100k",
+            numero_convidados=100
+        )
         casal_repo.inserir_casal(casal)
-        demanda = Demanda(0, 1, datetime.now())
+        demanda = Demanda(
+            id=0,
+            id_noivo=1,
+            titulo="Demanda de teste",
+            descricao="Descrição da demanda de teste"
+        )
         id_demanda = demanda_repo.inserir_demanda(demanda)
         
         # Inserir múltiplos orçamentos
@@ -196,9 +261,22 @@ class TestOrcamentoRepo:
             usuario_repo.inserir_usuario(noivo)
         id_fornecedor = usuario_repo.inserir_usuario(fornecedor_exemplo)
         
-        casal = Casal(0, 1, 2, 10000.0)
+        casal = Casal(
+            id=0,
+            id_noivo1=1,
+            id_noivo2=2,
+            data_casamento=None,
+            local_previsto=None,
+            orcamento_estimado="50k_100k",
+            numero_convidados=100
+        )
         casal_repo.inserir_casal(casal)
-        demanda = Demanda(0, 1, datetime.now())
+        demanda = Demanda(
+            id=0,
+            id_noivo=1,
+            titulo="Demanda de teste",
+            descricao="Descrição da demanda de teste"
+        )
         id_demanda = demanda_repo.inserir_demanda(demanda)
         
         orcamento = Orcamento(0, id_demanda, id_fornecedor, datetime.now(), None, "PENDENTE", None, None)
@@ -237,9 +315,22 @@ class TestOrcamentoRepo:
         for fornecedor in lista_fornecedores_exemplo[:3]:
             ids_fornecedores.append(usuario_repo.inserir_usuario(fornecedor))
         
-        casal = Casal(0, 1, 2, 10000.0)
+        casal = Casal(
+            id=0,
+            id_noivo1=1,
+            id_noivo2=2,
+            data_casamento=None,
+            local_previsto=None,
+            orcamento_estimado="50k_100k",
+            numero_convidados=100
+        )
         casal_repo.inserir_casal(casal)
-        demanda = Demanda(0, 1, datetime.now())
+        demanda = Demanda(
+            id=0,
+            id_noivo=1,
+            titulo="Demanda de teste",
+            descricao="Descrição da demanda de teste"
+        )
         id_demanda = demanda_repo.inserir_demanda(demanda)
         
         # Inserir orçamentos
@@ -266,13 +357,26 @@ class TestOrcamentoRepo:
             usuario_repo.inserir_usuario(noivo)
         id_fornecedor = usuario_repo.inserir_usuario(fornecedor_exemplo)
         
-        casal = Casal(0, 1, 2, 10000.0)
+        casal = Casal(
+            id=0,
+            id_noivo1=1,
+            id_noivo2=2,
+            data_casamento=None,
+            local_previsto=None,
+            orcamento_estimado="50k_100k",
+            numero_convidados=100
+        )
         casal_repo.inserir_casal(casal)
         
         # Criar múltiplas demandas
         ids_demandas = []
         for i in range(3):
-            demanda = Demanda(0, 1, datetime.now())
+            demanda = Demanda(
+                id=0,
+                id_noivo=1,
+                titulo="Demanda de teste",
+                descricao="Descrição da demanda de teste"
+            )
             ids_demandas.append(demanda_repo.inserir_demanda(demanda))
         
         # Inserir orçamentos do mesmo fornecedor
@@ -301,9 +405,22 @@ class TestOrcamentoRepo:
         for fornecedor in lista_fornecedores_exemplo[:3]:
             ids_fornecedores.append(usuario_repo.inserir_usuario(fornecedor))
         
-        casal = Casal(0, 1, 2, 10000.0)
+        casal = Casal(
+            id=0,
+            id_noivo1=1,
+            id_noivo2=2,
+            data_casamento=None,
+            local_previsto=None,
+            orcamento_estimado="50k_100k",
+            numero_convidados=100
+        )
         casal_repo.inserir_casal(casal)
-        demanda = Demanda(0, 1, datetime.now())
+        demanda = Demanda(
+            id=0,
+            id_noivo=1,
+            titulo="Demanda de teste",
+            descricao="Descrição da demanda de teste"
+        )
         id_demanda = demanda_repo.inserir_demanda(demanda)
         
         # Inserir orçamentos com status diferentes
@@ -336,9 +453,22 @@ class TestOrcamentoRepo:
         for fornecedor in lista_fornecedores_exemplo[:5]:
             ids_fornecedores.append(usuario_repo.inserir_usuario(fornecedor))
         
-        casal = Casal(0, 1, 2, 10000.0)
+        casal = Casal(
+            id=0,
+            id_noivo1=1,
+            id_noivo2=2,
+            data_casamento=None,
+            local_previsto=None,
+            orcamento_estimado="50k_100k",
+            numero_convidados=100
+        )
         casal_repo.inserir_casal(casal)
-        demanda = Demanda(0, 1, datetime.now())
+        demanda = Demanda(
+            id=0,
+            id_noivo=1,
+            titulo="Demanda de teste",
+            descricao="Descrição da demanda de teste"
+        )
         id_demanda = demanda_repo.inserir_demanda(demanda)
         
         # Inserir 10 orçamentos

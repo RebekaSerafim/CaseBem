@@ -1,17 +1,22 @@
-from fastapi import APIRouter, Form, Request, status
+from fastapi import APIRouter, Form, Request, status, HTTPException
 from fastapi.responses import RedirectResponse
 from fastapi.templating import Jinja2Templates
+from pydantic import ValidationError
+import os
 
 from model.usuario_model import TipoUsuario, Usuario
 from model.fornecedor_model import Fornecedor
 from model.casal_model import Casal
+from dtos.cadastro_noivos_dto import CadastroNoivosDTO
+from dtos.cadastro_fornecedor_dto import CadastroFornecedorDTO
 from repo import usuario_repo, fornecedor_repo, casal_repo
 from util.auth_decorator import criar_sessao
-from util.security import criar_hash_senha, verificar_senha, validar_forca_senha, validar_cpf, validar_telefone
+from util.security import criar_hash_senha, verificar_senha, validar_forca_senha, validar_cpf, validar_cnpj, validar_telefone
 from util.usuario_util import usuario_para_sessao
 
 router = APIRouter()
 templates = Jinja2Templates(directory="templates")
+
 
 
 @router.get("/")
@@ -58,71 +63,101 @@ async def post_cadastro_noivos(request: Request,
     numero_convidados: str = Form(None),
     newsletter: str = Form(None)
 ):
-    # Verificar se as senhas coincidem
-    if senha != confirmar_senha:
+    try:
+        # Criar DTO com validação automática do Pydantic
+        dados = CadastroNoivosDTO(
+            # Dados do casamento
+            data_casamento=data_casamento,
+            local_previsto=local_previsto,
+            orcamento_estimado=orcamento,
+            numero_convidados=numero_convidados,
+            # Dados do primeiro noivo
+            nome1=nome1,
+            data_nascimento1=data_nascimento1,
+            cpf1=cpf1,
+            email1=email1,
+            telefone1=telefone1,
+            genero1=genero1,
+            # Dados do segundo noivo
+            nome2=nome2,
+            data_nascimento2=data_nascimento2,
+            cpf2=cpf2,
+            email2=email2,
+            telefone2=telefone2,
+            genero2=genero2,
+            # Dados de acesso
+            senha=senha,
+            confirmar_senha=confirmar_senha,
+            # Outros
+            newsletter=newsletter
+        )
+    except ValidationError as e:
+        # Extrair primeira mensagem de erro
+        error_msg = e.errors()[0]['msg']
         return templates.TemplateResponse(
             "publico/cadastro_noivos.html",
-            {"request": request, "erro": "As senhas não coincidem"}
+            {"request": request, "erro": error_msg, "dados": None}
         )
 
+    # Validações adicionais específicas do negócio
     # Validar força da senha
-    senha_valida, erro_senha = validar_forca_senha(senha)
+    senha_valida, erro_senha = validar_forca_senha(dados.senha)
     if not senha_valida:
         return templates.TemplateResponse(
             "publico/cadastro_noivos.html",
-            {"request": request, "erro": erro_senha}
+            {"request": request, "erro": erro_senha, "dados": dados}
         )
 
     # Validar CPFs se fornecidos
-    if cpf1 and not validar_cpf(cpf1):
+    if dados.cpf1 and not validar_cpf(dados.cpf1):
         return templates.TemplateResponse(
             "publico/cadastro_noivos.html",
-            {"request": request, "erro": "CPF do primeiro noivo é inválido"}
+            {"request": request, "erro": "CPF do primeiro noivo é inválido", "dados": dados}
         )
 
-    if cpf2 and not validar_cpf(cpf2):
+    if dados.cpf2 and not validar_cpf(dados.cpf2):
         return templates.TemplateResponse(
             "publico/cadastro_noivos.html",
-            {"request": request, "erro": "CPF do segundo noivo é inválido"}
+            {"request": request, "erro": "CPF do segundo noivo é inválido", "dados": dados}
         )
 
     # Validar telefones
-    if not validar_telefone(telefone1):
+    if not validar_telefone(dados.telefone1):
         return templates.TemplateResponse(
             "publico/cadastro_noivos.html",
-            {"request": request, "erro": "Telefone do primeiro noivo é inválido"}
+            {"request": request, "erro": "Telefone do primeiro noivo é inválido", "dados": dados}
         )
 
-    if not validar_telefone(telefone2):
+    if not validar_telefone(dados.telefone2):
         return templates.TemplateResponse(
             "publico/cadastro_noivos.html",
-            {"request": request, "erro": "Telefone do segundo noivo é inválido"}
+            {"request": request, "erro": "Telefone do segundo noivo é inválido", "dados": dados}
         )
 
     # Verificar se emails já existem
-    if usuario_repo.obter_usuario_por_email(email1):
+    if usuario_repo.obter_usuario_por_email(dados.email1):
         return templates.TemplateResponse(
             "publico/cadastro_noivos.html",
-            {"request": request, "erro": f"E-mail {email1} já cadastrado"}
+            {"request": request, "erro": f"E-mail {dados.email1} já cadastrado", "dados": dados}
         )
 
-    if usuario_repo.obter_usuario_por_email(email2):
+    if usuario_repo.obter_usuario_por_email(dados.email2):
         return templates.TemplateResponse(
             "publico/cadastro_noivos.html",
-            {"request": request, "erro": f"E-mail {email2} já cadastrado"}
+            {"request": request, "erro": f"E-mail {dados.email2} já cadastrado", "dados": dados}
         )
 
     # Criar hash da senha compartilhada
-    senha_hash = criar_hash_senha(senha)
+    senha_hash = criar_hash_senha(dados.senha)
 
     # Criar primeiro usuário
     usuario1 = Usuario(
         id=0,
-        nome=nome1,
-        cpf=cpf1,
-        data_nascimento=data_nascimento1,
-        email=email1,
-        telefone=telefone1,
+        nome=dados.nome1,
+        cpf=dados.cpf1,
+        data_nascimento=dados.data_nascimento1,
+        email=dados.email1,
+        telefone=dados.telefone1,
         senha=senha_hash,
         perfil=TipoUsuario.NOIVO,
         foto=None,
@@ -135,11 +170,11 @@ async def post_cadastro_noivos(request: Request,
     # Criar segundo usuário
     usuario2 = Usuario(
         id=0,
-        nome=nome2,
-        cpf=cpf2,
-        data_nascimento=data_nascimento2,
-        email=email2,
-        telefone=telefone2,
+        nome=dados.nome2,
+        cpf=dados.cpf2,
+        data_nascimento=dados.data_nascimento2,
+        email=dados.email2,
+        telefone=dados.telefone2,
         senha=senha_hash,
         perfil=TipoUsuario.NOIVO,
         foto=None,
@@ -155,10 +190,10 @@ async def post_cadastro_noivos(request: Request,
             id=0,
             id_noivo1=usuario1_id,
             id_noivo2=usuario2_id,
-            data_casamento=data_casamento if data_casamento else None,
-            local_previsto=local_previsto if local_previsto else None,
-            orcamento=orcamento if orcamento else None,
-            numero_convidados=int(numero_convidados) if numero_convidados else None
+            data_casamento=dados.data_casamento if dados.data_casamento else None,
+            local_previsto=dados.local_previsto if dados.local_previsto else None,
+            orcamento_estimado=dados.orcamento_estimado if dados.orcamento_estimado else None,
+            numero_convidados=int(dados.numero_convidados) if dados.numero_convidados else None
         )
         casal_repo.inserir_casal(casal)
 
@@ -186,66 +221,84 @@ async def post_cadastro_fornecedor(request: Request,
     perfis: list = Form(...),
     newsletter: str = Form(None)
 ):
-    # Verificar se as senhas coincidem
-    if senha != confirmar_senha:
+    try:
+        # Criar DTO com validação automática do Pydantic
+        dados = CadastroFornecedorDTO(
+            nome=nome,
+            data_nascimento=data_nascimento,
+            cpf=cpf,
+            nome_empresa=nome_empresa,
+            cnpj=cnpj,
+            descricao=descricao,
+            email=email,
+            telefone=telefone,
+            senha=senha,
+            confirmar_senha=confirmar_senha,
+            perfis=perfis if perfis else [],
+            newsletter=newsletter
+        )
+    except ValidationError as e:
+        # Extrair primeira mensagem de erro
+        error_msg = e.errors()[0]['msg']
         return templates.TemplateResponse(
             "publico/cadastro_fornecedor.html",
-            {"request": request, "erro": "As senhas não coincidem"}
+            {"request": request, "erro": error_msg, "dados": None}
         )
 
+    # Validações adicionais específicas do negócio
     # Validar força da senha
-    senha_valida, erro_senha = validar_forca_senha(senha)
+    senha_valida, erro_senha = validar_forca_senha(dados.senha)
     if not senha_valida:
         return templates.TemplateResponse(
             "publico/cadastro_fornecedor.html",
-            {"request": request, "erro": erro_senha}
+            {"request": request, "erro": erro_senha, "dados": dados}
         )
 
     # Validar CPF se fornecido
-    if cpf and not validar_cpf(cpf):
+    if dados.cpf and not validar_cpf(dados.cpf):
         return templates.TemplateResponse(
             "publico/cadastro_fornecedor.html",
-            {"request": request, "erro": "CPF inválido"}
+            {"request": request, "erro": "CPF inválido", "dados": dados}
+        )
+
+    # Validar CNPJ se fornecido
+    if dados.cnpj and not validar_cnpj(dados.cnpj):
+        return templates.TemplateResponse(
+            "publico/cadastro_fornecedor.html",
+            {"request": request, "erro": "CNPJ inválido", "dados": dados}
         )
 
     # Validar telefone
-    if not validar_telefone(telefone):
+    if not validar_telefone(dados.telefone):
         return templates.TemplateResponse(
             "publico/cadastro_fornecedor.html",
-            {"request": request, "erro": "Telefone inválido"}
+            {"request": request, "erro": "Telefone inválido", "dados": dados}
         )
 
     # Verificar se email já existe
-    if usuario_repo.obter_usuario_por_email(email):
+    if usuario_repo.obter_usuario_por_email(dados.email):
         return templates.TemplateResponse(
             "publico/cadastro_fornecedor.html",
-            {"request": request, "erro": "E-mail já cadastrado"}
-        )
-
-    # Verificar se pelo menos um perfil foi selecionado
-    if not perfis:
-        return templates.TemplateResponse(
-            "publico/cadastro_fornecedor.html",
-            {"request": request, "erro": "Selecione pelo menos um tipo de fornecimento"}
+            {"request": request, "erro": "E-mail já cadastrado", "dados": dados}
         )
 
     # Criar hash da senha
-    senha_hash = criar_hash_senha(senha)
+    senha_hash = criar_hash_senha(dados.senha)
 
     # Verificar quais tipos de fornecimento foram selecionados
-    eh_prestador = "prestador" in perfis
-    eh_vendedor = "vendedor" in perfis
-    eh_locador = "locador" in perfis
+    eh_prestador = "prestador" in dados.perfis
+    eh_vendedor = "vendedor" in dados.perfis
+    eh_locador = "locador" in dados.perfis
 
     # Criar fornecedor (que herda de Usuario)
     fornecedor = Fornecedor(
         # Campos de Usuario na ordem correta
         id=0,
-        nome=nome,
-        cpf=cpf,
-        data_nascimento=data_nascimento,
-        email=email,
-        telefone=telefone,
+        nome=dados.nome,
+        cpf=dados.cpf,
+        data_nascimento=dados.data_nascimento,
+        email=dados.email,
+        telefone=dados.telefone,
         senha=senha_hash,
         perfil=TipoUsuario.FORNECEDOR,
         foto=None,
@@ -253,9 +306,9 @@ async def post_cadastro_fornecedor(request: Request,
         data_token=None,
         data_cadastro=None,
         # Campos específicos de Fornecedor
-        nome_empresa=nome_empresa,
-        cnpj=cnpj,
-        descricao=descricao,
+        nome_empresa=dados.nome_empresa,
+        cnpj=dados.cnpj,
+        descricao=dados.descricao,
         prestador=eh_prestador,
         vendedor=eh_vendedor,
         locador=eh_locador

@@ -18,7 +18,7 @@ body {
 
 .navbar-divider {
     width: 1px;
-    height: 90px;
+    height: 60px;
     background-color: #e0e1e2;
     align-self: center;
 }
@@ -310,11 +310,11 @@ body {
     .product-title {
         font-size: 1.75rem;
     }
-    
+
     .product-info {
         padding: 2rem !important;
     }
-    
+
     .custom-tab {
         margin-right: 1rem;
         font-size: 0.9rem;
@@ -325,24 +325,24 @@ body {
     .product-title {
         font-size: 1.5rem;
     }
-    
+
     .product-info {
         padding: 1.5rem !important;
     }
-    
+
     .custom-tab {
         margin-right: 0.5rem;
         padding: 0.5rem 0.75rem;
         font-size: 0.85rem;
     }
-    
+
     .btn-contact {
         font-size: 1rem;
     }
 }
 
 /* Animações suaves */
-.product-info > * {
+.product-info>* {
     animation: fadeInUp 0.6s ease-out;
 }
 
@@ -351,6 +351,7 @@ body {
         opacity: 0;
         transform: translateY(20px);
     }
+
     to {
         opacity: 1;
         transform: translateY(0);

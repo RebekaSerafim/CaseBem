@@ -22,7 +22,7 @@ def inserir_casal(casal: Casal) -> Optional[int]:
             casal.id_noivo2,
             casal.data_casamento,
             casal.local_previsto,
-            casal.orcamento,
+            casal.orcamento_estimado,
             casal.numero_convidados
         ))
         return cursor.lastrowid
@@ -33,7 +33,7 @@ def atualizar_casal(casal: Casal) -> bool:
         cursor.execute(ATUALIZAR_CASAL, (
             casal.data_casamento,
             casal.local_previsto,
-            casal.orcamento,
+            casal.orcamento_estimado,
             casal.numero_convidados,
             casal.id
         ))
@@ -57,7 +57,7 @@ def obter_casal_por_id(id: int) -> Optional[Casal]:
                 id_noivo2=resultado["id_noivo2"],
                 data_casamento=resultado["data_casamento"],
                 local_previsto=resultado["local_previsto"],
-                orcamento=resultado["orcamento"],
+                orcamento_estimado=resultado["orcamento_estimado"],
                 numero_convidados=resultado["numero_convidados"],
                 data_cadastro=resultado["data_cadastro"],
                 noivo1=usuario_repo.obter_usuario_por_id(resultado["id_noivo1"]),
@@ -78,7 +78,7 @@ def obter_casais_por_pagina(numero_pagina: int, tamanho_pagina: int) -> list[Cas
             id_noivo2=resultado["id_noivo2"],
             data_casamento=resultado["data_casamento"],
             local_previsto=resultado["local_previsto"],
-            orcamento=resultado["orcamento"],
+            orcamento_estimado=resultado["orcamento_estimado"],
             numero_convidados=resultado["numero_convidados"],
             data_cadastro=resultado["data_cadastro"]
         ) for resultado in resultados]
@@ -95,7 +95,7 @@ def obter_casal_por_noivo(id_noivo: int) -> Optional[Casal]:
                 id_noivo2=resultado["id_noivo2"],
                 data_casamento=resultado["data_casamento"],
                 local_previsto=resultado["local_previsto"],
-                orcamento=resultado["orcamento"],
+                orcamento_estimado=resultado["orcamento_estimado"],
                 numero_convidados=resultado["numero_convidados"],
                 data_cadastro=resultado["data_cadastro"]
             )

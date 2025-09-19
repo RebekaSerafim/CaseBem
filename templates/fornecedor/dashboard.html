@@ -5,20 +5,20 @@
 {% block content %}
 <div class="row">
     <div class="col-12">
-        <h1 class="mb-4">
+        <h1 class="mb-0">
             Bem-vindo, {{ usuario_logado.nome }}!
-            {% if fornecedor.verificado %}
-                <span class="badge bg-success ms-2">Verificado</span>
-            {% else %}
-                <span class="badge bg-warning ms-2">Aguardando Verificação</span>
-            {% endif %}
         </h1>
+        {% if fornecedor.verificado %}
+        <p class="badge bg-success mb-2">Verificado</p>
+        {% else %}
+        <p class="badge bg-warning mb-2">Aguardando Verificação</p>
+        {% endif %}
     </div>
 </div>
 
 <!-- Status de Verificação -->
 {% if not fornecedor.verificado %}
-<div class="row mb-4">
+<div class="row mb-2">
     <div class="col-12">
         <div class="alert alert-warning" role="alert">
             <h5 class="alert-heading">Conta em Análise</h5>
@@ -180,16 +180,16 @@
                         <strong>Tipos de Serviço:</strong>
                         <div class="mt-2">
                             {% if fornecedor.prestador %}
-                                <span class="badge bg-info me-1">Prestador de Serviços</span>
+                            <span class="badge bg-info me-1">Prestador de Serviços</span>
                             {% endif %}
                             {% if fornecedor.vendedor %}
-                                <span class="badge bg-success me-1">Vendedor de Produtos</span>
+                            <span class="badge bg-success me-1">Vendedor de Produtos</span>
                             {% endif %}
                             {% if fornecedor.locador %}
-                                <span class="badge bg-warning me-1">Locador de Espaços</span>
+                            <span class="badge bg-warning me-1">Locador de Espaços</span>
                             {% endif %}
                             {% if not fornecedor.prestador and not fornecedor.vendedor and not fornecedor.locador %}
-                                <span class="text-muted">Nenhum tipo selecionado</span>
+                            <span class="text-muted">Nenhum tipo selecionado</span>
                             {% endif %}
                         </div>
                     </div>
@@ -241,13 +241,14 @@
                                 <td>R$ {{ "%.2f"|format(item.preco) }}</td>
                                 <td>
                                     {% if item.ativo %}
-                                        <span class="badge bg-success">Ativo</span>
+                                    <span class="badge bg-success">Ativo</span>
                                     {% else %}
-                                        <span class="badge bg-secondary">Inativo</span>
+                                    <span class="badge bg-secondary">Inativo</span>
                                     {% endif %}
                                 </td>
                                 <td>
-                                    <a href="/fornecedor/item/editar/{{ item.id }}" class="btn btn-sm btn-outline-primary">
+                                    <a href="/fornecedor/item/editar/{{ item.id }}"
+                                        class="btn btn-sm btn-outline-primary">
                                         Editar
                                     </a>
                                 </td>
@@ -278,17 +279,20 @@
 
 {% block scripts %}
 <style>
-.border-left-primary {
-    border-left: 0.25rem solid #4e73df !important;
-}
-.border-left-success {
-    border-left: 0.25rem solid #1cc88a !important;
-}
-.border-left-warning {
-    border-left: 0.25rem solid #f6c23e !important;
-}
-.border-left-info {
-    border-left: 0.25rem solid #36b9cc !important;
-}
+    .border-left-primary {
+        border-left: 0.25rem solid #4e73df !important;
+    }
+
+    .border-left-success {
+        border-left: 0.25rem solid #1cc88a !important;
+    }
+
+    .border-left-warning {
+        border-left: 0.25rem solid #f6c23e !important;
+    }
+
+    .border-left-info {
+        border-left: 0.25rem solid #36b9cc !important;
+    }
 </style>
 {% endblock %}

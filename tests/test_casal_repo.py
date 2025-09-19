@@ -16,7 +16,7 @@ class TestCasalRepo:
             id_noivo2=2,
             data_casamento="2024-12-25",
             local_previsto="Igreja do Centro",
-            orcamento="50k_100k",
+            orcamento_estimado="50k_100k",
             numero_convidados=150
         )
         casal_repo.criar_tabela_casal()
@@ -28,7 +28,7 @@ class TestCasalRepo:
         assert casal is not None, "Casal não encontrado após inserção"
         assert casal.id_noivo1 == 1
         assert casal.id_noivo2 == 2
-        assert casal.orcamento == "50k_100k"
+        assert casal.orcamento_estimado == "50k_100k"
         assert casal.data_casamento == "2024-12-25"
         assert casal.local_previsto == "Igreja do Centro"
         assert casal.numero_convidados == 150
@@ -52,7 +52,7 @@ class TestCasalRepo:
             id_noivo2=2,
             data_casamento="2024-12-25",
             local_previsto="Igreja do Centro",
-            orcamento="50k_100k",
+            orcamento_estimado="50k_100k",
             numero_convidados=150
         )
         casal_repo.criar_tabela_casal()
@@ -64,7 +64,7 @@ class TestCasalRepo:
             id_noivo2=2,
             data_casamento="2024-12-30",
             local_previsto="Salão de Festas",
-            orcamento="acima_100k",
+            orcamento_estimado="acima_100k",
             numero_convidados=200
         )
         sucesso = casal_repo.atualizar_casal(casal_atualizado)
@@ -72,7 +72,7 @@ class TestCasalRepo:
         assert sucesso is True, "Atualização do casal deveria ser bem-sucedida"
         casal = casal_repo.obter_casal_por_id(id_casal)
         assert casal is not None, "Casal não encontrado após atualização"
-        assert casal.orcamento == "acima_100k", "Orçamento do casal não foi atualizado corretamente"
+        assert casal.orcamento_estimado == "acima_100k", "Orçamento estimado do casal não foi atualizado corretamente"
 
     def test_atualizar_casal_inexistente(self, test_db):
         # Arrange
@@ -84,7 +84,7 @@ class TestCasalRepo:
             id_noivo2=2,
             data_casamento="2024-01-01",
             local_previsto="Local",
-            orcamento="10k_25k",
+            orcamento_estimado="10k_25k",
             numero_convidados=50
         )        
         atualizou = casal_repo.atualizar_casal(casal_inexistente)
@@ -102,7 +102,7 @@ class TestCasalRepo:
             id_noivo2=2,
             data_casamento="2024-12-25",
             local_previsto="Igreja do Centro",
-            orcamento="50k_100k",
+            orcamento_estimado="50k_100k",
             numero_convidados=150
         )
         casal_repo.criar_tabela_casal()
@@ -142,7 +142,7 @@ class TestCasalRepo:
             id_noivo2=2,
             data_casamento="2024-06-15",
             local_previsto="Igreja",
-            orcamento="25k_50k",
+            orcamento_estimado="25k_50k",
             numero_convidados=100
         )
         casal2 = Casal(
@@ -151,7 +151,7 @@ class TestCasalRepo:
             id_noivo2=4,
             data_casamento="2024-09-20",
             local_previsto="Praia",
-            orcamento="50k_100k",
+            orcamento_estimado="50k_100k",
             numero_convidados=80
         )
         casal_repo.inserir_casal(casal1)

@@ -1,5 +1,6 @@
 fastapi[standard]
 uvicorn[standard]
+pydantic
 jinja2
 Babel
 python-multipart
@@ -7,6 +8,7 @@ itsdangerous
 passlib[bcrypt]
 python-jose[cryptography]
 itsdangerous
+python-dotenv
 
 # Dependências de teste
 pytest
