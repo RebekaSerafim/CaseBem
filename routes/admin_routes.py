@@ -19,17 +19,25 @@ async def dashboard_admin(request: Request, usuario_logado: dict = None):
     try:
         # Estatísticas do sistema
         stats = {
-            "total_usuarios": len(usuario_repo.obter_usuarios_por_pagina(1, 1000)),  # TODO: criar função count
-            "total_fornecedores": len(fornecedor_repo.obter_fornecedores_por_pagina(1, 1000)),
-            "fornecedores_nao_verificados": len([f for f in fornecedor_repo.obter_fornecedores_por_pagina(1, 1000) if not f.verificado]),
-            "total_itens": len(item_repo.obter_itens_por_pagina(1, 1000)),
-            "estatisticas_itens": item_repo.obter_estatisticas_itens()
+            "total_usuarios": usuario_repo.contar_usuarios(),
+            "total_fornecedores": fornecedor_repo.contar_fornecedores(),
+            "fornecedores_nao_verificados": fornecedor_repo.contar_fornecedores_nao_verificados(),
+            "total_itens": item_repo.contar_itens(),
+            "estatisticas_itens": {
+                "produtos": item_repo.contar_itens_por_tipo(TipoItem.PRODUTO),
+                "servicos": item_repo.contar_itens_por_tipo(TipoItem.SERVICO),
+                "espacos": item_repo.contar_itens_por_tipo(TipoItem.ESPACO)
+            }
         }
+
+        # Buscar fornecedores recentes
+        fornecedores_recentes = fornecedor_repo.obter_fornecedores_por_pagina(1, 5)
 
         return templates.TemplateResponse("admin/dashboard.html", {
             "request": request,
             "usuario_logado": usuario_logado,
-            "stats": stats
+            "stats": stats,
+            "fornecedores_recentes": fornecedores_recentes
         })
     except Exception as e:
         print(f"Erro no dashboard admin: {e}")
@@ -144,8 +152,11 @@ async def rejeitar_fornecedor(request: Request, id_fornecedor: int, observacoes:
         if not fornecedor:
             return RedirectResponse("/admin/verificacao", status_code=status.HTTP_303_SEE_OTHER)
 
-        # TODO: Implementar lógica de rejeição
-        # Por enquanto, apenas redireciona
+        # Rejeitar fornecedor (remover verificação)
+        sucesso = fornecedor_repo.rejeitar_fornecedor(id_fornecedor)
+
+        if not sucesso:
+            print(f"Falha ao rejeitar fornecedor {id_fornecedor}")
 
         return RedirectResponse("/admin/verificacao", status_code=status.HTTP_303_SEE_OTHER)
     except Exception as e:

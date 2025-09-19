@@ -93,3 +93,19 @@ JOIN fornecedor f ON u.id = f.id
 WHERE f.locador = 1
 ORDER BY u.nome ASC;
 """
+CONTAR_FORNECEDORES = """
+SELECT COUNT(*) as total
+FROM fornecedor;
+"""
+
+CONTAR_FORNECEDORES_NAO_VERIFICADOS = """
+SELECT COUNT(*) as total
+FROM fornecedor
+WHERE verificado = 0;
+"""
+
+REJEITAR_FORNECEDOR = """
+UPDATE fornecedor
+SET verificado = 0, data_verificacao = NULL
+WHERE id = ?;
+"""

@@ -1,0 +1,224 @@
+{% extends "fornecedor/base.html" %}
+
+{% block title %}Meus Orçamentos{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1>Meus Orçamentos</h1>
+            <a href="/fornecedor/demandas" class="btn btn-success">
+                <i class="fas fa-search"></i> Buscar Demandas
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- Filtros -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-body">
+                <form method="get" class="row g-3">
+                    <div class="col-md-4">
+                        <label for="status" class="form-label">Status</label>
+                        <select class="form-select" id="status" name="status">
+                            <option value="">Todos os status</option>
+                            <option value="PENDENTE" {% if request.args.get('status') == 'PENDENTE' %}selected{% endif %}>Pendente</option>
+                            <option value="ACEITO" {% if request.args.get('status') == 'ACEITO' %}selected{% endif %}>Aceito</option>
+                            <option value="REJEITADO" {% if request.args.get('status') == 'REJEITADO' %}selected{% endif %}>Rejeitado</option>
+                        </select>
+                    </div>
+                    <div class="col-md-4">
+                        <label for="search" class="form-label">Buscar</label>
+                        <input type="text" class="form-control" id="search" name="search"
+                               value="{{ request.args.get('search', '') }}" placeholder="Título da demanda">
+                    </div>
+                    <div class="col-md-4 d-flex align-items-end">
+                        <button type="submit" class="btn btn-primary me-2">Filtrar</button>
+                        <a href="/fornecedor/orcamentos" class="btn btn-outline-secondary">Limpar</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% if orcamentos %}
+<div class="row">
+    {% for orcamento in orcamentos %}
+    <div class="col-lg-6 col-xl-4 mb-4">
+        <div class="card h-100 shadow">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h6 class="mb-0">{{ orcamento.demanda_titulo }}</h6>
+                <span class="badge
+                    {% if orcamento.status == 'PENDENTE' %}bg-warning
+                    {% elif orcamento.status == 'ACEITO' %}bg-success
+                    {% elif orcamento.status == 'REJEITADO' %}bg-danger
+                    {% else %}bg-secondary{% endif %}">
+                    {{ orcamento.status }}
+                </span>
+            </div>
+            <div class="card-body">
+                {% if orcamento.observacoes %}
+                <p class="card-text">{{ orcamento.observacoes[:100] }}{% if orcamento.observacoes|length > 100 %}...{% endif %}</p>
+                {% endif %}
+
+                <div class="row text-center mb-3">
+                    <div class="col-6">
+                        <small class="text-muted">Valor Total</small>
+                        <div class="fw-bold text-success">R$ {{ "%.2f"|format(orcamento.valor_total) }}</div>
+                    </div>
+                    <div class="col-6">
+                        <small class="text-muted">Itens</small>
+                        <div class="fw-bold">{{ orcamento.itens_count or 0 }}</div>
+                    </div>
+                </div>
+
+                {% if orcamento.prazo_entrega %}
+                <div class="alert alert-info py-2 mb-3">
+                    <small>
+                        <strong>Prazo de Entrega:</strong> {{ orcamento.prazo_entrega }}
+                    </small>
+                </div>
+                {% endif %}
+
+                <div class="d-flex justify-content-between align-items-center">
+                    <small class="text-muted">Enviado em: {{ orcamento.data_envio or 'Data não definida' }}</small>
+                    {% if orcamento.status == 'ACEITO' %}
+                    <span class="badge bg-success rounded-pill">Aceito!</span>
+                    {% elif orcamento.status == 'REJEITADO' %}
+                    <span class="badge bg-danger rounded-pill">Rejeitado</span>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="card-footer bg-white border-top-0">
+                <div class="d-flex justify-content-between">
+                    <a href="/fornecedor/orcamento/{{ orcamento.id }}" class="btn btn-outline-primary btn-sm">
+                        <i class="fas fa-eye"></i> Ver Detalhes
+                    </a>
+                    {% if orcamento.status == 'PENDENTE' %}
+                    <div class="btn-group" role="group">
+                        <a href="/fornecedor/orcamento/editar/{{ orcamento.id }}" class="btn btn-outline-warning btn-sm">
+                            <i class="fas fa-edit"></i> Editar
+                        </a>
+                        <button type="button" class="btn btn-outline-danger btn-sm" onclick="cancelarOrcamento({{ orcamento.id }})">
+                            <i class="fas fa-times"></i> Cancelar
+                        </button>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+<!-- Paginação -->
+{% if pagination %}
+<div class="row">
+    <div class="col-12">
+        <nav aria-label="Navegação dos orçamentos">
+            <ul class="pagination justify-content-center">
+                {% if pagination.has_prev %}
+                <li class="page-item">
+                    <a class="page-link" href="{{ url_for('fornecedor_orcamentos', page=pagination.prev_num, **request.args) }}">Anterior</a>
+                </li>
+                {% endif %}
+
+                {% for page_num in pagination.iter_pages() %}
+                    {% if page_num %}
+                        {% if page_num != pagination.page %}
+                        <li class="page-item">
+                            <a class="page-link" href="{{ url_for('fornecedor_orcamentos', page=page_num, **request.args) }}">{{ page_num }}</a>
+                        </li>
+                        {% else %}
+                        <li class="page-item active">
+                            <span class="page-link">{{ page_num }}</span>
+                        </li>
+                        {% endif %}
+                    {% else %}
+                    <li class="page-item disabled">
+                        <span class="page-link">…</span>
+                    </li>
+                    {% endif %}
+                {% endfor %}
+
+                {% if pagination.has_next %}
+                <li class="page-item">
+                    <a class="page-link" href="{{ url_for('fornecedor_orcamentos', page=pagination.next_num, **request.args) }}">Próxima</a>
+                </li>
+                {% endif %}
+            </ul>
+        </nav>
+    </div>
+</div>
+{% endif %}
+
+{% else %}
+<div class="row">
+    <div class="col-12">
+        <div class="card shadow">
+            <div class="card-body text-center py-5">
+                <i class="fas fa-file-invoice-dollar fa-4x text-gray-300 mb-4"></i>
+                <h4>Nenhum orçamento encontrado</h4>
+                {% if request.args.get('search') or request.args.get('status') %}
+                <p class="text-muted">Nenhum orçamento corresponde aos filtros aplicados.</p>
+                <a href="/fornecedor/orcamentos" class="btn btn-outline-secondary me-2">Limpar Filtros</a>
+                {% else %}
+                <p class="text-muted">Você ainda não enviou nenhum orçamento. Procure por demandas e comece a enviar suas propostas!</p>
+                {% endif %}
+                <a href="/fornecedor/demandas" class="btn btn-success">
+                    <i class="fas fa-search"></i> Buscar Demandas
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<!-- Modal de confirmação -->
+<div class="modal fade" id="modalConfirmacao" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalTitulo">Confirmar Ação</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="modalMensagem">
+                <!-- Conteúdo será preenchido via JavaScript -->
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-danger" id="btnConfirmar">Confirmar</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+let acaoConfirmacao = null;
+
+function cancelarOrcamento(id) {
+    document.getElementById('modalTitulo').textContent = 'Cancelar Orçamento';
+    document.getElementById('modalMensagem').innerHTML =
+        'Tem certeza que deseja cancelar este orçamento?<br><small class="text-muted">Esta ação não pode ser desfeita.</small>';
+    document.getElementById('btnConfirmar').className = 'btn btn-danger';
+    document.getElementById('btnConfirmar').textContent = 'Cancelar Orçamento';
+
+    acaoConfirmacao = () => {
+        window.location.href = `/fornecedor/orcamento/${id}/cancelar`;
+    };
+
+    new bootstrap.Modal(document.getElementById('modalConfirmacao')).show();
+}
+
+document.getElementById('btnConfirmar').addEventListener('click', function() {
+    if (acaoConfirmacao) {
+        acaoConfirmacao();
+    }
+});
+</script>
+{% endblock %}

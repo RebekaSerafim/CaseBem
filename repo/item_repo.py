@@ -251,3 +251,26 @@ def desativar_item(id_item: int, id_fornecedor: int) -> bool:
     except Exception as e:
         print(f"Erro ao desativar item: {e}")
         return False
+def contar_itens() -> int:
+    """Conta o total de itens no sistema"""
+    try:
+        with obter_conexao() as conexao:
+            cursor = conexao.cursor()
+            cursor.execute(CONTAR_ITENS)
+            resultado = cursor.fetchone()
+            return resultado["total"] if resultado else 0
+    except Exception as e:
+        print(f"Erro ao contar itens: {e}")
+        return 0
+
+def contar_itens_por_tipo(tipo: TipoItem) -> int:
+    """Conta o total de itens de um tipo específico"""
+    try:
+        with obter_conexao() as conexao:
+            cursor = conexao.cursor()
+            cursor.execute(CONTAR_ITENS_POR_TIPO, (tipo.value,))
+            resultado = cursor.fetchone()
+            return resultado["total"] if resultado else 0
+    except Exception as e:
+        print(f"Erro ao contar itens por tipo: {e}")
+        return 0

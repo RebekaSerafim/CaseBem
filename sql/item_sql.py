@@ -107,3 +107,13 @@ FROM item
 WHERE ativo = 1
 GROUP BY tipo;
 """
+CONTAR_ITENS = """
+SELECT COUNT(*) as total
+FROM item;
+"""
+
+CONTAR_ITENS_POR_TIPO = """
+SELECT COUNT(*) as total
+FROM item
+WHERE tipo = ?;
+"""

@@ -1,0 +1,239 @@
+{% extends "admin/base.html" %}
+
+{% block title %}Dashboard Administrativo{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <h1 class="mb-4">Dashboard Administrativo</h1>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Cards de Estatísticas -->
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card border-left-primary shadow h-100 py-2">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                            Total de Usuários
+                        </div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">
+                            {{ stats.total_usuarios }}
+                        </div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-users fa-2x text-gray-300"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card border-left-success shadow h-100 py-2">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                            Fornecedores
+                        </div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">
+                            {{ stats.total_fornecedores }}
+                        </div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-store fa-2x text-gray-300"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card border-left-warning shadow h-100 py-2">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
+                            Aguardando Verificação
+                        </div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">
+                            {{ stats.fornecedores_nao_verificados }}
+                        </div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-clock fa-2x text-gray-300"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card border-left-info shadow h-100 py-2">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
+                            Total de Itens
+                        </div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">
+                            {{ stats.total_itens }}
+                        </div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-box fa-2x text-gray-300"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Ações Rápidas -->
+    <div class="col-lg-6 mb-4">
+        <div class="card shadow">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">Ações Rápidas</h6>
+            </div>
+            <div class="card-body">
+                <div class="list-group list-group-flush">
+                    <a href="/admin/verificacao" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
+                        <div>
+                            <strong>Verificar Fornecedores</strong>
+                            <small class="d-block text-muted">Aprovar ou rejeitar fornecedores pendentes</small>
+                        </div>
+                        {% if stats.fornecedores_nao_verificados > 0 %}
+                        <span class="badge bg-warning rounded-pill">{{ stats.fornecedores_nao_verificados }}</span>
+                        {% endif %}
+                    </a>
+                    <a href="/admin/usuarios" class="list-group-item list-group-item-action">
+                        <div>
+                            <strong>Gerenciar Usuários</strong>
+                            <small class="d-block text-muted">Visualizar e editar usuários do sistema</small>
+                        </div>
+                    </a>
+                    <a href="/admin/categorias" class="list-group-item list-group-item-action">
+                        <div>
+                            <strong>Gerenciar Categorias</strong>
+                            <small class="d-block text-muted">Criar e editar categorias de itens</small>
+                        </div>
+                    </a>
+                    <a href="/admin/itens" class="list-group-item list-group-item-action">
+                        <div>
+                            <strong>Visualizar Itens</strong>
+                            <small class="d-block text-muted">Ver todos os itens do sistema</small>
+                        </div>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Estatísticas de Itens -->
+    <div class="col-lg-6 mb-4">
+        <div class="card shadow">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">Itens por Tipo</h6>
+            </div>
+            <div class="card-body">
+                {% if stats.estatisticas_itens %}
+                <div class="row">
+                    <div class="col-6 text-center">
+                        <div class="border-bottom pb-2 mb-2">
+                            <h3 class="text-primary">{{ stats.estatisticas_itens.produtos or 0 }}</h3>
+                            <small class="text-muted">Produtos</small>
+                        </div>
+                    </div>
+                    <div class="col-6 text-center">
+                        <div class="border-bottom pb-2 mb-2">
+                            <h3 class="text-success">{{ stats.estatisticas_itens.servicos or 0 }}</h3>
+                            <small class="text-muted">Serviços</small>
+                        </div>
+                    </div>
+                </div>
+                <div class="row mt-3">
+                    <div class="col-12 text-center">
+                        <h3 class="text-info">{{ stats.estatisticas_itens.espacos or 0 }}</h3>
+                        <small class="text-muted">Espaços</small>
+                    </div>
+                </div>
+                {% else %}
+                <p class="text-muted text-center">Nenhum item cadastrado ainda</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Fornecedores Recentes -->
+{% if fornecedores_recentes %}
+<div class="row">
+    <div class="col-12">
+        <div class="card shadow">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">Fornecedores Recentes</h6>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Nome</th>
+                                <th>Empresa</th>
+                                <th>Email</th>
+                                <th>Status</th>
+                                <th>Data Cadastro</th>
+                                <th>Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for fornecedor in fornecedores_recentes %}
+                            <tr>
+                                <td>{{ fornecedor.nome }}</td>
+                                <td>{{ fornecedor.nome_empresa or '-' }}</td>
+                                <td>{{ fornecedor.email }}</td>
+                                <td>
+                                    {% if fornecedor.verificado %}
+                                        <span class="badge bg-success">Verificado</span>
+                                    {% else %}
+                                        <span class="badge bg-warning">Pendente</span>
+                                    {% endif %}
+                                </td>
+                                <td>{{ fornecedor.data_cadastro or '-' }}</td>
+                                <td>
+                                    <a href="/admin/usuarios/{{ fornecedor.id }}" class="btn btn-sm btn-outline-primary">
+                                        Ver Detalhes
+                                    </a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endblock %}
+
+{% block scripts %}
+<style>
+.border-left-primary {
+    border-left: 0.25rem solid #4e73df !important;
+}
+.border-left-success {
+    border-left: 0.25rem solid #1cc88a !important;
+}
+.border-left-warning {
+    border-left: 0.25rem solid #f6c23e !important;
+}
+.border-left-info {
+    border-left: 0.25rem solid #36b9cc !important;
+}
+</style>
+{% endblock %}

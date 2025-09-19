@@ -1,0 +1,256 @@
+{% extends "noivo/base.html" %}
+
+{% block title %}Orçamentos Recebidos{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1>Orçamentos Recebidos</h1>
+            <a href="/noivo/demandas" class="btn btn-success">
+                <i class="fas fa-list"></i> Minhas Demandas
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- Filtros -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-body">
+                <form method="get" class="row g-3">
+                    <div class="col-md-3">
+                        <label for="status" class="form-label">Status</label>
+                        <select class="form-select" id="status" name="status">
+                            <option value="">Todos os status</option>
+                            <option value="PENDENTE" {% if request.args.get('status') == 'PENDENTE' %}selected{% endif %}>Pendente</option>
+                            <option value="ACEITO" {% if request.args.get('status') == 'ACEITO' %}selected{% endif %}>Aceito</option>
+                            <option value="REJEITADO" {% if request.args.get('status') == 'REJEITADO' %}selected{% endif %}>Rejeitado</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <label for="demanda" class="form-label">Demanda</label>
+                        <select class="form-select" id="demanda" name="demanda">
+                            <option value="">Todas as demandas</option>
+                            {% for demanda in minhas_demandas %}
+                            <option value="{{ demanda.id }}" {% if request.args.get('demanda') == demanda.id|string %}selected{% endif %}>
+                                {{ demanda.titulo }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <label for="search" class="form-label">Buscar Fornecedor</label>
+                        <input type="text" class="form-control" id="search" name="search"
+                               value="{{ request.args.get('search', '') }}" placeholder="Nome do fornecedor">
+                    </div>
+                    <div class="col-md-3 d-flex align-items-end">
+                        <button type="submit" class="btn btn-primary me-2">Filtrar</button>
+                        <a href="/noivo/orcamentos" class="btn btn-outline-secondary">Limpar</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% if orcamentos %}
+<div class="row">
+    {% for orcamento in orcamentos %}
+    <div class="col-lg-6 col-xl-4 mb-4">
+        <div class="card h-100 shadow">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h6 class="mb-0">{{ orcamento.fornecedor_nome }}</h6>
+                <span class="badge
+                    {% if orcamento.status == 'PENDENTE' %}bg-warning
+                    {% elif orcamento.status == 'ACEITO' %}bg-success
+                    {% elif orcamento.status == 'REJEITADO' %}bg-danger
+                    {% else %}bg-secondary{% endif %}">
+                    {{ orcamento.status }}
+                </span>
+            </div>
+            <div class="card-body">
+                <div class="mb-2">
+                    <small class="text-muted">Demanda:</small>
+                    <div class="fw-bold">{{ orcamento.demanda_titulo }}</div>
+                </div>
+
+                {% if orcamento.observacoes %}
+                <p class="card-text small">{{ orcamento.observacoes[:80] }}{% if orcamento.observacoes|length > 80 %}...{% endif %}</p>
+                {% endif %}
+
+                <div class="row text-center mb-3">
+                    <div class="col-6">
+                        <small class="text-muted">Valor Total</small>
+                        <div class="fw-bold text-success">R$ {{ "%.2f"|format(orcamento.valor_total) }}</div>
+                    </div>
+                    <div class="col-6">
+                        <small class="text-muted">Itens</small>
+                        <div class="fw-bold">{{ orcamento.itens_count or 0 }}</div>
+                    </div>
+                </div>
+
+                {% if orcamento.prazo_entrega %}
+                <div class="alert alert-info py-2 mb-3">
+                    <small>
+                        <strong>Prazo:</strong> {{ orcamento.prazo_entrega }}
+                    </small>
+                </div>
+                {% endif %}
+
+                <div class="d-flex justify-content-between align-items-center">
+                    <small class="text-muted">Recebido em: {{ orcamento.data_envio or 'Data não definida' }}</small>
+                    {% if orcamento.status == 'PENDENTE' %}
+                    <span class="badge bg-warning rounded-pill">Novo</span>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="card-footer bg-white border-top-0">
+                <div class="d-flex justify-content-between">
+                    <a href="/noivo/orcamento/{{ orcamento.id }}" class="btn btn-outline-primary btn-sm">
+                        <i class="fas fa-eye"></i> Ver Detalhes
+                    </a>
+                    {% if orcamento.status == 'PENDENTE' %}
+                    <div class="btn-group" role="group">
+                        <button type="button" class="btn btn-success btn-sm" onclick="aceitarOrcamento({{ orcamento.id }})">
+                            <i class="fas fa-check"></i> Aceitar
+                        </button>
+                        <button type="button" class="btn btn-outline-danger btn-sm" onclick="rejeitarOrcamento({{ orcamento.id }})">
+                            <i class="fas fa-times"></i> Rejeitar
+                        </button>
+                    </div>
+                    {% elif orcamento.status == 'ACEITO' %}
+                    <button class="btn btn-success btn-sm" disabled>
+                        <i class="fas fa-check"></i> Aceito
+                    </button>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+<!-- Paginação -->
+{% if pagination %}
+<div class="row">
+    <div class="col-12">
+        <nav aria-label="Navegação dos orçamentos">
+            <ul class="pagination justify-content-center">
+                {% if pagination.has_prev %}
+                <li class="page-item">
+                    <a class="page-link" href="{{ url_for('noivo_orcamentos', page=pagination.prev_num, **request.args) }}">Anterior</a>
+                </li>
+                {% endif %}
+
+                {% for page_num in pagination.iter_pages() %}
+                    {% if page_num %}
+                        {% if page_num != pagination.page %}
+                        <li class="page-item">
+                            <a class="page-link" href="{{ url_for('noivo_orcamentos', page=page_num, **request.args) }}">{{ page_num }}</a>
+                        </li>
+                        {% else %}
+                        <li class="page-item active">
+                            <span class="page-link">{{ page_num }}</span>
+                        </li>
+                        {% endif %}
+                    {% else %}
+                    <li class="page-item disabled">
+                        <span class="page-link">…</span>
+                    </li>
+                    {% endif %}
+                {% endfor %}
+
+                {% if pagination.has_next %}
+                <li class="page-item">
+                    <a class="page-link" href="{{ url_for('noivo_orcamentos', page=pagination.next_num, **request.args) }}">Próxima</a>
+                </li>
+                {% endif %}
+            </ul>
+        </nav>
+    </div>
+</div>
+{% endif %}
+
+{% else %}
+<div class="row">
+    <div class="col-12">
+        <div class="card shadow">
+            <div class="card-body text-center py-5">
+                <i class="fas fa-file-invoice-dollar fa-4x text-gray-300 mb-4"></i>
+                <h4>Nenhum orçamento encontrado</h4>
+                {% if request.args.get('search') or request.args.get('status') or request.args.get('demanda') %}
+                <p class="text-muted">Nenhum orçamento corresponde aos filtros aplicados.</p>
+                <a href="/noivo/orcamentos" class="btn btn-outline-secondary me-2">Limpar Filtros</a>
+                {% else %}
+                <p class="text-muted">Você ainda não recebeu nenhum orçamento. Crie demandas para receber propostas dos fornecedores!</p>
+                {% endif %}
+                <a href="/noivo/demanda/nova" class="btn btn-success">
+                    <i class="fas fa-plus"></i> Criar Nova Demanda
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<!-- Modal de confirmação -->
+<div class="modal fade" id="modalConfirmacao" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalTitulo">Confirmar Ação</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="modalMensagem">
+                <!-- Conteúdo será preenchido via JavaScript -->
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-primary" id="btnConfirmar">Confirmar</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+let acaoConfirmacao = null;
+
+function aceitarOrcamento(id) {
+    document.getElementById('modalTitulo').textContent = 'Aceitar Orçamento';
+    document.getElementById('modalMensagem').innerHTML =
+        'Tem certeza que deseja aceitar este orçamento?<br><small class="text-muted">Esta ação irá rejeitar automaticamente todos os outros orçamentos desta demanda.</small>';
+    document.getElementById('btnConfirmar').className = 'btn btn-success';
+    document.getElementById('btnConfirmar').textContent = 'Aceitar Orçamento';
+
+    acaoConfirmacao = () => {
+        window.location.href = `/noivo/orcamento/${id}/aceitar`;
+    };
+
+    new bootstrap.Modal(document.getElementById('modalConfirmacao')).show();
+}
+
+function rejeitarOrcamento(id) {
+    document.getElementById('modalTitulo').textContent = 'Rejeitar Orçamento';
+    document.getElementById('modalMensagem').innerHTML =
+        'Tem certeza que deseja rejeitar este orçamento?<br><small class="text-muted">Esta ação não pode ser desfeita.</small>';
+    document.getElementById('btnConfirmar').className = 'btn btn-danger';
+    document.getElementById('btnConfirmar').textContent = 'Rejeitar Orçamento';
+
+    acaoConfirmacao = () => {
+        window.location.href = `/noivo/orcamento/${id}/rejeitar`;
+    };
+
+    new bootstrap.Modal(document.getElementById('modalConfirmacao')).show();
+}
+
+document.getElementById('btnConfirmar').addEventListener('click', function() {
+    if (acaoConfirmacao) {
+        acaoConfirmacao();
+    }
+});
+</script>
+{% endblock %}

@@ -152,6 +152,27 @@ def obter_orcamentos_por_fornecedor_prestador(id_fornecedor_prestador: int) -> L
             valor_total=resultado["valor_total"]
         ) for resultado in resultados]
 
+def obter_orcamentos_por_noivo(id_noivo: int) -> List[Orcamento]:
+    # Obtém conexão com o banco de dados
+    with obter_conexao() as conexao:
+        # Cria cursor para executar comandos SQL
+        cursor = conexao.cursor()
+        # Executa comando SQL para buscar orçamentos por noivo
+        cursor.execute(OBTER_ORCAMENTOS_POR_NOIVO, (id_noivo,))
+        # Obtém todos os resultados da consulta
+        resultados = cursor.fetchall()
+        # Cria lista de objetos Orcamento a partir dos resultados
+        return [Orcamento(
+            id=resultado["id"],
+            id_demanda=resultado["id_demanda"],
+            id_fornecedor_prestador=resultado["id_fornecedor_prestador"],
+            data_hora_cadastro=resultado["data_hora_cadastro"],
+            data_hora_validade=resultado["data_hora_validade"],
+            status=resultado["status"],
+            observacoes=resultado["observacoes"],
+            valor_total=resultado["valor_total"]
+        ) for resultado in resultados]
+
 def obter_orcamentos_por_status(status: str) -> List[Orcamento]:
     # Obtém conexão com o banco de dados
     with obter_conexao() as conexao:
@@ -197,3 +218,35 @@ def obter_orcamentos_por_pagina(numero_pagina: int, tamanho_pagina: int) -> List
             observacoes=resultado["observacoes"],
             valor_total=resultado["valor_total"]
         ) for resultado in resultados]
+def aceitar_orcamento_e_rejeitar_outros(id_orcamento: int, id_demanda: int) -> bool:
+    """Aceita um orçamento específico e rejeita todos os outros da mesma demanda"""
+    try:
+        with obter_conexao() as conexao:
+            cursor = conexao.cursor()
+            cursor.execute(ACEITAR_ORCAMENTO_E_REJEITAR_OUTROS, (id_orcamento, id_demanda))
+            return cursor.rowcount > 0
+    except Exception as e:
+        print(f"Erro ao aceitar orçamento: {e}")
+        return False
+
+def rejeitar_orcamento(id_orcamento: int) -> bool:
+    """Rejeita um orçamento específico"""
+    try:
+        with obter_conexao() as conexao:
+            cursor = conexao.cursor()
+            cursor.execute(REJEITAR_ORCAMENTO, (id_orcamento,))
+            return cursor.rowcount > 0
+    except Exception as e:
+        print(f"Erro ao rejeitar orçamento: {e}")
+        return False
+
+def atualizar_status_orcamento(id_orcamento: int, status: str) -> bool:
+    """Atualiza o status de um orçamento"""
+    try:
+        with obter_conexao() as conexao:
+            cursor = conexao.cursor()
+            cursor.execute(ATUALIZAR_STATUS_ORCAMENTO, (status, id_orcamento))
+            return cursor.rowcount > 0
+    except Exception as e:
+        print(f"Erro ao atualizar status do orçamento: {e}")
+        return False

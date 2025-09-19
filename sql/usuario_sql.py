@@ -63,3 +63,14 @@ WHERE perfil = ?
 ORDER BY nome ASC
 LIMIT ? OFFSET ?;
 """
+
+CONTAR_USUARIOS = """
+SELECT COUNT(*) as total
+FROM Usuario;
+"""
+
+CONTAR_USUARIOS_POR_TIPO = """
+SELECT COUNT(*) as total
+FROM Usuario
+WHERE perfil = ?;
+"""

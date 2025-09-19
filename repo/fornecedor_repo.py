@@ -232,3 +232,37 @@ def obter_locadores() -> List[Fornecedor]:
     except Exception as e:
         print(f"Erro ao obter locadores: {e}")
     return []
+def contar_fornecedores() -> int:
+    """Conta o total de fornecedores no sistema"""
+    try:
+        with obter_conexao() as conexao:
+            cursor = conexao.cursor()
+            cursor.execute(CONTAR_FORNECEDORES)
+            resultado = cursor.fetchone()
+            return resultado["total"] if resultado else 0
+    except Exception as e:
+        print(f"Erro ao contar fornecedores: {e}")
+        return 0
+
+def contar_fornecedores_nao_verificados() -> int:
+    """Conta o total de fornecedores não verificados"""
+    try:
+        with obter_conexao() as conexao:
+            cursor = conexao.cursor()
+            cursor.execute(CONTAR_FORNECEDORES_NAO_VERIFICADOS)
+            resultado = cursor.fetchone()
+            return resultado["total"] if resultado else 0
+    except Exception as e:
+        print(f"Erro ao contar fornecedores não verificados: {e}")
+        return 0
+
+def rejeitar_fornecedor(id_fornecedor: int) -> bool:
+    """Rejeita um fornecedor, removendo a verificação"""
+    try:
+        with obter_conexao() as conexao:
+            cursor = conexao.cursor()
+            cursor.execute(REJEITAR_FORNECEDOR, (id_fornecedor,))
+            return cursor.rowcount > 0
+    except Exception as e:
+        print(f"Erro ao rejeitar fornecedor: {e}")
+        return False

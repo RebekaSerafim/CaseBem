@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Optional, List
 from util.database import obter_conexao
 from sql.usuario_sql import *
 from model.usuario_model import TipoUsuario, Usuario
@@ -180,3 +180,27 @@ def obter_usuarios_por_tipo_por_pagina(tipo: TipoUsuario, numero_pagina: int, ta
         ) for resultado in resultados]
     # Retorna lista vazia se não encontrou usuários
     return []
+
+def contar_usuarios() -> int:
+    """Conta o total de usuários no sistema"""
+    try:
+        with obter_conexao() as conexao:
+            cursor = conexao.cursor()
+            cursor.execute(CONTAR_USUARIOS)
+            resultado = cursor.fetchone()
+            return resultado["total"] if resultado else 0
+    except Exception as e:
+        print(f"Erro ao contar usuários: {e}")
+        return 0
+
+def contar_usuarios_por_tipo(tipo: TipoUsuario) -> int:
+    """Conta o total de usuários de um tipo específico"""
+    try:
+        with obter_conexao() as conexao:
+            cursor = conexao.cursor()
+            cursor.execute(CONTAR_USUARIOS_POR_TIPO, (tipo.value,))
+            resultado = cursor.fetchone()
+            return resultado["total"] if resultado else 0
+    except Exception as e:
+        print(f"Erro ao contar usuários por tipo: {e}")
+        return 0

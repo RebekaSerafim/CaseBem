@@ -1,0 +1,204 @@
+{% extends "noivo/base.html" %}
+
+{% block title %}Meus Favoritos{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1>Meus Favoritos</h1>
+            <a href="/noivo/produtos" class="btn btn-success">
+                <i class="fas fa-search"></i> Buscar Itens
+            </a>
+        </div>
+    </div>
+</div>
+
+{% if erro %}
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="alert alert-danger" role="alert">
+            {{ erro }}
+        </div>
+    </div>
+</div>
+{% endif %}
+
+{% if favoritos %}
+<div class="row">
+    {% for favorito in favoritos %}
+    <div class="col-lg-6 col-xl-4 mb-4">
+        <div class="card h-100 shadow">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h6 class="mb-0">{{ favorito.nome }}</h6>
+                <span class="badge
+                    {% if favorito.tipo == 'PRODUTO' %}bg-success
+                    {% elif favorito.tipo == 'SERVICO' %}bg-info
+                    {% elif favorito.tipo == 'ESPACO' %}bg-warning
+                    {% else %}bg-secondary{% endif %}">
+                    {{ favorito.tipo }}
+                </span>
+            </div>
+            <div class="card-body">
+                {% if favorito.descricao %}
+                <p class="card-text">{{ favorito.descricao[:100] }}{% if favorito.descricao|length > 100 %}...{% endif %}</p>
+                {% endif %}
+
+                <div class="mb-3">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span class="text-muted">Preço:</span>
+                        <span class="h5 text-success mb-0">R$ {{ "%.2f"|format(favorito.preco) }}</span>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <small class="text-muted">Adicionado em:</small>
+                    <div>{{ favorito.data_adicao or 'Data não disponível' }}</div>
+                </div>
+            </div>
+            <div class="card-footer bg-white border-top-0">
+                <div class="d-flex justify-content-between">
+                    <a href="/noivo/item/{{ favorito.id_item }}" class="btn btn-outline-primary btn-sm">
+                        <i class="fas fa-eye"></i> Ver Detalhes
+                    </a>
+                    <button type="button" class="btn btn-outline-danger btn-sm" onclick="removerFavorito({{ favorito.id_item }}, '{{ favorito.nome }}')">
+                        <i class="fas fa-heart-broken"></i> Remover
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+{% else %}
+<div class="row">
+    <div class="col-12">
+        <div class="card shadow">
+            <div class="card-body text-center py-5">
+                <i class="fas fa-heart fa-4x text-gray-300 mb-4"></i>
+                <h4>Nenhum item favoritado</h4>
+                <p class="text-muted">Você ainda não adicionou nenhum item aos seus favoritos. Explore nossos produtos e serviços!</p>
+                <div class="d-flex justify-content-center gap-2">
+                    <a href="/noivo/produtos" class="btn btn-success">
+                        <i class="fas fa-shopping-bag"></i> Ver Produtos
+                    </a>
+                    <a href="/noivo/servicos" class="btn btn-info">
+                        <i class="fas fa-tools"></i> Ver Serviços
+                    </a>
+                    <a href="/noivo/espacos" class="btn btn-warning">
+                        <i class="fas fa-building"></i> Ver Espaços
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<!-- Modal de confirmação -->
+<div class="modal fade" id="modalConfirmacao" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Remover dos Favoritos</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>Tem certeza que deseja remover <strong id="nomeItem"></strong> dos seus favoritos?</p>
+                <small class="text-muted">Você pode adicionar novamente a qualquer momento.</small>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-danger" id="btnConfirmarRemocao">
+                    <i class="fas fa-heart-broken"></i> Remover Favorito
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+let itemParaRemover = null;
+
+function removerFavorito(idItem, nomeItem) {
+    itemParaRemover = idItem;
+    document.getElementById('nomeItem').textContent = nomeItem;
+    new bootstrap.Modal(document.getElementById('modalConfirmacao')).show();
+}
+
+document.getElementById('btnConfirmarRemocao').addEventListener('click', async function() {
+    if (!itemParaRemover) return;
+
+    try {
+        const response = await fetch(`/noivo/favoritos/remover/${itemParaRemover}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+            // Recarregar a página para atualizar a lista
+            window.location.reload();
+        } else {
+            alert('Erro ao remover favorito: ' + result.message);
+        }
+    } catch (error) {
+        console.error('Erro:', error);
+        alert('Erro ao remover favorito');
+    }
+
+    // Fechar modal
+    bootstrap.Modal.getInstance(document.getElementById('modalConfirmacao')).hide();
+});
+
+// Função para adicionar favorito (pode ser usada em outras páginas)
+async function adicionarFavorito(idItem) {
+    try {
+        const response = await fetch(`/noivo/favoritos/adicionar/${idItem}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+            // Mostrar notificação de sucesso
+            showNotification('Item adicionado aos favoritos!', 'success');
+        } else {
+            showNotification('Erro ao adicionar favorito: ' + result.message, 'error');
+        }
+    } catch (error) {
+        console.error('Erro:', error);
+        showNotification('Erro ao adicionar favorito', 'error');
+    }
+}
+
+function showNotification(message, type) {
+    // Criar notificação toast simples
+    const toast = document.createElement('div');
+    toast.className = `alert alert-${type === 'success' ? 'success' : 'danger'} position-fixed`;
+    toast.style.cssText = 'top: 20px; right: 20px; z-index: 9999; min-width: 300px;';
+    toast.innerHTML = `
+        ${message}
+        <button type="button" class="btn-close" onclick="this.parentElement.remove()"></button>
+    `;
+
+    document.body.appendChild(toast);
+
+    // Remover automaticamente após 3 segundos
+    setTimeout(() => {
+        if (toast.parentElement) {
+            toast.remove();
+        }
+    }, 3000);
+}
+</script>
+{% endblock %}

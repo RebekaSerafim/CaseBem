@@ -58,11 +58,20 @@ ORDER BY data_hora_cadastro DESC;
 """
 
 OBTER_ORCAMENTOS_POR_FORNECEDOR_PRESTADOR = """
-SELECT id, id_demanda, id_fornecedor_prestador, data_hora_cadastro, 
+SELECT id, id_demanda, id_fornecedor_prestador, data_hora_cadastro,
        data_hora_validade, status, observacoes, valor_total
 FROM orcamento
 WHERE id_fornecedor_prestador = ?
 ORDER BY data_hora_cadastro DESC;
+"""
+
+OBTER_ORCAMENTOS_POR_NOIVO = """
+SELECT o.id, o.id_demanda, o.id_fornecedor_prestador, o.data_hora_cadastro,
+       o.data_hora_validade, o.status, o.observacoes, o.valor_total
+FROM orcamento o
+INNER JOIN demanda d ON o.id_demanda = d.id
+WHERE d.id_noivo = ?
+ORDER BY o.data_hora_cadastro DESC;
 """
 
 OBTER_ORCAMENTOS_POR_STATUS = """
@@ -89,4 +98,16 @@ SET status = CASE
     ELSE 'REJEITADO'
 END
 WHERE id_demanda = ? AND status = 'PENDENTE';
+"""
+
+ATUALIZAR_STATUS_ORCAMENTO = """
+UPDATE orcamento
+SET status = ?
+WHERE id = ?;
+"""
+
+REJEITAR_ORCAMENTO = """
+UPDATE orcamento
+SET status = 'REJEITADO'
+WHERE id = ?;
 """

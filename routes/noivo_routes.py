@@ -4,7 +4,8 @@ from fastapi.templating import Jinja2Templates
 from util.auth_decorator import requer_autenticacao
 from model.usuario_model import TipoUsuario
 from model.item_model import TipoItem
-from repo import usuario_repo, item_repo
+from model.demanda_model import Demanda
+from repo import usuario_repo, item_repo, demanda_repo, orcamento_repo, casal_repo, favorito_repo, fornecedor_repo
 
 router = APIRouter()
 templates = Jinja2Templates(directory="templates")
@@ -21,25 +22,45 @@ async def dashboard_noivo(request: Request, usuario_logado: dict = None):
         # Buscar dados do noivo
         noivo = usuario_repo.obter_usuario_por_id(id_noivo)
 
-        # TODO: Buscar dados do casal quando implementar casal_repo
-        # casal = casal_repo.obter_casal_por_noivo(id_noivo)
+        # Buscar dados do casal
+        try:
+            casal = casal_repo.obter_casal_por_noivo(id_noivo)
+        except:
+            casal = None
+
+        # Buscar demandas do noivo
+        try:
+            demandas_noivo = demanda_repo.obter_demandas_por_noivo(id_noivo)
+            demandas_ativas = [d for d in demandas_noivo if d.status.value == 'ATIVA']
+            demandas_recentes = demandas_noivo[:5]
+        except:
+            demandas_noivo = []
+            demandas_ativas = []
+            demandas_recentes = []
+
+        # Buscar orçamentos do noivo
+        try:
+            orcamentos_recebidos = orcamento_repo.obter_orcamentos_por_noivo(id_noivo)
+            orcamentos_pendentes = [o for o in orcamentos_recebidos if o.status == 'PENDENTE']
+        except:
+            orcamentos_recebidos = []
+            orcamentos_pendentes = []
 
         # Estatísticas para o noivo
         stats = {
-            "total_produtos": len(item_repo.obter_produtos()),
-            "total_servicos": len(item_repo.obter_servicos()),
-            "total_espacos": len(item_repo.obter_espacos()),
-            # TODO: Implementar quando tiver demanda_repo e orcamento_repo
-            "minhas_demandas": 0,
-            "orcamentos_recebidos": 0,
-            "orcamentos_pendentes": 0
+            "demandas_ativas": len(demandas_ativas),
+            "orcamentos_recebidos": len(orcamentos_recebidos),
+            "orcamentos_pendentes": len(orcamentos_pendentes),
+            "favoritos": favorito_repo.contar_favoritos_por_noivo(id_noivo)
         }
 
         return templates.TemplateResponse("noivo/dashboard.html", {
             "request": request,
             "usuario_logado": usuario_logado,
             "noivo": noivo,
-            "stats": stats
+            "casal": casal,
+            "stats": stats,
+            "demandas_recentes": demandas_recentes
         })
     except Exception as e:
         print(f"Erro no dashboard noivo: {e}")
@@ -150,14 +171,18 @@ async def visualizar_item(request: Request, id_item: int, usuario_logado: dict =
                 "usuario_logado": usuario_logado
             })
 
-        # TODO: Buscar dados do fornecedor quando implementar
-        # fornecedor = fornecedor_repo.obter_fornecedor_por_id(item.id_fornecedor)
+        # Buscar dados do fornecedor
+        fornecedor = None
+        try:
+            fornecedor = fornecedor_repo.obter_fornecedor_por_id(item.id_fornecedor)
+        except Exception as e:
+            print(f"Erro ao buscar fornecedor {item.id_fornecedor}: {e}")
 
         return templates.TemplateResponse("noivo/item_detalhes.html", {
             "request": request,
             "usuario_logado": usuario_logado,
             "item": item,
-            "fornecedor": None  # Placeholder
+            "fornecedor": fornecedor
         })
     except Exception as e:
         print(f"Erro ao visualizar item: {e}")
@@ -170,14 +195,27 @@ async def visualizar_item(request: Request, id_item: int, usuario_logado: dict =
 
 @router.get("/noivo/demandas")
 @requer_autenticacao([TipoUsuario.NOIVO.value])
-async def listar_demandas(request: Request, usuario_logado: dict = None):
+async def listar_demandas(request: Request, status: str = "", search: str = "", usuario_logado: dict = None):
     """Lista demandas do noivo"""
     try:
-        # TODO: Implementar quando tiver demanda_repo
+        id_noivo = usuario_logado["id"]
+
+        # Buscar demandas do noivo
+        demandas = demanda_repo.obter_demandas_por_noivo(id_noivo)
+
+        # Aplicar filtros
+        if status:
+            demandas = [d for d in demandas if d.status.value == status]
+
+        if search:
+            demandas = [d for d in demandas if search.lower() in d.titulo.lower() or search.lower() in d.descricao.lower()]
+
+        # TODO: Implementar paginação real
+
         return templates.TemplateResponse("noivo/demandas.html", {
             "request": request,
             "usuario_logado": usuario_logado,
-            "demandas": []  # Placeholder
+            "demandas": demandas
         })
     except Exception as e:
         print(f"Erro ao listar demandas: {e}")
@@ -203,16 +241,41 @@ async def criar_demanda(
     request: Request,
     titulo: str = Form(...),
     descricao: str = Form(...),
-    orcamento_maximo: float = Form(0),
-    data_evento: str = Form(""),
+    orcamento_min: float = Form(None),
+    orcamento_max: float = Form(None),
+    prazo_entrega: str = Form(""),
+    observacoes: str = Form(""),
     usuario_logado: dict = None
 ):
     """Cria uma nova demanda"""
     try:
-        # TODO: Implementar quando tiver demanda_repo
-        # Por enquanto, apenas redireciona
+        id_noivo = usuario_logado["id"]
 
-        return RedirectResponse("/noivo/demandas", status_code=status.HTTP_303_SEE_OTHER)
+        # Criar nova demanda
+        nova_demanda = Demanda(
+            id=0,  # Será definido pelo banco
+            id_noivo=id_noivo,
+            titulo=titulo,
+            descricao=descricao,
+            orcamento_min=orcamento_min if orcamento_min else None,
+            orcamento_max=orcamento_max if orcamento_max else None,
+            prazo_entrega=prazo_entrega if prazo_entrega else None,
+            observacoes=observacoes if observacoes else None
+        )
+
+        # Inserir no banco
+        id_demanda = demanda_repo.inserir_demanda(nova_demanda)
+
+        if id_demanda:
+            return RedirectResponse("/noivo/demandas", status_code=status.HTTP_303_SEE_OTHER)
+        else:
+            return templates.TemplateResponse("noivo/demanda_form.html", {
+                "request": request,
+                "usuario_logado": usuario_logado,
+                "erro": "Erro ao criar demanda no banco de dados",
+                "acao": "criar"
+            })
+
     except Exception as e:
         print(f"Erro ao criar demanda: {e}")
         return templates.TemplateResponse("noivo/demanda_form.html", {
@@ -226,14 +289,70 @@ async def criar_demanda(
 
 @router.get("/noivo/orcamentos")
 @requer_autenticacao([TipoUsuario.NOIVO.value])
-async def listar_orcamentos(request: Request, usuario_logado: dict = None):
+async def listar_orcamentos(request: Request, status: str = "", demanda: str = "", search: str = "", usuario_logado: dict = None):
     """Lista orçamentos recebidos"""
     try:
-        # TODO: Implementar quando tiver orcamento_repo
+        id_noivo = usuario_logado["id"]
+
+        # Buscar orçamentos do noivo
+        orcamentos = orcamento_repo.obter_orcamentos_por_noivo(id_noivo)
+
+        # Aplicar filtros
+        if status:
+            orcamentos = [o for o in orcamentos if o.status == status]
+
+        if demanda:
+            orcamentos = [o for o in orcamentos if str(o.id_demanda) == demanda]
+
+        if search:
+            # Buscar por nome do fornecedor (precisamos buscar os dados do fornecedor)
+            orcamentos_filtrados = []
+            for orcamento in orcamentos:
+                try:
+                    fornecedor = fornecedor_repo.obter_fornecedor_por_id(orcamento.id_fornecedor)
+                    if fornecedor and search.lower() in fornecedor.nome.lower():
+                        orcamentos_filtrados.append(orcamento)
+                except:
+                    continue
+            orcamentos = orcamentos_filtrados
+
+        # Buscar demandas do noivo para o filtro
+        minhas_demandas = demanda_repo.obter_demandas_por_noivo(id_noivo)
+
+        # Enriquecer orçamentos com dados adicionais
+        orcamentos_enriched = []
+        for orcamento in orcamentos:
+            try:
+                # Buscar dados da demanda
+                demanda_data = demanda_repo.obter_demanda_por_id(orcamento.id_demanda)
+                # Buscar dados do fornecedor
+                fornecedor_data = fornecedor_repo.obter_fornecedor_por_id(orcamento.id_fornecedor)
+                # Buscar itens do orçamento
+                itens_orcamento = item_orcamento_repo.obter_itens_por_orcamento(orcamento.id)
+
+                orcamento_dict = {
+                    "id": orcamento.id,
+                    "id_demanda": orcamento.id_demanda,
+                    "id_fornecedor": orcamento.id_fornecedor,
+                    "status": orcamento.status,
+                    "valor_total": orcamento.valor_total,
+                    "data_envio": orcamento.data_envio,
+                    "prazo_entrega": orcamento.prazo_entrega,
+                    "observacoes": orcamento.observacoes,
+                    "demanda_titulo": demanda_data.titulo if demanda_data else "Demanda não encontrada",
+                    "fornecedor_nome": fornecedor_data.nome if fornecedor_data else "Fornecedor não encontrado",
+                    "itens_count": len(itens_orcamento)
+                }
+                orcamentos_enriched.append(orcamento_dict)
+            except Exception as e:
+                print(f"Erro ao enriquecer orçamento {orcamento.id}: {e}")
+                continue
+
         return templates.TemplateResponse("noivo/orcamentos.html", {
             "request": request,
             "usuario_logado": usuario_logado,
-            "orcamentos": []  # Placeholder
+            "orcamentos": orcamentos_enriched,
+            "minhas_demandas": minhas_demandas
         })
     except Exception as e:
         print(f"Erro ao listar orçamentos: {e}")
@@ -248,11 +367,67 @@ async def listar_orcamentos(request: Request, usuario_logado: dict = None):
 async def visualizar_orcamento(request: Request, id_orcamento: int, usuario_logado: dict = None):
     """Visualiza detalhes de um orçamento"""
     try:
-        # TODO: Implementar quando tiver orcamento_repo
+        id_noivo = usuario_logado["id"]
+
+        # Buscar orçamento
+        orcamento = orcamento_repo.obter_orcamento_por_id(id_orcamento)
+        if not orcamento:
+            return RedirectResponse("/noivo/orcamentos", status_code=status.HTTP_303_SEE_OTHER)
+
+        # Buscar demanda relacionada
+        demanda = demanda_repo.obter_demanda_por_id(orcamento.id_demanda)
+        if not demanda or demanda.id_noivo != id_noivo:
+            # Verificar se o orçamento pertence ao noivo logado
+            return RedirectResponse("/noivo/orcamentos", status_code=status.HTTP_303_SEE_OTHER)
+
+        # Buscar fornecedor
+        fornecedor = fornecedor_repo.obter_fornecedor_por_id(orcamento.id_fornecedor)
+
+        # Buscar itens do orçamento
+        itens_orcamento = item_orcamento_repo.obter_itens_por_orcamento(orcamento.id)
+
+        # Enriquecer itens com dados do item
+        itens_enriched = []
+        for item_orc in itens_orcamento:
+            try:
+                item_data = item_repo.obter_item_por_id(item_orc.id_item)
+                item_dict = {
+                    "id_item": item_orc.id_item,
+                    "nome_item": item_data.nome if item_data else "Item não encontrado",
+                    "descricao_item": item_data.descricao if item_data else "",
+                    "tipo_item": item_data.tipo.value if item_data else "",
+                    "quantidade": item_orc.quantidade,
+                    "preco_unitario": item_orc.preco_unitario,
+                    "desconto": item_orc.desconto or 0,
+                    "preco_total": item_orc.preco_total,
+                    "observacoes": item_orc.observacoes
+                }
+                itens_enriched.append(item_dict)
+            except Exception as e:
+                print(f"Erro ao enriquecer item {item_orc.id_item}: {e}")
+                continue
+
+        # Criar objeto orçamento enriquecido
+        orcamento_enriched = {
+            "id": orcamento.id,
+            "id_demanda": orcamento.id_demanda,
+            "id_fornecedor": orcamento.id_fornecedor,
+            "status": orcamento.status,
+            "valor_total": orcamento.valor_total,
+            "data_envio": orcamento.data_envio,
+            "prazo_entrega": orcamento.prazo_entrega,
+            "observacoes": orcamento.observacoes,
+            "desconto": orcamento.desconto or 0,
+            "data_resposta": getattr(orcamento, 'data_resposta', None),
+            "itens": itens_enriched
+        }
+
         return templates.TemplateResponse("noivo/orcamento_detalhes.html", {
             "request": request,
             "usuario_logado": usuario_logado,
-            "orcamento": None  # Placeholder
+            "orcamento": orcamento_enriched,
+            "demanda": demanda,
+            "fornecedor": fornecedor
         })
     except Exception as e:
         print(f"Erro ao visualizar orçamento: {e}")
@@ -263,22 +438,37 @@ async def visualizar_orcamento(request: Request, id_orcamento: int, usuario_loga
 async def aceitar_orcamento(request: Request, id_orcamento: int, usuario_logado: dict = None):
     """Aceita um orçamento"""
     try:
-        # TODO: Implementar quando tiver orcamento_repo
-        return RedirectResponse("/noivo/orcamentos", status_code=status.HTTP_303_SEE_OTHER)
+        # Buscar o orçamento para obter o id_demanda
+        orcamento = orcamento_repo.obter_orcamento_por_id(id_orcamento)
+        if not orcamento:
+            return RedirectResponse("/noivo/orcamentos?erro=orcamento_nao_encontrado", status_code=status.HTTP_303_SEE_OTHER)
+
+        # Aceitar este orçamento e rejeitar os outros da mesma demanda
+        sucesso = orcamento_repo.aceitar_orcamento_e_rejeitar_outros(id_orcamento, orcamento.id_demanda)
+
+        if sucesso:
+            return RedirectResponse("/noivo/orcamentos?sucesso=orcamento_aceito", status_code=status.HTTP_303_SEE_OTHER)
+        else:
+            return RedirectResponse("/noivo/orcamentos?erro=erro_aceitar", status_code=status.HTTP_303_SEE_OTHER)
     except Exception as e:
         print(f"Erro ao aceitar orçamento: {e}")
-        return RedirectResponse("/noivo/orcamentos", status_code=status.HTTP_303_SEE_OTHER)
+        return RedirectResponse("/noivo/orcamentos?erro=erro_interno", status_code=status.HTTP_303_SEE_OTHER)
 
 @router.post("/noivo/orcamentos/{id_orcamento}/rejeitar")
 @requer_autenticacao([TipoUsuario.NOIVO.value])
 async def rejeitar_orcamento(request: Request, id_orcamento: int, usuario_logado: dict = None):
     """Rejeita um orçamento"""
     try:
-        # TODO: Implementar quando tiver orcamento_repo
-        return RedirectResponse("/noivo/orcamentos", status_code=status.HTTP_303_SEE_OTHER)
+        # Rejeitar o orçamento
+        sucesso = orcamento_repo.rejeitar_orcamento(id_orcamento)
+
+        if sucesso:
+            return RedirectResponse("/noivo/orcamentos?sucesso=orcamento_rejeitado", status_code=status.HTTP_303_SEE_OTHER)
+        else:
+            return RedirectResponse("/noivo/orcamentos?erro=erro_rejeitar", status_code=status.HTTP_303_SEE_OTHER)
     except Exception as e:
         print(f"Erro ao rejeitar orçamento: {e}")
-        return RedirectResponse("/noivo/orcamentos", status_code=status.HTTP_303_SEE_OTHER)
+        return RedirectResponse("/noivo/orcamentos?erro=erro_interno", status_code=status.HTTP_303_SEE_OTHER)
 
 # ==================== PERFIL E CASAL ====================
 
@@ -290,14 +480,18 @@ async def perfil_noivo(request: Request, usuario_logado: dict = None):
         id_noivo = usuario_logado["id"]
         noivo = usuario_repo.obter_usuario_por_id(id_noivo)
 
-        # TODO: Buscar dados do casal quando implementar
-        # casal = casal_repo.obter_casal_por_noivo(id_noivo)
+        # Buscar dados do casal
+        casal = None
+        try:
+            casal = casal_repo.obter_casal_por_noivo(id_noivo)
+        except Exception as e:
+            print(f"Erro ao buscar dados do casal: {e}")
 
         return templates.TemplateResponse("noivo/perfil.html", {
             "request": request,
             "usuario_logado": usuario_logado,
             "noivo": noivo,
-            "casal": None  # Placeholder
+            "casal": casal
         })
     except Exception as e:
         print(f"Erro ao carregar perfil: {e}")
@@ -369,11 +563,13 @@ async def atualizar_perfil_noivo(
 async def listar_favoritos(request: Request, usuario_logado: dict = None):
     """Lista itens favoritos do noivo"""
     try:
-        # TODO: Implementar sistema de favoritos
+        id_noivo = usuario_logado["id"]
+        favoritos = favorito_repo.obter_favoritos_por_noivo(id_noivo)
+
         return templates.TemplateResponse("noivo/favoritos.html", {
             "request": request,
             "usuario_logado": usuario_logado,
-            "favoritos": []  # Placeholder
+            "favoritos": favoritos
         })
     except Exception as e:
         print(f"Erro ao listar favoritos: {e}")
@@ -382,3 +578,35 @@ async def listar_favoritos(request: Request, usuario_logado: dict = None):
             "usuario_logado": usuario_logado,
             "erro": "Erro ao carregar favoritos"
         })
+
+@router.post("/noivo/favoritos/adicionar/{id_item}")
+@requer_autenticacao([TipoUsuario.NOIVO.value])
+async def adicionar_favorito(request: Request, id_item: int, usuario_logado: dict = None):
+    """Adiciona um item aos favoritos"""
+    try:
+        id_noivo = usuario_logado["id"]
+        sucesso = favorito_repo.adicionar_favorito(id_noivo, id_item)
+
+        if sucesso:
+            return {"success": True, "message": "Item adicionado aos favoritos"}
+        else:
+            return {"success": False, "message": "Erro ao adicionar favorito"}
+    except Exception as e:
+        print(f"Erro ao adicionar favorito: {e}")
+        return {"success": False, "message": "Erro interno"}
+
+@router.post("/noivo/favoritos/remover/{id_item}")
+@requer_autenticacao([TipoUsuario.NOIVO.value])
+async def remover_favorito(request: Request, id_item: int, usuario_logado: dict = None):
+    """Remove um item dos favoritos"""
+    try:
+        id_noivo = usuario_logado["id"]
+        sucesso = favorito_repo.remover_favorito(id_noivo, id_item)
+
+        if sucesso:
+            return {"success": True, "message": "Item removido dos favoritos"}
+        else:
+            return {"success": False, "message": "Erro ao remover favorito"}
+    except Exception as e:
+        print(f"Erro ao remover favorito: {e}")
+        return {"success": False, "message": "Erro interno"}

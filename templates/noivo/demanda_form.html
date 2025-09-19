@@ -1,0 +1,183 @@
+{% extends "noivo/base.html" %}
+
+{% block title %}
+{% if acao == "editar" %}Editar Demanda{% else %}Nova Demanda{% endif %}
+{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1>
+                {% if acao == "editar" %}
+                    Editar Demanda
+                {% else %}
+                    Nova Demanda
+                {% endif %}
+            </h1>
+            <a href="/noivo/demandas" class="btn btn-outline-secondary">
+                <i class="fas fa-arrow-left"></i> Voltar
+            </a>
+        </div>
+    </div>
+</div>
+
+{% if erro %}
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="alert alert-danger" role="alert">
+            {{ erro }}
+        </div>
+    </div>
+</div>
+{% endif %}
+
+{% if sucesso %}
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="alert alert-success" role="alert">
+            {{ sucesso }}
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<div class="row">
+    <div class="col-12">
+        <form method="post">
+            <div class="card">
+                <div class="card-header">
+                    <h6 class="mb-0">Informações da Demanda</h6>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <label for="titulo" class="form-label">Título da Demanda *</label>
+                        <input type="text" class="form-control" id="titulo" name="titulo"
+                               value="{{ demanda.titulo if demanda else '' }}"
+                               placeholder="Ex: Decoração para cerimônia de casamento"
+                               required>
+                        <div class="form-text">Um título claro e descritivo do que você precisa.</div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="descricao" class="form-label">Descrição Detalhada *</label>
+                        <textarea class="form-control" id="descricao" name="descricao" rows="4"
+                                  placeholder="Descreva em detalhes o que você precisa, incluindo preferências, estilo, cores, quantidade de pessoas, etc."
+                                  required>{{ demanda.descricao if demanda else '' }}</textarea>
+                        <div class="form-text">Quanto mais detalhes você fornecer, melhores serão os orçamentos recebidos.</div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="orcamento_min" class="form-label">Orçamento Mínimo</label>
+                            <div class="input-group">
+                                <span class="input-group-text">R$</span>
+                                <input type="number" class="form-control" id="orcamento_min" name="orcamento_min"
+                                       value="{{ demanda.orcamento_min if demanda and demanda.orcamento_min else '' }}"
+                                       placeholder="0,00" step="0.01" min="0">
+                            </div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="orcamento_max" class="form-label">Orçamento Máximo</label>
+                            <div class="input-group">
+                                <span class="input-group-text">R$</span>
+                                <input type="number" class="form-control" id="orcamento_max" name="orcamento_max"
+                                       value="{{ demanda.orcamento_max if demanda and demanda.orcamento_max else '' }}"
+                                       placeholder="0,00" step="0.01" min="0">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-text mb-3">A faixa de orçamento ajuda os fornecedores a prepararem propostas adequadas às suas necessidades.</div>
+
+                    <div class="mb-3">
+                        <label for="prazo_entrega" class="form-label">Prazo Desejado</label>
+                        <input type="text" class="form-control" id="prazo_entrega" name="prazo_entrega"
+                               value="{{ demanda.prazo_entrega if demanda else '' }}"
+                               placeholder="Ex: Até 30 dias antes do casamento, 15/12/2024, Urgente">
+                        <div class="form-text">Informe quando você precisa que o produto/serviço esteja pronto.</div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="observacoes" class="form-label">Observações Adicionais</label>
+                        <textarea class="form-control" id="observacoes" name="observacoes" rows="3"
+                                  placeholder="Informações extras, requisitos especiais, preferências de contato, etc.">{{ demanda.observacoes if demanda else '' }}</textarea>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Dicas -->
+            <div class="card mt-4">
+                <div class="card-header">
+                    <h6 class="mb-0"><i class="fas fa-lightbulb text-warning"></i> Dicas para uma boa demanda</h6>
+                </div>
+                <div class="card-body">
+                    <ul class="mb-0">
+                        <li><strong>Seja específico:</strong> Quanto mais detalhes, melhores serão os orçamentos.</li>
+                        <li><strong>Inclua referências:</strong> Mencione estilos, cores ou exemplos que você gosta.</li>
+                        <li><strong>Defina prazos realistas:</strong> Dê tempo suficiente para os fornecedores trabalharem.</li>
+                        <li><strong>Seja claro sobre o orçamento:</strong> Isso ajuda a receber propostas mais adequadas.</li>
+                        <li><strong>Mencione o local:</strong> Se relevante, informe onde será o evento.</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Botões -->
+            <div class="card mt-4">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <a href="/noivo/demandas" class="btn btn-secondary">
+                            <i class="fas fa-times"></i> Cancelar
+                        </a>
+                        <button type="submit" class="btn btn-success">
+                            <i class="fas fa-save"></i>
+                            {% if acao == "editar" %}
+                                Atualizar Demanda
+                            {% else %}
+                                Criar Demanda
+                            {% endif %}
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+// Validação do formulário
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.querySelector('form');
+    const orcamentoMin = document.getElementById('orcamento_min');
+    const orcamentoMax = document.getElementById('orcamento_max');
+
+    // Validar que orçamento máximo é maior que o mínimo
+    function validarOrcamentos() {
+        const min = parseFloat(orcamentoMin.value) || 0;
+        const max = parseFloat(orcamentoMax.value) || 0;
+
+        if (min > 0 && max > 0 && min >= max) {
+            orcamentoMax.setCustomValidity('O orçamento máximo deve ser maior que o mínimo');
+        } else {
+            orcamentoMax.setCustomValidity('');
+        }
+    }
+
+    orcamentoMin.addEventListener('input', validarOrcamentos);
+    orcamentoMax.addEventListener('input', validarOrcamentos);
+
+    // Validação no envio
+    form.addEventListener('submit', function(e) {
+        validarOrcamentos();
+
+        if (!form.checkValidity()) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+
+        form.classList.add('was-validated');
+    });
+});
+</script>
+{% endblock %}
