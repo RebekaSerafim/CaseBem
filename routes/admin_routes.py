@@ -3,7 +3,9 @@ from fastapi.responses import RedirectResponse
 from fastapi.templating import Jinja2Templates
 from util.auth_decorator import requer_autenticacao
 from model.usuario_model import TipoUsuario
-from repo import usuario_repo, fornecedor_repo, item_repo
+from model.categoria_item_model import CategoriaItem
+from model.item_model import TipoItem
+from repo import usuario_repo, fornecedor_repo, item_repo, categoria_item_repo
 
 router = APIRouter()
 templates = Jinja2Templates(directory="templates")
@@ -200,6 +202,156 @@ async def relatorios(request: Request, usuario_logado: dict = None):
             "usuario_logado": usuario_logado,
             "erro": "Erro ao gerar relatórios"
         })
+
+# ==================== CATEGORIAS DE ITEM ====================
+
+@router.get("/admin/categorias")
+@requer_autenticacao([TipoUsuario.ADMIN.value])
+async def listar_categorias(request: Request, usuario_logado: dict = None):
+    """Lista todas as categorias de item"""
+    try:
+        categorias = categoria_item_repo.obter_todas_categorias()
+        return templates.TemplateResponse("admin/categorias.html", {
+            "request": request,
+            "usuario_logado": usuario_logado,
+            "categorias": categorias,
+            "tipos_item": [tipo for tipo in TipoItem]
+        })
+    except Exception as e:
+        print(f"Erro ao listar categorias: {e}")
+        return templates.TemplateResponse("admin/categorias.html", {
+            "request": request,
+            "usuario_logado": usuario_logado,
+            "erro": "Erro ao carregar categorias"
+        })
+
+@router.get("/admin/categoria/nova")
+@requer_autenticacao([TipoUsuario.ADMIN.value])
+async def nova_categoria(request: Request, usuario_logado: dict = None):
+    """Formulário para criar nova categoria"""
+    return templates.TemplateResponse("admin/categoria_form.html", {
+        "request": request,
+        "usuario_logado": usuario_logado,
+        "tipos_item": [tipo for tipo in TipoItem],
+        "acao": "criar"
+    })
+
+@router.post("/admin/categoria/criar")
+@requer_autenticacao([TipoUsuario.ADMIN.value])
+async def criar_categoria(
+    request: Request,
+    nome: str = Form(...),
+    tipo_fornecimento: str = Form(...),
+    descricao: str = Form(""),
+    ativo: bool = Form(True),
+    usuario_logado: dict = None
+):
+    """Cria uma nova categoria"""
+    try:
+        categoria = CategoriaItem(
+            id=0,
+            nome=nome,
+            tipo_fornecimento=TipoItem(tipo_fornecimento),
+            descricao=descricao if descricao else None,
+            ativo=ativo
+        )
+
+        categoria_id = categoria_item_repo.inserir_categoria_item(categoria)
+        if categoria_id:
+            return RedirectResponse("/admin/categorias", status_code=status.HTTP_303_SEE_OTHER)
+        else:
+            return templates.TemplateResponse("admin/categoria_form.html", {
+                "request": request,
+                "usuario_logado": usuario_logado,
+                "tipos_item": [tipo for tipo in TipoItem],
+                "acao": "criar",
+                "erro": "Erro ao criar categoria"
+            })
+    except Exception as e:
+        print(f"Erro ao criar categoria: {e}")
+        return templates.TemplateResponse("admin/categoria_form.html", {
+            "request": request,
+            "usuario_logado": usuario_logado,
+            "tipos_item": [tipo for tipo in TipoItem],
+            "acao": "criar",
+            "erro": "Erro ao criar categoria"
+        })
+
+@router.get("/admin/categoria/editar/{id_categoria}")
+@requer_autenticacao([TipoUsuario.ADMIN.value])
+async def editar_categoria(request: Request, id_categoria: int, usuario_logado: dict = None):
+    """Formulário para editar categoria"""
+    try:
+        categoria = categoria_item_repo.obter_categoria_item_por_id(id_categoria)
+        if not categoria:
+            return RedirectResponse("/admin/categorias", status_code=status.HTTP_303_SEE_OTHER)
+
+        return templates.TemplateResponse("admin/categoria_form.html", {
+            "request": request,
+            "usuario_logado": usuario_logado,
+            "categoria": categoria,
+            "tipos_item": [tipo for tipo in TipoItem],
+            "acao": "editar"
+        })
+    except Exception as e:
+        print(f"Erro ao carregar categoria para edição: {e}")
+        return RedirectResponse("/admin/categorias", status_code=status.HTTP_303_SEE_OTHER)
+
+@router.post("/admin/categoria/atualizar/{id_categoria}")
+@requer_autenticacao([TipoUsuario.ADMIN.value])
+async def atualizar_categoria(
+    request: Request,
+    id_categoria: int,
+    nome: str = Form(...),
+    tipo_fornecimento: str = Form(...),
+    descricao: str = Form(""),
+    ativo: bool = Form(True),
+    usuario_logado: dict = None
+):
+    """Atualiza uma categoria existente"""
+    try:
+        categoria = CategoriaItem(
+            id=id_categoria,
+            nome=nome,
+            tipo_fornecimento=TipoItem(tipo_fornecimento),
+            descricao=descricao if descricao else None,
+            ativo=ativo
+        )
+
+        if categoria_item_repo.atualizar_categoria_item(categoria):
+            return RedirectResponse("/admin/categorias", status_code=status.HTTP_303_SEE_OTHER)
+        else:
+            categoria_atual = categoria_item_repo.obter_categoria_item_por_id(id_categoria)
+            return templates.TemplateResponse("admin/categoria_form.html", {
+                "request": request,
+                "usuario_logado": usuario_logado,
+                "categoria": categoria_atual,
+                "tipos_item": [tipo for tipo in TipoItem],
+                "acao": "editar",
+                "erro": "Erro ao atualizar categoria"
+            })
+    except Exception as e:
+        print(f"Erro ao atualizar categoria: {e}")
+        categoria_atual = categoria_item_repo.obter_categoria_item_por_id(id_categoria)
+        return templates.TemplateResponse("admin/categoria_form.html", {
+            "request": request,
+            "usuario_logado": usuario_logado,
+            "categoria": categoria_atual,
+            "tipos_item": [tipo for tipo in TipoItem],
+            "acao": "editar",
+            "erro": "Erro ao atualizar categoria"
+        })
+
+@router.post("/admin/categoria/excluir/{id_categoria}")
+@requer_autenticacao([TipoUsuario.ADMIN.value])
+async def excluir_categoria(request: Request, id_categoria: int, usuario_logado: dict = None):
+    """Exclui uma categoria"""
+    try:
+        categoria_item_repo.excluir_categoria_item(id_categoria)
+        return RedirectResponse("/admin/categorias", status_code=status.HTTP_303_SEE_OTHER)
+    except Exception as e:
+        print(f"Erro ao excluir categoria: {e}")
+        return RedirectResponse("/admin/categorias", status_code=status.HTTP_303_SEE_OTHER)
 
 # ==================== CONFIGURAÇÕES ====================
 

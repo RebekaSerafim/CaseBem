@@ -1,6 +1,6 @@
 from typing import Optional
 from model.usuario_model import Usuario, TipoUsuario
-from repo import usuario_repo, fornecedor_repo, casal_repo, item_repo
+from repo import usuario_repo, fornecedor_repo, casal_repo, item_repo, categoria_item_repo, fornecedor_item_repo, item_demanda_repo, item_orcamento_repo
 from util.security import criar_hash_senha
 
 def criar_admin_padrao() -> Optional[int]:
@@ -14,6 +14,10 @@ def criar_admin_padrao() -> Optional[int]:
         fornecedor_repo.criar_tabela_fornecedor()
         casal_repo.criar_tabela_casal()
         item_repo.criar_tabela_item()
+        categoria_item_repo.criar_tabela_categoria_item()
+        fornecedor_item_repo.criar_tabela_fornecedor_item()
+        item_demanda_repo.criar_tabela_item_demanda()
+        item_orcamento_repo.criar_tabela_item_orcamento()
 
         # Buscar por um admin existente (simplificado - seria melhor ter uma query específica)
         # Por ora, vamos verificar se existe um usuário com email admin específico

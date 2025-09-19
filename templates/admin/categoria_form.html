@@ -1,0 +1,129 @@
+{% extends "admin/base.html" %}
+
+{% block title %}
+    {% if acao == "criar" %}Nova Categoria{% else %}Editar Categoria{% endif %} - Admin
+{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    {% if acao == "criar" %}
+                        <i class="bi bi-plus-circle"></i> Nova Categoria
+                    {% else %}
+                        <i class="bi bi-pencil"></i> Editar Categoria
+                    {% endif %}
+                </h5>
+            </div>
+            <div class="card-body">
+                <form method="post"
+                      action="{% if acao == 'criar' %}/admin/categoria/criar{% else %}/admin/categoria/atualizar/{{ categoria.id }}{% endif %}">
+
+                    <div class="mb-3">
+                        <label for="nome" class="form-label">Nome da Categoria *</label>
+                        <input type="text"
+                               class="form-control"
+                               id="nome"
+                               name="nome"
+                               value="{{ categoria.nome if categoria else '' }}"
+                               required>
+                        <div class="form-text">Digite um nome descritivo para a categoria.</div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="tipo_fornecimento" class="form-label">Tipo de Fornecimento *</label>
+                        <select class="form-select" id="tipo_fornecimento" name="tipo_fornecimento" required>
+                            <option value="">Selecione o tipo de fornecimento</option>
+                            {% for tipo in tipos_item %}
+                            <option value="{{ tipo.value }}"
+                                    {% if categoria and categoria.tipo_fornecimento == tipo %}selected{% endif %}>
+                                {{ tipo.value }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                        <div class="form-text">Escolha se esta categoria é para produtos, serviços ou espaços.</div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="descricao" class="form-label">Descrição</label>
+                        <textarea class="form-control"
+                                  id="descricao"
+                                  name="descricao"
+                                  rows="3"
+                                  placeholder="Descrição opcional da categoria">{{ categoria.descricao if categoria and categoria.descricao else '' }}</textarea>
+                        <div class="form-text">Descrição opcional para explicar o propósito da categoria.</div>
+                    </div>
+
+                    <div class="mb-3">
+                        <div class="form-check">
+                            <input class="form-check-input"
+                                   type="checkbox"
+                                   id="ativo"
+                                   name="ativo"
+                                   value="true"
+                                   {% if not categoria or categoria.ativo %}checked{% endif %}>
+                            <label class="form-check-label" for="ativo">
+                                Categoria ativa
+                            </label>
+                        </div>
+                        <div class="form-text">Categorias inativas não aparecem para seleção pelos fornecedores.</div>
+                    </div>
+
+                    <div class="d-flex justify-content-between">
+                        <a href="/admin/categorias" class="btn btn-secondary">
+                            <i class="bi bi-arrow-left"></i> Voltar
+                        </a>
+                        <button type="submit" class="btn btn-primary">
+                            {% if acao == "criar" %}
+                                <i class="bi bi-save"></i> Criar Categoria
+                            {% else %}
+                                <i class="bi bi-save"></i> Salvar Alterações
+                            {% endif %}
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        {% if acao == "editar" and categoria %}
+        <div class="card mt-4">
+            <div class="card-header bg-light">
+                <h6 class="mb-0">Informações da Categoria</h6>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <p><strong>ID:</strong> {{ categoria.id }}</p>
+                        <p><strong>Nome:</strong> {{ categoria.nome }}</p>
+                    </div>
+                    <div class="col-md-6">
+                        <p><strong>Tipo:</strong> {{ categoria.tipo_fornecimento.value }}</p>
+                        <p><strong>Status:</strong>
+                            {% if categoria.ativo %}
+                                <span class="badge bg-success">Ativo</span>
+                            {% else %}
+                                <span class="badge bg-secondary">Inativo</span>
+                            {% endif %}
+                        </p>
+                    </div>
+                </div>
+                {% if categoria.descricao %}
+                <p><strong>Descrição:</strong> {{ categoria.descricao }}</p>
+                {% endif %}
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+// Adicionar validação personalizada se necessário
+document.getElementById('nome').addEventListener('input', function() {
+    this.value = this.value.trim();
+});
+</script>
+{% endblock %}

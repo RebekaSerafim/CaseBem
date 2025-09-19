@@ -1,0 +1,115 @@
+{% extends "admin/base.html" %}
+
+{% block title %}Categorias - Admin{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1>Gerenciar Categorias</h1>
+            <a href="/admin/categoria/nova" class="btn btn-primary">
+                <i class="bi bi-plus-circle"></i> Nova Categoria
+            </a>
+        </div>
+
+        {% if categorias %}
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">Lista de Categorias</h5>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-striped table-hover">
+                        <thead class="table-dark">
+                            <tr>
+                                <th>ID</th>
+                                <th>Nome</th>
+                                <th>Tipo de Fornecimento</th>
+                                <th>Descrição</th>
+                                <th>Status</th>
+                                <th>Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for categoria in categorias %}
+                            <tr>
+                                <td>{{ categoria.id }}</td>
+                                <td>{{ categoria.nome }}</td>
+                                <td>
+                                    <span class="badge
+                                        {% if categoria.tipo_fornecimento.value == 'PRODUTO' %}bg-primary
+                                        {% elif categoria.tipo_fornecimento.value == 'SERVICO' %}bg-success
+                                        {% else %}bg-info{% endif %}">
+                                        {{ categoria.tipo_fornecimento.value }}
+                                    </span>
+                                </td>
+                                <td>{{ categoria.descricao or '-' }}</td>
+                                <td>
+                                    {% if categoria.ativo %}
+                                        <span class="badge bg-success">Ativo</span>
+                                    {% else %}
+                                        <span class="badge bg-secondary">Inativo</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <div class="btn-group" role="group">
+                                        <a href="/admin/categoria/editar/{{ categoria.id }}"
+                                           class="btn btn-sm btn-outline-primary">
+                                            Editar
+                                        </a>
+                                        <button type="button"
+                                                class="btn btn-sm btn-outline-danger"
+                                                onclick="confirmarExclusao({{ categoria.id }}, '{{ categoria.nome }}')">
+                                            Excluir
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        {% else %}
+        <div class="alert alert-info">
+            <h5>Nenhuma categoria encontrada</h5>
+            <p>Não há categorias cadastradas no sistema. <a href="/admin/categoria/nova">Clique aqui</a> para criar a primeira categoria.</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Modal de confirmação de exclusão -->
+<div class="modal fade" id="modalExclusao" tabindex="-1" aria-labelledby="modalExclusaoLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalExclusaoLabel">Confirmar Exclusão</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>Tem certeza que deseja excluir a categoria <strong id="nomeCategoria"></strong>?</p>
+                <p class="text-danger"><small>Esta ação não pode ser desfeita.</small></p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <form id="formExclusao" method="post" style="display: inline;">
+                    <button type="submit" class="btn btn-danger">Excluir</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function confirmarExclusao(id, nome) {
+    document.getElementById('nomeCategoria').textContent = nome;
+    document.getElementById('formExclusao').action = '/admin/categoria/excluir/' + id;
+    var modal = new bootstrap.Modal(document.getElementById('modalExclusao'));
+    modal.show();
+}
+</script>
+{% endblock %}
