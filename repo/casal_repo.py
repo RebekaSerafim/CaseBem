@@ -17,13 +17,26 @@ def criar_tabela_casal() -> bool:
 def inserir_casal(casal: Casal) -> Optional[int]:
     with obter_conexao() as conexao:
         cursor = conexao.cursor()
-        cursor.execute(INSERIR_CASAL, (casal.id_noivo1, casal.id_noivo2, casal.orcamento))
+        cursor.execute(INSERIR_CASAL, (
+            casal.id_noivo1,
+            casal.id_noivo2,
+            casal.data_casamento,
+            casal.local_previsto,
+            casal.orcamento,
+            casal.numero_convidados
+        ))
         return cursor.lastrowid
 
 def atualizar_casal(casal: Casal) -> bool:
     with obter_conexao() as conexao:
         cursor = conexao.cursor()
-        cursor.execute(ATUALIZAR_CASAL, (casal.orcamento, casal.id))
+        cursor.execute(ATUALIZAR_CASAL, (
+            casal.data_casamento,
+            casal.local_previsto,
+            casal.orcamento,
+            casal.numero_convidados,
+            casal.id
+        ))
         return (cursor.rowcount > 0)
 
 def excluir_casal(id: int) -> bool:
@@ -38,11 +51,15 @@ def obter_casal_por_id(id: int) -> Optional[Casal]:
         cursor.execute(OBTER_CASAL_POR_ID, (id,))
         resultado = cursor.fetchone()
         if resultado:
-            return Casal(      
-                id=resultado["id"],          
+            return Casal(
+                id=resultado["id"],
                 id_noivo1=resultado["id_noivo1"],
                 id_noivo2=resultado["id_noivo2"],
+                data_casamento=resultado["data_casamento"],
+                local_previsto=resultado["local_previsto"],
                 orcamento=resultado["orcamento"],
+                numero_convidados=resultado["numero_convidados"],
+                data_cadastro=resultado["data_cadastro"],
                 noivo1=usuario_repo.obter_usuario_por_id(resultado["id_noivo1"]),
                 noivo2=usuario_repo.obter_usuario_por_id(resultado["id_noivo2"])
             )
@@ -59,7 +76,11 @@ def obter_casais_por_pagina(numero_pagina: int, tamanho_pagina: int) -> list[Cas
             id=resultado["id"],
             id_noivo1=resultado["id_noivo1"],
             id_noivo2=resultado["id_noivo2"],
-            orcamento=resultado["orcamento"]
+            data_casamento=resultado["data_casamento"],
+            local_previsto=resultado["local_previsto"],
+            orcamento=resultado["orcamento"],
+            numero_convidados=resultado["numero_convidados"],
+            data_cadastro=resultado["data_cadastro"]
         ) for resultado in resultados]
 
 def obter_casal_por_noivo(id_noivo: int) -> Optional[Casal]:
@@ -72,6 +93,10 @@ def obter_casal_por_noivo(id_noivo: int) -> Optional[Casal]:
                 id=resultado["id"],
                 id_noivo1=resultado["id_noivo1"],
                 id_noivo2=resultado["id_noivo2"],
-                orcamento=resultado["orcamento"]
+                data_casamento=resultado["data_casamento"],
+                local_previsto=resultado["local_previsto"],
+                orcamento=resultado["orcamento"],
+                numero_convidados=resultado["numero_convidados"],
+                data_cadastro=resultado["data_cadastro"]
             )
     return None

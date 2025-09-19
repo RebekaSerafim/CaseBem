@@ -24,6 +24,7 @@ app.mount("/static", StaticFiles(directory="static"), name="static")
 app.include_router(public_routes.router)
 app.include_router(admin_routes.router)
 app.include_router(fornecedor_routes.router)
+app.include_router(noivo_routes.router)
 
 # Inicializar sistema na primeira execução
 @app.on_event("startup")

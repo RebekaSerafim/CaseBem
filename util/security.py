@@ -78,8 +78,8 @@ def validar_forca_senha(senha: str) -> tuple[bool, str]:
     Returns:
         Tupla (válida, mensagem de erro se inválida)
     """
-    if len(senha) < 6:
-        return False, "A senha deve ter pelo menos 6 caracteres"
+    if len(senha) < 8:
+        return False, "A senha deve ter pelo menos 8 caracteres"
     
     # Adicione mais validações conforme necessário
     # if not any(c.isupper() for c in senha):
@@ -95,13 +95,73 @@ def validar_forca_senha(senha: str) -> tuple[bool, str]:
 def gerar_senha_aleatoria(tamanho: int = 8) -> str:
     """
     Gera uma senha aleatória segura
-    
+
     Args:
         tamanho: Tamanho da senha
-    
+
     Returns:
         Senha aleatória
     """
     caracteres = string.ascii_letters + string.digits + "!@#$%"
     senha = ''.join(secrets.choice(caracteres) for _ in range(tamanho))
     return senha
+
+
+def validar_cpf(cpf: str) -> bool:
+    """
+    Valida um CPF brasileiro
+
+    Args:
+        cpf: CPF em formato string
+
+    Returns:
+        True se válido, False caso contrário
+    """
+    if not cpf:
+        return True  # CPF é opcional
+
+    # Remove caracteres não numéricos
+    cpf = ''.join(filter(str.isdigit, cpf))
+
+    # Verifica se tem 11 dígitos
+    if len(cpf) != 11:
+        return False
+
+    # Verifica se não são todos os dígitos iguais
+    if cpf == cpf[0] * 11:
+        return False
+
+    # Valida primeiro dígito verificador
+    soma = sum(int(cpf[i]) * (10 - i) for i in range(9))
+    resto = 11 - (soma % 11)
+    digito1 = 0 if resto >= 10 else resto
+
+    if int(cpf[9]) != digito1:
+        return False
+
+    # Valida segundo dígito verificador
+    soma = sum(int(cpf[i]) * (11 - i) for i in range(10))
+    resto = 11 - (soma % 11)
+    digito2 = 0 if resto >= 10 else resto
+
+    return int(cpf[10]) == digito2
+
+
+def validar_telefone(telefone: str) -> bool:
+    """
+    Valida um telefone brasileiro básico
+
+    Args:
+        telefone: Telefone em formato string
+
+    Returns:
+        True se válido, False caso contrário
+    """
+    if not telefone:
+        return False
+
+    # Remove caracteres não numéricos
+    numeros = ''.join(filter(str.isdigit, telefone))
+
+    # Verifica se tem entre 10 e 11 dígitos (celular ou fixo)
+    return len(numeros) in [10, 11]

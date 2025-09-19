@@ -4,9 +4,10 @@ from fastapi.templating import Jinja2Templates
 
 from model.usuario_model import TipoUsuario, Usuario
 from model.fornecedor_model import Fornecedor
-from repo import usuario_repo, fornecedor_repo
+from model.casal_model import Casal
+from repo import usuario_repo, fornecedor_repo, casal_repo
 from util.auth_decorator import criar_sessao
-from util.security import criar_hash_senha, verificar_senha
+from util.security import criar_hash_senha, verificar_senha, validar_forca_senha, validar_cpf, validar_telefone
 from util.usuario_util import usuario_para_sessao
 
 router = APIRouter()
@@ -64,6 +65,40 @@ async def post_cadastro_noivos(request: Request,
             {"request": request, "erro": "As senhas não coincidem"}
         )
 
+    # Validar força da senha
+    senha_valida, erro_senha = validar_forca_senha(senha)
+    if not senha_valida:
+        return templates.TemplateResponse(
+            "publico/cadastro_noivos.html",
+            {"request": request, "erro": erro_senha}
+        )
+
+    # Validar CPFs se fornecidos
+    if cpf1 and not validar_cpf(cpf1):
+        return templates.TemplateResponse(
+            "publico/cadastro_noivos.html",
+            {"request": request, "erro": "CPF do primeiro noivo é inválido"}
+        )
+
+    if cpf2 and not validar_cpf(cpf2):
+        return templates.TemplateResponse(
+            "publico/cadastro_noivos.html",
+            {"request": request, "erro": "CPF do segundo noivo é inválido"}
+        )
+
+    # Validar telefones
+    if not validar_telefone(telefone1):
+        return templates.TemplateResponse(
+            "publico/cadastro_noivos.html",
+            {"request": request, "erro": "Telefone do primeiro noivo é inválido"}
+        )
+
+    if not validar_telefone(telefone2):
+        return templates.TemplateResponse(
+            "publico/cadastro_noivos.html",
+            {"request": request, "erro": "Telefone do segundo noivo é inválido"}
+        )
+
     # Verificar se emails já existem
     if usuario_repo.obter_usuario_por_email(email1):
         return templates.TemplateResponse(
@@ -114,6 +149,19 @@ async def post_cadastro_noivos(request: Request,
     )
     usuario2_id = usuario_repo.inserir_usuario(usuario2)
 
+    # Criar registro do casal se ambos usuários foram criados com sucesso
+    if usuario1_id and usuario2_id:
+        casal = Casal(
+            id=0,
+            id_noivo1=usuario1_id,
+            id_noivo2=usuario2_id,
+            data_casamento=data_casamento if data_casamento else None,
+            local_previsto=local_previsto if local_previsto else None,
+            orcamento=orcamento if orcamento else None,
+            numero_convidados=int(numero_convidados) if numero_convidados else None
+        )
+        casal_repo.inserir_casal(casal)
+
     return RedirectResponse("/login", status.HTTP_303_SEE_OTHER)
 
 
@@ -143,6 +191,28 @@ async def post_cadastro_fornecedor(request: Request,
         return templates.TemplateResponse(
             "publico/cadastro_fornecedor.html",
             {"request": request, "erro": "As senhas não coincidem"}
+        )
+
+    # Validar força da senha
+    senha_valida, erro_senha = validar_forca_senha(senha)
+    if not senha_valida:
+        return templates.TemplateResponse(
+            "publico/cadastro_fornecedor.html",
+            {"request": request, "erro": erro_senha}
+        )
+
+    # Validar CPF se fornecido
+    if cpf and not validar_cpf(cpf):
+        return templates.TemplateResponse(
+            "publico/cadastro_fornecedor.html",
+            {"request": request, "erro": "CPF inválido"}
+        )
+
+    # Validar telefone
+    if not validar_telefone(telefone):
+        return templates.TemplateResponse(
+            "publico/cadastro_fornecedor.html",
+            {"request": request, "erro": "Telefone inválido"}
         )
 
     # Verificar se email já existe

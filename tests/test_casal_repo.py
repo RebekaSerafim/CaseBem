@@ -10,7 +10,15 @@ class TestCasalRepo:
         usuario_repo.criar_tabela_usuarios()
         for noivo in lista_noivos_exemplo:
             usuario_repo.inserir_usuario(noivo)
-        novo_casal = Casal(0, 1, 2, 10000.0)
+        novo_casal = Casal(
+            id=0,
+            id_noivo1=1,
+            id_noivo2=2,
+            data_casamento="2024-12-25",
+            local_previsto="Igreja do Centro",
+            orcamento="50k_100k",
+            numero_convidados=150
+        )
         casal_repo.criar_tabela_casal()
         # Act
         id_casal = casal_repo.inserir_casal(novo_casal)        
@@ -20,7 +28,10 @@ class TestCasalRepo:
         assert casal is not None, "Casal não encontrado após inserção"
         assert casal.id_noivo1 == 1
         assert casal.id_noivo2 == 2
-        assert casal.orcamento == 10000.0
+        assert casal.orcamento == "50k_100k"
+        assert casal.data_casamento == "2024-12-25"
+        assert casal.local_previsto == "Igreja do Centro"
+        assert casal.numero_convidados == 150
 
     def test_obter_casal_por_id_inexistente(self, test_db):
         # Arrange        
@@ -35,23 +46,47 @@ class TestCasalRepo:
         usuario_repo.criar_tabela_usuarios()
         for noivo in lista_noivos_exemplo:
             usuario_repo.inserir_usuario(noivo)
-        novo_casal = Casal(0, 1, 2, 10000.0)
+        novo_casal = Casal(
+            id=0,
+            id_noivo1=1,
+            id_noivo2=2,
+            data_casamento="2024-12-25",
+            local_previsto="Igreja do Centro",
+            orcamento="50k_100k",
+            numero_convidados=150
+        )
         casal_repo.criar_tabela_casal()
         id_casal = casal_repo.inserir_casal(novo_casal)
         # Act
-        casal_atualizado = Casal(id_casal, 1, 2, 15000.0)
+        casal_atualizado = Casal(
+            id=id_casal,
+            id_noivo1=1,
+            id_noivo2=2,
+            data_casamento="2024-12-30",
+            local_previsto="Salão de Festas",
+            orcamento="acima_100k",
+            numero_convidados=200
+        )
         sucesso = casal_repo.atualizar_casal(casal_atualizado)
         # Assert
         assert sucesso is True, "Atualização do casal deveria ser bem-sucedida"
         casal = casal_repo.obter_casal_por_id(id_casal)
         assert casal is not None, "Casal não encontrado após atualização"
-        assert casal.orcamento == 15000.0, "Orçamento do casal não foi atualizado corretamente"
+        assert casal.orcamento == "acima_100k", "Orçamento do casal não foi atualizado corretamente"
 
     def test_atualizar_casal_inexistente(self, test_db):
         # Arrange
         casal_repo.criar_tabela_casal()
         # Act
-        casal_inexistente = Casal(999, 1, 2, 10000.0)        
+        casal_inexistente = Casal(
+            id=999,
+            id_noivo1=1,
+            id_noivo2=2,
+            data_casamento="2024-01-01",
+            local_previsto="Local",
+            orcamento="10k_25k",
+            numero_convidados=50
+        )        
         atualizou = casal_repo.atualizar_casal(casal_inexistente)
         # Assert
         assert atualizou is False, "Atualização de casal inexistente deveria falhar"
@@ -61,7 +96,15 @@ class TestCasalRepo:
         usuario_repo.criar_tabela_usuarios()
         for noivo in lista_noivos_exemplo:
             usuario_repo.inserir_usuario(noivo)
-        novo_casal = Casal(0, 1, 2, 10000.0)
+        novo_casal = Casal(
+            id=0,
+            id_noivo1=1,
+            id_noivo2=2,
+            data_casamento="2024-12-25",
+            local_previsto="Igreja do Centro",
+            orcamento="50k_100k",
+            numero_convidados=150
+        )
         casal_repo.criar_tabela_casal()
         id_casal = casal_repo.inserir_casal(novo_casal)
         # Act
@@ -93,8 +136,24 @@ class TestCasalRepo:
         for noivo in lista_noivos_exemplo:
             usuario_repo.inserir_usuario(noivo)
         casal_repo.criar_tabela_casal()
-        casal1 = Casal(0, 1, 2, 10000.0)
-        casal2 = Casal(0, 3, 4, 15000.0)
+        casal1 = Casal(
+            id=0,
+            id_noivo1=1,
+            id_noivo2=2,
+            data_casamento="2024-06-15",
+            local_previsto="Igreja",
+            orcamento="25k_50k",
+            numero_convidados=100
+        )
+        casal2 = Casal(
+            id=0,
+            id_noivo1=3,
+            id_noivo2=4,
+            data_casamento="2024-09-20",
+            local_previsto="Praia",
+            orcamento="50k_100k",
+            numero_convidados=80
+        )
         casal_repo.inserir_casal(casal1)
         casal_repo.inserir_casal(casal2)
         # Act

@@ -39,8 +39,10 @@ def usuario_admin():
     return Usuario(
         id=1,
         nome="Admin Teste",
-        telefone="11999999999",
+        cpf=None,
+        data_nascimento=None,
         email="admin@teste.com",
+        telefone="11999999999",
         senha=criar_hash_senha("senha123"),
         perfil=TipoUsuario.ADMIN,
         foto=None,
@@ -56,8 +58,10 @@ def usuario_noivo():
     return Usuario(
         id=2,
         nome="Noivo Teste",
-        telefone="11999999999",
+        cpf=None,
+        data_nascimento=None,
         email="noivo@teste.com",
+        telefone="11999999999",
         senha=criar_hash_senha("senha123"),
         perfil=TipoUsuario.NOIVO,
         foto=None,
@@ -109,7 +113,7 @@ class TestAuth:
 
     def test_acesso_admin_sem_login_negado(self, client):
         """Testa que páginas admin redirecionam para login quando não logado"""
-        response = client.get("/administrador/dashboard", follow_redirects=False)
+        response = client.get("/admin/dashboard", follow_redirects=False)
         assert response.status_code == 303  # Redirect
         assert "/login" in response.headers["location"]
 
