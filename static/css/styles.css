@@ -16,29 +16,20 @@ body {
     background-color: #f8b4c2 !important;
 }
 
-
-.navbar-custom {
-    background-color: #f8f4f2;
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
-    position: relative;
+.navbar-divider {
+    width: 1px;
+    height: 90px;
+    background-color: #e0e1e2;
+    align-self: center;
 }
 
-.navbar-brand {
-    font-family: "Playfair Display", serif;
-    font-size: 1.8rem;
-    font-weight: 600;
-    margin: auto;
-    position: absolute;
-    left: 50%;
-    transform: translateX(-50%);
-    color: #4e3b31;
+@media (max-width: 991px) {
+    .navbar-divider {
+        display: none;
+    }
 }
 
-.menu-icon {
-    font-size: 1.5rem;
-    color: #4e3b31;
-    cursor: pointer;
-}
+
 
 .grid-image {
     position: relative;
@@ -110,10 +101,6 @@ body {
 }
 
 @media (max-width: 768px) {
-    .navbar-brand {
-        font-size: 1.4rem;
-    }
-
     .grid-overlay h5 {
         font-size: 1.2rem;
     }
@@ -172,17 +159,6 @@ body {
     text-transform: uppercase;
 }
 
-.menu-topo .nav-link {
-    color: #000;
-    font-size: 0.9rem;
-    padding: 0.5rem 0.75rem;
-}
-
-.menu-topo .nav-link.active,
-.menu-topo .nav-link:hover {
-    font-weight: bold;
-    color: #000;
-}
 
 /*vermais vestido */
 
@@ -290,10 +266,6 @@ body {
 }
 
 /* Abas personalizadas */
-.nav-tabs {
-    border-bottom: 1px solid #dee2e6;
-    margin-bottom: 1rem;
-}
 
 .custom-tab {
     border: none;
@@ -396,4 +368,23 @@ body {
 .availability-box:hover {
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     transition: box-shadow 0.3s ease;
+}
+
+/* Home page styles */
+.home-hero-section {
+    height: 60vh;
+}
+
+.home-section-title {
+    font-family: 'Playfair Display', serif;
+}
+
+.home-card-image {
+    height: 200px;
+    object-fit: cover;
+}
+
+/* Login and cadastro card styles */
+.auth-card {
+    border-radius: 15px;
 }
