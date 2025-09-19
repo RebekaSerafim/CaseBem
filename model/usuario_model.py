@@ -5,7 +5,7 @@ from typing import Optional
 class TipoUsuario(Enum):
     ADMIN = "ADMIN"
     NOIVO = "NOIVO"
-    PROFISSIONAL = "PROFISSIONAL"
+    FORNECEDOR = "FORNECEDOR"
 
 @dataclass
 class Usuario:

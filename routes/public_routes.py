@@ -3,8 +3,8 @@ from fastapi.responses import RedirectResponse
 from fastapi.templating import Jinja2Templates
 
 from model.usuario_model import TipoUsuario, Usuario
-from model.profissional_model import Profissional
-from repo import usuario_repo, profissional_repo
+from model.fornecedor_model import Fornecedor
+from repo import usuario_repo, fornecedor_repo
 from util.auth_decorator import criar_sessao
 from util.security import criar_hash_senha, verificar_senha
 from util.usuario_util import usuario_para_sessao
@@ -117,14 +117,14 @@ async def post_cadastro_noivos(request: Request,
     return RedirectResponse("/login", status.HTTP_303_SEE_OTHER)
 
 
-@router.get("/cadastro-profissional")
-async def get_cadastro_profissional(request: Request):
-    response = templates.TemplateResponse("publico/cadastro_profissional.html", {"request": request})
+@router.get("/cadastro-fornecedor")
+async def get_cadastro_fornecedor(request: Request):
+    response = templates.TemplateResponse("publico/cadastro_fornecedor.html", {"request": request})
     return response
 
 
-@router.post("/cadastro-profissional")
-async def post_cadastro_profissional(request: Request,
+@router.post("/cadastro-fornecedor")
+async def post_cadastro_fornecedor(request: Request,
     nome: str = Form(...),
     data_nascimento: str = Form(None),
     cpf: str = Form(None),
@@ -141,34 +141,34 @@ async def post_cadastro_profissional(request: Request,
     # Verificar se as senhas coincidem
     if senha != confirmar_senha:
         return templates.TemplateResponse(
-            "publico/cadastro_profissional.html",
+            "publico/cadastro_fornecedor.html",
             {"request": request, "erro": "As senhas não coincidem"}
         )
 
     # Verificar se email já existe
     if usuario_repo.obter_usuario_por_email(email):
         return templates.TemplateResponse(
-            "publico/cadastro_profissional.html",
+            "publico/cadastro_fornecedor.html",
             {"request": request, "erro": "E-mail já cadastrado"}
         )
 
     # Verificar se pelo menos um perfil foi selecionado
     if not perfis:
         return templates.TemplateResponse(
-            "publico/cadastro_profissional.html",
-            {"request": request, "erro": "Selecione pelo menos um tipo de profissional"}
+            "publico/cadastro_fornecedor.html",
+            {"request": request, "erro": "Selecione pelo menos um tipo de fornecimento"}
         )
 
     # Criar hash da senha
     senha_hash = criar_hash_senha(senha)
 
-    # Verificar quais tipos de profissional foram selecionados
-    eh_prestador = "PRESTADOR" in perfis
-    eh_fornecedor = "FORNECEDOR" in perfis
-    eh_locador = "LOCADOR" in perfis
+    # Verificar quais tipos de fornecimento foram selecionados
+    eh_prestador = "prestador" in perfis
+    eh_vendedor = "vendedor" in perfis
+    eh_locador = "locador" in perfis
 
-    # Criar profissional (que herda de Usuario)
-    profissional = Profissional(
+    # Criar fornecedor (que herda de Usuario)
+    fornecedor = Fornecedor(
         # Campos de Usuario na ordem correta
         id=0,
         nome=nome,
@@ -177,20 +177,20 @@ async def post_cadastro_profissional(request: Request,
         email=email,
         telefone=telefone,
         senha=senha_hash,
-        perfil=TipoUsuario.PROFISSIONAL,
+        perfil=TipoUsuario.FORNECEDOR,
         foto=None,
         token_redefinicao=None,
         data_token=None,
         data_cadastro=None,
-        # Campos específicos de Profissional
+        # Campos específicos de Fornecedor
         nome_empresa=nome_empresa,
         cnpj=cnpj,
         descricao=descricao,
         prestador=eh_prestador,
-        fornecedor=eh_fornecedor,
+        vendedor=eh_vendedor,
         locador=eh_locador
     )
-    profissional_id = profissional_repo.inserir_profissional(profissional)
+    fornecedor_id = fornecedor_repo.inserir_fornecedor(fornecedor)
     return RedirectResponse("/login", status.HTTP_303_SEE_OTHER)
 
 
@@ -218,13 +218,13 @@ async def post_cadastro_geral(request: Request,
     # Criar hash da senha
     senha_hash = criar_hash_senha(senha)
 
-    # Definir qual tipo de profissional baseado no tipo
+    # Definir qual tipo de fornecedor baseado no tipo
     eh_prestador = tipo == "P"
-    eh_fornecedor = tipo == "F"
+    eh_vendedor = tipo == "F"
     eh_locador = tipo == "L"
 
-    # Criar profissional
-    profissional = Profissional(
+    # Criar fornecedor
+    fornecedor = Fornecedor(
         # Campos de Usuario na ordem correta
         id=0,
         nome=nome,
@@ -233,20 +233,20 @@ async def post_cadastro_geral(request: Request,
         email=email,
         telefone=telefone,
         senha=senha_hash,
-        perfil=TipoUsuario.PROFISSIONAL,
+        perfil=TipoUsuario.FORNECEDOR,
         foto=None,
         token_redefinicao=None,
         data_token=None,
         data_cadastro=None,
-        # Campos específicos de Profissional
+        # Campos específicos de Fornecedor
         nome_empresa=None,
         cnpj=None,
         descricao=None,
         prestador=eh_prestador,
-        fornecedor=eh_fornecedor,
+        vendedor=eh_vendedor,
         locador=eh_locador
     )
-    profissional_id = profissional_repo.inserir_profissional(profissional)
+    fornecedor_id = fornecedor_repo.inserir_fornecedor(fornecedor)
     return RedirectResponse("/login", status.HTTP_303_SEE_OTHER)
 
 
@@ -287,7 +287,11 @@ async def post_login(
         return RedirectResponse(redirect, status.HTTP_303_SEE_OTHER)
     
     if usuario.perfil == TipoUsuario.ADMIN:
-        return RedirectResponse("/administrador/dashboard", status.HTTP_303_SEE_OTHER)
+        return RedirectResponse("/admin/dashboard", status.HTTP_303_SEE_OTHER)
+    elif usuario.perfil == TipoUsuario.FORNECEDOR:
+        return RedirectResponse("/fornecedor/dashboard", status.HTTP_303_SEE_OTHER)
+    elif usuario.perfil == TipoUsuario.NOIVO:
+        return RedirectResponse("/noivo/dashboard", status.HTTP_303_SEE_OTHER)
     
     return RedirectResponse("/", status.HTTP_303_SEE_OTHER)
 

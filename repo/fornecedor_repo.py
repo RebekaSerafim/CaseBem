@@ -1,75 +1,77 @@
 from typing import Optional, List
 from util.database import obter_conexao
-from sql.profissional_sql import *
-from model.profissional_model import Profissional
+from sql.fornecedor_sql import *
+from model.fornecedor_model import Fornecedor
 from model.usuario_model import TipoUsuario
 from repo import usuario_repo
 
-def criar_tabela_profissional() -> bool:
+def criar_tabela_fornecedor() -> bool:
     try:
         with obter_conexao() as conexao:
-            conexao.execute(CRIAR_TABELA_PROFISSIONAL)
+            conexao.execute(CRIAR_TABELA_FORNECEDOR)
         return True
     except Exception as e:
-        print(f"Erro ao criar tabela profissional: {e}")
+        print(f"Erro ao criar tabela fornecedor: {e}")
         return False
 
-def inserir_profissional(profissional: Profissional) -> Optional[int]:
+def inserir_fornecedor(fornecedor: Fornecedor) -> Optional[int]:
     try:
         # Primeiro inserir na tabela usuario
-        usuario_id = usuario_repo.inserir_usuario(profissional)
+        usuario_id = usuario_repo.inserir_usuario(fornecedor)
 
         if usuario_id:
-            # Depois inserir na tabela profissional
+            # Depois inserir na tabela fornecedor
             with obter_conexao() as conexao:
                 cursor = conexao.cursor()
-                cursor.execute(INSERIR_PROFISSIONAL,
-                    (usuario_id, profissional.nome_empresa, profissional.cnpj,
-                     profissional.descricao, profissional.prestador,
-                     profissional.fornecedor, profissional.locador))
+                cursor.execute(INSERIR_FORNECEDOR,
+                    (usuario_id, fornecedor.nome_empresa, fornecedor.cnpj,
+                     fornecedor.descricao, fornecedor.prestador,
+                     fornecedor.vendedor, fornecedor.locador,
+                     fornecedor.verificado, fornecedor.data_verificacao))
                 return usuario_id
     except Exception as e:
-        print(f"Erro ao inserir profissional: {e}")
+        print(f"Erro ao inserir fornecedor: {e}")
     return None
 
-def atualizar_profissional(profissional: Profissional) -> bool:
+def atualizar_fornecedor(fornecedor: Fornecedor) -> bool:
     try:
         # Atualizar dados de usuario
-        usuario_repo.atualizar_usuario(profissional)
+        usuario_repo.atualizar_usuario(fornecedor)
 
-        # Atualizar dados específicos de profissional
+        # Atualizar dados específicos de fornecedor
         with obter_conexao() as conexao:
             cursor = conexao.cursor()
-            cursor.execute(ATUALIZAR_PROFISSIONAL,
-                (profissional.nome_empresa, profissional.cnpj, profissional.descricao,
-                 profissional.prestador, profissional.fornecedor, profissional.locador,
-                 profissional.id))
+            cursor.execute(ATUALIZAR_FORNECEDOR,
+                (fornecedor.nome_empresa, fornecedor.cnpj, fornecedor.descricao,
+                 fornecedor.prestador, fornecedor.vendedor, fornecedor.locador,
+                 fornecedor.verificado, fornecedor.data_verificacao,
+                 fornecedor.id))
             return cursor.rowcount > 0
     except Exception as e:
-        print(f"Erro ao atualizar profissional: {e}")
+        print(f"Erro ao atualizar fornecedor: {e}")
         return False
 
-def excluir_profissional(id: int) -> bool:
+def excluir_fornecedor(id: int) -> bool:
     try:
         with obter_conexao() as conexao:
             cursor = conexao.cursor()
-            # Primeiro excluir da tabela profissional
-            cursor.execute(EXCLUIR_PROFISSIONAL, (id,))
+            # Primeiro excluir da tabela fornecedor
+            cursor.execute(EXCLUIR_FORNECEDOR, (id,))
             # Depois excluir da tabela usuario na mesma conexão
             cursor.execute("DELETE FROM Usuario WHERE id = ?", (id,))
             return cursor.rowcount > 0
     except Exception as e:
-        print(f"Erro ao excluir profissional: {e}")
+        print(f"Erro ao excluir fornecedor: {e}")
         return False
 
-def obter_profissional_por_id(id: int) -> Optional[Profissional]:
+def obter_fornecedor_por_id(id: int) -> Optional[Fornecedor]:
     try:
         with obter_conexao() as conexao:
             cursor = conexao.cursor()
-            cursor.execute(OBTER_PROFISSIONAL_POR_ID, (id,))
+            cursor.execute(OBTER_FORNECEDOR_POR_ID, (id,))
             resultado = cursor.fetchone()
             if resultado:
-                return Profissional(
+                return Fornecedor(
                     # Campos de Usuario na ordem correta
                     id=resultado["id"],
                     nome=resultado["nome"],
@@ -78,33 +80,35 @@ def obter_profissional_por_id(id: int) -> Optional[Profissional]:
                     email=resultado["email"],
                     telefone=resultado["telefone"],
                     senha=resultado["senha"],
-                    perfil=TipoUsuario.PROFISSIONAL,
+                    perfil=TipoUsuario.FORNECEDOR,
                     foto=resultado["foto"],
                     token_redefinicao=resultado["token_redefinicao"],
                     data_token=resultado["data_token"],
                     data_cadastro=resultado["data_cadastro"],
-                    # Campos específicos de Profissional
+                    # Campos específicos de Fornecedor
                     nome_empresa=resultado["nome_empresa"],
                     cnpj=resultado["cnpj"],
                     descricao=resultado["descricao"],
                     prestador=bool(resultado["prestador"]),
-                    fornecedor=bool(resultado["fornecedor"]),
-                    locador=bool(resultado["locador"])
+                    vendedor=bool(resultado["vendedor"]),
+                    locador=bool(resultado["locador"]),
+                    verificado=bool(resultado["verificado"]),
+                    data_verificacao=resultado["data_verificacao"]
                 )
     except Exception as e:
-        print(f"Erro ao obter profissional por ID: {e}")
+        print(f"Erro ao obter fornecedor por ID: {e}")
     return None
 
-def obter_profissionais_por_pagina(numero_pagina: int, tamanho_pagina: int) -> List[Profissional]:
+def obter_fornecedores_por_pagina(numero_pagina: int, tamanho_pagina: int) -> List[Fornecedor]:
     try:
         with obter_conexao() as conexao:
             limite = tamanho_pagina
             offset = (numero_pagina - 1) * tamanho_pagina
             cursor = conexao.cursor()
-            cursor.execute(OBTER_PROFISSIONAIS_POR_PAGINA, (limite, offset))
+            cursor.execute(OBTER_FORNECEDORES_POR_PAGINA, (limite, offset))
             resultados = cursor.fetchall()
 
-            return [Profissional(
+            return [Fornecedor(
                 # Campos de Usuario na ordem correta
                 id=resultado["id"],
                 nome=resultado["nome"],
@@ -113,31 +117,31 @@ def obter_profissionais_por_pagina(numero_pagina: int, tamanho_pagina: int) -> L
                 email=resultado["email"],
                 telefone=resultado["telefone"],
                 senha=resultado["senha"],
-                perfil=TipoUsuario.PROFISSIONAL,
+                perfil=TipoUsuario.FORNECEDOR,
                 foto=resultado["foto"],
                 token_redefinicao=resultado["token_redefinicao"],
                 data_token=resultado["data_token"],
                 data_cadastro=resultado["data_cadastro"],
-                # Campos específicos de Profissional
+                # Campos específicos de Fornecedor
                 nome_empresa=resultado["nome_empresa"],
                 cnpj=resultado["cnpj"],
                 descricao=resultado["descricao"],
                 prestador=bool(resultado["prestador"]),
-                fornecedor=bool(resultado["fornecedor"]),
+                vendedor=bool(resultado["vendedor"]),
                 locador=bool(resultado["locador"])
             ) for resultado in resultados]
     except Exception as e:
-        print(f"Erro ao obter profissionais por página: {e}")
+        print(f"Erro ao obter fornecedores por página: {e}")
     return []
 
-def obter_prestadores() -> List[Profissional]:
+def obter_prestadores() -> List[Fornecedor]:
     try:
         with obter_conexao() as conexao:
             cursor = conexao.cursor()
             cursor.execute(OBTER_PRESTADORES)
             resultados = cursor.fetchall()
 
-            return [Profissional(
+            return [Fornecedor(
                 # Campos de Usuario na ordem correta
                 id=resultado["id"],
                 nome=resultado["nome"],
@@ -146,31 +150,31 @@ def obter_prestadores() -> List[Profissional]:
                 email=resultado["email"],
                 telefone=resultado["telefone"],
                 senha=resultado["senha"],
-                perfil=TipoUsuario.PROFISSIONAL,
+                perfil=TipoUsuario.FORNECEDOR,
                 foto=resultado["foto"],
                 token_redefinicao=resultado["token_redefinicao"],
                 data_token=resultado["data_token"],
                 data_cadastro=resultado["data_cadastro"],
-                # Campos específicos de Profissional
+                # Campos específicos de Fornecedor
                 nome_empresa=resultado["nome_empresa"],
                 cnpj=resultado["cnpj"],
                 descricao=resultado["descricao"],
                 prestador=bool(resultado["prestador"]),
-                fornecedor=bool(resultado["fornecedor"]),
+                vendedor=bool(resultado["vendedor"]),
                 locador=bool(resultado["locador"])
             ) for resultado in resultados]
     except Exception as e:
         print(f"Erro ao obter prestadores: {e}")
     return []
 
-def obter_fornecedores() -> List[Profissional]:
+def obter_vendedores() -> List[Fornecedor]:
     try:
         with obter_conexao() as conexao:
             cursor = conexao.cursor()
-            cursor.execute(OBTER_FORNECEDORES)
+            cursor.execute(OBTER_VENDEDORES)
             resultados = cursor.fetchall()
 
-            return [Profissional(
+            return [Fornecedor(
                 # Campos de Usuario na ordem correta
                 id=resultado["id"],
                 nome=resultado["nome"],
@@ -179,31 +183,31 @@ def obter_fornecedores() -> List[Profissional]:
                 email=resultado["email"],
                 telefone=resultado["telefone"],
                 senha=resultado["senha"],
-                perfil=TipoUsuario.PROFISSIONAL,
+                perfil=TipoUsuario.FORNECEDOR,
                 foto=resultado["foto"],
                 token_redefinicao=resultado["token_redefinicao"],
                 data_token=resultado["data_token"],
                 data_cadastro=resultado["data_cadastro"],
-                # Campos específicos de Profissional
+                # Campos específicos de Fornecedor
                 nome_empresa=resultado["nome_empresa"],
                 cnpj=resultado["cnpj"],
                 descricao=resultado["descricao"],
                 prestador=bool(resultado["prestador"]),
-                fornecedor=bool(resultado["fornecedor"]),
+                vendedor=bool(resultado["vendedor"]),
                 locador=bool(resultado["locador"])
             ) for resultado in resultados]
     except Exception as e:
-        print(f"Erro ao obter fornecedores: {e}")
+        print(f"Erro ao obter vendedores: {e}")
     return []
 
-def obter_locadores() -> List[Profissional]:
+def obter_locadores() -> List[Fornecedor]:
     try:
         with obter_conexao() as conexao:
             cursor = conexao.cursor()
             cursor.execute(OBTER_LOCADORES)
             resultados = cursor.fetchall()
 
-            return [Profissional(
+            return [Fornecedor(
                 # Campos de Usuario na ordem correta
                 id=resultado["id"],
                 nome=resultado["nome"],
@@ -212,17 +216,17 @@ def obter_locadores() -> List[Profissional]:
                 email=resultado["email"],
                 telefone=resultado["telefone"],
                 senha=resultado["senha"],
-                perfil=TipoUsuario.PROFISSIONAL,
+                perfil=TipoUsuario.FORNECEDOR,
                 foto=resultado["foto"],
                 token_redefinicao=resultado["token_redefinicao"],
                 data_token=resultado["data_token"],
                 data_cadastro=resultado["data_cadastro"],
-                # Campos específicos de Profissional
+                # Campos específicos de Fornecedor
                 nome_empresa=resultado["nome_empresa"],
                 cnpj=resultado["cnpj"],
                 descricao=resultado["descricao"],
                 prestador=bool(resultado["prestador"]),
-                fornecedor=bool(resultado["fornecedor"]),
+                vendedor=bool(resultado["vendedor"]),
                 locador=bool(resultado["locador"])
             ) for resultado in resultados]
     except Exception as e:

@@ -16,30 +16,30 @@ def inserir_fornecedor_produto(fp: FornecedorProduto) -> Optional[tuple]:
     with obter_conexao() as conexao:
         cursor = conexao.execute(
             INSERIR_FORNECEDOR_PRODUTO,
-            (fp.id_profissional, fp.id_produto, fp.observacoes, fp.preco)
+            (fp.id_fornecedor, fp.id_produto, fp.observacoes, fp.preco)
         )
-        return (fp.id_profissional, fp.id_produto)
+        return (fp.id_fornecedor, fp.id_produto)
 
 def atualizar_fornecedor_produto(fp: FornecedorProduto) -> bool:
     with obter_conexao() as conexao:
         cursor = conexao.execute(
             ATUALIZAR_FORNECEDOR_PRODUTO,
-            (fp.observacoes, fp.preco, fp.id_profissional, fp.id_produto)
+            (fp.observacoes, fp.preco, fp.id_fornecedor, fp.id_produto)
         )
         return cursor.rowcount > 0
 
-def excluir_fornecedor_produto(id_profissional: int, id_produto: int) -> bool:
+def excluir_fornecedor_produto(id_fornecedor: int, id_produto: int) -> bool:
     with obter_conexao() as conexao:
-        cursor = conexao.execute(EXCLUIR_FORNECEDOR_PRODUTO, (id_profissional, id_produto))
+        cursor = conexao.execute(EXCLUIR_FORNECEDOR_PRODUTO, (id_fornecedor, id_produto))
         return cursor.rowcount > 0
 
-def obter_fornecedor_produto_por_id(id_profissional: int, id_produto: int) -> Optional[FornecedorProduto]:
+def obter_fornecedor_produto_por_id(id_fornecedor: int, id_produto: int) -> Optional[FornecedorProduto]:
     with obter_conexao() as conexao:
-        cursor = conexao.execute(OBTER_FORNECEDOR_PRODUTO_POR_ID, (id_profissional, id_produto))
+        cursor = conexao.execute(OBTER_FORNECEDOR_PRODUTO_POR_ID, (id_fornecedor, id_produto))
         resultado = cursor.fetchone()
         if resultado:
             return FornecedorProduto(
-                id_profissional=resultado["id_profissional"],
+                id_fornecedor=resultado["id_fornecedor"],
                 id_produto=resultado["id_produto"],
                 observacoes=resultado["observacoes"],
                 preco=resultado["preco"]
@@ -53,7 +53,7 @@ def obter_fornecedores_produto_por_pagina(numero_pagina: int, tamanho_pagina: in
         cursor = conexao.execute(OBTER_FORNECEDORES_PRODUTO_POR_PAGINA, (limite, offset))
         resultados = cursor.fetchall()
         return [FornecedorProduto(
-            id_profissional=r["id_profissional"],
+            id_fornecedor=r["id_fornecedor"],
             id_produto=r["id_produto"],
             observacoes=r["observacoes"],
             preco=r["preco"]

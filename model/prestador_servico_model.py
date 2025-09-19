@@ -2,13 +2,13 @@ from dataclasses import dataclass
 from typing import Optional
 
 from model.servico_model import Servico
-from model.profissional_model import Profissional
+from model.fornecedor_model import Fornecedor
 
 @dataclass
 class PrestadorServico:
-    id_profissional: int
+    id_fornecedor: int
     id_servico: int
     observacoes: str
     preco: Optional[float] = None
-    profissional: Optional[Profissional] = None
+    fornecedor: Optional[Fornecedor] = None
     servico: Optional[Servico] = None

@@ -5,43 +5,43 @@
         <div class="card shadow border-0 auth-card">
             <div class="card-body p-4">
                 <div class="text-center mb-4">
-                    <h3>Cadastro Profissional</h3>
-                    <small class="text-muted">Cadastre-se como fornecedor, prestador de serviços ou locador</small>
+                    <h3>Cadastro de Fornecedor</h3>
+                    <small class="text-muted">Cadastre-se como fornecedor de produtos, serviços ou espaços para casamentos</small>
                 </div>
 
                 {% if erro %}
                 <div class="alert alert-danger">{{ erro }}</div>
                 {% endif %}
 
-                <form id="formCadastro" method="post" action="/cadastro-profissional">
+                <form id="formCadastro" method="post" action="/cadastro-fornecedor">
                     <!-- Tipo de Profissional -->
                     <div class="row mb-4">
                         <div class="col-12">
-                            <label class="form-label fw-bold">Tipo de Profissional *</label>
+                            <label class="form-label fw-bold">Tipo de Fornecimento *</label>
                             <div class="row mt-2">
                                 <div class="col-md-4">
                                     <div class="form-check">
-                                        <input class="form-check-input" type="checkbox" name="perfis" value="PRESTADOR" id="prestador">
+                                        <input class="form-check-input" type="checkbox" name="perfis" value="prestador" id="prestador">
                                         <label class="form-check-label" for="prestador">
-                                            <strong>Prestador de Serviços</strong><br>
+                                            <strong>Serviços</strong><br>
                                             <small class="text-muted">Fotografia, música, cerimonial, etc.</small>
                                         </label>
                                     </div>
                                 </div>
                                 <div class="col-md-4">
                                     <div class="form-check">
-                                        <input class="form-check-input" type="checkbox" name="perfis" value="FORNECEDOR" id="fornecedor">
-                                        <label class="form-check-label" for="fornecedor">
-                                            <strong>Fornecedor de Produtos</strong><br>
+                                        <input class="form-check-input" type="checkbox" name="perfis" value="vendedor" id="vendedor">
+                                        <label class="form-check-label" for="vendedor">
+                                            <strong>Produtos</strong><br>
                                             <small class="text-muted">Vestidos, bolos, decoração, etc.</small>
                                         </label>
                                     </div>
                                 </div>
                                 <div class="col-md-4">
                                     <div class="form-check">
-                                        <input class="form-check-input" type="checkbox" name="perfis" value="LOCADOR" id="locador">
+                                        <input class="form-check-input" type="checkbox" name="perfis" value="locador" id="locador">
                                         <label class="form-check-label" for="locador">
-                                            <strong>Locador de Espaços</strong><br>
+                                            <strong>Espaços</strong><br>
                                             <small class="text-muted">Salões, sítios, igrejas, etc.</small>
                                         </label>
                                     </div>
@@ -68,8 +68,8 @@
                         </div>
                     </div>
 
-                    <!-- Dados Profissionais -->
-                    <h5 class="mb-3">Dados Profissionais</h5>
+                    <!-- Dados do Negócio -->
+                    <h5 class="mb-3">Dados do Negócio</h5>
                     <div class="row">
                         <div class="col-md-6 mb-3">
                             <label class="form-label">Nome da Empresa/Negócio</label>
@@ -119,13 +119,13 @@
 
                     <div class="row">
                         <div class="col-md-6">
-                            <div class="form-check mb-2">
+                            <div class="form-check mt-2">
                                 <input class="form-check-input" type="checkbox" id="termos" required>
                                 <label class="form-check-label small" for="termos">
                                     Eu concordo com os <a href="#" class="text-decoration-none">Termos de Uso</a> e <a href="#" class="text-decoration-none">Política de Privacidade</a>
                                 </label>
                             </div>
-                            <div class="form-check mb-3">
+                            <div class="form-check mb-0">
                                 <input class="form-check-input" type="checkbox" id="newsletter" name="newsletter">
                                 <label class="form-check-label small" for="newsletter">
                                     Desejo receber novidades e promoções por e-mail
@@ -134,7 +134,7 @@
                         </div>
                         <div class="col-md-6 d-flex align-items-end">
                             <div class="d-grid w-100">
-                                <button type="submit" class="btn btn-primary btn-lg">Criar Conta Profissional</button>
+                                <button type="submit" class="btn btn-primary btn-lg">Criar Conta de Fornecedor</button>
                             </div>
                         </div>
                     </div>
@@ -156,11 +156,11 @@
 </style>
 
 <script>
-    // Validação de perfis profissionais
+    // Validação de tipos de fornecimento
     function validarPerfis() {
         const checkboxes = document.querySelectorAll('input[name="perfis"]:checked');
         if (checkboxes.length === 0) {
-            alert('Selecione pelo menos um tipo de profissional.');
+            alert('Selecione pelo menos um tipo de fornecimento.');
             return false;
         }
         return true;

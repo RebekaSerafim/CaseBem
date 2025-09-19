@@ -1,18 +1,18 @@
 from model.prestador_servico_model import PrestadorServico
-from repo import prestador_servico_repo, usuario_repo, servico_repo, profissional_repo
+from repo import prestador_servico_repo, usuario_repo, servico_repo, fornecedor_repo
 
 class TestPrestadorServicoRepo:
     def test_criar_tabela_prestador_servico(self, test_db):
         assert prestador_servico_repo.criar_tabela_prestador_servico() is True
 
-    def test_inserir_prestador_servico(self, test_db, prestador_servico_exemplo, profissional_exemplo, servico_exemplo):
+    def test_inserir_prestador_servico(self, test_db, prestador_servico_exemplo, fornecedor_exemplo, servico_exemplo):
         # Arrange
         usuario_repo.criar_tabela_usuarios()
         servico_repo.criar_tabela_servicos()
         prestador_servico_repo.criar_tabela_prestador_servico()
         
-        profissional_repo.criar_tabela_profissional()
-        profissional_repo.inserir_profissional(profissional_exemplo)
+        fornecedor_repo.criar_tabela_fornecedor()
+        fornecedor_repo.inserir_fornecedor(fornecedor_exemplo)
         servico_repo.inserir_servico(servico_exemplo)
         
         # Act
@@ -21,14 +21,14 @@ class TestPrestadorServicoRepo:
         # Assert
         assert ids == (1, 1)
 
-    def test_atualizar_prestador_servico(self, test_db, profissional_exemplo, servico_exemplo):
+    def test_atualizar_prestador_servico(self, test_db, fornecedor_exemplo, servico_exemplo):
         # Arrange
         usuario_repo.criar_tabela_usuarios()
         servico_repo.criar_tabela_servicos()
         prestador_servico_repo.criar_tabela_prestador_servico()
         
-        profissional_repo.criar_tabela_profissional()
-        profissional_repo.inserir_profissional(profissional_exemplo)
+        fornecedor_repo.criar_tabela_fornecedor()
+        fornecedor_repo.inserir_fornecedor(fornecedor_exemplo)
         servico_repo.inserir_servico(servico_exemplo)
         
         ps = PrestadorServico(1, 1, "Observações iniciais", 100.0)
@@ -44,14 +44,14 @@ class TestPrestadorServicoRepo:
         assert ps_obtido.observacoes == "Observações atualizadas"
         assert ps_obtido.preco == 150.0
 
-    def test_excluir_prestador_servico(self, test_db, prestador_servico_exemplo, profissional_exemplo, servico_exemplo):
+    def test_excluir_prestador_servico(self, test_db, prestador_servico_exemplo, fornecedor_exemplo, servico_exemplo):
         # Arrange
         usuario_repo.criar_tabela_usuarios()
         servico_repo.criar_tabela_servicos()
         prestador_servico_repo.criar_tabela_prestador_servico()
         
-        profissional_repo.criar_tabela_profissional()
-        profissional_repo.inserir_profissional(profissional_exemplo)
+        fornecedor_repo.criar_tabela_fornecedor()
+        fornecedor_repo.inserir_fornecedor(fornecedor_exemplo)
         servico_repo.inserir_servico(servico_exemplo)
         prestador_servico_repo.inserir_prestador_servico(prestador_servico_exemplo)
         
@@ -62,14 +62,14 @@ class TestPrestadorServicoRepo:
         assert sucesso is True
         assert prestador_servico_repo.obter_prestador_servico_por_id(1, 1) is None
 
-    def test_obter_prestador_servico_por_id(self, test_db, prestador_servico_exemplo, profissional_exemplo, servico_exemplo):
+    def test_obter_prestador_servico_por_id(self, test_db, prestador_servico_exemplo, fornecedor_exemplo, servico_exemplo):
         # Arrange
         usuario_repo.criar_tabela_usuarios()
         servico_repo.criar_tabela_servicos()
         prestador_servico_repo.criar_tabela_prestador_servico()
         
-        profissional_repo.criar_tabela_profissional()
-        profissional_repo.inserir_profissional(profissional_exemplo)
+        fornecedor_repo.criar_tabela_fornecedor()
+        fornecedor_repo.inserir_fornecedor(fornecedor_exemplo)
         servico_repo.inserir_servico(servico_exemplo)
         prestador_servico_repo.inserir_prestador_servico(prestador_servico_exemplo)
         
@@ -78,19 +78,19 @@ class TestPrestadorServicoRepo:
         
         # Assert
         assert ps is not None
-        assert ps.id_profissional == 1
+        assert ps.id_fornecedor == 1
         assert ps.id_servico == 1
         assert ps.observacoes == "Observações teste"
         assert ps.preco == 100.0
 
-    def test_obter_prestadores_servico_por_pagina(self, test_db, profissional_exemplo, lista_servicos_exemplo):
+    def test_obter_prestadores_servico_por_pagina(self, test_db, fornecedor_exemplo, lista_servicos_exemplo):
         # Arrange
         usuario_repo.criar_tabela_usuarios()
         servico_repo.criar_tabela_servicos()
         prestador_servico_repo.criar_tabela_prestador_servico()
         
-        profissional_repo.criar_tabela_profissional()
-        profissional_repo.inserir_profissional(profissional_exemplo)
+        fornecedor_repo.criar_tabela_fornecedor()
+        fornecedor_repo.inserir_fornecedor(fornecedor_exemplo)
         for servico in lista_servicos_exemplo[:5]:
             servico_repo.inserir_servico(servico)
         
@@ -127,15 +127,15 @@ class TestPrestadorServicoRepo:
         # Assert
         assert sucesso is False
 
-    def test_excluir_prestador_servico_inexistente(self, test_db, profissional_exemplo, servico_exemplo):
+    def test_excluir_prestador_servico_inexistente(self, test_db, fornecedor_exemplo, servico_exemplo):
         # Arrange
         usuario_repo.criar_tabela_usuarios()
         servico_repo.criar_tabela_servicos()
         prestador_servico_repo.criar_tabela_prestador_servico()
         
         # Criar usuário e serviço necessários para satisfazer foreign key
-        profissional_repo.criar_tabela_profissional()
-        profissional_repo.inserir_profissional(profissional_exemplo)
+        fornecedor_repo.criar_tabela_fornecedor()
+        fornecedor_repo.inserir_fornecedor(fornecedor_exemplo)
         servico_repo.inserir_servico(servico_exemplo)
         
         # Act

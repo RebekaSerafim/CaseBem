@@ -5,13 +5,8 @@ import secrets
 
 import uvicorn
 
-from routes import locador_routes
-from routes import usuario_routes
-from routes import prestador_routes
-from routes import fornecedor_routes
-from routes import noivo_routes
-from routes import public_routes
-from routes import admin_routes
+from routes import public_routes, admin_routes, fornecedor_routes, noivo_routes
+from util.startup import inicializar_sistema
 
 app = FastAPI()
 SECRET_KEY = secrets.token_urlsafe(32)
@@ -25,13 +20,15 @@ app.add_middleware(
 )
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
+# Incluir rotas
 app.include_router(public_routes.router)
 app.include_router(admin_routes.router)
-app.include_router(usuario_routes.router)
-app.include_router(locador_routes.router)
-app.include_router(noivo_routes.router)
-app.include_router(prestador_routes.router)
 app.include_router(fornecedor_routes.router)
+
+# Inicializar sistema na primeira execução
+@app.on_event("startup")
+async def startup_event():
+    inicializar_sistema()
 
 
 if __name__ == "__main__":

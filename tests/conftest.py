@@ -36,7 +36,7 @@ def usuario_exemplo():
 def lista_usuarios_exemplo():
     # Cria uma lista de 10 usuários de exemplo para os testes
     from model.usuario_model import Usuario, TipoUsuario
-    tipos = [TipoUsuario.ADMIN, TipoUsuario.NOIVO, TipoUsuario.PROFISSIONAL]
+    tipos = [TipoUsuario.ADMIN, TipoUsuario.NOIVO, TipoUsuario.FORNECEDOR]
     usuarios = []
     for i in range(1, 11):
         usuario = Usuario(0, f"Usuário {i:02d}", f"123.456.78{i:01d}-00", f"199{i:01d}-01-01", f"usuario{i:02d}@email.com", f"(28) 99999-00{i:02d}", "123456", tipos[i % 3], None, None, None, None)
@@ -61,65 +61,65 @@ def lista_noivos_exemplo():
     return usuarios
 
 @pytest.fixture
-def profissional_exemplo():
-    # Cria um profissional de exemplo para os testes
-    from model.profissional_model import Profissional
+def fornecedor_exemplo():
+    # Cria um fornecedor de exemplo para os testes
+    from model.fornecedor_model import Fornecedor
     from model.usuario_model import TipoUsuario
-    profissional = Profissional(
+    fornecedor = Fornecedor(
         # Campos de Usuario na ordem correta
         id=0,
-        nome="Profissional Teste",
+        nome="Fornecedor Teste",
         cpf="111.222.333-44",
         data_nascimento="1985-03-20",
-        email="profissional@email.com",
+        email="fornecedor@email.com",
         telefone="(28) 99999-5000",
         senha="123456",
-        perfil=TipoUsuario.PROFISSIONAL,
+        perfil=TipoUsuario.FORNECEDOR,
         foto=None,
         token_redefinicao=None,
         data_token=None,
         data_cadastro=None,
-        # Campos específicos de Profissional
+        # Campos específicos de Fornecedor
         nome_empresa="Empresa Teste",
         cnpj="12.345.678/0001-90",
         descricao="Descrição dos serviços",
         prestador=True,
-        fornecedor=True,
+        vendedor=True,
         locador=False
     )
-    return profissional
+    return fornecedor
 
 @pytest.fixture
-def lista_profissionais_exemplo():
-    # Cria uma lista de 10 profissionais de exemplo para os testes
-    from model.profissional_model import Profissional
+def lista_fornecedores_exemplo():
+    # Cria uma lista de 10 fornecedores de exemplo para os testes
+    from model.fornecedor_model import Fornecedor
     from model.usuario_model import TipoUsuario
-    profissionais = []
+    fornecedores = []
     for i in range(1, 11):
-        profissional = Profissional(
+        fornecedor = Fornecedor(
             # Campos de Usuario na ordem correta
             id=0,
-            nome=f"Profissional {i:02d}",
+            nome=f"Fornecedor {i:02d}",
             cpf=f"111.222.33{i:01d}-44",
             data_nascimento=f"198{i:01d}-03-20",
-            email=f"profissional{i:02d}@email.com",
+            email=f"fornecedor{i:02d}@email.com",
             telefone=f"(28) 99999-50{i:02d}",
             senha="123456",
-            perfil=TipoUsuario.PROFISSIONAL,
+            perfil=TipoUsuario.FORNECEDOR,
             foto=None,
             token_redefinicao=None,
             data_token=None,
             data_cadastro=None,
-            # Campos específicos de Profissional
+            # Campos específicos de Fornecedor
             nome_empresa=f"Empresa {i:02d}",
             cnpj=f"12.345.67{i:01d}/0001-90",
             descricao=f"Descrição dos serviços {i:02d}",
             prestador=(i % 3 == 1),
-            fornecedor=(i % 3 == 2),
+            vendedor=(i % 3 == 2),
             locador=(i % 3 == 0)
         )
-        profissionais.append(profissional)
-    return profissionais
+        fornecedores.append(fornecedor)
+    return fornecedores
 
 @pytest.fixture
 def administrador_exemplo():
