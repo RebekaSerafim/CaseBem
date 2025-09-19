@@ -13,81 +13,177 @@ templates = Jinja2Templates(directory="templates")
 
 
 @router.get("/")
-async def get_root():
-    response = templates.TemplateResponse("publico/home.html", {"request": {}})
+async def get_home(request: Request):
+    response = templates.TemplateResponse("publico/home.html", {"request": request})
     return response
 
 
 @router.get("/cadastro")
-async def get_root():
-    response = templates.TemplateResponse("publico/cadastro.html", {"request": {}})
+async def get_cadastro(request: Request):
+    response = templates.TemplateResponse("publico/cadastro.html", {"request": request})
     return response
 
 
-@router.get("/cadastro_noivos")
-async def get_root():
-    response = templates.TemplateResponse("publico/cadastro_noivos.html", {"request": {}})
+@router.get("/cadastro-noivos")
+async def get_cadastro_noivos(request: Request):
+    response = templates.TemplateResponse("publico/cadastro_noivos.html", {"request": request})
     return response
 
 
-@router.post("/cadastro_noivos")
-async def post_root(request: Request,
-    nome_noivo: str = Form(...),
-    telefone_noivo: str = Form(None),
-    email_noivo: str = Form(...),
-    senha_noivo: str = Form(...),
-    nome_noiva: str = Form(...),
-    telefone_noiva: str = Form(None),
-    email_noiva: str = Form(...),
-    senha_noiva: str = Form(...)
+@router.post("/cadastro-noivos")
+async def post_cadastro_noivos(request: Request,
+    # Dados do primeiro noivo
+    nome1: str = Form(...),
+    data_nascimento1: str = Form(None),
+    cpf1: str = Form(None),
+    email1: str = Form(...),
+    telefone1: str = Form(...),
+    genero1: str = Form(None),
+    # Dados do segundo noivo
+    nome2: str = Form(...),
+    data_nascimento2: str = Form(None),
+    cpf2: str = Form(None),
+    email2: str = Form(...),
+    telefone2: str = Form(...),
+    genero2: str = Form(None),
+    # Dados de acesso compartilhados
+    senha: str = Form(...),
+    confirmar_senha: str = Form(...),
+    # Dados do casamento
+    data_casamento: str = Form(None),
+    local_previsto: str = Form(None),
+    orcamento: str = Form(None),
+    numero_convidados: str = Form(None),
+    newsletter: str = Form(None)
 ):
-    # Verificar se email já existe
-    if usuario_repo.obter_por_email(email_noivo):
+    # Verificar se as senhas coincidem
+    if senha != confirmar_senha:
         return templates.TemplateResponse(
-            "cadastro.html",
-            {"request": request, "erro": "E-mail do noivo já cadastrado"}
+            "publico/cadastro_noivos.html",
+            {"request": request, "erro": "As senhas não coincidem"}
         )
-    if usuario_repo.obter_por_email(email_noiva):
+
+    # Verificar se emails já existem
+    if usuario_repo.obter_por_email(email1):
         return templates.TemplateResponse(
-            "cadastro.html",
-            {"request": request, "erro": "E-mail do noiva já cadastrado"}
+            "publico/cadastro_noivos.html",
+            {"request": request, "erro": f"E-mail {email1} já cadastrado"}
         )
-    
-    # Criar hash da senha
-    senha_hash_noivo = criar_hash_senha(senha_noivo)
-    senha_hash_noiva = criar_hash_senha(senha_noiva)
-    
-    # Criar usuário
-    usuario_noivo = Usuario(
+
+    if usuario_repo.obter_por_email(email2):
+        return templates.TemplateResponse(
+            "publico/cadastro_noivos.html",
+            {"request": request, "erro": f"E-mail {email2} já cadastrado"}
+        )
+
+    # Criar hash da senha compartilhada
+    senha_hash = criar_hash_senha(senha)
+
+    # Criar primeiro usuário
+    usuario1 = Usuario(
         id=0,
-        nome=nome_noivo,
-        telefone=telefone_noivo,
-        email=email_noivo,
-        senha=senha_hash_noivo,
+        nome=nome1,
+        telefone=telefone1,
+        email=email1,
+        senha=senha_hash,
         perfil=TipoUsuario.NOIVO
     )
-    usuario_noivo_id = usuario_repo.inserir(usuario_noivo)
+    usuario1_id = usuario_repo.inserir(usuario1)
 
-    usuario_noiva = Usuario(
+    # Criar segundo usuário
+    usuario2 = Usuario(
         id=0,
-        nome=nome_noiva,
-        telefone=telefone_noiva,
-        email=email_noiva,
-        senha=senha_hash_noiva,
+        nome=nome2,
+        telefone=telefone2,
+        email=email2,
+        senha=senha_hash,
         perfil=TipoUsuario.NOIVO
-    )    
-    usuario_noiva_id = usuario_repo.inserir(usuario_noiva)
+    )
+    usuario2_id = usuario_repo.inserir(usuario2)
+
+    return RedirectResponse("/login", status.HTTP_303_SEE_OTHER)
+
+
+@router.get("/cadastro-profissional")
+async def get_cadastro_profissional(request: Request):
+    response = templates.TemplateResponse("publico/cadastro_profissional.html", {"request": request})
+    return response
+
+
+@router.post("/cadastro-profissional")
+async def post_cadastro_profissional(request: Request,
+    nome: str = Form(...),
+    data_nascimento: str = Form(None),
+    cpf: str = Form(None),
+    nome_empresa: str = Form(None),
+    cnpj: str = Form(None),
+    descricao: str = Form(None),
+    email: str = Form(...),
+    telefone: str = Form(...),
+    senha: str = Form(...),
+    confirmar_senha: str = Form(...),
+    perfis: list = Form(...),
+    newsletter: str = Form(None)
+):
+    # Verificar se as senhas coincidem
+    if senha != confirmar_senha:
+        return templates.TemplateResponse(
+            "publico/cadastro_profissional.html",
+            {"request": request, "erro": "As senhas não coincidem"}
+        )
+
+    # Verificar se email já existe
+    if usuario_repo.obter_por_email(email):
+        return templates.TemplateResponse(
+            "publico/cadastro_profissional.html",
+            {"request": request, "erro": "E-mail já cadastrado"}
+        )
+
+    # Verificar se pelo menos um perfil foi selecionado
+    if not perfis:
+        return templates.TemplateResponse(
+            "publico/cadastro_profissional.html",
+            {"request": request, "erro": "Selecione pelo menos um tipo de profissional"}
+        )
+
+    # Criar hash da senha
+    senha_hash = criar_hash_senha(senha)
+
+    # Para múltiplos perfis, criar um usuário para cada perfil selecionado
+    # ou adaptar o modelo para suportar múltiplos perfis
+    # Por enquanto, vou usar o primeiro perfil selecionado
+    primeiro_perfil = perfis[0] if isinstance(perfis, list) else perfis
+
+    perfil_usuario = None
+    match primeiro_perfil:
+        case "FORNECEDOR":
+            perfil_usuario = TipoUsuario.FORNECEDOR
+        case "PRESTADOR":
+            perfil_usuario = TipoUsuario.PRESTADOR
+        case "LOCADOR":
+            perfil_usuario = TipoUsuario.LOCADOR
+
+    # Criar usuário
+    usuario = Usuario(
+        id=0,
+        nome=nome,
+        telefone=telefone,
+        email=email,
+        senha=senha_hash,
+        perfil=perfil_usuario
+    )
+    usuario_id = usuario_repo.inserir(usuario)
     return RedirectResponse("/login", status.HTTP_303_SEE_OTHER)
 
 
 @router.get("/cadastro_geral")
-async def get_root():
-    response = templates.TemplateResponse("publico/cadastro_fornecedor.html", {"request": {}})
+async def get_cadastro_geral(request: Request):
+    response = templates.TemplateResponse("publico/cadastro_fornecedor.html", {"request": request})
     return response
 
 
 @router.post("/cadastro_geral")
-async def post_root(request: Request,
+async def post_cadastro_geral(request: Request,
     nome: str = Form(...),
     telefone: str = Form(None),
     email: str = Form(...),
@@ -97,16 +193,16 @@ async def post_root(request: Request,
     # Verificar se email já existe
     if usuario_repo.obter_por_email(email):
         return templates.TemplateResponse(
-            "cadastro.html",
-            {"request": request, "erro": "E-mail do noivo já cadastrado"}
+            "publico/cadastro_fornecedor.html",
+            {"request": request, "erro": "E-mail já cadastrado"}
         )
-    
+
     # Criar hash da senha
-    senha_hash_noivo = criar_hash_senha(senha)  
+    senha_hash = criar_hash_senha(senha)
     perfil = None
     match (tipo):
         case "F":
-            perfil = TipoUsuario.FORNECEDOR            
+            perfil = TipoUsuario.FORNECEDOR
         case  "P":
             perfil = TipoUsuario.PRESTADOR
         case "L":
@@ -118,7 +214,7 @@ async def post_root(request: Request,
         nome=nome,
         telefone=telefone,
         email=email,
-        senha=senha_hash_noivo,
+        senha=senha_hash,
         perfil=perfil
     )
     usuario_id = usuario_repo.inserir(usuario_fornecedor)
@@ -131,8 +227,8 @@ async def get_root():
     return response
 
 @router.get("/login")
-async def get_root():
-    response = templates.TemplateResponse("publico/login.html", {"request": {}})
+async def get_login(request: Request):
+    response = templates.TemplateResponse("publico/login.html", {"request": request})
     return response
 
 

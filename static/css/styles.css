@@ -388,3 +388,22 @@ body {
 .auth-card {
     border-radius: 15px;
 }
+
+/* Registration type selection cards */
+.registration-type-card {
+    cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.registration-type-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15) !important;
+}
+
+.registration-icon {
+    transition: transform 0.2s ease;
+}
+
+.registration-type-card:hover .registration-icon {
+    transform: scale(1.1);
+}

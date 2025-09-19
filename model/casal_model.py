@@ -8,6 +8,9 @@ class Casal:
     id: int
     id_noivo1: int
     id_noivo2: int
-    orcamento: float
+    orcamento_estimado: float
+    data_prevista: Optional[str]
+    local_previsto: Optional[str]
+    numero_convidados: Optional[int]
     noivo1: Optional[Usuario] = None
     noivo2: Optional[Usuario] = None
