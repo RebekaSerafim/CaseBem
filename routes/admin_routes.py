@@ -559,19 +559,65 @@ async def rejeitar_fornecedor(request: Request, id_fornecedor: int, observacoes:
         print(f"Erro ao rejeitar fornecedor: {e}")
         return RedirectResponse("/admin/verificacao", status_code=status.HTTP_303_SEE_OTHER)
 
-# ==================== GESTÃO DE ITENS (VISUALIZAÇÃO) ====================
+# ==================== GESTÃO DE ITENS (VISUALIZAÇÃO E CONTROLE) ====================
 
 @router.get("/admin/itens")
 @requer_autenticacao([TipoUsuario.ADMIN.value])
 async def listar_itens(request: Request, usuario_logado: dict = None):
-    """Lista todos os itens do sistema"""
+    """Lista todos os itens do sistema com filtros"""
     try:
-        itens = item_repo.obter_itens_por_pagina(1, 100)  # TODO: implementar paginação real
+        # Obter parâmetros de filtro da URL
+        busca = request.query_params.get("search", "").strip()
+        tipo_item = request.query_params.get("tipo_item", "").strip()
+        status_filtro = request.query_params.get("status", "").strip()
+        fornecedor_id = request.query_params.get("fornecedor", "").strip()
+
+        # Aplicar filtros se fornecidos, senão listar todos
+        if busca:
+            itens = item_repo.buscar_itens(busca, 1, 100)
+        else:
+            itens = item_repo.obter_itens_por_pagina(1, 100)
+
+        # Filtrar por tipo se especificado
+        if tipo_item:
+            itens = [item for item in itens if item.tipo.value == tipo_item]
+
+        # Filtrar por status se especificado
+        if status_filtro == "ativo":
+            itens = [item for item in itens if item.ativo]
+        elif status_filtro == "inativo":
+            itens = [item for item in itens if not item.ativo]
+
+        # Filtrar por fornecedor se especificado
+        if fornecedor_id:
+            try:
+                fornecedor_id_int = int(fornecedor_id)
+                itens = [item for item in itens if item.id_fornecedor == fornecedor_id_int]
+            except ValueError:
+                pass
+
+        # Buscar dados dos fornecedores para exibir nomes
+        fornecedores_dados = {}
+        for item in itens:
+            if item.id_fornecedor not in fornecedores_dados:
+                try:
+                    fornecedor = fornecedor_repo.obter_fornecedor_por_id(item.id_fornecedor)
+                    if fornecedor:
+                        fornecedores_dados[item.id_fornecedor] = fornecedor
+                except Exception as e:
+                    print(f"Erro ao buscar fornecedor {item.id_fornecedor}: {e}")
+                    continue
+
+        # Buscar todos os fornecedores para o filtro
+        todos_fornecedores = fornecedor_repo.obter_fornecedores_por_pagina(1, 1000)
 
         return templates.TemplateResponse("admin/itens.html", {
             "request": request,
             "usuario_logado": usuario_logado,
-            "itens": itens
+            "itens": itens,
+            "fornecedores_dados": fornecedores_dados,
+            "todos_fornecedores": todos_fornecedores,
+            "tipos_item": [tipo for tipo in TipoItem]
         })
     except Exception as e:
         print(f"Erro ao listar itens: {e}")
@@ -580,6 +626,73 @@ async def listar_itens(request: Request, usuario_logado: dict = None):
             "usuario_logado": usuario_logado,
             "erro": "Erro ao carregar itens"
         })
+
+@router.get("/admin/item/{id_item}")
+@requer_autenticacao([TipoUsuario.ADMIN.value])
+async def visualizar_item(request: Request, id_item: int, usuario_logado: dict = None):
+    """Visualiza detalhes de um item específico"""
+    try:
+        item = item_repo.obter_item_por_id(id_item)
+
+        if not item:
+            return templates.TemplateResponse("admin/itens.html", {
+                "request": request,
+                "usuario_logado": usuario_logado,
+                "erro": "Item não encontrado"
+            })
+
+        # Buscar dados do fornecedor
+        fornecedor = fornecedor_repo.obter_fornecedor_por_id(item.id_fornecedor)
+
+        return templates.TemplateResponse("admin/item_detalhes.html", {
+            "request": request,
+            "usuario_logado": usuario_logado,
+            "item": item,
+            "fornecedor": fornecedor
+        })
+    except Exception as e:
+        print(f"Erro ao visualizar item: {e}")
+        return templates.TemplateResponse("admin/itens.html", {
+            "request": request,
+            "usuario_logado": usuario_logado,
+            "erro": "Erro ao carregar item"
+        })
+
+@router.post("/admin/item/{id_item}/ativar")
+@requer_autenticacao([TipoUsuario.ADMIN.value])
+async def ativar_item_admin(request: Request, id_item: int, usuario_logado: dict = None):
+    """Ativa um item (admin pode ativar qualquer item)"""
+    try:
+        from util.database import obter_conexao
+        with obter_conexao() as conexao:
+            cursor = conexao.cursor()
+            cursor.execute("UPDATE item SET ativo = 1 WHERE id = ?", (id_item,))
+            sucesso = cursor.rowcount > 0
+
+        if not sucesso:
+            print(f"Falha ao ativar item {id_item}")
+        return RedirectResponse("/admin/itens", status_code=status.HTTP_303_SEE_OTHER)
+    except Exception as e:
+        print(f"Erro ao ativar item: {e}")
+        return RedirectResponse("/admin/itens", status_code=status.HTTP_303_SEE_OTHER)
+
+@router.post("/admin/item/{id_item}/desativar")
+@requer_autenticacao([TipoUsuario.ADMIN.value])
+async def desativar_item_admin(request: Request, id_item: int, usuario_logado: dict = None):
+    """Desativa um item (admin pode desativar qualquer item)"""
+    try:
+        from util.database import obter_conexao
+        with obter_conexao() as conexao:
+            cursor = conexao.cursor()
+            cursor.execute("UPDATE item SET ativo = 0 WHERE id = ?", (id_item,))
+            sucesso = cursor.rowcount > 0
+
+        if not sucesso:
+            print(f"Falha ao desativar item {id_item}")
+        return RedirectResponse("/admin/itens", status_code=status.HTTP_303_SEE_OTHER)
+    except Exception as e:
+        print(f"Erro ao desativar item: {e}")
+        return RedirectResponse("/admin/itens", status_code=status.HTTP_303_SEE_OTHER)
 
 # ==================== RELATÓRIOS ====================
 
