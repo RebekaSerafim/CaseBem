@@ -701,19 +701,63 @@ async def desativar_item_admin(request: Request, id_item: int, usuario_logado: d
 async def relatorios(request: Request, usuario_logado: dict = None):
     """Página de relatórios e estatísticas"""
     try:
-        estatisticas = {
-            "itens_por_tipo": item_repo.obter_estatisticas_itens(),
-            "total_fornecedores": len(fornecedor_repo.obter_fornecedores_por_pagina(1, 1000)),
-            "fornecedores_verificados": len([f for f in fornecedor_repo.obter_fornecedores_por_pagina(1, 1000) if f.verificado]),
-            "total_prestadores": len(fornecedor_repo.obter_prestadores()),
-            "total_vendedores": len(fornecedor_repo.obter_vendedores()),
-            "total_locadores": len(fornecedor_repo.obter_locadores())
+        # Estatísticas gerais do sistema
+        stats_gerais = {
+            "total_usuarios": usuario_repo.contar_usuarios(),
+            "total_noivos": usuario_repo.contar_usuarios_por_tipo(TipoUsuario.NOIVO),
+            "total_admins": usuario_repo.contar_usuarios_por_tipo(TipoUsuario.ADMIN),
+            "total_fornecedores": fornecedor_repo.contar_fornecedores(),
+            "fornecedores_verificados": fornecedor_repo.contar_fornecedores() - fornecedor_repo.contar_fornecedores_nao_verificados(),
+            "fornecedores_nao_verificados": fornecedor_repo.contar_fornecedores_nao_verificados(),
+            "total_itens": item_repo.contar_itens(),
+            "total_categorias": categoria_item_repo.contar_categorias(),
+            "total_orcamentos": orcamento_repo.contar_orcamentos(),
+            "total_demandas": demanda_repo.contar_demandas()
+        }
+
+        # Estatísticas de itens por tipo
+        stats_itens = {
+            "produtos": item_repo.contar_itens_por_tipo(TipoItem.PRODUTO),
+            "servicos": item_repo.contar_itens_por_tipo(TipoItem.SERVICO),
+            "espacos": item_repo.contar_itens_por_tipo(TipoItem.ESPACO),
+            "detalhes_por_tipo": item_repo.obter_estatisticas_itens()
+        }
+
+        # Estatísticas de fornecedores por categoria
+        try:
+            fornecedores = fornecedor_repo.obter_fornecedores_por_pagina(1, 1000)
+            stats_fornecedores = {
+                "prestadores": len([f for f in fornecedores if f.prestador]),
+                "vendedores": len([f for f in fornecedores if f.vendedor]),
+                "locadores": len([f for f in fornecedores if f.locador]),
+                "verificados": len([f for f in fornecedores if f.verificado]),
+                "nao_verificados": len([f for f in fornecedores if not f.verificado])
+            }
+        except:
+            stats_fornecedores = {
+                "prestadores": 0,
+                "vendedores": 0,
+                "locadores": 0,
+                "verificados": 0,
+                "nao_verificados": 0
+            }
+
+        # Calcular percentuais
+        total_usuarios = stats_gerais["total_usuarios"]
+        percentuais = {
+            "noivos": round((stats_gerais["total_noivos"] / total_usuarios * 100) if total_usuarios > 0 else 0, 1),
+            "fornecedores": round((stats_gerais["total_fornecedores"] / total_usuarios * 100) if total_usuarios > 0 else 0, 1),
+            "admins": round((stats_gerais["total_admins"] / total_usuarios * 100) if total_usuarios > 0 else 0, 1),
+            "fornecedores_verificados": round((stats_gerais["fornecedores_verificados"] / stats_gerais["total_fornecedores"] * 100) if stats_gerais["total_fornecedores"] > 0 else 0, 1)
         }
 
         return templates.TemplateResponse("admin/relatorios.html", {
             "request": request,
             "usuario_logado": usuario_logado,
-            "estatisticas": estatisticas
+            "stats_gerais": stats_gerais,
+            "stats_itens": stats_itens,
+            "stats_fornecedores": stats_fornecedores,
+            "percentuais": percentuais
         })
     except Exception as e:
         print(f"Erro ao gerar relatórios: {e}")
@@ -722,6 +766,74 @@ async def relatorios(request: Request, usuario_logado: dict = None):
             "usuario_logado": usuario_logado,
             "erro": "Erro ao gerar relatórios"
         })
+
+@router.get("/admin/relatorios/exportar")
+@requer_autenticacao([TipoUsuario.ADMIN.value])
+async def exportar_relatorios(request: Request, formato: str = "json", usuario_logado: dict = None):
+    """Exporta relatórios em formato JSON ou CSV"""
+    try:
+        from fastapi.responses import JSONResponse, PlainTextResponse
+        from datetime import datetime
+
+        # Coletar todos os dados
+        dados = {
+            "data_geracao": datetime.now().isoformat(),
+            "sistema": {
+                "total_usuarios": usuario_repo.contar_usuarios(),
+                "total_noivos": usuario_repo.contar_usuarios_por_tipo(TipoUsuario.NOIVO),
+                "total_admins": usuario_repo.contar_usuarios_por_tipo(TipoUsuario.ADMIN),
+                "total_fornecedores": fornecedor_repo.contar_fornecedores(),
+                "fornecedores_verificados": fornecedor_repo.contar_fornecedores() - fornecedor_repo.contar_fornecedores_nao_verificados(),
+                "fornecedores_nao_verificados": fornecedor_repo.contar_fornecedores_nao_verificados(),
+                "total_itens": item_repo.contar_itens(),
+                "total_categorias": categoria_item_repo.contar_categorias(),
+                "total_orcamentos": orcamento_repo.contar_orcamentos(),
+                "total_demandas": demanda_repo.contar_demandas()
+            },
+            "itens": {
+                "produtos": item_repo.contar_itens_por_tipo(TipoItem.PRODUTO),
+                "servicos": item_repo.contar_itens_por_tipo(TipoItem.SERVICO),
+                "espacos": item_repo.contar_itens_por_tipo(TipoItem.ESPACO),
+                "detalhes": item_repo.obter_estatisticas_itens()
+            }
+        }
+
+        if formato.lower() == "csv":
+            # Gerar CSV
+            csv_content = "Categoria,Subcategoria,Valor\n"
+
+            # Dados do sistema
+            for chave, valor in dados["sistema"].items():
+                csv_content += f"Sistema,{chave.replace('_', ' ').title()},{valor}\n"
+
+            # Dados de itens
+            for chave, valor in dados["itens"].items():
+                if chave != "detalhes":
+                    csv_content += f"Itens,{chave.replace('_', ' ').title()},{valor}\n"
+
+            # Detalhes dos itens
+            if dados["itens"]["detalhes"]:
+                for item in dados["itens"]["detalhes"]:
+                    csv_content += f"Detalhes Itens,{item['tipo']},{item['quantidade']}\n"
+                    csv_content += f"Detalhes Preços,{item['tipo']} - Médio,{item['preco_medio']}\n"
+                    csv_content += f"Detalhes Preços,{item['tipo']} - Mínimo,{item['preco_minimo']}\n"
+                    csv_content += f"Detalhes Preços,{item['tipo']} - Máximo,{item['preco_maximo']}\n"
+
+            return PlainTextResponse(
+                content=csv_content,
+                media_type="text/csv",
+                headers={"Content-Disposition": f"attachment; filename=relatorio_case_bem_{datetime.now().strftime('%Y%m%d_%H%M%S')}.csv"}
+            )
+        else:
+            # Retornar JSON
+            return JSONResponse(content=dados)
+
+    except Exception as e:
+        print(f"Erro ao exportar relatórios: {e}")
+        return JSONResponse(
+            content={"erro": "Erro ao exportar relatórios"},
+            status_code=500
+        )
 
 # ==================== CATEGORIAS DE ITEM ====================
 
