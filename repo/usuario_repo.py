@@ -11,6 +11,14 @@ def criar_tabela_usuarios() -> bool:
             cursor = conexao.cursor()
             # Executa comando SQL para criar tabela de usuários
             cursor.execute(CRIAR_TABELA_USUARIO)
+
+            # Tenta adicionar a coluna 'ativo' se ainda não existir
+            try:
+                cursor.execute(ADICIONAR_COLUNA_ATIVO)
+            except Exception:
+                # Coluna já existe, ignorar erro
+                pass
+
             # Retorna True indicando sucesso
             return True
     except Exception as e:
@@ -38,7 +46,7 @@ def atualizar_usuario(usuario: Usuario) -> bool:
         cursor = conexao.cursor()
         # Executa comando SQL para atualizar dados do usuário pelo ID
         cursor.execute(ATUALIZAR_USUARIO,
-            (usuario.nome, usuario.telefone, usuario.email, usuario.id))    
+            (usuario.nome, usuario.cpf, usuario.data_nascimento, usuario.telefone, usuario.email, usuario.id))    
         # Retorna True se alguma linha foi afetada
         return (cursor.rowcount > 0)
     
@@ -86,7 +94,8 @@ def obter_usuario_por_id(id: int) -> Optional[Usuario]:
                 foto=resultado["foto"],
                 token_redefinicao=resultado["token_redefinicao"],
                 data_token=resultado["data_token"],
-                data_cadastro=resultado["data_cadastro"])
+                data_cadastro=resultado["data_cadastro"],
+                ativo=bool(resultado["ativo"]))
     # Retorna None se não encontrou usuário
     return None
 
@@ -114,7 +123,8 @@ def obter_usuario_por_email(email: str) -> Optional[Usuario]:
                 foto=resultado["foto"],
                 token_redefinicao=resultado["token_redefinicao"],
                 data_token=resultado["data_token"],
-                data_cadastro=resultado["data_cadastro"])
+                data_cadastro=resultado["data_cadastro"],
+                ativo=bool(resultado["ativo"]))
     # Retorna None se não encontrou usuário
     return None
 
@@ -204,3 +214,53 @@ def contar_usuarios_por_tipo(tipo: TipoUsuario) -> int:
     except Exception as e:
         print(f"Erro ao contar usuários por tipo: {e}")
         return 0
+
+def buscar_usuarios(busca: str = "", tipo_usuario: str = "", status: str = "", numero_pagina: int = 1, tamanho_pagina: int = 100) -> List[Usuario]:
+    """Busca usuários com filtros de nome/email, tipo e status"""
+    try:
+        with obter_conexao() as conexao:
+            limite = tamanho_pagina
+            offset = (numero_pagina - 1) * tamanho_pagina
+            cursor = conexao.cursor()
+            cursor.execute(BUSCAR_USUARIOS, (busca, busca, busca, tipo_usuario, tipo_usuario, status, status, status, limite, offset))
+            resultados = cursor.fetchall()
+            return [Usuario(
+                id=resultado["id"],
+                nome=resultado["nome"],
+                cpf=resultado["cpf"],
+                data_nascimento=resultado["data_nascimento"],
+                email=resultado["email"],
+                telefone=resultado["telefone"],
+                senha=resultado["senha"],
+                perfil=TipoUsuario(resultado["perfil"]),
+                foto=resultado["foto"],
+                token_redefinicao=resultado["token_redefinicao"],
+                data_token=resultado["data_token"],
+                data_cadastro=resultado["data_cadastro"],
+                ativo=bool(resultado["ativo"])
+            ) for resultado in resultados]
+    except Exception as e:
+        print(f"Erro ao buscar usuários: {e}")
+        return []
+
+def bloquear_usuario(id_usuario: int) -> bool:
+    """Bloqueia (desativa) um usuário"""
+    try:
+        with obter_conexao() as conexao:
+            cursor = conexao.cursor()
+            cursor.execute(BLOQUEAR_USUARIO, (id_usuario,))
+            return cursor.rowcount > 0
+    except Exception as e:
+        print(f"Erro ao bloquear usuário: {e}")
+        return False
+
+def ativar_usuario(id_usuario: int) -> bool:
+    """Ativa um usuário"""
+    try:
+        with obter_conexao() as conexao:
+            cursor = conexao.cursor()
+            cursor.execute(ATIVAR_USUARIO, (id_usuario,))
+            return cursor.rowcount > 0
+    except Exception as e:
+        print(f"Erro ao ativar usuário: {e}")
+        return False

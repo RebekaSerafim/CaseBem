@@ -142,3 +142,15 @@ def _criar_demanda_de_resultado(resultado) -> Demanda:
         data_criacao=resultado["data_criacao"],
         observacoes=resultado["observacoes"]
     )
+
+def contar_demandas() -> int:
+    """Conta o total de demandas no sistema"""
+    try:
+        with obter_conexao() as conexao:
+            cursor = conexao.cursor()
+            cursor.execute("SELECT COUNT(*) as total FROM demanda")
+            resultado = cursor.fetchone()
+            return resultado["total"] if resultado else 0
+    except Exception as e:
+        print(f"Erro ao contar demandas: {e}")
+        return 0

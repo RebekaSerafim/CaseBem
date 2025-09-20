@@ -16,11 +16,11 @@ def criar_admin_padrao() -> Optional[int]:
         item_repo.criar_tabela_item()
         categoria_item_repo.criar_tabela_categoria_item()
         fornecedor_item_repo.criar_tabela_fornecedor_item()
-        demanda_repo.criar_tabela_demanda()
+        demanda_repo.criar_tabela_demandas()
         orcamento_repo.criar_tabela_orcamento()
         item_demanda_repo.criar_tabela_item_demanda()
         item_orcamento_repo.criar_tabela_item_orcamento()
-        favorito_repo.criar_tabela_favorito()
+        favorito_repo.criar_tabela_favoritos()
         chat_repo.criar_tabela_chat()
 
         # Buscar por um admin existente (simplificado - seria melhor ter uma query específica)
@@ -36,7 +36,7 @@ def criar_admin_padrao() -> Optional[int]:
 
         admin = Usuario(
             id=0,
-            nome="Administrador",
+            nome="Administrador Padrão",
             cpf=None,
             data_nascimento=None,
             email="admin@casebem.com",
@@ -54,8 +54,8 @@ def criar_admin_padrao() -> Optional[int]:
         if admin_id:
             print(f"✅ Administrador padrão criado com sucesso! ID: {admin_id}")
             print("📧 Email: admin@casebem.com")
-            print("🔑 Senha: admin123")
-            print("⚠️  IMPORTANTE: Altere a senha no primeiro login!")
+            print("🔑 Senha: 1234aA@#")
+            print("⚠️ IMPORTANTE: Altere a senha no primeiro login!")
             return admin_id
         else:
             print("❌ Erro ao criar administrador padrão")

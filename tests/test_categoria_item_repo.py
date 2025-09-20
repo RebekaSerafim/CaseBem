@@ -131,6 +131,130 @@ class TestCategoriaItemRepo:
         assert categorias_produto_ativas[0].ativo == True
         assert categorias_servico_ativas[0].ativo == True
 
+    def test_obter_categoria_por_nome_existente(self, test_db):
+        # Arrange
+        categoria_item_repo.criar_tabela_categoria_item()
+        categoria = CategoriaItem(0, "Categoria Teste", TipoItem.PRODUTO, "Descrição", True)
+        categoria_item_repo.inserir_categoria_item(categoria)
+        # Act
+        categoria_encontrada = categoria_item_repo.obter_categoria_por_nome("Categoria Teste", TipoItem.PRODUTO)
+        # Assert
+        assert categoria_encontrada is not None, "Categoria deveria ser encontrada"
+        assert categoria_encontrada.nome == "Categoria Teste"
+        assert categoria_encontrada.tipo_fornecimento == TipoItem.PRODUTO
+
+    def test_obter_categoria_por_nome_inexistente(self, test_db):
+        # Arrange
+        categoria_item_repo.criar_tabela_categoria_item()
+        # Act
+        categoria_encontrada = categoria_item_repo.obter_categoria_por_nome("Categoria Inexistente", TipoItem.PRODUTO)
+        # Assert
+        assert categoria_encontrada is None, "Categoria não deveria ser encontrada"
+
+    def test_obter_categoria_por_nome_tipo_diferente(self, test_db):
+        # Arrange
+        categoria_item_repo.criar_tabela_categoria_item()
+        categoria = CategoriaItem(0, "Categoria Teste", TipoItem.PRODUTO, "Descrição", True)
+        categoria_item_repo.inserir_categoria_item(categoria)
+        # Act
+        categoria_encontrada = categoria_item_repo.obter_categoria_por_nome("Categoria Teste", TipoItem.SERVICO)
+        # Assert
+        assert categoria_encontrada is None, "Categoria não deveria ser encontrada para tipo diferente"
+
+    def test_buscar_categorias_sem_filtros(self, test_db):
+        # Arrange
+        categoria_item_repo.criar_tabela_categoria_item()
+        categoria1 = CategoriaItem(0, "Categoria 1", TipoItem.PRODUTO, "Descrição 1", True)
+        categoria2 = CategoriaItem(0, "Categoria 2", TipoItem.SERVICO, "Descrição 2", False)
+        categoria_item_repo.inserir_categoria_item(categoria1)
+        categoria_item_repo.inserir_categoria_item(categoria2)
+        # Act
+        categorias = categoria_item_repo.buscar_categorias()
+        # Assert
+        assert len(categorias) == 2, "Deveria retornar todas as categorias"
+
+    def test_buscar_categorias_por_nome(self, test_db):
+        # Arrange
+        categoria_item_repo.criar_tabela_categoria_item()
+        categoria1 = CategoriaItem(0, "Festa de Casamento", TipoItem.PRODUTO, "Descrição 1", True)
+        categoria2 = CategoriaItem(0, "Decoração", TipoItem.SERVICO, "Descrição 2", True)
+        categoria_item_repo.inserir_categoria_item(categoria1)
+        categoria_item_repo.inserir_categoria_item(categoria2)
+        # Act
+        categorias = categoria_item_repo.buscar_categorias(busca="Festa")
+        # Assert
+        assert len(categorias) == 1, "Deveria encontrar 1 categoria"
+        assert categorias[0].nome == "Festa de Casamento"
+
+    def test_buscar_categorias_por_tipo(self, test_db):
+        # Arrange
+        categoria_item_repo.criar_tabela_categoria_item()
+        categoria1 = CategoriaItem(0, "Categoria Produto", TipoItem.PRODUTO, "Descrição 1", True)
+        categoria2 = CategoriaItem(0, "Categoria Serviço", TipoItem.SERVICO, "Descrição 2", True)
+        categoria_item_repo.inserir_categoria_item(categoria1)
+        categoria_item_repo.inserir_categoria_item(categoria2)
+        # Act
+        categorias = categoria_item_repo.buscar_categorias(tipo_fornecimento="PRODUTO")
+        # Assert
+        assert len(categorias) == 1, "Deveria encontrar 1 categoria de produto"
+        assert categorias[0].tipo_fornecimento == TipoItem.PRODUTO
+
+    def test_buscar_categorias_por_status(self, test_db):
+        # Arrange
+        categoria_item_repo.criar_tabela_categoria_item()
+        categoria_ativa = CategoriaItem(0, "Categoria Ativa", TipoItem.PRODUTO, "Descrição", True)
+        categoria_inativa = CategoriaItem(0, "Categoria Inativa", TipoItem.SERVICO, "Descrição", False)
+        categoria_item_repo.inserir_categoria_item(categoria_ativa)
+        categoria_item_repo.inserir_categoria_item(categoria_inativa)
+        # Act
+        categorias_ativas = categoria_item_repo.buscar_categorias(status="ativo")
+        categorias_inativas = categoria_item_repo.buscar_categorias(status="inativo")
+        # Assert
+        assert len(categorias_ativas) == 1, "Deveria encontrar 1 categoria ativa"
+        assert len(categorias_inativas) == 1, "Deveria encontrar 1 categoria inativa"
+        assert categorias_ativas[0].ativo == True
+        assert categorias_inativas[0].ativo == False
+
+    def test_ativar_categoria(self, test_db):
+        # Arrange
+        categoria_item_repo.criar_tabela_categoria_item()
+        categoria = CategoriaItem(0, "Categoria Teste", TipoItem.PRODUTO, "Descrição", False)
+        id_categoria = categoria_item_repo.inserir_categoria_item(categoria)
+        # Act
+        resultado = categoria_item_repo.ativar_categoria(id_categoria)
+        # Assert
+        assert resultado == True, "Ativação deveria retornar True"
+        categoria_ativada = categoria_item_repo.obter_categoria_item_por_id(id_categoria)
+        assert categoria_ativada.ativo == True, "Categoria deveria estar ativa"
+
+    def test_desativar_categoria(self, test_db):
+        # Arrange
+        categoria_item_repo.criar_tabela_categoria_item()
+        categoria = CategoriaItem(0, "Categoria Teste", TipoItem.PRODUTO, "Descrição", True)
+        id_categoria = categoria_item_repo.inserir_categoria_item(categoria)
+        # Act
+        resultado = categoria_item_repo.desativar_categoria(id_categoria)
+        # Assert
+        assert resultado == True, "Desativação deveria retornar True"
+        categoria_desativada = categoria_item_repo.obter_categoria_item_por_id(id_categoria)
+        assert categoria_desativada.ativo == False, "Categoria deveria estar inativa"
+
+    def test_ativar_categoria_inexistente(self, test_db):
+        # Arrange
+        categoria_item_repo.criar_tabela_categoria_item()
+        # Act
+        resultado = categoria_item_repo.ativar_categoria(999)
+        # Assert
+        assert resultado == False, "Ativação de categoria inexistente deveria retornar False"
+
+    def test_desativar_categoria_inexistente(self, test_db):
+        # Arrange
+        categoria_item_repo.criar_tabela_categoria_item()
+        # Act
+        resultado = categoria_item_repo.desativar_categoria(999)
+        # Assert
+        assert resultado == False, "Desativação de categoria inexistente deveria retornar False"
+
 @pytest.fixture
 def categoria_exemplo():
     return CategoriaItem(

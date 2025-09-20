@@ -10,6 +10,14 @@ from repo import usuario_repo, item_repo, demanda_repo, orcamento_repo, casal_re
 router = APIRouter()
 templates = Jinja2Templates(directory="templates")
 
+# ==================== REDIRECIONAMENTO RAIZ ====================
+
+@router.get("/noivo")
+@requer_autenticacao([TipoUsuario.NOIVO.value])
+async def noivo_root(request: Request, usuario_logado: dict = None):
+    """Redireciona /noivo para /noivo/dashboard"""
+    return RedirectResponse("/noivo/dashboard", status_code=status.HTTP_302_FOUND)
+
 # ==================== DASHBOARD ====================
 
 @router.get("/noivo/dashboard")

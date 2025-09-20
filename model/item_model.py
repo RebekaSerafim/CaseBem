@@ -4,8 +4,8 @@ from typing import Optional
 
 class TipoItem(Enum):
     PRODUTO = "PRODUTO"
-    SERVICO = "SERVICO"
-    ESPACO = "ESPACO"
+    SERVICO = "SERVIÇO"
+    ESPACO = "ESPAÇO"
 
 @dataclass
 class Item:

@@ -45,12 +45,40 @@
                         </li>
                     </ul>
                     <ul class="navbar-nav">
+                        {% if usuario_logado %}
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownPublico" role="button"
+                                data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">
+                                {{ usuario_logado.nome }}
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-end">
+                                {% if usuario_logado.perfil == 'FORNECEDOR' %}
+                                <li><a class="dropdown-item" href="/fornecedor/dashboard">Área Restrita</a></li>
+
+                                {% elif usuario_logado.perfil == 'NOIVO' %}
+                                <li><a class="dropdown-item" href="/noivo/dashboard">Área Restrita</a></li>
+
+                                {% elif usuario_logado.perfil == 'ADMIN' %}
+                                <li><a class="dropdown-item" href="/admin/dashboard">Área Restrita</a></li>
+                                {% endif %}
+                                <li><a class="dropdown-item" href="/alterar-senha">Alterar Senha</a></li>
+                                <li>
+                                    <hr class="dropdown-divider">
+                                </li>
+                                <li><a class="dropdown-item" href="/logout">Sair</a></li>
+                            </ul>
+                        </li>
+                        <li class="nav-item me-3">
+                            <!-- Empty item for consistent spacing -->
+                        </li>
+                        {% else %}
                         <li class="nav-item">
                             <a class="nav-link" href="/login">Login</a>
                         </li>
                         <li class="nav-item me-3">
                             <a class="nav-link" href="/cadastro">Cadastro</a>
                         </li>
+                        {% endif %}
                     </ul>
                 </div>
             </div>

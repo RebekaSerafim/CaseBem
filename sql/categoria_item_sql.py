@@ -56,3 +56,30 @@ FROM categoria_item
 WHERE tipo_fornecimento = ? AND ativo = 1
 ORDER BY nome ASC;
 """
+
+OBTER_CATEGORIA_POR_NOME = """
+SELECT id, nome, tipo_fornecimento, descricao, ativo
+FROM categoria_item
+WHERE nome = ? AND tipo_fornecimento = ?;
+"""
+
+BUSCAR_CATEGORIAS = """
+SELECT id, nome, tipo_fornecimento, descricao, ativo
+FROM categoria_item
+WHERE (? = '' OR nome LIKE ? OR descricao LIKE ?)
+  AND (? = '' OR tipo_fornecimento = ?)
+  AND (? = '' OR (? = 'ativo' AND ativo = 1) OR (? = 'inativo' AND ativo = 0))
+ORDER BY tipo_fornecimento ASC, nome ASC;
+"""
+
+ATIVAR_CATEGORIA = """
+UPDATE categoria_item
+SET ativo = 1
+WHERE id = ?;
+"""
+
+DESATIVAR_CATEGORIA = """
+UPDATE categoria_item
+SET ativo = 0
+WHERE id = ?;
+"""

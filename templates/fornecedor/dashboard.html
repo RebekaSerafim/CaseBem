@@ -2,7 +2,7 @@
 
 {% block title %}Dashboard Fornecedor{% endblock %}
 
-{% block content %}
+{% block conteudo %}
 <div class="row">
     <div class="col-12">
         <h1 class="mb-0">
@@ -35,15 +35,15 @@
 
 <div class="row">
     <!-- Cards de Estatísticas -->
-    <div class="col-xl-3 col-md-6 mb-4">
+    <div class="col-xl-2 col-lg-4 col-sm-6 col-12 mb-4">
         <div class="card border-left-primary shadow h-100 py-2">
             <div class="card-body">
-                <div class="row no-gutters align-items-center">
+                <div class="row g-0 align-items-center">
                     <div class="col mr-2">
-                        <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                        <div class="text-xs font-weight-bold text-primary text-uppercase mb-1 text-center">
                             Total de Itens
                         </div>
-                        <div class="h5 mb-0 font-weight-bold text-gray-800">
+                        <div class="h3 mb-0 font-weight-bold text-gray-800 text-center">
                             {{ stats.total_itens }}
                         </div>
                     </div>
@@ -55,15 +55,15 @@
         </div>
     </div>
 
-    <div class="col-xl-3 col-md-6 mb-4">
+    <div class="col-xl-2 col-lg-4 col-sm-6 col-12 mb-4">
         <div class="card border-left-success shadow h-100 py-2">
             <div class="card-body">
-                <div class="row no-gutters align-items-center">
+                <div class="row g-0 align-items-center">
                     <div class="col mr-2">
-                        <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                        <div class="text-xs font-weight-bold text-success text-uppercase mb-1 text-center">
                             Produtos
                         </div>
-                        <div class="h5 mb-0 font-weight-bold text-gray-800">
+                        <div class="h3 mb-0 font-weight-bold text-gray-800 text-center">
                             {{ stats.total_produtos }}
                         </div>
                     </div>
@@ -75,15 +75,15 @@
         </div>
     </div>
 
-    <div class="col-xl-3 col-md-6 mb-4">
+    <div class="col-xl-2 col-lg-4 col-sm-6 col-12 mb-4">
         <div class="card border-left-info shadow h-100 py-2">
             <div class="card-body">
-                <div class="row no-gutters align-items-center">
+                <div class="row g-0 align-items-center">
                     <div class="col mr-2">
-                        <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
+                        <div class="text-xs font-weight-bold text-info text-uppercase mb-1 text-center">
                             Serviços
                         </div>
-                        <div class="h5 mb-0 font-weight-bold text-gray-800">
+                        <div class="h3 mb-0 font-weight-bold text-gray-800 text-center">
                             {{ stats.total_servicos }}
                         </div>
                     </div>
@@ -95,20 +95,60 @@
         </div>
     </div>
 
-    <div class="col-xl-3 col-md-6 mb-4">
+    <div class="col-xl-2 col-lg-4 col-sm-6 col-12 mb-4">
         <div class="card border-left-warning shadow h-100 py-2">
             <div class="card-body">
-                <div class="row no-gutters align-items-center">
+                <div class="row g-0 align-items-center">
                     <div class="col mr-2">
-                        <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
+                        <div class="text-xs font-weight-bold text-warning text-uppercase mb-1 text-center">
                             Espaços
                         </div>
-                        <div class="h5 mb-0 font-weight-bold text-gray-800">
+                        <div class="h3 mb-0 font-weight-bold text-gray-800 text-center">
                             {{ stats.total_espacos }}
                         </div>
                     </div>
                     <div class="col-auto">
                         <i class="fas fa-building fa-2x text-gray-300"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-2 col-lg-4 col-sm-6 col-12 mb-4">
+        <div class="card border-left-danger shadow h-100 py-2">
+            <div class="card-body">
+                <div class="row g-0 align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-danger text-uppercase mb-1 text-center">
+                            Orçamentos
+                        </div>
+                        <div class="h3 mb-0 font-weight-bold text-gray-800 text-center">
+                            {{ stats.total_orcamentos or 0 }}
+                        </div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-file-invoice-dollar fa-2x text-gray-300"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-2 col-lg-4 col-sm-6 col-12 mb-4">
+        <div class="card border-left-dark shadow h-100 py-2">
+            <div class="card-body">
+                <div class="row g-0 align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-dark text-uppercase mb-1 text-center">
+                            Demandas
+                        </div>
+                        <div class="h3 mb-0 font-weight-bold text-gray-800 text-center">
+                            {{ stats.total_demandas or 0 }}
+                        </div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-clipboard-list fa-2x text-gray-300"></i>
                     </div>
                 </div>
             </div>
@@ -175,18 +215,18 @@
                     </div>
                 </div>
 
-                <div class="row mt-3">
+                <div class="row mt-0">
                     <div class="col-12">
-                        <strong>Tipos de Serviço:</strong>
+                        <strong>Eu forneço:</strong>
                         <div class="mt-2">
                             {% if fornecedor.prestador %}
-                            <span class="badge bg-info me-1">Prestador de Serviços</span>
+                            <span class="badge bg-info me-1">Serviços</span>
                             {% endif %}
                             {% if fornecedor.vendedor %}
-                            <span class="badge bg-success me-1">Vendedor de Produtos</span>
+                            <span class="badge bg-success me-1">Produtos</span>
                             {% endif %}
                             {% if fornecedor.locador %}
-                            <span class="badge bg-warning me-1">Locador de Espaços</span>
+                            <span class="badge bg-warning me-1">Espaços</span>
                             {% endif %}
                             {% if not fornecedor.prestador and not fornecedor.vendedor and not fornecedor.locador %}
                             <span class="text-muted">Nenhum tipo selecionado</span>
@@ -293,6 +333,14 @@
 
     .border-left-info {
         border-left: 0.25rem solid #36b9cc !important;
+    }
+
+    .border-left-danger {
+        border-left: 0.25rem solid #dc3545 !important;
+    }
+
+    .border-left-dark {
+        border-left: 0.25rem solid #343a40 !important;
     }
 </style>
 {% endblock %}

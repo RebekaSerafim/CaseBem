@@ -2,7 +2,7 @@
 
 {% block title %}Meus Orçamentos{% endblock %}
 
-{% block content %}
+{% block conteudo %}
 <div class="row">
     <div class="col-12">
         <div class="d-flex justify-content-between align-items-center mb-4">
@@ -20,23 +20,33 @@
         <div class="card">
             <div class="card-body">
                 <form method="get" class="row g-3">
-                    <div class="col-md-4">
-                        <label for="status" class="form-label">Status</label>
-                        <select class="form-select" id="status" name="status">
-                            <option value="">Todos os status</option>
-                            <option value="PENDENTE" {% if request.args.get('status') == 'PENDENTE' %}selected{% endif %}>Pendente</option>
-                            <option value="ACEITO" {% if request.args.get('status') == 'ACEITO' %}selected{% endif %}>Aceito</option>
-                            <option value="REJEITADO" {% if request.args.get('status') == 'REJEITADO' %}selected{% endif %}>Rejeitado</option>
-                        </select>
-                    </div>
-                    <div class="col-md-4">
+                    <div class="col-md-3">
                         <label for="search" class="form-label">Buscar</label>
                         <input type="text" class="form-control" id="search" name="search"
-                               value="{{ request.args.get('search', '') }}" placeholder="Título da demanda">
+                               value="{{ request.query_params.get('search', '') }}" placeholder="Título da demanda">
                     </div>
-                    <div class="col-md-4 d-flex align-items-end">
-                        <button type="submit" class="btn btn-primary me-2">Filtrar</button>
-                        <a href="/fornecedor/orcamentos" class="btn btn-outline-secondary">Limpar</a>
+                    <div class="col-md-2">
+                        <label for="status" class="form-label">Status</label>
+                        <select class="form-select" id="status" name="status">
+                            <option value="">Todos</option>
+                            <option value="PENDENTE" {% if request.query_params.get('status') == 'PENDENTE' %}selected{% endif %}>Pendente</option>
+                            <option value="ACEITO" {% if request.query_params.get('status') == 'ACEITO' %}selected{% endif %}>Aceito</option>
+                            <option value="REJEITADO" {% if request.query_params.get('status') == 'REJEITADO' %}selected{% endif %}>Rejeitado</option>
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <label for="valor_min" class="form-label">Valor Mínimo</label>
+                        <input type="number" class="form-control" id="valor_min" name="valor_min"
+                               value="{{ request.query_params.get('valor_min', '') }}" placeholder="R$ 0,00" step="0.01">
+                    </div>
+                    <div class="col-md-2">
+                        <label for="valor_max" class="form-label">Valor Máximo</label>
+                        <input type="number" class="form-control" id="valor_max" name="valor_max"
+                               value="{{ request.query_params.get('valor_max', '') }}" placeholder="R$ 0,00" step="0.01">
+                    </div>
+                    <div class="col-md-3 d-flex align-items-end gap-2">
+                        <button type="submit" class="btn btn-primary flex-fill">Filtrar</button>
+                        <a href="/fornecedor/orcamentos" class="btn btn-info flex-fill">Limpar</a>
                     </div>
                 </form>
             </div>
@@ -115,45 +125,7 @@
 </div>
 
 <!-- Paginação -->
-{% if pagination %}
-<div class="row">
-    <div class="col-12">
-        <nav aria-label="Navegação dos orçamentos">
-            <ul class="pagination justify-content-center">
-                {% if pagination.has_prev %}
-                <li class="page-item">
-                    <a class="page-link" href="{{ url_for('fornecedor_orcamentos', page=pagination.prev_num, **request.args) }}">Anterior</a>
-                </li>
-                {% endif %}
-
-                {% for page_num in pagination.iter_pages() %}
-                    {% if page_num %}
-                        {% if page_num != pagination.page %}
-                        <li class="page-item">
-                            <a class="page-link" href="{{ url_for('fornecedor_orcamentos', page=page_num, **request.args) }}">{{ page_num }}</a>
-                        </li>
-                        {% else %}
-                        <li class="page-item active">
-                            <span class="page-link">{{ page_num }}</span>
-                        </li>
-                        {% endif %}
-                    {% else %}
-                    <li class="page-item disabled">
-                        <span class="page-link">…</span>
-                    </li>
-                    {% endif %}
-                {% endfor %}
-
-                {% if pagination.has_next %}
-                <li class="page-item">
-                    <a class="page-link" href="{{ url_for('fornecedor_orcamentos', page=pagination.next_num, **request.args) }}">Próxima</a>
-                </li>
-                {% endif %}
-            </ul>
-        </nav>
-    </div>
-</div>
-{% endif %}
+<!-- Paginação será implementada futuramente -->
 
 {% else %}
 <div class="row">
@@ -162,7 +134,7 @@
             <div class="card-body text-center py-5">
                 <i class="fas fa-file-invoice-dollar fa-4x text-gray-300 mb-4"></i>
                 <h4>Nenhum orçamento encontrado</h4>
-                {% if request.args.get('search') or request.args.get('status') %}
+                {% if request.query_params.get('search') or request.query_params.get('status') or request.query_params.get('valor_min') or request.query_params.get('valor_max') %}
                 <p class="text-muted">Nenhum orçamento corresponde aos filtros aplicados.</p>
                 <a href="/fornecedor/orcamentos" class="btn btn-outline-secondary me-2">Limpar Filtros</a>
                 {% else %}

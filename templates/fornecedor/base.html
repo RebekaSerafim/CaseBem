@@ -14,10 +14,12 @@
     <header>
         <nav class="navbar navbar-expand-lg navbar-light bg-primary py-2">
             <div class="container-fluid">
-                <a class="navbar-brand mx-4 text-white d-flex align-items-center" href="/fornecedor/dashboard">
-                    <img src="/static/img/logo_icon_white.svg" alt="Case Bem" height="35" class="me-2">
-                    <img src="/static/img/logo_text_white.svg" alt="Case Bem" height="22" class="me-3">
-                    <span>Fornecedor</span>
+                <a class="navbar-brand mx-4 text-white d-flex align-items-center" href="/">
+                    <img src="/static/img/logo_icon_white.svg" alt="Case Bem" height="35" class="me-3">
+                    <img src="/static/img/logo_text_white.svg" alt="Case Bem" height="22">
+                </a>
+                <a href="/fornecedor/dashboard" class="navbar-brand ms-3 me-4">
+                    <span class="text-info">Fornecedor</span>
                 </a>
                 <div class="navbar-divider"></div>
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
@@ -27,7 +29,7 @@
                 <div class="collapse navbar-collapse" id="navbarNav">
                     <ul class="navbar-nav ms-3 me-auto">
                         <li class="nav-item">
-                            <a class="nav-link text-white" href="/fornecedor/dashboard">Dashboard</a>
+                            <a class="nav-link text-white" href="/fornecedor/perfil">Meu Perfil</a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link text-white" href="/fornecedor/itens">Meus Itens</a>
@@ -42,12 +44,12 @@
                     <ul class="navbar-nav">
                         {% if usuario_logado %}
                         <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle text-white" href="#" id="navbarDropdown" role="button"
-                                data-bs-toggle="dropdown">
+                            <a class="nav-link dropdown-toggle text-white" href="#" id="navbarDropdownFornecedor" role="button"
+                                data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">
                                 {{ usuario_logado.nome }}
                             </a>
-                            <ul class="dropdown-menu">
-                                <li><a class="dropdown-item" href="/fornecedor/perfil">Meu Perfil</a></li>
+                            <ul class="dropdown-menu dropdown-menu-end">
+                                <li><a class="dropdown-item" href="/alterar-senha">Alterar Senha</a></li>
                                 <li><hr class="dropdown-divider"></li>
                                 <li><a class="dropdown-item" href="/logout">Sair</a></li>
                             </ul>
@@ -78,7 +80,7 @@
             </div>
             {% endif %}
 
-            {% block content %}
+            {% block conteudo %}
             {% endblock %}
         </div>
     </main>

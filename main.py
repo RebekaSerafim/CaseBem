@@ -10,11 +10,12 @@ import uvicorn
 # Carregar variáveis do arquivo .env
 load_dotenv()
 
-from routes import public_routes, admin_routes, fornecedor_routes, noivo_routes
+from routes import public_routes, admin_routes, fornecedor_routes, noivo_routes, usuario_routes
 from util.startup import inicializar_sistema
 
 app = FastAPI()
-SECRET_KEY = secrets.token_urlsafe(32)
+# Use uma chave fixa para manter as sessões entre reinicializações
+SECRET_KEY = os.getenv("SECRET_KEY", "case-bem-secret-key-development-only-change-in-production")
 
 app.add_middleware(
     SessionMiddleware, 
@@ -27,6 +28,7 @@ app.mount("/static", StaticFiles(directory="static"), name="static")
 
 # Incluir rotas
 app.include_router(public_routes.router)
+app.include_router(usuario_routes.router)
 app.include_router(admin_routes.router)
 app.include_router(fornecedor_routes.router)
 app.include_router(noivo_routes.router)

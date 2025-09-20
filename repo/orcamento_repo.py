@@ -250,3 +250,15 @@ def atualizar_status_orcamento(id_orcamento: int, status: str) -> bool:
     except Exception as e:
         print(f"Erro ao atualizar status do orçamento: {e}")
         return False
+
+def contar_orcamentos() -> int:
+    """Conta o total de orçamentos no sistema"""
+    try:
+        with obter_conexao() as conexao:
+            cursor = conexao.cursor()
+            cursor.execute("SELECT COUNT(*) as total FROM orcamento")
+            resultado = cursor.fetchone()
+            return resultado["total"] if resultado else 0
+    except Exception as e:
+        print(f"Erro ao contar orçamentos: {e}")
+        return 0

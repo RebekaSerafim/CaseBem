@@ -99,3 +99,65 @@ def obter_categorias_por_tipo_ativas(tipo_fornecimento: TipoItem) -> List[Catego
             descricao=resultado["descricao"],
             ativo=bool(resultado["ativo"])
         ) for resultado in resultados]
+
+def contar_categorias() -> int:
+    """Conta o total de categorias no sistema"""
+    try:
+        with obter_conexao() as conexao:
+            cursor = conexao.cursor()
+            cursor.execute("SELECT COUNT(*) as total FROM categoria_item")
+            resultado = cursor.fetchone()
+            return resultado["total"] if resultado else 0
+    except Exception as e:
+        print(f"Erro ao contar categorias: {e}")
+        return 0
+
+def obter_categoria_por_nome(nome: str, tipo_fornecimento: TipoItem) -> Optional[CategoriaItem]:
+    """Busca uma categoria pelo nome e tipo de fornecimento"""
+    with obter_conexao() as conexao:
+        cursor = conexao.cursor()
+        cursor.execute(OBTER_CATEGORIA_POR_NOME, (nome, tipo_fornecimento.value))
+        resultado = cursor.fetchone()
+        if resultado:
+            return CategoriaItem(
+                id=resultado["id"],
+                nome=resultado["nome"],
+                tipo_fornecimento=TipoItem(resultado["tipo_fornecimento"]),
+                descricao=resultado["descricao"],
+                ativo=bool(resultado["ativo"]))
+    return None
+
+def buscar_categorias(busca: str = "", tipo_fornecimento: str = "", status: str = "") -> List[CategoriaItem]:
+    """Busca categorias com filtros"""
+    with obter_conexao() as conexao:
+        cursor = conexao.cursor()
+        # Preparar parâmetros para busca LIKE
+        busca_like = f"%{busca}%" if busca else ""
+
+        cursor.execute(BUSCAR_CATEGORIAS, (
+            busca, busca_like, busca_like,  # busca por nome/descrição
+            tipo_fornecimento, tipo_fornecimento,  # filtro por tipo
+            status, status, status  # filtro por status
+        ))
+        resultados = cursor.fetchall()
+        return [CategoriaItem(
+            id=resultado["id"],
+            nome=resultado["nome"],
+            tipo_fornecimento=TipoItem(resultado["tipo_fornecimento"]),
+            descricao=resultado["descricao"],
+            ativo=bool(resultado["ativo"])
+        ) for resultado in resultados]
+
+def ativar_categoria(id: int) -> bool:
+    """Ativa uma categoria"""
+    with obter_conexao() as conexao:
+        cursor = conexao.cursor()
+        cursor.execute(ATIVAR_CATEGORIA, (id,))
+        return (cursor.rowcount > 0)
+
+def desativar_categoria(id: int) -> bool:
+    """Desativa uma categoria"""
+    with obter_conexao() as conexao:
+        cursor = conexao.cursor()
+        cursor.execute(DESATIVAR_CATEGORIA, (id,))
+        return (cursor.rowcount > 0)

@@ -17,24 +17,51 @@ from util.usuario_util import usuario_para_sessao
 router = APIRouter()
 templates = Jinja2Templates(directory="templates")
 
+def render_template_with_user(request: Request, template_name: str, context: dict = None):
+    """Renderiza template incluindo informações do usuário logado"""
+    from util.auth_decorator import obter_usuario_logado
+
+    if context is None:
+        context = {}
+
+    context.update({
+        "request": request,
+        "usuario_logado": obter_usuario_logado(request)
+    })
+
+    return templates.TemplateResponse(template_name, context)
+
 
 
 @router.get("/")
-async def get_home(request: Request):
-    response = templates.TemplateResponse("publico/home.html", {"request": request})
-    return response
+async def get_home(request: Request, stay: str = None):
+    from util.auth_decorator import obter_usuario_logado
+
+    # Verificar se há usuário logado
+    usuario_logado = obter_usuario_logado(request)
+
+    # Se o parâmetro 'stay' não for fornecido e há usuário logado, redirecionar para dashboard
+    if usuario_logado and not stay:
+        # Redirecionar para o dashboard específico do usuário
+        if usuario_logado.get("tipo") == "FORNECEDOR":
+            return RedirectResponse("/fornecedor/dashboard", status_code=status.HTTP_302_FOUND)
+        elif usuario_logado.get("tipo") == "NOIVO":
+            return RedirectResponse("/noivo/dashboard", status_code=status.HTTP_302_FOUND)
+        elif usuario_logado.get("tipo") == "ADMIN":
+            return RedirectResponse("/admin/dashboard", status_code=status.HTTP_302_FOUND)
+
+    # Mostrar página inicial pública (com ou sem usuário logado)
+    return render_template_with_user(request, "publico/home.html")
 
 
 @router.get("/cadastro")
 async def get_cadastro(request: Request):
-    response = templates.TemplateResponse("publico/cadastro.html", {"request": request})
-    return response
+    return render_template_with_user(request, "publico/cadastro.html")
 
 
 @router.get("/cadastro-noivos")
 async def get_cadastro_noivos(request: Request):
-    response = templates.TemplateResponse("publico/cadastro_noivos.html", {"request": request})
-    return response
+    return render_template_with_user(request, "publico/cadastro_noivos.html")
 
 
 @router.post("/cadastro-noivos")
@@ -380,8 +407,7 @@ async def get_root():
 
 @router.get("/login")
 async def get_login(request: Request):
-    response = templates.TemplateResponse("publico/login.html", {"request": request})
-    return response
+    return render_template_with_user(request, "publico/login.html")
 
 
 @router.post("/login")
@@ -483,4 +509,5 @@ async def get_root(id: int):
 async def get_root(id: int):
     response = templates.TemplateResponse("publico/detalhes_servico.html", {"request": {}, "id": id})
     return response
+
 

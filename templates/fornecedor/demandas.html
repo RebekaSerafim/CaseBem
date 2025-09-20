@@ -2,7 +2,7 @@
 
 {% block title %}Demandas Disponíveis{% endblock %}
 
-{% block content %}
+{% block conteudo %}
 <div class="row">
     <div class="col-12">
         <div class="d-flex justify-content-between align-items-center mb-4">
@@ -23,27 +23,32 @@
                     <div class="col-md-3">
                         <label for="search" class="form-label">Buscar</label>
                         <input type="text" class="form-control" id="search" name="search"
-                               value="{{ request.args.get('search', '') }}" placeholder="Título ou descrição">
+                               value="{{ request.query_params.get('search', '') }}" placeholder="Título ou descrição">
                     </div>
-                    <div class="col-md-3">
+                    <div class="col-md-2">
                         <label for="categoria" class="form-label">Categoria</label>
                         <select class="form-select" id="categoria" name="categoria">
-                            <option value="">Todas as categorias</option>
+                            <option value="">Todas</option>
                             {% for categoria in categorias %}
-                            <option value="{{ categoria.id }}" {% if request.args.get('categoria') == categoria.id|string %}selected{% endif %}>
+                            <option value="{{ categoria.id }}" {% if request.query_params.get('categoria') == categoria.id|string %}selected{% endif %}>
                                 {{ categoria.nome }}
                             </option>
                             {% endfor %}
                         </select>
                     </div>
-                    <div class="col-md-3">
+                    <div class="col-md-2">
+                        <label for="orcamento_min" class="form-label">Orçamento Mínimo</label>
+                        <input type="number" class="form-control" id="orcamento_min" name="orcamento_min"
+                               value="{{ request.query_params.get('orcamento_min', '') }}" placeholder="R$ 0,00" step="0.01">
+                    </div>
+                    <div class="col-md-2">
                         <label for="orcamento_max" class="form-label">Orçamento Máximo</label>
                         <input type="number" class="form-control" id="orcamento_max" name="orcamento_max"
-                               value="{{ request.args.get('orcamento_max', '') }}" placeholder="R$ 0,00" step="0.01">
+                               value="{{ request.query_params.get('orcamento_max', '') }}" placeholder="R$ 0,00" step="0.01">
                     </div>
-                    <div class="col-md-3 d-flex align-items-end">
-                        <button type="submit" class="btn btn-primary me-2">Filtrar</button>
-                        <a href="/fornecedor/demandas" class="btn btn-outline-secondary">Limpar</a>
+                    <div class="col-md-3 d-flex align-items-end gap-2">
+                        <button type="submit" class="btn btn-primary flex-fill">Filtrar</button>
+                        <a href="/fornecedor/demandas" class="btn btn-info flex-fill">Limpar</a>
                     </div>
                 </form>
             </div>
@@ -122,45 +127,7 @@
 </div>
 
 <!-- Paginação -->
-{% if pagination %}
-<div class="row">
-    <div class="col-12">
-        <nav aria-label="Navegação das demandas">
-            <ul class="pagination justify-content-center">
-                {% if pagination.has_prev %}
-                <li class="page-item">
-                    <a class="page-link" href="{{ url_for('fornecedor_demandas', page=pagination.prev_num, **request.args) }}">Anterior</a>
-                </li>
-                {% endif %}
-
-                {% for page_num in pagination.iter_pages() %}
-                    {% if page_num %}
-                        {% if page_num != pagination.page %}
-                        <li class="page-item">
-                            <a class="page-link" href="{{ url_for('fornecedor_demandas', page=page_num, **request.args) }}">{{ page_num }}</a>
-                        </li>
-                        {% else %}
-                        <li class="page-item active">
-                            <span class="page-link">{{ page_num }}</span>
-                        </li>
-                        {% endif %}
-                    {% else %}
-                    <li class="page-item disabled">
-                        <span class="page-link">…</span>
-                    </li>
-                    {% endif %}
-                {% endfor %}
-
-                {% if pagination.has_next %}
-                <li class="page-item">
-                    <a class="page-link" href="{{ url_for('fornecedor_demandas', page=pagination.next_num, **request.args) }}">Próxima</a>
-                </li>
-                {% endif %}
-            </ul>
-        </nav>
-    </div>
-</div>
-{% endif %}
+<!-- Paginação será implementada futuramente -->
 
 {% else %}
 <div class="row">
@@ -169,7 +136,7 @@
             <div class="card-body text-center py-5">
                 <i class="fas fa-search fa-4x text-gray-300 mb-4"></i>
                 <h4>Nenhuma demanda encontrada</h4>
-                {% if request.args.get('search') or request.args.get('categoria') or request.args.get('orcamento_max') %}
+                {% if request.query_params.get('search') or request.query_params.get('categoria') or request.query_params.get('orcamento_min') or request.query_params.get('orcamento_max') %}
                 <p class="text-muted">Nenhuma demanda corresponde aos filtros aplicados.</p>
                 <a href="/fornecedor/demandas" class="btn btn-outline-secondary">Limpar Filtros</a>
                 {% else %}

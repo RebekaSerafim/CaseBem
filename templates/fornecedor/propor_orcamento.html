@@ -1,0 +1,113 @@
+{% extends "fornecedor/base.html" %}
+
+{% block title %}Propor Orçamento - Fornecedor - Case Bem{% endblock %}
+
+{% block conteudo %}
+<div class="row">
+    <div class="col-md-8 mx-auto">
+        {% if demanda %}
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="mb-0">Detalhes da Demanda</h5>
+            </div>
+            <div class="card-body">
+                <h6><strong>{{ demanda.titulo }}</strong></h6>
+                <p class="text-muted mb-2">
+                    <small>
+                        <i class="fas fa-calendar"></i> Criado em {{ demanda.data_criacao.strftime("%d/%m/%Y") }}
+                        | <i class="fas fa-user"></i> {{ demanda.noivo_nome }}
+                    </small>
+                </p>
+                <p>{{ demanda.descricao }}</p>
+
+                {% if demanda.orcamento_maximo %}
+                <p class="mb-0">
+                    <strong>Orçamento máximo:</strong>
+                    <span class="text-success">R$ {{ "%.2f"|format(demanda.orcamento_maximo) }}</span>
+                </p>
+                {% endif %}
+            </div>
+        </div>
+        {% endif %}
+
+        <div class="card">
+            <div class="card-header">
+                <h4 class="mb-0">Propor Orçamento</h4>
+            </div>
+            <div class="card-body">
+                <form method="post">
+                    <div class="mb-3">
+                        <label for="titulo" class="form-label">Título da Proposta *</label>
+                        <input type="text" class="form-control" id="titulo" name="titulo" required
+                               placeholder="Ex: Proposta para Decoração de Casamento">
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="descricao" class="form-label">Descrição da Proposta *</label>
+                        <textarea class="form-control" id="descricao" name="descricao" rows="5" required
+                                  placeholder="Descreva detalhadamente sua proposta, incluindo o que está incluído no serviço..."></textarea>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="valor_total" class="form-label">Valor Total (R$) *</label>
+                            <input type="number" class="form-control" id="valor_total" name="valor_total"
+                                   step="0.01" min="0" required placeholder="0,00">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="prazo_entrega" class="form-label">Prazo de Entrega (dias) *</label>
+                            <input type="number" class="form-control" id="prazo_entrega" name="prazo_entrega"
+                                   min="1" required placeholder="Ex: 30">
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="observacoes" class="form-label">Observações Adicionais</label>
+                        <textarea class="form-control" id="observacoes" name="observacoes" rows="3"
+                                  placeholder="Informações extras, condições especiais, etc."></textarea>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="forma_pagamento" class="form-label">Forma de Pagamento</label>
+                        <select class="form-select" id="forma_pagamento" name="forma_pagamento">
+                            <option value="">Selecione uma opção</option>
+                            <option value="À vista">À vista</option>
+                            <option value="Parcelado 2x">Parcelado em 2x</option>
+                            <option value="Parcelado 3x">Parcelado em 3x</option>
+                            <option value="Parcelado 6x">Parcelado em 6x</option>
+                            <option value="Parcelado 12x">Parcelado em 12x</option>
+                            <option value="50% entrada + 50% entrega">50% entrada + 50% na entrega</option>
+                            <option value="Negociar">A negociar</option>
+                        </select>
+                    </div>
+
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle"></i>
+                        <strong>Importante:</strong>
+                        Sua proposta será enviada para o cliente e você receberá uma notificação quando houver resposta.
+                    </div>
+
+                    <div class="d-flex justify-content-between">
+                        <a href="/fornecedor/demandas" class="btn btn-secondary">Voltar</a>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-paper-plane"></i> Enviar Proposta
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="https://kit.fontawesome.com/your-fontawesome-kit.js"></script>
+<script>
+// Máscara para valor monetário
+document.getElementById('valor_total').addEventListener('input', function(e) {
+    let value = e.target.value.replace(/\D/g, '');
+    value = (value / 100).toFixed(2);
+    e.target.value = value;
+});
+</script>
+{% endblock %}
