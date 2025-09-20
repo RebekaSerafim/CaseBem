@@ -4,7 +4,7 @@ from fastapi.templating import Jinja2Templates
 from util.auth_decorator import requer_autenticacao
 from model.usuario_model import TipoUsuario
 from model.item_model import Item, TipoItem
-from repo import fornecedor_repo, item_repo, orcamento_repo, demanda_repo, usuario_repo
+from repo import fornecedor_repo, item_repo, orcamento_repo, demanda_repo, usuario_repo, categoria_item_repo
 
 router = APIRouter()
 templates = Jinja2Templates(directory="templates")
@@ -93,11 +93,13 @@ async def listar_itens(request: Request, usuario_logado: dict = None):
 @requer_autenticacao([TipoUsuario.FORNECEDOR.value])
 async def novo_item_form(request: Request, usuario_logado: dict = None):
     """Formulário para criar novo item"""
+    categorias = categoria_item_repo.obter_categorias_ativas()
     return templates.TemplateResponse("fornecedor/item_form.html", {
         "request": request,
         "usuario_logado": usuario_logado,
         "acao": "criar",
-        "tipos_item": [tipo.value for tipo in TipoItem]
+        "tipos_item": [tipo.value for tipo in TipoItem],
+        "categorias": categorias
     })
 
 @router.post("/fornecedor/itens/novo")
@@ -119,12 +121,14 @@ async def criar_item(
         try:
             tipo_enum = TipoItem(tipo)
         except ValueError:
+            categorias = categoria_item_repo.obter_categorias_ativas()
             return templates.TemplateResponse("fornecedor/item_form.html", {
                 "request": request,
                 "usuario_logado": usuario_logado,
                 "erro": "Tipo de item inválido",
                 "acao": "criar",
-                "tipos_item": [tipo.value for tipo in TipoItem]
+                "tipos_item": [tipo.value for tipo in TipoItem],
+                "categorias": categorias
             })
 
         # Criar item
@@ -145,22 +149,26 @@ async def criar_item(
         if item_id:
             return RedirectResponse("/fornecedor/itens", status_code=status.HTTP_303_SEE_OTHER)
         else:
+            categorias = categoria_item_repo.obter_categorias_ativas()
             return templates.TemplateResponse("fornecedor/item_form.html", {
                 "request": request,
                 "usuario_logado": usuario_logado,
                 "erro": "Erro ao criar item",
                 "acao": "criar",
-                "tipos_item": [tipo.value for tipo in TipoItem]
+                "tipos_item": [tipo.value for tipo in TipoItem],
+                "categorias": categorias
             })
 
     except Exception as e:
         print(f"Erro ao criar item: {e}")
+        categorias = categoria_item_repo.obter_categorias_ativas()
         return templates.TemplateResponse("fornecedor/item_form.html", {
             "request": request,
             "usuario_logado": usuario_logado,
             "erro": "Erro interno do servidor",
             "acao": "criar",
-            "tipos_item": [tipo.value for tipo in TipoItem]
+            "tipos_item": [tipo.value for tipo in TipoItem],
+            "categorias": categorias
         })
 
 @router.get("/fornecedor/itens/{id_item}/editar")
@@ -174,12 +182,14 @@ async def editar_item_form(request: Request, id_item: int, usuario_logado: dict 
         if not item or item.id_fornecedor != id_fornecedor:
             return RedirectResponse("/fornecedor/itens", status_code=status.HTTP_303_SEE_OTHER)
 
+        categorias = categoria_item_repo.obter_categorias_ativas()
         return templates.TemplateResponse("fornecedor/item_form.html", {
             "request": request,
             "usuario_logado": usuario_logado,
             "acao": "editar",
             "item": item,
-            "tipos_item": [tipo.value for tipo in TipoItem]
+            "tipos_item": [tipo.value for tipo in TipoItem],
+            "categorias": categorias
         })
     except Exception as e:
         print(f"Erro ao carregar formulário de edição: {e}")
@@ -211,13 +221,15 @@ async def atualizar_item(
         try:
             tipo_enum = TipoItem(tipo)
         except ValueError:
+            categorias = categoria_item_repo.obter_categorias_ativas()
             return templates.TemplateResponse("fornecedor/item_form.html", {
                 "request": request,
                 "usuario_logado": usuario_logado,
                 "erro": "Tipo de item inválido",
                 "acao": "editar",
                 "item": item_existente,
-                "tipos_item": [tipo.value for tipo in TipoItem]
+                "tipos_item": [tipo.value for tipo in TipoItem],
+                "categorias": categorias
             })
 
         # Atualizar item
@@ -238,13 +250,15 @@ async def atualizar_item(
         if sucesso:
             return RedirectResponse("/fornecedor/itens", status_code=status.HTTP_303_SEE_OTHER)
         else:
+            categorias = categoria_item_repo.obter_categorias_ativas()
             return templates.TemplateResponse("fornecedor/item_form.html", {
                 "request": request,
                 "usuario_logado": usuario_logado,
                 "erro": "Erro ao atualizar item",
                 "acao": "editar",
                 "item": item_existente,
-                "tipos_item": [tipo.value for tipo in TipoItem]
+                "tipos_item": [tipo.value for tipo in TipoItem],
+                "categorias": categorias
             })
 
     except Exception as e:

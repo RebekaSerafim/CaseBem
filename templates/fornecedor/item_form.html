@@ -1,0 +1,124 @@
+{% extends "fornecedor/base.html" %}
+
+{% block title %}{{ "Novo Item" if acao == "criar" else "Editar Item" }} - Fornecedor - Case Bem{% endblock %}
+
+{% block conteudo %}
+<div class="container d-flex align-items-center justify-content-center flex-grow-1 py-4">
+    <div class="col-md-8 col-lg-6">
+        <div class="card shadow border-0 auth-card">
+            <div class="card-body p-4">
+                <div class="text-center mb-4">
+                    <h3>{{ "Cadastrar Novo Item" if acao == "criar" else "Editar Item" }}</h3>
+                    <small class="text-muted">{{ "Adicione um novo item ao seu catálogo" if acao == "criar" else "Edite as informações do item" }}</small>
+                </div>
+                <form method="post" enctype="multipart/form-data">
+                    <div class="row">
+                        <div class="col-md-8 mb-3">
+                            <label for="nome" class="form-label">Nome do Item *</label>
+                            <input type="text" class="form-control" id="nome" name="nome"
+                                   value="{{ item.nome if item else '' }}" required>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label for="tipo" class="form-label">Tipo *</label>
+                            <select class="form-select" id="tipo" name="tipo" required>
+                                <option value="">Selecione</option>
+                                {% for tipo in tipos_item %}
+                                <option value="{{ tipo }}" {{ "selected" if item and item.tipo == tipo else "" }}>
+                                    {{ tipo.replace("_", " ").title() }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="descricao" class="form-label">Descrição *</label>
+                        <textarea class="form-control" id="descricao" name="descricao" rows="4" required>{{ item.descricao if item else '' }}</textarea>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="preco" class="form-label">Preço (R$) *</label>
+                            <input type="number" class="form-control" id="preco" name="preco" step="0.01" min="0"
+                                   value="{{ item.preco if item else '' }}" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="categoria" class="form-label">Categoria</label>
+                            <select class="form-select" id="categoria" name="categoria">
+                                <option value="">Selecione uma categoria</option>
+                                {% for categoria in categorias %}
+                                <option value="{{ categoria.id }}"
+                                        data-tipo="{{ categoria.tipo_fornecimento.value }}"
+                                        {{ "selected" if item and item.categoria and item.categoria == categoria.id|string else "" }}>
+                                    {{ categoria.nome }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="imagem" class="form-label">Imagem do Item</label>
+                        <input type="file" class="form-control" id="imagem" name="imagem" accept="image/*">
+                        {% if item and item.imagem %}
+                        <small class="text-muted">Imagem atual: {{ item.imagem }}</small>
+                        {% endif %}
+                    </div>
+
+                    <div class="mb-3">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="ativo" name="ativo"
+                                   {{ "checked" if not item or item.ativo else "" }}>
+                            <label class="form-check-label" for="ativo">
+                                Item ativo (visível para clientes)
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="d-flex justify-content-end gap-2">
+                        <a href="/fornecedor/itens" class="btn btn-info btn-lg">Cancelar</a>
+                        <button type="submit" class="btn btn-primary btn-lg">
+                            {{ "Cadastrar Item" if acao == "criar" else "Salvar Alterações" }}
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const tipoSelect = document.getElementById('tipo');
+    const categoriaSelect = document.getElementById('categoria');
+    const todasCategorias = Array.from(categoriaSelect.querySelectorAll('option[data-tipo]'));
+
+    function filtrarCategorias() {
+        const tipoSelecionado = tipoSelect.value;
+
+        // Limpar todas as opções exceto a primeira (placeholder)
+        categoriaSelect.innerHTML = '<option value="">Selecione uma categoria</option>';
+
+        if (tipoSelecionado) {
+            // Filtrar e adicionar apenas as categorias do tipo selecionado
+            todasCategorias.forEach(option => {
+                if (option.dataset.tipo === tipoSelecionado) {
+                    categoriaSelect.appendChild(option.cloneNode(true));
+                }
+            });
+        } else {
+            // Se nenhum tipo foi selecionado, mostrar todas as categorias
+            todasCategorias.forEach(option => {
+                categoriaSelect.appendChild(option.cloneNode(true));
+            });
+        }
+    }
+
+    // Filtrar categorias quando o tipo for alterado
+    tipoSelect.addEventListener('change', filtrarCategorias);
+
+    // Filtrar categorias na carga inicial da página
+    filtrarCategorias();
+});
+</script>
+{% endblock %}
