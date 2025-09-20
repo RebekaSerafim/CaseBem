@@ -108,8 +108,10 @@
                     <i class="bi bi-pie-chart"></i> Distribuição de Usuários
                 </h5>
             </div>
-            <div class="card-body">
-                <canvas id="chartUsuarios" width="400" height="200"></canvas>
+            <div class="card-body text-center">
+                <div class="chart-container" style="height: 250px; max-height: 250px; margin: 0 auto; width: 100%; max-width: 300px;">
+                    <canvas id="chartUsuarios"></canvas>
+                </div>
                 <div class="mt-3">
                     <small class="text-muted">
                         <strong>Noivos:</strong> {{ percentuais.noivos }}% |
@@ -130,7 +132,9 @@
                 </h5>
             </div>
             <div class="card-body">
-                <canvas id="chartItens" width="400" height="200"></canvas>
+                <div class="chart-container" style="height: 250px; max-height: 250px; width: 100%;">
+                    <canvas id="chartItens"></canvas>
+                </div>
             </div>
         </div>
     </div>
@@ -290,6 +294,23 @@
 {% endblock %}
 
 {% block scripts %}
+<style>
+.chart-container {
+    position: relative;
+    overflow: hidden;
+}
+
+.chart-container canvas {
+    max-width: 100% !important;
+    max-height: 100% !important;
+}
+
+@media print {
+    .btn-group { display: none !important; }
+    .chart-container { page-break-inside: avoid; }
+}
+</style>
+
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
 // Configuração dos gráficos
@@ -314,6 +335,9 @@ document.addEventListener('DOMContentLoaded', function() {
                 legend: {
                     position: 'bottom'
                 }
+            },
+            layout: {
+                padding: 10
             }
         }
     });
@@ -347,6 +371,9 @@ document.addEventListener('DOMContentLoaded', function() {
                 legend: {
                     display: false
                 }
+            },
+            layout: {
+                padding: 10
             }
         }
     });
