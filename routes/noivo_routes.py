@@ -6,6 +6,8 @@ from model.usuario_model import TipoUsuario
 from model.item_model import TipoItem
 from model.demanda_model import Demanda
 from repo import usuario_repo, item_repo, demanda_repo, orcamento_repo, casal_repo, favorito_repo, fornecedor_repo
+from util.flash_messages import informar_sucesso, informar_erro, informar_aviso
+from util.template_helpers import template_response_with_flash
 
 router = APIRouter()
 templates = Jinja2Templates(directory="templates")
@@ -36,13 +38,18 @@ async def dashboard_noivo(request: Request, usuario_logado: dict = None):
         except:
             casal = None
 
-        # Buscar demandas do noivo
+        # Buscar demandas do casal
         try:
-            demandas_noivo = demanda_repo.obter_demandas_por_noivo(id_noivo)
-            demandas_ativas = [d for d in demandas_noivo if d.status.value == 'ATIVA']
-            demandas_recentes = demandas_noivo[:5]
+            if casal:
+                demandas_casal = demanda_repo.obter_demandas_por_casal(casal.id)
+                demandas_ativas = [d for d in demandas_casal if d.status.value == 'ATIVA']
+                demandas_recentes = demandas_casal[:5]
+            else:
+                demandas_casal = []
+                demandas_ativas = []
+                demandas_recentes = []
         except:
-            demandas_noivo = []
+            demandas_casal = []
             demandas_ativas = []
             demandas_recentes = []
 
@@ -208,8 +215,17 @@ async def listar_demandas(request: Request, status: str = "", search: str = "", 
     try:
         id_noivo = usuario_logado["id"]
 
-        # Buscar demandas do noivo
-        demandas = demanda_repo.obter_demandas_por_noivo(id_noivo)
+        # Buscar casal do noivo
+        casal = casal_repo.obter_casal_por_noivo(id_noivo)
+        if not casal:
+            return templates.TemplateResponse("noivo/demandas.html", {
+                "request": request,
+                "usuario_logado": usuario_logado,
+                "erro": "Casal não encontrado"
+            })
+
+        # Buscar demandas do casal
+        demandas = demanda_repo.obter_demandas_por_casal(casal.id)
 
         # Aplicar filtros
         if status:
@@ -249,6 +265,7 @@ async def criar_demanda(
     request: Request,
     titulo: str = Form(...),
     descricao: str = Form(...),
+    id_categoria: int = Form(...),
     orcamento_min: float = Form(None),
     orcamento_max: float = Form(None),
     prazo_entrega: str = Form(""),
@@ -259,10 +276,21 @@ async def criar_demanda(
     try:
         id_noivo = usuario_logado["id"]
 
+        # Buscar casal do noivo
+        casal = casal_repo.obter_casal_por_noivo(id_noivo)
+        if not casal:
+            return templates.TemplateResponse("noivo/demanda_form.html", {
+                "request": request,
+                "usuario_logado": usuario_logado,
+                "erro": "Casal não encontrado",
+                "acao": "criar"
+            })
+
         # Criar nova demanda
         nova_demanda = Demanda(
             id=0,  # Será definido pelo banco
-            id_noivo=id_noivo,
+            id_casal=casal.id,
+            id_categoria=id_categoria,
             titulo=titulo,
             descricao=descricao,
             orcamento_min=orcamento_min if orcamento_min else None,
@@ -324,8 +352,11 @@ async def listar_orcamentos(request: Request, status: str = "", demanda: str = "
                     continue
             orcamentos = orcamentos_filtrados
 
-        # Buscar demandas do noivo para o filtro
-        minhas_demandas = demanda_repo.obter_demandas_por_noivo(id_noivo)
+        # Buscar casal do noivo
+        casal = casal_repo.obter_casal_por_noivo(id_noivo)
+
+        # Buscar demandas do casal para o filtro
+        minhas_demandas = demanda_repo.obter_demandas_por_casal(casal.id) if casal else []
 
         # Enriquecer orçamentos com dados adicionais
         orcamentos_enriched = []
@@ -384,8 +415,12 @@ async def visualizar_orcamento(request: Request, id_orcamento: int, usuario_loga
 
         # Buscar demanda relacionada
         demanda = demanda_repo.obter_demanda_por_id(orcamento.id_demanda)
-        if not demanda or demanda.id_noivo != id_noivo:
-            # Verificar se o orçamento pertence ao noivo logado
+
+        # Buscar casal do noivo
+        casal = casal_repo.obter_casal_por_noivo(id_noivo)
+
+        if not demanda or not casal or demanda.id_casal != casal.id:
+            # Verificar se o orçamento pertence ao casal do noivo logado
             return RedirectResponse("/noivo/orcamentos", status_code=status.HTTP_303_SEE_OTHER)
 
         # Buscar fornecedor
@@ -455,12 +490,15 @@ async def aceitar_orcamento(request: Request, id_orcamento: int, usuario_logado:
         sucesso = orcamento_repo.aceitar_orcamento_e_rejeitar_outros(id_orcamento, orcamento.id_demanda)
 
         if sucesso:
-            return RedirectResponse("/noivo/orcamentos?sucesso=orcamento_aceito", status_code=status.HTTP_303_SEE_OTHER)
+            informar_sucesso(request, "Orçamento aceito com sucesso!")
+            return RedirectResponse("/noivo/orcamentos", status_code=status.HTTP_303_SEE_OTHER)
         else:
-            return RedirectResponse("/noivo/orcamentos?erro=erro_aceitar", status_code=status.HTTP_303_SEE_OTHER)
+            informar_erro(request, "Erro ao aceitar orçamento!")
+            return RedirectResponse("/noivo/orcamentos", status_code=status.HTTP_303_SEE_OTHER)
     except Exception as e:
         print(f"Erro ao aceitar orçamento: {e}")
-        return RedirectResponse("/noivo/orcamentos?erro=erro_interno", status_code=status.HTTP_303_SEE_OTHER)
+        informar_erro(request, "Erro interno ao aceitar orçamento!")
+        return RedirectResponse("/noivo/orcamentos", status_code=status.HTTP_303_SEE_OTHER)
 
 @router.post("/noivo/orcamentos/{id_orcamento}/rejeitar")
 @requer_autenticacao([TipoUsuario.NOIVO.value])
@@ -471,12 +509,15 @@ async def rejeitar_orcamento(request: Request, id_orcamento: int, usuario_logado
         sucesso = orcamento_repo.rejeitar_orcamento(id_orcamento)
 
         if sucesso:
-            return RedirectResponse("/noivo/orcamentos?sucesso=orcamento_rejeitado", status_code=status.HTTP_303_SEE_OTHER)
+            informar_sucesso(request, "Orçamento rejeitado com sucesso!")
+            return RedirectResponse("/noivo/orcamentos", status_code=status.HTTP_303_SEE_OTHER)
         else:
-            return RedirectResponse("/noivo/orcamentos?erro=erro_rejeitar", status_code=status.HTTP_303_SEE_OTHER)
+            informar_erro(request, "Erro ao rejeitar orçamento!")
+            return RedirectResponse("/noivo/orcamentos", status_code=status.HTTP_303_SEE_OTHER)
     except Exception as e:
         print(f"Erro ao rejeitar orçamento: {e}")
-        return RedirectResponse("/noivo/orcamentos?erro=erro_interno", status_code=status.HTTP_303_SEE_OTHER)
+        informar_erro(request, "Erro interno ao rejeitar orçamento!")
+        return RedirectResponse("/noivo/orcamentos", status_code=status.HTTP_303_SEE_OTHER)
 
 # ==================== PERFIL E CASAL ====================
 

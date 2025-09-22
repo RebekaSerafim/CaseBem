@@ -13,6 +13,8 @@ from repo import usuario_repo, fornecedor_repo, casal_repo
 from util.auth_decorator import criar_sessao
 from util.security import criar_hash_senha, verificar_senha, validar_forca_senha, validar_cpf, validar_cnpj, validar_telefone
 from util.usuario_util import usuario_para_sessao
+from util.flash_messages import informar_sucesso, informar_erro, informar_aviso
+from util.template_helpers import template_response_with_flash
 
 router = APIRouter()
 templates = Jinja2Templates(directory="templates")
@@ -224,6 +226,7 @@ async def post_cadastro_noivos(request: Request,
         )
         casal_repo.inserir_casal(casal)
 
+    informar_sucesso(request, "Cadastro realizado com sucesso! Faça login para continuar.")
     return RedirectResponse("/login", status.HTTP_303_SEE_OTHER)
 
 
@@ -338,9 +341,11 @@ async def post_cadastro_fornecedor(request: Request,
         descricao=dados.descricao,
         prestador=eh_prestador,
         vendedor=eh_vendedor,
-        locador=eh_locador
+        locador=eh_locador,
+        newsletter=dados.newsletter == "on"
     )
     fornecedor_id = fornecedor_repo.inserir_fornecedor(fornecedor)
+    informar_sucesso(request, "Cadastro realizado com sucesso! Faça login para continuar.")
     return RedirectResponse("/login", status.HTTP_303_SEE_OTHER)
 
 
@@ -420,7 +425,7 @@ async def post_login(
     usuario = usuario_repo.obter_usuario_por_email(email)
     
     if not usuario or not verificar_senha(senha, usuario.senha):
-       return templates.TemplateResponse(
+       return template_response_with_flash(templates,
     "publico/login.html",
     {"request": request, "erro": "Email ou senha inválidos"}
 )
@@ -430,18 +435,21 @@ async def post_login(
     # Criar sessão
     usuario_dict = usuario_para_sessao(usuario)
     criar_sessao(request, usuario_dict)
-    
+
+    # Adicionar mensagem de boas-vindas
+    informar_sucesso(request, f"Bem-vindo, {usuario.nome}!")
+
     # Redirecionar
     if redirect:
         return RedirectResponse(redirect, status.HTTP_303_SEE_OTHER)
-    
+
     if usuario.perfil == TipoUsuario.ADMIN:
         return RedirectResponse("/admin/dashboard", status.HTTP_303_SEE_OTHER)
     elif usuario.perfil == TipoUsuario.FORNECEDOR:
         return RedirectResponse("/fornecedor/dashboard", status.HTTP_303_SEE_OTHER)
     elif usuario.perfil == TipoUsuario.NOIVO:
         return RedirectResponse("/noivo/dashboard", status.HTTP_303_SEE_OTHER)
-    
+
     return RedirectResponse("/", status.HTTP_303_SEE_OTHER)
 
 

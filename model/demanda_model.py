@@ -11,7 +11,8 @@ class StatusDemanda(Enum):
 @dataclass
 class Demanda:
     id: int
-    id_noivo: int
+    id_casal: int
+    id_categoria: int
     titulo: str
     descricao: str
     orcamento_min: Optional[float] = None

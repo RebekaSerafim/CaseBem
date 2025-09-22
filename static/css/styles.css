@@ -35,7 +35,10 @@ body {
     position: relative;
     overflow: hidden;
     height: 100%;
+    width: 100%;
+    min-height: 400px;
     cursor: pointer;
+    display: block;
 }
 
 .grid-image img {
@@ -374,6 +377,21 @@ body {
 /* Home page styles */
 .home-hero-section {
     height: 60vh;
+    min-height: 400px;
+    margin-bottom: 3rem;
+    display: flex;
+    align-items: stretch;
+}
+
+.home-hero-section .row {
+    width: 100%;
+    margin: 0;
+}
+
+.home-hero-section .col {
+    height: 100%;
+    min-height: 400px;
+    padding: 0;
 }
 
 .home-section-title {
@@ -407,4 +425,175 @@ body {
 
 .registration-type-card:hover .registration-icon {
     transform: scale(1.1);
+}
+
+/* Botões de ação nas tabelas do admin */
+.btn-action {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    padding: 0.2rem 0.3rem !important;
+    min-width: 32px !important;
+    min-height: 32px !important;
+    border-radius: 0.375rem !important;
+    transition: all 0.2s ease-in-out !important;
+}
+
+/* Anula o font-size do Bootstrap especificamente para btn-action */
+.btn-group-sm > .btn-action,
+.btn-action.btn-sm {
+    font-size: inherit !important;
+}
+
+.btn-action i,
+.btn-action .bi {
+    font-size: 1.8rem !important;
+    line-height: 1 !important;
+    width: auto !important;
+    height: auto !important;
+    display: inline-block !important;
+}
+
+/* Tamanhos específicos para botões pequenos de ação */
+.btn-action.btn-sm {
+    padding: 0.15rem 0.25rem !important;
+    min-width: 28px !important;
+    min-height: 28px !important;
+}
+
+.btn-action.btn-sm i,
+.btn-action.btn-sm .bi {
+    font-size: 1.5rem !important;
+}
+
+/* Força o tamanho dos ícones Bootstrap */
+.btn-action [class^="bi-"],
+.btn-action [class*=" bi-"] {
+    font-size: 1.8rem !important;
+    line-height: 1 !important;
+}
+
+.btn-action.btn-sm [class^="bi-"],
+.btn-action.btn-sm [class*=" bi-"] {
+    font-size: 1.5rem !important;
+}
+
+/* Hover effects para botões de ação */
+.btn-action:hover {
+    transform: translateY(-1px) !important;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15) !important;
+}
+
+/* Regras ultra-específicas para forçar o tamanho dos ícones */
+.table .btn-action i {
+    font-size: 1.8rem !important;
+}
+
+.table .btn-action.btn-sm i {
+    font-size: 1.5rem !important;
+}
+
+/* Para casos específicos dos templates admin */
+.admin-table .btn-action i,
+td .btn-action i,
+.btn-group .btn-action i {
+    font-size: 1.8rem !important;
+    line-height: 1 !important;
+}
+
+.admin-table .btn-action.btn-sm i,
+td .btn-action.btn-sm i,
+.btn-group .btn-action.btn-sm i {
+    font-size: 1.5rem !important;
+}
+
+/* Força máxima para ícones Bootstrap - sobrescreve qualquer CSS */
+body .btn-action i[class*="bi-"] {
+    font-size: 1.8rem !important;
+    line-height: 1 !important;
+    transform: none !important;
+}
+
+body .btn-action.btn-sm i[class*="bi-"] {
+    font-size: 1.5rem !important;
+    line-height: 1 !important;
+    transform: none !important;
+}
+
+/* Fallback para qualquer ícone dentro de btn-action */
+* .btn-action > i,
+* .btn-action > .bi,
+* .btn-action > [class^="bi-"],
+* .btn-action > [class*=" bi-"] {
+    font-size: 1.8rem !important;
+    line-height: 1 !important;
+    width: auto !important;
+    height: auto !important;
+}
+
+* .btn-action.btn-sm > i,
+* .btn-action.btn-sm > .bi,
+* .btn-action.btn-sm > [class^="bi-"],
+* .btn-action.btn-sm > [class*=" bi-"] {
+    font-size: 1.5rem !important;
+}
+
+/* Sobrescreve especificamente o Bootstrap .btn-sm font-size para ícones */
+.btn-group-sm > .btn-action i,
+.btn-action.btn-sm i,
+.btn-group-sm > .btn-action .bi,
+.btn-action.btn-sm .bi,
+.btn-group-sm > .btn-action [class^="bi-"],
+.btn-action.btn-sm [class^="bi-"],
+.btn-group-sm > .btn-action [class*=" bi-"],
+.btn-action.btn-sm [class*=" bi-"] {
+    font-size: 1.5rem !important;
+    line-height: 1 !important;
+}
+
+/* Força máxima contra Bootstrap - mais específico que .btn-group-sm>.btn, .btn-sm */
+html body .btn-group-sm > .btn-action > i,
+html body .btn-action.btn-sm > i,
+html body .btn-group-sm > .btn-action > [class*="bi-"],
+html body .btn-action.btn-sm > [class*="bi-"] {
+    font-size: 1.5rem !important;
+    line-height: 1 !important;
+}
+
+html body .btn-action > i,
+html body .btn-action > [class*="bi-"] {
+    font-size: 1.8rem !important;
+    line-height: 1 !important;
+}
+
+/* Espaçamento em grupos de botões */
+.btn-group .btn-action:not(:last-child) {
+    margin-right: 0 !important;
+    border-top-right-radius: 0 !important;
+    border-bottom-right-radius: 0 !important;
+}
+
+.btn-group .btn-action:not(:first-child) {
+    border-top-left-radius: 0 !important;
+    border-bottom-left-radius: 0 !important;
+}
+
+/* Regra final super específica - vence qualquer regra do Bootstrap */
+html body div .btn-action.btn-sm > i[class*="bi-"],
+html body div .btn-action > i[class*="bi-"],
+html body table .btn-action.btn-sm > i[class*="bi-"],
+html body table .btn-action > i[class*="bi-"],
+html body .container .btn-action.btn-sm > i[class*="bi-"],
+html body .container .btn-action > i[class*="bi-"] {
+    font-size: 1.5rem !important;
+    line-height: 1 !important;
+    transform: none !important;
+    width: auto !important;
+    height: auto !important;
+}
+
+html body div .btn-action:not(.btn-sm) > i[class*="bi-"],
+html body table .btn-action:not(.btn-sm) > i[class*="bi-"],
+html body .container .btn-action:not(.btn-sm) > i[class*="bi-"] {
+    font-size: 1.8rem !important;
 }

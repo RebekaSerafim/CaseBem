@@ -35,7 +35,7 @@
                             <dd class="col-sm-8">{{ usuario.email }}</dd>
 
                             <dt class="col-sm-4">Telefone:</dt>
-                            <dd class="col-sm-8">{{ usuario.telefone or '-' }}</dd>
+                            <dd class="col-sm-8 phone-format">{{ usuario.telefone or '-' }}</dd>
                         </dl>
                     </div>
                     <div class="col-md-6">
@@ -77,7 +77,7 @@
                     <div class="col-md-6">
                         <dl class="row">
                             <dt class="col-sm-4">CNPJ:</dt>
-                            <dd class="col-sm-8">{{ fornecedor.cnpj or '-' }}</dd>
+                            <dd class="col-sm-8 cnpj-format">{{ fornecedor.cnpj or '-' }}</dd>
 
                             <dt class="col-sm-4">Razão Social:</dt>
                             <dd class="col-sm-8">{{ fornecedor.razao_social or '-' }}</dd>
@@ -154,7 +154,7 @@
                                 data-bs-toggle="tooltip"
                                 data-bs-placement="top"
                                 title="Aprovar fornecedor para o sistema">
-                            <i class="bi bi-check-circle"></i> Aprovar Fornecedor
+                            <i class="bi bi-check-circle-fill"></i> Aprovar Fornecedor
                         </button>
                     </form>
 
@@ -164,7 +164,7 @@
                             data-bs-placement="top"
                             title="Rejeitar cadastro do fornecedor"
                             onclick="mostrarFormRejeicao()">
-                        <i class="bi bi-x-circle"></i> Rejeitar Fornecedor
+                        <i class="bi bi-x-circle-fill"></i> Rejeitar Fornecedor
                     </button>
 
                     <div id="formRejeicao" style="display: none;" class="mt-3">
@@ -174,7 +174,7 @@
                                 <textarea class="form-control" id="observacoes" name="observacoes" rows="3"></textarea>
                             </div>
                             <button type="submit" class="btn btn-warning w-100">
-                                <i class="bi bi-x-circle"></i> Confirmar Rejeição
+                                <i class="bi bi-x-circle-fill"></i> Confirmar Rejeição
                             </button>
                             <button type="button" class="btn btn-secondary w-100 mt-2"
                                     onclick="esconderFormRejeicao()">
@@ -184,7 +184,7 @@
                     </div>
                     {% else %}
                     <div class="alert alert-success">
-                        <i class="bi bi-check-circle"></i> Fornecedor já verificado
+                        <i class="bi bi-check-circle-fill"></i> Fornecedor já verificado
                     </div>
                     {% endif %}
                 {% endif %}
@@ -197,7 +197,7 @@
                             data-bs-placement="top"
                             title="Bloquear acesso do usuário ao sistema"
                             onclick="confirmarBloqueio({{ usuario.id }}, '{{ usuario.nome }}')">
-                        <i class="bi bi-lock"></i> Bloquear Usuário
+                        <i class="bi bi-lock-fill"></i> Bloquear Usuário
                     </button>
                     {% else %}
                     <form method="post" action="/admin/usuarios/{{ usuario.id }}/ativar">
@@ -206,7 +206,7 @@
                                 data-bs-toggle="tooltip"
                                 data-bs-placement="top"
                                 title="Reativar acesso do usuário ao sistema">
-                            <i class="bi bi-unlock"></i> Ativar Usuário
+                            <i class="bi bi-unlock-fill"></i> Ativar Usuário
                         </button>
                     </form>
                     {% endif %}

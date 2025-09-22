@@ -64,9 +64,9 @@
 <div class="row">
     <!-- Informações do Fornecedor -->
     <div class="col-lg-6 mb-4">
-        <div class="card h-100">
-            <div class="card-header">
-                <h6 class="mb-0">Informações do Fornecedor</h6>
+        <div class="card h-100 shadow">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">Informações do Fornecedor</h6>
             </div>
             <div class="card-body">
                 <div class="d-flex align-items-center mb-3">
@@ -92,7 +92,7 @@
                 <div class="row mb-3">
                     <div class="col-12">
                         <small class="text-muted">Telefone:</small>
-                        <div>{{ fornecedor.telefone }}</div>
+                        <div class="phone-format">{{ fornecedor.telefone }}</div>
                     </div>
                 </div>
                 {% endif %}
@@ -128,9 +128,9 @@
 
     <!-- Informações da Demanda -->
     <div class="col-lg-6 mb-4">
-        <div class="card h-100">
-            <div class="card-header">
-                <h6 class="mb-0">Informações da Demanda</h6>
+        <div class="card h-100 shadow">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">Informações da Demanda</h6>
             </div>
             <div class="card-body">
                 <h5>{{ demanda.titulo }}</h5>
@@ -215,9 +215,9 @@
 <!-- Itens do Orçamento -->
 <div class="row">
     <div class="col-12">
-        <div class="card">
-            <div class="card-header">
-                <h6 class="mb-0">Itens da Proposta</h6>
+        <div class="card shadow">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">Itens da Proposta</h6>
             </div>
             <div class="card-body">
                 {% if orcamento.itens %}
@@ -294,7 +294,7 @@
 {% if orcamento.status == 'PENDENTE' %}
 <div class="row mt-4">
     <div class="col-12">
-        <div class="card">
+        <div class="card shadow">
             <div class="card-body">
                 <div class="d-flex justify-content-between align-items-center">
                     <div>
@@ -317,7 +317,7 @@
 {% elif orcamento.status == 'ACEITO' %}
 <div class="row mt-4">
     <div class="col-12">
-        <div class="card border-success">
+        <div class="card border-success shadow">
             <div class="card-body">
                 <div class="d-flex justify-content-between align-items-center">
                     <div>

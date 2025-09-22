@@ -3,7 +3,7 @@ from typing import Optional
 from model.item_model import TipoItem
 
 @dataclass
-class CategoriaItem:
+class Categoria:
     id: int
     nome: str
     tipo_fornecimento: TipoItem

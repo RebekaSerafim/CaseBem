@@ -3,7 +3,7 @@
 {% block title %}Dashboard Noivos{% endblock %}
 
 {% block conteudo %}
-<div class="row">
+<div class="row mb-3">
     <div class="col-12">
         <h1 class="mb-0">
             Bem-vindos, {{ usuario_logado.nome }}!
@@ -61,6 +61,7 @@
                             Demandas Ativas
                         </div>
                         <div class="h3 mb-0 font-weight-bold text-gray-800 text-center">
+                        <div class="h3 mb-0 font-weight-bold text-gray-800 text-center">
                             {{ stats.demandas_ativas or 0 }}
                         </div>
                     </div>
@@ -76,10 +77,12 @@
         <div class="card border-left-info shadow h-100 py-2">
             <div class="card-body">
                 <div class="row g-0 align-items-center">
+                <div class="row g-0 align-items-center">
                     <div class="col mr-2">
                         <div class="text-xs font-weight-bold text-info text-uppercase mb-1 text-center">
                             Orçamentos Recebidos
                         </div>
+                        <div class="h3 mb-0 font-weight-bold text-gray-800 text-center">
                         <div class="h3 mb-0 font-weight-bold text-gray-800 text-center">
                             {{ stats.orcamentos_recebidos or 0 }}
                         </div>
@@ -96,10 +99,13 @@
         <div class="card border-left-warning shadow h-100 py-2">
             <div class="card-body">
                 <div class="row g-0 align-items-center">
+                <div class="row g-0 align-items-center">
                     <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-warning text-uppercase mb-1 text-center">
                         <div class="text-xs font-weight-bold text-warning text-uppercase mb-1 text-center">
                             Orçamentos Pendentes
                         </div>
+                        <div class="h3 mb-0 font-weight-bold text-gray-800 text-center">
                         <div class="h3 mb-0 font-weight-bold text-gray-800 text-center">
                             {{ stats.orcamentos_pendentes or 0 }}
                         </div>
@@ -116,10 +122,12 @@
         <div class="card border-left-danger shadow h-100 py-2">
             <div class="card-body">
                 <div class="row g-0 align-items-center">
+                <div class="row g-0 align-items-center">
                     <div class="col mr-2">
                         <div class="text-xs font-weight-bold text-danger text-uppercase mb-1 text-center">
                             Favoritos
                         </div>
+                        <div class="h3 mb-0 font-weight-bold text-gray-800 text-center">
                         <div class="h3 mb-0 font-weight-bold text-gray-800 text-center">
                             {{ stats.favoritos or 0 }}
                         </div>

@@ -2,7 +2,7 @@ CRIAR_TABELA_ITEM = """
 CREATE TABLE IF NOT EXISTS item (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     id_fornecedor INTEGER NOT NULL,
-    tipo TEXT NOT NULL CHECK (tipo IN ('PRODUTO', 'SERVICO', 'ESPACO')),
+    tipo TEXT NOT NULL CHECK (tipo IN ('PRODUTO', 'SERVIÇO', 'ESPAÇO')),
     nome TEXT NOT NULL,
     descricao TEXT NOT NULL,
     preco REAL NOT NULL,
@@ -79,14 +79,14 @@ ORDER BY nome ASC;
 OBTER_SERVICOS = """
 SELECT id, id_fornecedor, tipo, nome, descricao, preco, observacoes, ativo, data_cadastro
 FROM item
-WHERE tipo = 'SERVICO' AND ativo = 1
+WHERE tipo = 'SERVIÇO' AND ativo = 1
 ORDER BY nome ASC;
 """
 
 OBTER_ESPACOS = """
 SELECT id, id_fornecedor, tipo, nome, descricao, preco, observacoes, ativo, data_cadastro
 FROM item
-WHERE tipo = 'ESPACO' AND ativo = 1
+WHERE tipo = 'ESPAÇO' AND ativo = 1
 ORDER BY nome ASC;
 """
 

@@ -8,16 +8,18 @@
         <h1 class="mb-0">
             Bem-vindo, {{ usuario_logado.nome }}!
         </h1>
-        {% if fornecedor.verificado %}
+        {% if fornecedor and fornecedor.verificado %}
         <p class="badge bg-success mb-2">Verificado</p>
-        {% else %}
+        {% elif fornecedor %}
         <p class="badge bg-warning mb-2">Aguardando Verificação</p>
+        {% else %}
+        <p class="badge bg-danger mb-2">Erro ao carregar dados</p>
         {% endif %}
     </div>
 </div>
 
 <!-- Status de Verificação -->
-{% if not fornecedor.verificado %}
+{% if fornecedor and not fornecedor.verificado %}
 <div class="row mb-2">
     <div class="col-12">
         <div class="alert alert-warning" role="alert">
@@ -165,7 +167,7 @@
             </div>
             <div class="card-body">
                 <div class="list-group list-group-flush">
-                    <a href="/fornecedor/item/novo" class="list-group-item list-group-item-action">
+                    <a href="/fornecedor/itens/novo" class="list-group-item list-group-item-action">
                         <div>
                             <strong>Cadastrar Novo Item</strong>
                             <small class="d-block text-muted">Adicionar produto, serviço ou espaço</small>
@@ -209,12 +211,17 @@
             <div class="card-body">
                 <div class="row">
                     <div class="col-12">
+                        {% if fornecedor %}
                         <p><strong>Nome:</strong> {{ fornecedor.nome_empresa or 'Não informado' }}</p>
                         <p><strong>CNPJ:</strong> {{ fornecedor.cnpj or 'Não informado' }}</p>
                         <p><strong>Descrição:</strong> {{ fornecedor.descricao or 'Não informado' }}</p>
+                        {% else %}
+                        <p class="text-danger">Erro ao carregar dados do fornecedor</p>
+                        {% endif %}
                     </div>
                 </div>
 
+                {% if fornecedor %}
                 <div class="row mt-0">
                     <div class="col-12">
                         <strong>Eu forneço:</strong>
@@ -239,6 +246,7 @@
                 <div class="alert alert-info mt-3 mb-0" role="alert">
                     <small>Complete seu perfil empresarial para melhorar sua credibilidade!</small>
                 </div>
+                {% endif %}
                 {% endif %}
             </div>
         </div>
@@ -287,7 +295,7 @@
                                     {% endif %}
                                 </td>
                                 <td>
-                                    <a href="/fornecedor/item/editar/{{ item.id }}"
+                                    <a href="/fornecedor/itens/{{ item.id }}/editar"
                                         class="btn btn-sm btn-outline-primary">
                                         Editar
                                     </a>
@@ -309,7 +317,7 @@
                 <i class="fas fa-box fa-3x text-gray-300 mb-3"></i>
                 <h5>Nenhum item cadastrado</h5>
                 <p class="text-muted">Comece cadastrando seus produtos, serviços ou espaços para receber demandas!</p>
-                <a href="/fornecedor/item/novo" class="btn btn-primary">Cadastrar Primeiro Item</a>
+                <a href="/fornecedor/itens/novo" class="btn btn-primary">Cadastrar Primeiro Item</a>
             </div>
         </div>
     </div>

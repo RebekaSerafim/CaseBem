@@ -1,0 +1,51 @@
+/* CSS simplificado para botões de ação do admin */
+
+/* Botões de ação nas tabelas do admin */
+.btn-action {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    padding: 0.6rem !important;
+    width: 40px !important;
+    height: 40px !important;
+    border-radius: 0.375rem !important;
+    transition: all 0.2s ease-in-out !important;
+}
+
+/* Anula o font-size do Bootstrap especificamente para btn-action */
+.btn-group-sm > .btn-action,
+.btn-action.btn-sm {
+    font-size: inherit !important;
+    padding: 0.5rem !important;
+    width: 36px !important;
+    height: 36px !important;
+}
+
+/* Tamanho dos ícones - versão equilibrada */
+.btn-action i {
+    font-size: 0.75rem !important;
+    line-height: 1 !important;
+}
+
+.btn-action.btn-sm i {
+    font-size: 0.7rem !important;
+    line-height: 1 !important;
+}
+
+/* Hover effects */
+.btn-action:hover {
+    transform: translateY(-1px) !important;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15) !important;
+}
+
+/* Espaçamento em grupos de botões */
+.btn-group .btn-action:not(:last-child) {
+    margin-right: 0 !important;
+    border-top-right-radius: 0 !important;
+    border-bottom-right-radius: 0 !important;
+}
+
+.btn-group .btn-action:not(:first-child) {
+    border-top-left-radius: 0 !important;
+    border-bottom-left-radius: 0 !important;
+}

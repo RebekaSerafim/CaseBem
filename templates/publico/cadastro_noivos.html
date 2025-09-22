@@ -18,16 +18,18 @@
 
                 <form id="formCadastroNoivos" method="post" action="/cadastro-noivos" onsubmit="removerMascaras()">
                     <!-- Dados do Casamento -->
+                    <h5 class="mb-3 mt-4">
+                        <i class="fas fa-user me-2"></i>Dados do Casamento
+                    </h5>
                     <div class="alert alert-info" role="alert">
-                        <h6><i class="fas fa-info-circle me-2"></i>Informações do Casamento</h6>
-                        <small>Estas informações nos ajudam a encontrar os melhores fornecedores para vocês.</small>
+                        <small>Estas informações nos ajudam a encontrar os melhores fornecedores para vocês. Todos esses dados podem ser alterados posteriormente na página de perfil de cada noivo(a).</small>
                     </div>
 
                     <div class="row">
                         <div class="col-md-6 mb-3">
                             <label class="form-label">Data Prevista do Casamento</label>
                             <input type="date" name="data_casamento" class="form-control" value="{{ dados.data_casamento if dados else '' }}">
-                            <small class="text-muted">Opcional - pode ser alterada depois</small>
+                            <small class="text-muted">Opcional</small>
                         </div>
                         <div class="col-md-6 mb-3">
                             <label class="form-label">Local Previsto</label>
@@ -47,7 +49,7 @@
                                 <option value="50k_100k" {{ 'selected' if dados and dados.orcamento_estimado == '50k_100k' else '' }}>R$ 50.000 - R$ 100.000</option>
                                 <option value="acima_100k" {{ 'selected' if dados and dados.orcamento_estimado == 'acima_100k' else '' }}>Acima de R$ 100.000</option>
                             </select>
-                            <small class="text-muted">Opcional - nos ajuda a filtrar fornecedores adequados</small>
+                            <small class="text-muted">Opcional</small>
                         </div>
                         <div class="col-md-6 mb-3">
                             <label class="form-label">Número de Convidados</label>
@@ -67,12 +69,12 @@
                             <input type="text" name="nome1" class="form-control" required value="{{ dados.nome1 if dados else '' }}">
                         </div>
                         <div class="col-md-3 mb-3">
-                            <label class="form-label">Data de Nascimento</label>
-                            <input type="date" name="data_nascimento1" class="form-control" value="{{ dados.data_nascimento1 if dados else '' }}">
+                            <label class="form-label">Data de Nascimento *</label>
+                            <input type="date" name="data_nascimento1" class="form-control" value="{{ dados.data_nascimento1 if dados else '' }}" required>
                         </div>
                         <div class="col-md-3 mb-3">
-                            <label class="form-label">CPF</label>
-                            <input type="text" id="cpf1" name="cpf1" class="form-control" placeholder="000.000.000-00" value="{{ dados.cpf1 if dados else '' }}">
+                            <label class="form-label">CPF *</label>
+                            <input type="text" id="cpf1" name="cpf1" class="form-control" placeholder="000.000.000-00" value="{{ dados.cpf1 if dados else '' }}" required>
                             <div class="invalid-feedback">CPF inválido.</div>
                         </div>
                     </div>
@@ -90,18 +92,18 @@
 
                     <div class="row">
                         <div class="col-md-6 mb-3">
-                            <label class="form-label">Gênero</label>
+                            <label class="form-label">Gênero *</label>
                             <div class="d-flex gap-3 mt-2">
                                 <div class="form-check">
-                                    <input class="form-check-input" type="radio" name="genero1" value="masculino" id="masculino1" {{ 'checked' if dados and dados.genero1 == 'masculino' else '' }}>
+                                    <input class="form-check-input" type="radio" name="genero1" value="masculino" id="masculino1" {{ 'checked' if dados and dados.genero1 == 'masculino' else '' }} required>
                                     <label class="form-check-label" for="masculino1">Masculino</label>
                                 </div>
                                 <div class="form-check">
-                                    <input class="form-check-input" type="radio" name="genero1" value="feminino" id="feminino1" {{ 'checked' if dados and dados.genero1 == 'feminino' else '' }}>
+                                    <input class="form-check-input" type="radio" name="genero1" value="feminino" id="feminino1" {{ 'checked' if dados and dados.genero1 == 'feminino' else '' }} required>
                                     <label class="form-check-label" for="feminino1">Feminino</label>
                                 </div>
                                 <div class="form-check">
-                                    <input class="form-check-input" type="radio" name="genero1" value="outro" id="outro1" {{ 'checked' if dados and dados.genero1 == 'outro' else '' }}>
+                                    <input class="form-check-input" type="radio" name="genero1" value="outro" id="outro1" {{ 'checked' if dados and dados.genero1 == 'outro' else '' }} required>
                                     <label class="form-check-label" for="outro1">Outro</label>
                                 </div>
                             </div>
@@ -119,12 +121,12 @@
                             <input type="text" name="nome2" class="form-control" required value="{{ dados.nome2 if dados else '' }}">
                         </div>
                         <div class="col-md-3 mb-3">
-                            <label class="form-label">Data de Nascimento</label>
-                            <input type="date" name="data_nascimento2" class="form-control" value="{{ dados.data_nascimento2 if dados else '' }}">
+                            <label class="form-label">Data de Nascimento *</label>
+                            <input type="date" name="data_nascimento2" class="form-control" value="{{ dados.data_nascimento2 if dados else '' }}" required>
                         </div>
                         <div class="col-md-3 mb-3">
-                            <label class="form-label">CPF</label>
-                            <input type="text" id="cpf2" name="cpf2" class="form-control" placeholder="000.000.000-00" value="{{ dados.cpf2 if dados else '' }}">
+                            <label class="form-label">CPF *</label>
+                            <input type="text" id="cpf2" name="cpf2" class="form-control" placeholder="000.000.000-00" value="{{ dados.cpf2 if dados else '' }}" required>
                             <div class="invalid-feedback">CPF inválido.</div>
                         </div>
                     </div>
@@ -142,18 +144,18 @@
 
                     <div class="row">
                         <div class="col-md-6 mb-3">
-                            <label class="form-label">Gênero</label>
+                            <label class="form-label">Gênero *</label>
                             <div class="d-flex gap-3 mt-2">
                                 <div class="form-check">
-                                    <input class="form-check-input" type="radio" name="genero2" value="masculino" id="masculino2" {{ 'checked' if dados and dados.genero2 == 'masculino' else '' }}>
+                                    <input class="form-check-input" type="radio" name="genero2" value="masculino" id="masculino2" {{ 'checked' if dados and dados.genero2 == 'masculino' else '' }} required>
                                     <label class="form-check-label" for="masculino2">Masculino</label>
                                 </div>
                                 <div class="form-check">
-                                    <input class="form-check-input" type="radio" name="genero2" value="feminino" id="feminino2" {{ 'checked' if dados and dados.genero2 == 'feminino' else '' }}>
+                                    <input class="form-check-input" type="radio" name="genero2" value="feminino" id="feminino2" {{ 'checked' if dados and dados.genero2 == 'feminino' else '' }} required>
                                     <label class="form-check-label" for="feminino2">Feminino</label>
                                 </div>
                                 <div class="form-check">
-                                    <input class="form-check-input" type="radio" name="genero2" value="outro" id="outro2" {{ 'checked' if dados and dados.genero2 == 'outro' else '' }}>
+                                    <input class="form-check-input" type="radio" name="genero2" value="outro" id="outro2" {{ 'checked' if dados and dados.genero2 == 'outro' else '' }} required>
                                     <label class="form-check-label" for="outro2">Outro</label>
                                 </div>
                             </div>
@@ -180,13 +182,13 @@
                     <!-- Termos e Botão -->
                     <div class="row">
                         <div class="col-md-6">
-                            <div class="form-check mb-2">
+                            <div class="form-check mt-2">
                                 <input class="form-check-input" type="checkbox" id="termos" required>
                                 <label class="form-check-label small" for="termos">
                                     Eu concordo com os <a href="#" class="text-decoration-none">Termos de Uso</a> e <a href="#" class="text-decoration-none">Política de Privacidade</a>
                                 </label>
                             </div>
-                            <div class="form-check mb-3">
+                            <div class="form-check mb-0">
                                 <input class="form-check-input" type="checkbox" id="newsletter" name="newsletter" {{ 'checked' if dados and dados.newsletter else '' }}>
                                 <label class="form-check-label small" for="newsletter">
                                     Desejo receber dicas e novidades sobre casamentos

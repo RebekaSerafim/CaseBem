@@ -1,10 +1,10 @@
 import pytest
-from model.categoria_item_model import CategoriaItem
+from model.categoria_model import Categoria
 from model.item_model import TipoItem
 
-class TestCategoriaItemModel:
+class TestCategoriaModel:
     def test_criar_categoria_com_dados_validos(self):
-        categoria = CategoriaItem(
+        categoria = Categoria(
             id=1,
             nome="Categoria Teste",
             tipo_fornecimento=TipoItem.PRODUTO,
@@ -19,7 +19,7 @@ class TestCategoriaItemModel:
         assert categoria.ativo == True
 
     def test_criar_categoria_sem_descricao(self):
-        categoria = CategoriaItem(
+        categoria = Categoria(
             id=1,
             nome="Categoria Teste",
             tipo_fornecimento=TipoItem.SERVICO,
@@ -33,7 +33,7 @@ class TestCategoriaItemModel:
         assert categoria.ativo == True
 
     def test_categoria_inativa_por_padrao(self):
-        categoria = CategoriaItem(
+        categoria = Categoria(
             id=1,
             nome="Categoria Teste",
             tipo_fornecimento=TipoItem.ESPACO
@@ -45,7 +45,7 @@ class TestCategoriaItemModel:
         tipos = [TipoItem.PRODUTO, TipoItem.SERVICO, TipoItem.ESPACO]
 
         for tipo in tipos:
-            categoria = CategoriaItem(
+            categoria = Categoria(
                 id=1,
                 nome=f"Categoria {tipo.value}",
                 tipo_fornecimento=tipo,
@@ -54,7 +54,7 @@ class TestCategoriaItemModel:
             assert categoria.tipo_fornecimento == tipo
 
     def test_categoria_com_descricao_none(self):
-        categoria = CategoriaItem(
+        categoria = Categoria(
             id=1,
             nome="Categoria Teste",
             tipo_fornecimento=TipoItem.PRODUTO,
@@ -65,7 +65,7 @@ class TestCategoriaItemModel:
         assert categoria.descricao is None
 
     def test_categoria_com_descricao_vazia(self):
-        categoria = CategoriaItem(
+        categoria = Categoria(
             id=1,
             nome="Categoria Teste",
             tipo_fornecimento=TipoItem.PRODUTO,
@@ -76,7 +76,7 @@ class TestCategoriaItemModel:
         assert categoria.descricao == ""
 
     def test_representacao_string_categoria(self):
-        categoria = CategoriaItem(
+        categoria = Categoria(
             id=1,
             nome="Categoria Teste",
             tipo_fornecimento=TipoItem.PRODUTO,
@@ -90,7 +90,7 @@ class TestCategoriaItemModel:
         assert "PRODUTO" in str_repr
 
     def test_igualdade_categorias(self):
-        categoria1 = CategoriaItem(
+        categoria1 = Categoria(
             id=1,
             nome="Categoria Teste",
             tipo_fornecimento=TipoItem.PRODUTO,
@@ -98,7 +98,7 @@ class TestCategoriaItemModel:
             ativo=True
         )
 
-        categoria2 = CategoriaItem(
+        categoria2 = Categoria(
             id=1,
             nome="Categoria Teste",
             tipo_fornecimento=TipoItem.PRODUTO,
@@ -110,14 +110,14 @@ class TestCategoriaItemModel:
         assert categoria1 == categoria2
 
     def test_categorias_diferentes(self):
-        categoria1 = CategoriaItem(
+        categoria1 = Categoria(
             id=1,
             nome="Categoria 1",
             tipo_fornecimento=TipoItem.PRODUTO,
             ativo=True
         )
 
-        categoria2 = CategoriaItem(
+        categoria2 = Categoria(
             id=2,
             nome="Categoria 2",
             tipo_fornecimento=TipoItem.SERVICO,
@@ -127,7 +127,7 @@ class TestCategoriaItemModel:
         assert categoria1 != categoria2
 
     def test_modificar_categoria_apos_criacao(self):
-        categoria = CategoriaItem(
+        categoria = Categoria(
             id=1,
             nome="Categoria Original",
             tipo_fornecimento=TipoItem.PRODUTO,

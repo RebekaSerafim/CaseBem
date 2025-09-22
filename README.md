@@ -59,7 +59,7 @@ http://127.0.0.1:8000
 ## 👤 Usuário Padrão
 
 - **Email:** admin@casebem.com
-- **Senha:** admin123
+- **Senha:** 1234aA@#
 
 ⚠️ **Importante:** Altere a senha no primeiro login!
 

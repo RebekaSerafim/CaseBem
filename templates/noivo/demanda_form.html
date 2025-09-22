@@ -42,14 +42,15 @@
 </div>
 {% endif %}
 
-<div class="row">
-    <div class="col-12">
-        <form method="post">
-            <div class="card">
-                <div class="card-header">
-                    <h6 class="mb-0">Informações da Demanda</h6>
+<div class="container d-flex align-items-center justify-content-center flex-grow-1 py-4">
+    <div class="col-md-8 col-lg-6">
+        <div class="card shadow border-0 auth-card">
+            <div class="card-body p-4">
+                <div class="text-center mb-4">
+                    <h3>{% if acao == "editar" %}Editar Demanda{% else %}Nova Demanda{% endif %}</h3>
+                    <small class="text-muted">{% if acao == "editar" %}Edite as informações da sua demanda{% else %}Descreva o que você precisa para seu casamento{% endif %}</small>
                 </div>
-                <div class="card-body">
+                <form method="post">
                     <div class="mb-3">
                         <label for="titulo" class="form-label">Título da Demanda *</label>
                         <input type="text" class="form-control" id="titulo" name="titulo"
@@ -137,9 +138,9 @@
                             {% endif %}
                         </button>
                     </div>
-                </div>
+                </form>
             </div>
-        </form>
+        </div>
     </div>
 </div>
 {% endblock %}

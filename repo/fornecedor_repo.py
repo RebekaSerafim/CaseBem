@@ -27,7 +27,8 @@ def inserir_fornecedor(fornecedor: Fornecedor) -> Optional[int]:
                     (usuario_id, fornecedor.nome_empresa, fornecedor.cnpj,
                      fornecedor.descricao, fornecedor.prestador,
                      fornecedor.vendedor, fornecedor.locador,
-                     fornecedor.verificado, fornecedor.data_verificacao))
+                     fornecedor.verificado, fornecedor.data_verificacao,
+                     fornecedor.newsletter))
                 return usuario_id
     except Exception as e:
         print(f"Erro ao inserir fornecedor: {e}")
@@ -45,7 +46,7 @@ def atualizar_fornecedor(fornecedor: Fornecedor) -> bool:
                 (fornecedor.nome_empresa, fornecedor.cnpj, fornecedor.descricao,
                  fornecedor.prestador, fornecedor.vendedor, fornecedor.locador,
                  fornecedor.verificado, fornecedor.data_verificacao,
-                 fornecedor.id))
+                 fornecedor.newsletter, fornecedor.id))
             return cursor.rowcount > 0
     except Exception as e:
         print(f"Erro ao atualizar fornecedor: {e}")
@@ -93,7 +94,8 @@ def obter_fornecedor_por_id(id: int) -> Optional[Fornecedor]:
                     vendedor=bool(resultado["vendedor"]),
                     locador=bool(resultado["locador"]),
                     verificado=bool(resultado["verificado"]),
-                    data_verificacao=resultado["data_verificacao"]
+                    data_verificacao=resultado["data_verificacao"],
+                    newsletter=bool(resultado["newsletter"])
                 )
     except Exception as e:
         print(f"Erro ao obter fornecedor por ID: {e}")
@@ -128,7 +130,8 @@ def obter_fornecedores_por_pagina(numero_pagina: int, tamanho_pagina: int) -> Li
                 descricao=resultado["descricao"],
                 prestador=bool(resultado["prestador"]),
                 vendedor=bool(resultado["vendedor"]),
-                locador=bool(resultado["locador"])
+                locador=bool(resultado["locador"]),
+                newsletter=bool(resultado["newsletter"])
             ) for resultado in resultados]
     except Exception as e:
         print(f"Erro ao obter fornecedores por página: {e}")
@@ -161,7 +164,8 @@ def obter_prestadores() -> List[Fornecedor]:
                 descricao=resultado["descricao"],
                 prestador=bool(resultado["prestador"]),
                 vendedor=bool(resultado["vendedor"]),
-                locador=bool(resultado["locador"])
+                locador=bool(resultado["locador"]),
+                newsletter=bool(resultado["newsletter"])
             ) for resultado in resultados]
     except Exception as e:
         print(f"Erro ao obter prestadores: {e}")
@@ -194,7 +198,8 @@ def obter_vendedores() -> List[Fornecedor]:
                 descricao=resultado["descricao"],
                 prestador=bool(resultado["prestador"]),
                 vendedor=bool(resultado["vendedor"]),
-                locador=bool(resultado["locador"])
+                locador=bool(resultado["locador"]),
+                newsletter=bool(resultado["newsletter"])
             ) for resultado in resultados]
     except Exception as e:
         print(f"Erro ao obter vendedores: {e}")
@@ -227,7 +232,8 @@ def obter_locadores() -> List[Fornecedor]:
                 descricao=resultado["descricao"],
                 prestador=bool(resultado["prestador"]),
                 vendedor=bool(resultado["vendedor"]),
-                locador=bool(resultado["locador"])
+                locador=bool(resultado["locador"]),
+                newsletter=bool(resultado["newsletter"])
             ) for resultado in resultados]
     except Exception as e:
         print(f"Erro ao obter locadores: {e}")

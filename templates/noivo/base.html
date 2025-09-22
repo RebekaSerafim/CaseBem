@@ -12,20 +12,23 @@
 
 <body class="d-flex flex-column min-vh-100">
     <header>
-        <nav class="navbar navbar-expand-lg navbar-light bg-success">
+        <nav class="navbar navbar-expand-lg navbar-light bg-success py-2">
             <div class="container-fluid">
-                <a class="navbar-brand text-white d-flex align-items-center" href="/noivo/dashboard">
-                    <img src="/static/img/logo_icon_white.svg" alt="Case Bem" height="35" class="me-2">
-                    <img src="/static/img/logo_text_white.svg" alt="Case Bem" height="24" class="me-3">
-                    <span>Área dos Noivos</span>
+                <a class="navbar-brand mx-4 text-white d-flex align-items-center" href="/">
+                    <img src="/static/img/logo_icon_white.svg" alt="Case Bem" height="35" class="me-3">
+                    <img src="/static/img/logo_text_white.svg" alt="Case Bem" height="22">
                 </a>
+                <a href="/noivo/dashboard" class="navbar-brand ms-3 me-4">
+                    <span class="text-white">Noivos</span>
+                </a>
+                <div class="navbar-divider"></div>
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                     <span class="navbar-toggler-icon"></span>
                 </button>
                 <div class="collapse navbar-collapse" id="navbarNav">
-                    <ul class="navbar-nav me-auto">
+                    <ul class="navbar-nav ms-3 me-auto">
                         <li class="nav-item">
-                            <a class="nav-link text-white" href="/noivo/dashboard">Dashboard</a>
+                            <a class="nav-link text-white" href="/noivo/perfil">Meu Perfil</a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link text-white" href="/noivo/fornecedores">Fornecedores</a>
@@ -48,10 +51,15 @@
                                 {{ usuario_logado.nome }}
                             </a>
                             <ul class="dropdown-menu">
-                                <li><a class="dropdown-item" href="/noivo/perfil">Nosso Perfil</a></li>
-                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item" href="/noivo/perfil">Meu Perfil</a></li>
+                                <li>
+                                    <hr class="dropdown-divider">
+                                </li>
                                 <li><a class="dropdown-item" href="/logout">Sair</a></li>
                             </ul>
+                        </li>
+                        <li class="nav-item me-3">
+                            <!-- Empty item for consistent spacing -->
                         </li>
                         {% endif %}
                     </ul>
@@ -61,21 +69,7 @@
     </header>
 
     <main class="flex-grow-1">
-        <div class="container-fluid py-4">
-            {% if erro %}
-            <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                {{ erro }}
-                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-            </div>
-            {% endif %}
-
-            {% if sucesso %}
-            <div class="alert alert-success alert-dismissible fade show" role="alert">
-                {{ sucesso }}
-                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-            </div>
-            {% endif %}
-
+        <div class="container py-4">
             {% block conteudo %}
             {% endblock %}
         </div>
@@ -83,11 +77,61 @@
 
     <footer class="bg-success text-white text-center py-3 mt-auto">
         <div class="container">
-            <p>&copy; 2024 Case Bem - Área dos Noivos. Todos os direitos reservados.</p>
+            <p class="mb-0">&copy; 2025 Case Bem - Área dos Noivos. Todos os direitos reservados.</p>
         </div>
     </footer>
 
     <script src="/static/js/bootstrap.bundle.min.js"></script>
+    <script src="/static/js/toast-manager.js"></script>
+    {% include 'components/toast-handler.html' %}
+    {% include 'components/modal-confirmacao.html' %}
+
+    <script>
+    // Funções globais para formatação de documentos e telefone
+    function formatarTelefone(telefone) {
+        if (!telefone || telefone === '-' || telefone === 'Não informado') return telefone;
+        let digits = telefone.replace(/\D/g, '');
+        if (digits.length < 10) return telefone;
+        if (digits.length === 10) {
+            return digits.replace(/(\d{2})(\d{4})(\d{4})/, '($1) $2-$3');
+        } else if (digits.length === 11) {
+            return digits.replace(/(\d{2})(\d{5})(\d{4})/, '($1) $2-$3');
+        }
+        if (digits.length > 11) {
+            digits = digits.substring(0, 11);
+            return digits.replace(/(\d{2})(\d{5})(\d{4})/, '($1) $2-$3');
+        }
+        return telefone;
+    }
+
+    function formatarCPF(cpf) {
+        if (!cpf || cpf === '-' || cpf === 'Não informado') return cpf;
+        let digits = cpf.replace(/\D/g, '');
+        if (digits.length !== 11) return cpf;
+        return digits.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, '$1.$2.$3-$4');
+    }
+
+    function formatarCNPJ(cnpj) {
+        if (!cnpj || cnpj === '-' || cnpj === 'Não informado') return cnpj;
+        let digits = cnpj.replace(/\D/g, '');
+        if (digits.length !== 14) return cnpj;
+        return digits.replace(/(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})/, '$1.$2.$3/$4-$5');
+    }
+
+    // Aplica formatações automáticas quando a página carrega
+    document.addEventListener('DOMContentLoaded', function() {
+        document.querySelectorAll('.phone-format').forEach(function(cell) {
+            cell.textContent = formatarTelefone(cell.textContent.trim());
+        });
+        document.querySelectorAll('.cpf-format').forEach(function(cell) {
+            cell.textContent = formatarCPF(cell.textContent.trim());
+        });
+        document.querySelectorAll('.cnpj-format').forEach(function(cell) {
+            cell.textContent = formatarCNPJ(cell.textContent.trim());
+        });
+    });
+    </script>
+
     {% block scripts %}
     {% endblock %}
 </body>

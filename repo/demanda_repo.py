@@ -1,4 +1,4 @@
-from typing import Optional, List
+from typing import Optional, List, Union
 from datetime import datetime
 from util.database import obter_conexao
 from sql.demanda_sql import *
@@ -19,7 +19,8 @@ def inserir_demanda(demanda: Demanda) -> Optional[int]:
         with obter_conexao() as conexao:
             cursor = conexao.cursor()
             cursor.execute(INSERIR_DEMANDA, (
-                demanda.id_noivo,
+                demanda.id_casal,
+                demanda.id_categoria,
                 demanda.titulo,
                 demanda.descricao,
                 demanda.orcamento_min,
@@ -95,15 +96,15 @@ def obter_demandas_por_pagina(numero_pagina: int, tamanho_pagina: int) -> List[D
         print(f"Erro ao obter demandas por página: {e}")
         return []
 
-def obter_demandas_por_noivo(id_noivo: int) -> List[Demanda]:
+def obter_demandas_por_casal(id_casal: int) -> List[Demanda]:
     try:
         with obter_conexao() as conexao:
             cursor = conexao.cursor()
-            cursor.execute(OBTER_DEMANDAS_POR_NOIVO, (id_noivo,))
+            cursor.execute(OBTER_DEMANDAS_POR_CASAL, (id_casal,))
             resultados = cursor.fetchall()
             return [_criar_demanda_de_resultado(resultado) for resultado in resultados]
     except Exception as e:
-        print(f"Erro ao obter demandas por noivo: {e}")
+        print(f"Erro ao obter demandas por casal: {e}")
         return []
 
 def obter_demandas_ativas() -> List[Demanda]:
@@ -129,10 +130,44 @@ def buscar_demandas(termo: str) -> List[Demanda]:
         print(f"Erro ao buscar demandas: {e}")
         return []
 
+def obter_demandas_por_status(status: Union[str, StatusDemanda]) -> List[Demanda]:
+    """
+    Obtém todas as demandas com um status específico
+
+    Args:
+        status (Union[str, StatusDemanda]): Status da demanda (ATIVA, FINALIZADA, CANCELADA)
+
+    Returns:
+        List[Demanda]: Lista de demandas com o status especificado
+    """
+    try:
+        # Converter para string se for enum
+        if isinstance(status, StatusDemanda):
+            status_str = status.value
+        else:
+            status_str = status.upper()
+
+        # Validar status usando o enum StatusDemanda
+        valid_statuses = [s.value for s in StatusDemanda]
+
+        if status_str not in valid_statuses:
+            print(f"Status inválido: {status}. Status válidos: {valid_statuses}")
+            return []
+
+        with obter_conexao() as conexao:
+            cursor = conexao.cursor()
+            cursor.execute(OBTER_DEMANDAS_POR_STATUS, (status_str,))
+            resultados = cursor.fetchall()
+            return [_criar_demanda_de_resultado(resultado) for resultado in resultados]
+    except Exception as e:
+        print(f"Erro ao obter demandas por status {status}: {e}")
+        return []
+
 def _criar_demanda_de_resultado(resultado) -> Demanda:
     return Demanda(
         id=resultado["id"],
-        id_noivo=resultado["id_noivo"],
+        id_casal=resultado["id_casal"],
+        id_categoria=resultado["id_categoria"],
         titulo=resultado["titulo"],
         descricao=resultado["descricao"],
         orcamento_min=resultado["orcamento_min"],
