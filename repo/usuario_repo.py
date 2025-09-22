@@ -160,3 +160,21 @@ def obter_usuarios_por_tipo_por_pagina(tipo: TipoUsuario, numero_pagina: int, ta
         ) for resultado in resultados]
     # Retorna lista vazia se não encontrou usuários
     return []
+
+# repo/usuario_repo.py
+
+def atualizar_foto(id: int, caminho_foto: str) -> bool:
+    """Atualiza apenas a foto do usuário"""
+    with obter_conexao() as conn:
+        cursor = conn.cursor()
+        cursor.execute(ATUALIZAR_FOTO, (caminho_foto, id))
+        return cursor.rowcount > 0
+    
+# repo/usuario_repo.py
+
+def atualizar_foto(id: int, caminho_foto: str) -> bool:
+    """Atualiza apenas a foto do usuário"""
+    with obter_conexao() as conn:
+        cursor = conn.cursor()
+        cursor.execute(ATUALIZAR_FOTO, (caminho_foto, id))
+        return cursor.rowcount > 0

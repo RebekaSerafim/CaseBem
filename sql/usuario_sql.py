@@ -60,3 +60,10 @@ WHERE tipo = ?
 ORDER BY nome ASC
 LIMIT ? OFFSET ?;
 """
+ADICIONAR_COLUNA_FOTO = """
+ALTER TABLE usuario ADD COLUMN foto TEXT
+"""
+
+ATUALIZAR_FOTO = """
+UPDATE usuario SET foto = ? WHERE id = ?
+"""
