@@ -262,9 +262,9 @@
                                 <th>Nome</th>
                                 <th>Empresa</th>
                                 <th>Email</th>
-                                <th>Status</th>
-                                <th>Data Cadastro</th>
-                                <th>Ações</th>
+                                <th class="text-center">Status</th>
+                                <th class="text-center">Data Cadastro</th>
+                                <th class="text-center">Ações</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -273,17 +273,17 @@
                                 <td>{{ fornecedor.nome }}</td>
                                 <td>{{ fornecedor.nome_empresa or '-' }}</td>
                                 <td>{{ fornecedor.email }}</td>
-                                <td>
+                                <td class="text-center">
                                     {% if fornecedor.verificado %}
                                     <span class="badge bg-success">Verificado</span>
                                     {% else %}
                                     <span class="badge bg-warning">Pendente</span>
                                     {% endif %}
                                 </td>
-                                <td>{{ fornecedor.data_cadastro or '-' }}</td>
-                                <td>
+                                <td class="text-center">{{ fornecedor.data_cadastro or '-' }}</td>
+                                <td class="text-center">
                                     <a href="/admin/usuarios/{{ fornecedor.id }}"
-                                        class="btn btn-sm btn-primary btn-action">
+                                        class="btn btn-sm btn-primary">
                                         Ver Detalhes
                                     </a>
                                 </td>

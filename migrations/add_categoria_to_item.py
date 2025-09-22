@@ -16,7 +16,7 @@ def add_categoria_to_item():
                 cursor.execute("""
                     ALTER TABLE item
                     ADD COLUMN id_categoria INTEGER
-                    REFERENCES categoria_item(id)
+                    REFERENCES categoria(id)
                 """)
                 print("Campo id_categoria adicionado à tabela item com sucesso")
             else:

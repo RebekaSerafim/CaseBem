@@ -2,7 +2,7 @@ CRIAR_TABELA_ITEM = """
 CREATE TABLE IF NOT EXISTS item (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     id_fornecedor INTEGER NOT NULL,
-    tipo TEXT NOT NULL CHECK (tipo IN ('PRODUTO', 'SERVICO', 'ESPACO')),
+    tipo TEXT NOT NULL CHECK (tipo IN ('PRODUTO', 'SERVIÇO', 'ESPAÇO')),
     nome TEXT NOT NULL,
     descricao TEXT NOT NULL,
     preco REAL NOT NULL,
@@ -14,13 +14,13 @@ CREATE TABLE IF NOT EXISTS item (
 """
 
 INSERIR_ITEM = """
-INSERT INTO item (id_fornecedor, tipo, nome, descricao, preco, observacoes, ativo, id_categoria)
-VALUES (?, ?, ?, ?, ?, ?, ?, ?);
+INSERT INTO item (id_fornecedor, tipo, nome, descricao, preco, observacoes, ativo)
+VALUES (?, ?, ?, ?, ?, ?, ?);
 """
 
 ATUALIZAR_ITEM = """
 UPDATE item
-SET tipo = ?, nome = ?, descricao = ?, preco = ?, observacoes = ?, ativo = ?, id_categoria = ?
+SET tipo = ?, nome = ?, descricao = ?, preco = ?, observacoes = ?, ativo = ?
 WHERE id = ? AND id_fornecedor = ?;
 """
 
@@ -30,27 +30,27 @@ WHERE id = ? AND id_fornecedor = ?;
 """
 
 OBTER_ITEM_POR_ID = """
-SELECT id, id_fornecedor, tipo, nome, descricao, preco, observacoes, ativo, data_cadastro, id_categoria
+SELECT id, id_fornecedor, tipo, nome, descricao, preco, observacoes, ativo, data_cadastro
 FROM item
 WHERE id = ?;
 """
 
 OBTER_ITENS_POR_FORNECEDOR = """
-SELECT id, id_fornecedor, tipo, nome, descricao, preco, observacoes, ativo, data_cadastro, id_categoria
+SELECT id, id_fornecedor, tipo, nome, descricao, preco, observacoes, ativo, data_cadastro
 FROM item
 WHERE id_fornecedor = ? AND ativo = 1
 ORDER BY nome ASC;
 """
 
 OBTER_ITENS_POR_TIPO = """
-SELECT id, id_fornecedor, tipo, nome, descricao, preco, observacoes, ativo, data_cadastro, id_categoria
+SELECT id, id_fornecedor, tipo, nome, descricao, preco, observacoes, ativo, data_cadastro
 FROM item
 WHERE tipo = ? AND ativo = 1
 ORDER BY nome ASC;
 """
 
 OBTER_ITENS_POR_PAGINA = """
-SELECT id, id_fornecedor, tipo, nome, descricao, preco, observacoes, ativo, data_cadastro, id_categoria
+SELECT id, id_fornecedor, tipo, nome, descricao, preco, observacoes, ativo, data_cadastro
 FROM item
 WHERE ativo = 1
 ORDER BY data_cadastro DESC
@@ -58,7 +58,7 @@ LIMIT ? OFFSET ?;
 """
 
 BUSCAR_ITENS = """
-SELECT id, id_fornecedor, tipo, nome, descricao, preco, observacoes, ativo, data_cadastro, id_categoria
+SELECT id, id_fornecedor, tipo, nome, descricao, preco, observacoes, ativo, data_cadastro
 FROM item
 WHERE ativo = 1 AND (
     nome LIKE ? OR
@@ -70,23 +70,23 @@ LIMIT ? OFFSET ?;
 """
 
 OBTER_PRODUTOS = """
-SELECT id, id_fornecedor, tipo, nome, descricao, preco, observacoes, ativo, data_cadastro, id_categoria
+SELECT id, id_fornecedor, tipo, nome, descricao, preco, observacoes, ativo, data_cadastro
 FROM item
 WHERE tipo = 'PRODUTO' AND ativo = 1
 ORDER BY nome ASC;
 """
 
 OBTER_SERVICOS = """
-SELECT id, id_fornecedor, tipo, nome, descricao, preco, observacoes, ativo, data_cadastro, id_categoria
+SELECT id, id_fornecedor, tipo, nome, descricao, preco, observacoes, ativo, data_cadastro
 FROM item
-WHERE tipo = 'SERVICO' AND ativo = 1
+WHERE tipo = 'SERVIÇO' AND ativo = 1
 ORDER BY nome ASC;
 """
 
 OBTER_ESPACOS = """
-SELECT id, id_fornecedor, tipo, nome, descricao, preco, observacoes, ativo, data_cadastro, id_categoria
+SELECT id, id_fornecedor, tipo, nome, descricao, preco, observacoes, ativo, data_cadastro
 FROM item
-WHERE tipo = 'ESPACO' AND ativo = 1
+WHERE tipo = 'ESPAÇO' AND ativo = 1
 ORDER BY nome ASC;
 """
 

@@ -10,8 +10,8 @@ class TipoFornecimentoEnum(str, Enum):
     LOCADOR = "LOCADOR"
 
 
-class CategoriaItemDTO(BaseModel):
-    """DTO para dados do formulário de categoria de item"""
+class CategoriaDTO(BaseModel):
+    """DTO para dados do formulário de categoria"""
 
     nome: str = Field(..., min_length=2, max_length=50, description="Nome da categoria")
     tipo_fornecimento: TipoFornecimentoEnum = Field(..., description="Tipo de fornecimento (PRESTADOR, VENDEDOR, LOCADOR)")

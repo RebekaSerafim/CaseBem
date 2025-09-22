@@ -12,7 +12,7 @@ CREATE TABLE IF NOT EXISTS demanda (
     data_criacao TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     observacoes TEXT,
     FOREIGN KEY (id_casal) REFERENCES casal(id),
-    FOREIGN KEY (id_categoria) REFERENCES categoria_item(id)
+    FOREIGN KEY (id_categoria) REFERENCES categoria(id)
 );
 """
 

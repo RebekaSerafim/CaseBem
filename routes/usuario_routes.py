@@ -69,8 +69,7 @@ async def post_alterar_senha(
         nova_senha_hash = criar_hash_senha(nova_senha)
 
         # Atualizar senha no banco
-        usuario.senha = nova_senha_hash
-        sucesso = usuario_repo.atualizar_usuario(usuario)
+        sucesso = usuario_repo.atualizar_senha_usuario(usuario.id, nova_senha_hash)
 
         if sucesso:
             return templates.TemplateResponse("alterar_senha.html", {

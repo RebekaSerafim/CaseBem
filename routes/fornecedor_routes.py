@@ -5,7 +5,7 @@ from model.demanda_model import StatusDemanda
 from util.auth_decorator import requer_autenticacao
 from model.usuario_model import TipoUsuario
 from model.item_model import Item, TipoItem
-from repo import fornecedor_repo, item_repo, orcamento_repo, demanda_repo, usuario_repo, categoria_item_repo, casal_repo
+from repo import fornecedor_repo, item_repo, orcamento_repo, demanda_repo, usuario_repo, categoria_repo, casal_repo
 from util.flash_messages import informar_sucesso, informar_erro, informar_aviso
 from util.template_helpers import template_response_with_flash
 
@@ -113,7 +113,7 @@ async def listar_itens(request: Request, usuario_logado: dict = {}):
 @requer_autenticacao([TipoUsuario.FORNECEDOR.value])
 async def novo_item_form(request: Request, usuario_logado: dict = {}):
     """Formulário para criar novo item"""
-    categorias = categoria_item_repo.obter_categorias_ativas()
+    categorias = categoria_repo.obter_categorias_ativas()
     return templates.TemplateResponse("fornecedor/item_form.html", {
         "request": request,
         "usuario_logado": usuario_logado,
@@ -142,7 +142,7 @@ async def criar_item(
         try:
             tipo_enum = TipoItem(tipo)
         except ValueError:
-            categorias = categoria_item_repo.obter_categorias_ativas()
+            categorias = categoria_repo.obter_categorias_ativas()
             return templates.TemplateResponse("fornecedor/item_form.html", {
                 "request": request,
                 "usuario_logado": usuario_logado,
@@ -173,7 +173,7 @@ async def criar_item(
             informar_sucesso(request, "Item criado com sucesso!")
             return RedirectResponse("/fornecedor/itens", status_code=status.HTTP_303_SEE_OTHER)
         else:
-            categorias = categoria_item_repo.obter_categorias_ativas()
+            categorias = categoria_repo.obter_categorias_ativas()
             return templates.TemplateResponse("fornecedor/item_form.html", {
                 "request": request,
                 "usuario_logado": usuario_logado,
@@ -185,7 +185,7 @@ async def criar_item(
 
     except Exception as e:
         print(f"Erro ao criar item: {e}")
-        categorias = categoria_item_repo.obter_categorias_ativas()
+        categorias = categoria_repo.obter_categorias_ativas()
         return templates.TemplateResponse("fornecedor/item_form.html", {
             "request": request,
             "usuario_logado": usuario_logado,
@@ -206,7 +206,7 @@ async def editar_item_form(request: Request, id_item: int, usuario_logado: dict 
         if not item or item.id_fornecedor != id_fornecedor:
             return RedirectResponse("/fornecedor/itens", status_code=status.HTTP_303_SEE_OTHER)
 
-        categorias = categoria_item_repo.obter_categorias_ativas()
+        categorias = categoria_repo.obter_categorias_ativas()
         return templates.TemplateResponse("fornecedor/item_form.html", {
             "request": request,
             "usuario_logado": usuario_logado,
@@ -246,7 +246,7 @@ async def atualizar_item(
         try:
             tipo_enum = TipoItem(tipo)
         except ValueError:
-            categorias = categoria_item_repo.obter_categorias_ativas()
+            categorias = categoria_repo.obter_categorias_ativas()
             return templates.TemplateResponse("fornecedor/item_form.html", {
                 "request": request,
                 "usuario_logado": usuario_logado,
@@ -278,7 +278,7 @@ async def atualizar_item(
             informar_sucesso(request, "Item atualizado com sucesso!")
             return RedirectResponse("/fornecedor/itens", status_code=status.HTTP_303_SEE_OTHER)
         else:
-            categorias = categoria_item_repo.obter_categorias_ativas()
+            categorias = categoria_repo.obter_categorias_ativas()
             return templates.TemplateResponse("fornecedor/item_form.html", {
                 "request": request,
                 "usuario_logado": usuario_logado,

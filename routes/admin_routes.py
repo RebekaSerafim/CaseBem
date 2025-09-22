@@ -3,9 +3,9 @@ from fastapi.responses import RedirectResponse
 from fastapi.templating import Jinja2Templates
 from util.auth_decorator import requer_autenticacao
 from model.usuario_model import TipoUsuario
-from model.categoria_item_model import CategoriaItem
+from model.categoria_model import Categoria
 from model.item_model import TipoItem
-from repo import usuario_repo, fornecedor_repo, item_repo, categoria_item_repo, orcamento_repo, demanda_repo
+from repo import usuario_repo, fornecedor_repo, item_repo, categoria_repo, orcamento_repo, demanda_repo
 from util.flash_messages import informar_sucesso, informar_erro, informar_aviso
 from util.template_helpers import template_response_with_flash
 
@@ -119,7 +119,7 @@ async def dashboard_admin(request: Request, usuario_logado: dict = None):
             "total_admins": usuario_repo.contar_usuarios_por_tipo(TipoUsuario.ADMIN),
             "fornecedores_nao_verificados": fornecedor_repo.contar_fornecedores_nao_verificados(),
             "total_itens": item_repo.contar_itens(),
-            "total_categorias": categoria_item_repo.contar_categorias(),
+            "total_categorias": categoria_repo.contar_categorias(),
             "total_orcamentos": orcamento_repo.contar_orcamentos(),
             "total_demandas": demanda_repo.contar_demandas(),
             "estatisticas_itens": {
@@ -719,7 +719,7 @@ async def relatorios(request: Request, usuario_logado: dict = None):
             "fornecedores_verificados": fornecedor_repo.contar_fornecedores() - fornecedor_repo.contar_fornecedores_nao_verificados(),
             "fornecedores_nao_verificados": fornecedor_repo.contar_fornecedores_nao_verificados(),
             "total_itens": item_repo.contar_itens(),
-            "total_categorias": categoria_item_repo.contar_categorias(),
+            "total_categorias": categoria_repo.contar_categorias(),
             "total_orcamentos": orcamento_repo.contar_orcamentos(),
             "total_demandas": demanda_repo.contar_demandas()
         }
@@ -795,7 +795,7 @@ async def exportar_relatorios(request: Request, formato: str = "json", usuario_l
                 "fornecedores_verificados": fornecedor_repo.contar_fornecedores() - fornecedor_repo.contar_fornecedores_nao_verificados(),
                 "fornecedores_nao_verificados": fornecedor_repo.contar_fornecedores_nao_verificados(),
                 "total_itens": item_repo.contar_itens(),
-                "total_categorias": categoria_item_repo.contar_categorias(),
+                "total_categorias": categoria_repo.contar_categorias(),
                 "total_orcamentos": orcamento_repo.contar_orcamentos(),
                 "total_demandas": demanda_repo.contar_demandas()
             },
@@ -858,9 +858,9 @@ async def listar_categorias(request: Request, usuario_logado: dict = None):
 
         # Aplicar filtros se fornecidos, senão listar todas
         if busca or tipo_fornecimento or status_filtro:
-            categorias = categoria_item_repo.buscar_categorias(busca, tipo_fornecimento, status_filtro)
+            categorias = categoria_repo.buscar_categorias(busca, tipo_fornecimento, status_filtro)
         else:
-            categorias = categoria_item_repo.obter_todas_categorias()
+            categorias = categoria_repo.obter_categorias()
 
         return templates.TemplateResponse("admin/categorias.html", {
             "request": request,
@@ -911,7 +911,7 @@ async def criar_categoria(
             })
 
         # Verificar se já existe categoria com o mesmo nome e tipo
-        categoria_existente = categoria_item_repo.obter_categoria_por_nome(nome, TipoItem(tipo_fornecimento))
+        categoria_existente = categoria_repo.obter_categoria_por_nome(nome, TipoItem(tipo_fornecimento))
         if categoria_existente:
             return templates.TemplateResponse("admin/categoria_form.html", {
                 "request": request,
@@ -921,7 +921,7 @@ async def criar_categoria(
                 "erro": f"Já existe uma categoria '{nome}' para o tipo {tipo_fornecimento.capitalize()}"
             })
 
-        categoria = CategoriaItem(
+        categoria = Categoria(
             id=0,
             nome=nome,
             tipo_fornecimento=TipoItem(tipo_fornecimento),
@@ -929,7 +929,7 @@ async def criar_categoria(
             ativo=ativo
         )
 
-        categoria_id = categoria_item_repo.inserir_categoria_item(categoria)
+        categoria_id = categoria_repo.inserir_categoria(categoria)
         if categoria_id:
             return RedirectResponse("/admin/categorias", status_code=status.HTTP_303_SEE_OTHER)
         else:
@@ -955,7 +955,7 @@ async def criar_categoria(
 async def editar_categoria(request: Request, id_categoria: int, usuario_logado: dict = None):
     """Formulário para editar categoria"""
     try:
-        categoria = categoria_item_repo.obter_categoria_item_por_id(id_categoria)
+        categoria = categoria_repo.obter_categoria_por_id(id_categoria)
         if not categoria:
             return RedirectResponse("/admin/categorias", status_code=status.HTTP_303_SEE_OTHER)
 
@@ -986,7 +986,7 @@ async def atualizar_categoria(
         # Validar se o nome não está vazio
         nome = nome.strip()
         if not nome:
-            categoria_atual = categoria_item_repo.obter_categoria_item_por_id(id_categoria)
+            categoria_atual = categoria_repo.obter_categoria_por_id(id_categoria)
             return templates.TemplateResponse("admin/categoria_form.html", {
                 "request": request,
                 "usuario_logado": usuario_logado,
@@ -997,9 +997,9 @@ async def atualizar_categoria(
             })
 
         # Verificar se já existe outra categoria com o mesmo nome e tipo
-        categoria_existente = categoria_item_repo.obter_categoria_por_nome(nome, TipoItem(tipo_fornecimento))
+        categoria_existente = categoria_repo.obter_categoria_por_nome(nome, TipoItem(tipo_fornecimento))
         if categoria_existente and categoria_existente.id != id_categoria:
-            categoria_atual = categoria_item_repo.obter_categoria_item_por_id(id_categoria)
+            categoria_atual = categoria_repo.obter_categoria_por_id(id_categoria)
             return templates.TemplateResponse("admin/categoria_form.html", {
                 "request": request,
                 "usuario_logado": usuario_logado,
@@ -1009,7 +1009,7 @@ async def atualizar_categoria(
                 "erro": f"Já existe outra categoria '{nome}' para o tipo {tipo_fornecimento.capitalize()}"
             })
 
-        categoria = CategoriaItem(
+        categoria = Categoria(
             id=id_categoria,
             nome=nome,
             tipo_fornecimento=TipoItem(tipo_fornecimento),
@@ -1017,10 +1017,10 @@ async def atualizar_categoria(
             ativo=ativo
         )
 
-        if categoria_item_repo.atualizar_categoria_item(categoria):
+        if categoria_repo.atualizar_categoria(categoria):
             return RedirectResponse("/admin/categorias", status_code=status.HTTP_303_SEE_OTHER)
         else:
-            categoria_atual = categoria_item_repo.obter_categoria_item_por_id(id_categoria)
+            categoria_atual = categoria_repo.obter_categoria_por_id(id_categoria)
             return templates.TemplateResponse("admin/categoria_form.html", {
                 "request": request,
                 "usuario_logado": usuario_logado,
@@ -1031,7 +1031,7 @@ async def atualizar_categoria(
             })
     except Exception as e:
         print(f"Erro ao atualizar categoria: {e}")
-        categoria_atual = categoria_item_repo.obter_categoria_item_por_id(id_categoria)
+        categoria_atual = categoria_repo.obter_categoria_por_id(id_categoria)
         return templates.TemplateResponse("admin/categoria_form.html", {
             "request": request,
             "usuario_logado": usuario_logado,
@@ -1046,7 +1046,7 @@ async def atualizar_categoria(
 async def excluir_categoria(request: Request, id_categoria: int, usuario_logado: dict = None):
     """Exclui uma categoria"""
     try:
-        categoria_item_repo.excluir_categoria_item(id_categoria)
+        categoria_repo.excluir_categoria(id_categoria)
         return RedirectResponse("/admin/categorias", status_code=status.HTTP_303_SEE_OTHER)
     except Exception as e:
         print(f"Erro ao excluir categoria: {e}")
@@ -1057,7 +1057,7 @@ async def excluir_categoria(request: Request, id_categoria: int, usuario_logado:
 async def ativar_categoria(request: Request, id_categoria: int, usuario_logado: dict = None):
     """Ativa uma categoria"""
     try:
-        sucesso = categoria_item_repo.ativar_categoria(id_categoria)
+        sucesso = categoria_repo.ativar_categoria(id_categoria)
         if not sucesso:
             print(f"Falha ao ativar categoria {id_categoria}")
         return RedirectResponse("/admin/categorias", status_code=status.HTTP_303_SEE_OTHER)
@@ -1070,7 +1070,7 @@ async def ativar_categoria(request: Request, id_categoria: int, usuario_logado: 
 async def desativar_categoria(request: Request, id_categoria: int, usuario_logado: dict = None):
     """Desativa uma categoria"""
     try:
-        sucesso = categoria_item_repo.desativar_categoria(id_categoria)
+        sucesso = categoria_repo.desativar_categoria(id_categoria)
         if not sucesso:
             print(f"Falha ao desativar categoria {id_categoria}")
         return RedirectResponse("/admin/categorias", status_code=status.HTTP_303_SEE_OTHER)

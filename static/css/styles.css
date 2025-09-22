@@ -35,7 +35,10 @@ body {
     position: relative;
     overflow: hidden;
     height: 100%;
+    width: 100%;
+    min-height: 400px;
     cursor: pointer;
+    display: block;
 }
 
 .grid-image img {
@@ -374,6 +377,21 @@ body {
 /* Home page styles */
 .home-hero-section {
     height: 60vh;
+    min-height: 400px;
+    margin-bottom: 3rem;
+    display: flex;
+    align-items: stretch;
+}
+
+.home-hero-section .row {
+    width: 100%;
+    margin: 0;
+}
+
+.home-hero-section .col {
+    height: 100%;
+    min-height: 400px;
+    padding: 0;
 }
 
 .home-section-title {
