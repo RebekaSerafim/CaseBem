@@ -6,6 +6,8 @@ from model.usuario_model import TipoUsuario
 from model.categoria_item_model import CategoriaItem
 from model.item_model import TipoItem
 from repo import usuario_repo, fornecedor_repo, item_repo, categoria_item_repo, orcamento_repo, demanda_repo
+from util.flash_messages import informar_sucesso, informar_erro, informar_aviso
+from util.template_helpers import template_response_with_flash
 
 router = APIRouter()
 templates = Jinja2Templates(directory="templates")
@@ -441,11 +443,14 @@ async def bloquear_usuario(request: Request, id_usuario: int, usuario_logado: di
     """Bloqueia um usuário"""
     try:
         sucesso = usuario_repo.bloquear_usuario(id_usuario)
-        if not sucesso:
-            print(f"Falha ao bloquear usuário {id_usuario}")
+        if sucesso:
+            informar_sucesso(request, "Usuário bloqueado com sucesso!")
+        else:
+            informar_erro(request, "Erro ao bloquear usuário!")
         return RedirectResponse("/admin/usuarios", status_code=status.HTTP_303_SEE_OTHER)
     except Exception as e:
         print(f"Erro ao bloquear usuário: {e}")
+        informar_erro(request, "Erro ao bloquear usuário!")
         return RedirectResponse("/admin/usuarios", status_code=status.HTTP_303_SEE_OTHER)
 
 @router.post("/admin/usuarios/{id_usuario}/ativar")
@@ -454,11 +459,14 @@ async def ativar_usuario(request: Request, id_usuario: int, usuario_logado: dict
     """Ativa um usuário"""
     try:
         sucesso = usuario_repo.ativar_usuario(id_usuario)
-        if not sucesso:
-            print(f"Falha ao ativar usuário {id_usuario}")
+        if sucesso:
+            informar_sucesso(request, "Usuário ativado com sucesso!")
+        else:
+            informar_erro(request, "Erro ao ativar usuário!")
         return RedirectResponse("/admin/usuarios", status_code=status.HTTP_303_SEE_OTHER)
     except Exception as e:
         print(f"Erro ao ativar usuário: {e}")
+        informar_erro(request, "Erro ao ativar usuário!")
         return RedirectResponse("/admin/usuarios", status_code=status.HTTP_303_SEE_OTHER)
 
 
@@ -534,6 +542,7 @@ async def aprovar_fornecedor(request: Request, id_fornecedor: int, usuario_logad
         fornecedor.data_verificacao = datetime.now().isoformat()
         fornecedor_repo.atualizar_fornecedor(fornecedor)
 
+        informar_sucesso(request, "Fornecedor aprovado com sucesso!")
         return RedirectResponse("/admin/verificacao", status_code=status.HTTP_303_SEE_OTHER)
     except Exception as e:
         print(f"Erro ao aprovar fornecedor: {e}")
@@ -1043,7 +1052,7 @@ async def excluir_categoria(request: Request, id_categoria: int, usuario_logado:
         print(f"Erro ao excluir categoria: {e}")
         return RedirectResponse("/admin/categorias", status_code=status.HTTP_303_SEE_OTHER)
 
-@router.post("/admin/categoria/{id_categoria}/ativar")
+@router.get("/admin/categoria/{id_categoria}/ativar")
 @requer_autenticacao([TipoUsuario.ADMIN.value])
 async def ativar_categoria(request: Request, id_categoria: int, usuario_logado: dict = None):
     """Ativa uma categoria"""
@@ -1056,7 +1065,7 @@ async def ativar_categoria(request: Request, id_categoria: int, usuario_logado: 
         print(f"Erro ao ativar categoria: {e}")
         return RedirectResponse("/admin/categorias", status_code=status.HTTP_303_SEE_OTHER)
 
-@router.post("/admin/categoria/{id_categoria}/desativar")
+@router.get("/admin/categoria/{id_categoria}/desativar")
 @requer_autenticacao([TipoUsuario.ADMIN.value])
 async def desativar_categoria(request: Request, id_categoria: int, usuario_logado: dict = None):
     """Desativa uma categoria"""

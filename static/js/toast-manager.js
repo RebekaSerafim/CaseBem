@@ -80,7 +80,7 @@ class ToastManager {
             <div class="toast ${bgClass}" role="alert" aria-live="assertive" aria-atomic="true" id="${toastId}">
                 <div class="toast-header">
                     <span class="me-2">${icon}</span>
-                    <strong class="me-auto">${this.getTypeTitle(type)}</strong>
+                    <strong class="me-auto text-body-secondary">${this.getTypeTitle(type)}</strong>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="toast" aria-label="Fechar"></button>
                 </div>
                 <div class="toast-body">

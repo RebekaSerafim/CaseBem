@@ -94,12 +94,12 @@
                             <button type="button" class="btn btn-success"
                                     data-bs-toggle="tooltip" data-bs-placement="top" title="Aprovar fornecedor"
                                     onclick="aprovarFornecedor({{ fornecedor.id }}, '{{ fornecedor.nome }}')">
-                                <i class="bi bi-check-circle me-2"></i>Aprovar Fornecedor
+                                <i class="bi bi-check-circle-fill me-2"></i>Aprovar Fornecedor
                             </button>
-                            <button type="button" class="btn btn-outline-danger"
+                            <button type="button" class="btn btn-danger"
                                     data-bs-toggle="tooltip" data-bs-placement="top" title="Rejeitar fornecedor"
                                     onclick="rejeitarFornecedor({{ fornecedor.id }}, '{{ fornecedor.nome }}')">
-                                <i class="bi bi-x-circle me-2"></i>Rejeitar Fornecedor
+                                <i class="bi bi-x-circle-fill me-2"></i>Rejeitar Fornecedor
                             </button>
                         </div>
                     </div>
@@ -174,15 +174,15 @@
                             </div>
                             <div class="card-footer bg-white border-top-0">
                                 <div class="d-flex justify-content-center gap-2">
-                                    <button type="button" class="btn btn-success btn-sm px-1 py-0"
+                                    <button type="button" class="btn btn-success btn-sm btn-action"
                                             data-bs-toggle="tooltip" data-bs-placement="top" title="Aprovar fornecedor"
                                             onclick="aprovarFornecedor({{ fornecedor_item.id }}, '{{ fornecedor_item.nome }}')">
-                                        <i class="bi bi-check-circle fs-4"></i>
+                                        <i class="bi bi-check-circle-fill"></i>
                                     </button>
-                                    <button type="button" class="btn btn-outline-danger btn-sm px-1 py-0"
+                                    <button type="button" class="btn btn-danger btn-sm btn-action"
                                             data-bs-toggle="tooltip" data-bs-placement="top" title="Rejeitar fornecedor"
                                             onclick="rejeitarFornecedor({{ fornecedor_item.id }}, '{{ fornecedor_item.nome }}')">
-                                        <i class="bi bi-x-circle fs-4"></i>
+                                        <i class="bi bi-x-circle-fill "></i>
                                     </button>
                                 </div>
                             </div>
@@ -193,7 +193,7 @@
 
                 {% else %}
                 <div class="text-center py-5">
-                    <i class="bi bi-check-circle" style="font-size: 4rem; color: #28a745;" class="mb-4"></i>
+                    <i class="bi bi-check-circle-fill" style="font-size: 4rem; color: #28a745;" class="mb-4"></i>
                     <h4>Nenhum fornecedor pendente</h4>
                     <p class="text-muted">Todos os fornecedores foram verificados ou não há novos cadastros para análise.</p>
                 </div>

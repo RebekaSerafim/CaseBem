@@ -6,6 +6,8 @@ from model.usuario_model import TipoUsuario
 from model.item_model import TipoItem
 from model.demanda_model import Demanda
 from repo import usuario_repo, item_repo, demanda_repo, orcamento_repo, casal_repo, favorito_repo, fornecedor_repo
+from util.flash_messages import informar_sucesso, informar_erro, informar_aviso
+from util.template_helpers import template_response_with_flash
 
 router = APIRouter()
 templates = Jinja2Templates(directory="templates")
@@ -488,12 +490,15 @@ async def aceitar_orcamento(request: Request, id_orcamento: int, usuario_logado:
         sucesso = orcamento_repo.aceitar_orcamento_e_rejeitar_outros(id_orcamento, orcamento.id_demanda)
 
         if sucesso:
-            return RedirectResponse("/noivo/orcamentos?sucesso=orcamento_aceito", status_code=status.HTTP_303_SEE_OTHER)
+            informar_sucesso(request, "Orçamento aceito com sucesso!")
+            return RedirectResponse("/noivo/orcamentos", status_code=status.HTTP_303_SEE_OTHER)
         else:
-            return RedirectResponse("/noivo/orcamentos?erro=erro_aceitar", status_code=status.HTTP_303_SEE_OTHER)
+            informar_erro(request, "Erro ao aceitar orçamento!")
+            return RedirectResponse("/noivo/orcamentos", status_code=status.HTTP_303_SEE_OTHER)
     except Exception as e:
         print(f"Erro ao aceitar orçamento: {e}")
-        return RedirectResponse("/noivo/orcamentos?erro=erro_interno", status_code=status.HTTP_303_SEE_OTHER)
+        informar_erro(request, "Erro interno ao aceitar orçamento!")
+        return RedirectResponse("/noivo/orcamentos", status_code=status.HTTP_303_SEE_OTHER)
 
 @router.post("/noivo/orcamentos/{id_orcamento}/rejeitar")
 @requer_autenticacao([TipoUsuario.NOIVO.value])
@@ -504,12 +509,15 @@ async def rejeitar_orcamento(request: Request, id_orcamento: int, usuario_logado
         sucesso = orcamento_repo.rejeitar_orcamento(id_orcamento)
 
         if sucesso:
-            return RedirectResponse("/noivo/orcamentos?sucesso=orcamento_rejeitado", status_code=status.HTTP_303_SEE_OTHER)
+            informar_sucesso(request, "Orçamento rejeitado com sucesso!")
+            return RedirectResponse("/noivo/orcamentos", status_code=status.HTTP_303_SEE_OTHER)
         else:
-            return RedirectResponse("/noivo/orcamentos?erro=erro_rejeitar", status_code=status.HTTP_303_SEE_OTHER)
+            informar_erro(request, "Erro ao rejeitar orçamento!")
+            return RedirectResponse("/noivo/orcamentos", status_code=status.HTTP_303_SEE_OTHER)
     except Exception as e:
         print(f"Erro ao rejeitar orçamento: {e}")
-        return RedirectResponse("/noivo/orcamentos?erro=erro_interno", status_code=status.HTTP_303_SEE_OTHER)
+        informar_erro(request, "Erro interno ao rejeitar orçamento!")
+        return RedirectResponse("/noivo/orcamentos", status_code=status.HTTP_303_SEE_OTHER)
 
 # ==================== PERFIL E CASAL ====================
 

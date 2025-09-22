@@ -6,6 +6,8 @@ from util.auth_decorator import requer_autenticacao
 from model.usuario_model import TipoUsuario
 from model.item_model import Item, TipoItem
 from repo import fornecedor_repo, item_repo, orcamento_repo, demanda_repo, usuario_repo, categoria_item_repo, casal_repo
+from util.flash_messages import informar_sucesso, informar_erro, informar_aviso
+from util.template_helpers import template_response_with_flash
 
 router = APIRouter()
 templates = Jinja2Templates(directory="templates")
@@ -57,7 +59,7 @@ async def dashboard_fornecedor(request: Request, usuario_logado: dict = {}):
             "orcamentos_aceitos": len(orcamentos_aceitos)
         }
 
-        return templates.TemplateResponse("fornecedor/dashboard.html", {
+        return template_response_with_flash(templates, "fornecedor/dashboard.html", {
             "request": request,
             "usuario_logado": usuario_logado,
             "fornecedor": fornecedor,
@@ -69,6 +71,18 @@ async def dashboard_fornecedor(request: Request, usuario_logado: dict = {}):
         return templates.TemplateResponse("fornecedor/dashboard.html", {
             "request": request,
             "usuario_logado": usuario_logado,
+            "fornecedor": None,
+            "stats": {
+                "total_itens": 0,
+                "total_produtos": 0,
+                "total_servicos": 0,
+                "total_espacos": 0,
+                "status_verificacao": False,
+                "total_orcamentos": 0,
+                "orcamentos_pendentes": 0,
+                "orcamentos_aceitos": 0
+            },
+            "itens_recentes": [],
             "erro": "Erro ao carregar dashboard"
         })
 
@@ -156,6 +170,7 @@ async def criar_item(
         item_id = item_repo.inserir_item(novo_item)
 
         if item_id:
+            informar_sucesso(request, "Item criado com sucesso!")
             return RedirectResponse("/fornecedor/itens", status_code=status.HTTP_303_SEE_OTHER)
         else:
             categorias = categoria_item_repo.obter_categorias_ativas()
@@ -260,6 +275,7 @@ async def atualizar_item(
         sucesso = item_repo.atualizar_item(item_atualizado)
 
         if sucesso:
+            informar_sucesso(request, "Item atualizado com sucesso!")
             return RedirectResponse("/fornecedor/itens", status_code=status.HTTP_303_SEE_OTHER)
         else:
             categorias = categoria_item_repo.obter_categorias_ativas()
@@ -285,9 +301,15 @@ async def excluir_item(request: Request, id_item: int, usuario_logado: dict = {}
         id_fornecedor = usuario_logado["id"]
         sucesso = item_repo.excluir_item(id_item, id_fornecedor)
 
+        if sucesso:
+            informar_sucesso(request, "Item excluído com sucesso!")
+        else:
+            informar_erro(request, "Erro ao excluir item!")
+
         return RedirectResponse("/fornecedor/itens", status_code=status.HTTP_303_SEE_OTHER)
     except Exception as e:
         print(f"Erro ao excluir item: {e}")
+        informar_erro(request, "Erro ao excluir item!")
         return RedirectResponse("/fornecedor/itens", status_code=status.HTTP_303_SEE_OTHER)
 
 @router.post("/fornecedor/itens/{id_item}/ativar")
@@ -296,11 +318,17 @@ async def ativar_item(request: Request, id_item: int, usuario_logado: dict = {})
     """Ativa um item"""
     try:
         id_fornecedor = usuario_logado["id"]
-        item_repo.ativar_item(id_item, id_fornecedor)
+        sucesso = item_repo.ativar_item(id_item, id_fornecedor)
+
+        if sucesso:
+            informar_sucesso(request, "Item ativado com sucesso!")
+        else:
+            informar_erro(request, "Erro ao ativar item!")
 
         return RedirectResponse("/fornecedor/itens", status_code=status.HTTP_303_SEE_OTHER)
     except Exception as e:
         print(f"Erro ao ativar item: {e}")
+        informar_erro(request, "Erro ao ativar item!")
         return RedirectResponse("/fornecedor/itens", status_code=status.HTTP_303_SEE_OTHER)
 
 @router.post("/fornecedor/itens/{id_item}/desativar")
@@ -309,11 +337,17 @@ async def desativar_item(request: Request, id_item: int, usuario_logado: dict = 
     """Desativa um item"""
     try:
         id_fornecedor = usuario_logado["id"]
-        item_repo.desativar_item(id_item, id_fornecedor)
+        sucesso = item_repo.desativar_item(id_item, id_fornecedor)
+
+        if sucesso:
+            informar_sucesso(request, "Item desativado com sucesso!")
+        else:
+            informar_erro(request, "Erro ao desativar item!")
 
         return RedirectResponse("/fornecedor/itens", status_code=status.HTTP_303_SEE_OTHER)
     except Exception as e:
         print(f"Erro ao desativar item: {e}")
+        informar_erro(request, "Erro ao desativar item!")
         return RedirectResponse("/fornecedor/itens", status_code=status.HTTP_303_SEE_OTHER)
 
 # ==================== ORÇAMENTOS ====================
@@ -521,13 +555,16 @@ async def criar_orcamento(
         id_orcamento = orcamento_repo.inserir_orcamento(novo_orcamento)
 
         if id_orcamento:
-            return RedirectResponse("/fornecedor/orcamentos?sucesso=orcamento_criado", status_code=status.HTTP_303_SEE_OTHER)
+            informar_sucesso(request, "Orçamento enviado com sucesso!")
+            return RedirectResponse("/fornecedor/orcamentos", status_code=status.HTTP_303_SEE_OTHER)
         else:
-            return RedirectResponse(f"/fornecedor/demandas/{id_demanda}/propor?erro=erro_criar", status_code=status.HTTP_303_SEE_OTHER)
+            informar_erro(request, "Erro ao criar orçamento!")
+            return RedirectResponse(f"/fornecedor/demandas/{id_demanda}/propor", status_code=status.HTTP_303_SEE_OTHER)
 
     except Exception as e:
         print(f"Erro ao criar orçamento: {e}")
-        return RedirectResponse(f"/fornecedor/demandas/{id_demanda}/propor?erro=erro_interno", status_code=status.HTTP_303_SEE_OTHER)
+        informar_erro(request, "Erro interno ao criar orçamento!")
+        return RedirectResponse(f"/fornecedor/demandas/{id_demanda}/propor", status_code=status.HTTP_303_SEE_OTHER)
 
 # ==================== PERFIL ====================
 

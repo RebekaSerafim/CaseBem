@@ -3,33 +3,40 @@
 document.addEventListener('DOMContentLoaded', function() {
     // Verificar se há mensagens de sucesso
     {% if sucesso %}
-    window.showSuccess(`{{ sucesso|escapejs }}`);
+    window.showSuccess(`{{ sucesso|e }}`);
     {% endif %}
 
     // Verificar se há mensagens de erro
     {% if erro %}
-    window.showError(`{{ erro|escapejs }}`);
+    window.showError(`{{ erro|e }}`);
     {% endif %}
 
     // Verificar se há mensagens de aviso
     {% if warning %}
-    window.showWarning(`{{ warning|escapejs }}`);
+    window.showWarning(`{{ warning|e }}`);
     {% endif %}
 
     // Verificar se há mensagens de informação
     {% if info %}
-    window.showInfo(`{{ info|escapejs }}`);
+    window.showInfo(`{{ info|e }}`);
     {% endif %}
 
     // Verificar se há mensagens de alerta
     {% if alert %}
-    window.showAlert(`{{ alert|escapejs }}`);
+    window.showAlert(`{{ alert|e }}`);
     {% endif %}
 
     // Verificar se há múltiplas mensagens (array)
     {% if messages %}
     {% for message in messages %}
-    window.showToast(`{{ message.text|escapejs }}`, `{{ message.type|default:"info" }}`, {{ message.duration|default:5000 }});
+    window.showToast(`{{ message.text|e }}`, `{{ message.type|default("info") }}`, {{ message.duration|default(5000) }});
+    {% endfor %}
+    {% endif %}
+
+    // Verificar se há mensagens flash (de redirects)
+    {% if flash_messages %}
+    {% for flash_message in flash_messages %}
+    window.showToast(`{{ flash_message.text|e }}`, `{{ flash_message.type|default("info") }}`, {{ flash_message.duration|default(5000) }});
     {% endfor %}
     {% endif %}
 });

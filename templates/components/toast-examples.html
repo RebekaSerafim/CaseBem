@@ -69,7 +69,15 @@ window.toastManager.info('Info');
 window.toastManager.alert('Alerta');</code></pre>
 
                 <h3>No Backend (Python):</h3>
-                <pre><code># As variáveis são automaticamente convertidas
+                <pre><code># Usando funções flash em português
+from util.flash_messages import informar_sucesso, informar_erro, informar_aviso
+
+informar_sucesso(request, "Operação realizada!")
+informar_erro(request, "Algo deu errado!")
+informar_aviso(request, "Cuidado!")
+return RedirectResponse("/destino", status_code=303)
+
+# Ou usando variáveis tradicionais
 return templates.TemplateResponse("template.html", {
     "request": request,
     "sucesso": "Operação realizada!",

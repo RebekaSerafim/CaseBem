@@ -67,7 +67,7 @@
                                 <th>Tipo</th>
                                 <th>Telefone</th>
                                 <th>Status</th>
-                                <th>Ações</th>
+                                <th class="text-center">Ações</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -92,72 +92,72 @@
                                         {{ "Ativo" if usuario.ativo else "Bloqueado" }}
                                     </span>
                                 </td>
-                                <td>
+                                <td class="text-center">
                                     <div class="btn-group" role="group">
                                         <a href="/admin/usuarios/{{ usuario.id }}"
-                                           class="btn btn-outline-primary btn-sm px-1 py-0"
+                                           class="btn btn-primary btn-sm btn-action"
                                            data-bs-toggle="tooltip"
                                            data-bs-placement="top"
                                            title="Ver detalhes">
-                                            <i class="bi bi-eye fs-4"></i>
+                                            <i class="bi bi-eye-fill "></i>
                                         </a>
                                         {% if usuario.perfil.value == 'ADMIN' %}
                                             <a href="/admin/usuarios/editar-admin/{{ usuario.id }}"
-                                               class="btn btn-outline-secondary btn-sm px-1 py-0"
+                                               class="btn btn-secondary btn-sm btn-action"
                                                data-bs-toggle="tooltip"
                                                data-bs-placement="top"
                                                title="Editar administrador">
-                                                <i class="bi bi-pencil fs-4"></i>
+                                                <i class="bi bi-pencil-fill "></i>
                                             </a>
                                         {% elif usuario.perfil.value == 'FORNECEDOR' %}
                                             {% set fornecedor = fornecedores_dados.get(usuario.id) %}
                                             {% if fornecedor and not fornecedor.verificado %}
                                             <a href="/admin/verificacao/{{ usuario.id }}"
-                                               class="btn btn-outline-info btn-sm px-1 py-0"
+                                               class="btn btn-info btn-sm btn-action"
                                                data-bs-toggle="tooltip"
                                                data-bs-placement="top"
                                                title="Verificar fornecedor">
-                                                <i class="bi bi-patch-check fs-4"></i>
+                                                <i class="bi bi-patch-check "></i>
                                             </a>
                                             {% endif %}
                                             {% if usuario.ativo %}
                                             <button type="button"
-                                                    class="btn btn-outline-warning btn-sm px-1 py-0"
+                                                    class="btn btn-warning btn-sm btn-action"
                                                     data-bs-toggle="tooltip"
                                                     data-bs-placement="top"
                                                     title="Bloquear usuário"
                                                     onclick="confirmarBloqueio({{ usuario.id }}, '{{ usuario.nome }}')">
-                                                <i class="bi bi-lock fs-4"></i>
+                                                <i class="bi bi-lock-fill "></i>
                                             </button>
                                             {% else %}
                                             <form method="post" action="/admin/usuarios/{{ usuario.id }}/ativar" class="d-inline">
                                                 <button type="submit"
-                                                        class="btn btn-outline-success btn-sm px-1 py-0"
+                                                        class="btn btn-success btn-sm btn-action"
                                                         data-bs-toggle="tooltip"
                                                         data-bs-placement="top"
                                                         title="Ativar usuário">
-                                                    <i class="bi bi-unlock fs-4"></i>
+                                                    <i class="bi bi-unlock-fill "></i>
                                                 </button>
                                             </form>
                                             {% endif %}
                                         {% else %}
                                             {% if usuario.ativo %}
                                             <button type="button"
-                                                    class="btn btn-outline-warning btn-sm px-1 py-0"
+                                                    class="btn btn-warning btn-sm btn-action"
                                                     data-bs-toggle="tooltip"
                                                     data-bs-placement="top"
                                                     title="Bloquear usuário"
                                                     onclick="confirmarBloqueio({{ usuario.id }}, '{{ usuario.nome }}')">
-                                                <i class="bi bi-lock fs-4"></i>
+                                                <i class="bi bi-lock-fill "></i>
                                             </button>
                                             {% else %}
                                             <form method="post" action="/admin/usuarios/{{ usuario.id }}/ativar" class="d-inline">
                                                 <button type="submit"
-                                                        class="btn btn-outline-success btn-sm px-1 py-0"
+                                                        class="btn btn-success btn-sm btn-action"
                                                         data-bs-toggle="tooltip"
                                                         data-bs-placement="top"
                                                         title="Ativar usuário">
-                                                    <i class="bi bi-unlock fs-4"></i>
+                                                    <i class="bi bi-unlock-fill "></i>
                                                 </button>
                                             </form>
                                             {% endif %}
