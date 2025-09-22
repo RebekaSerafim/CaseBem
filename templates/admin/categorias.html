@@ -30,8 +30,8 @@
                         <select class="form-select" id="tipo_fornecimento" name="tipo_fornecimento">
                             <option value="">Todos os tipos</option>
                             <option value="PRODUTO" {% if request.query_params.get('tipo_fornecimento') == 'PRODUTO' %}selected{% endif %}>Produto</option>
-                            <option value="SERVICO" {% if request.query_params.get('tipo_fornecimento') == 'SERVICO' %}selected{% endif %}>Serviço</option>
-                            <option value="ESPACO" {% if request.query_params.get('tipo_fornecimento') == 'ESPACO' %}selected{% endif %}>Espaço</option>
+                            <option value="SERVIÇO" {% if request.query_params.get('tipo_fornecimento') == 'SERVIÇO' %}selected{% endif %}>Serviço</option>
+                            <option value="ESPAÇO" {% if request.query_params.get('tipo_fornecimento') == 'ESPAÇO' %}selected{% endif %}>Espaço</option>
                         </select>
                     </div>
                     <div class="col-md-2">
@@ -61,9 +61,9 @@
                     <tr>
                         <th>ID</th>
                         <th>Nome</th>
-                        <th>Tipo</th>
+                        <th class="text-center">Tipo</th>
                         <th>Descrição</th>
-                        <th>Status</th>
+                        <th class="text-center">Status</th>
                         <th class="text-center">Ações</th>
                     </tr>
                 </thead>
@@ -77,7 +77,7 @@
                                 <strong>{{ categoria.nome }}</strong>
                             </div>
                         </td>
-                        <td>
+                        <td class="text-center">
                             <span class="badge
                                 {% if categoria.tipo_fornecimento.value == 'PRODUTO' %}bg-primary
                                 {% elif categoria.tipo_fornecimento.value == 'SERVICO' %}bg-success
@@ -88,7 +88,7 @@
                         <td>
                             <span class="text-muted">{{ categoria.descricao or 'Sem descrição' }}</span>
                         </td>
-                        <td>
+                        <td class="text-center">
                             <span class="badge {{ 'bg-success' if categoria.ativo else 'bg-secondary' }}">
                                 {{ "Ativo" if categoria.ativo else "Inativo" }}
                             </span>
@@ -126,7 +126,9 @@
                                         data-bs-toggle="tooltip"
                                         data-bs-placement="top"
                                         title="Excluir categoria"
-                                        onclick="confirmarExclusao({{ categoria.id }}, '{{ categoria.nome }}')">
+                                        onclick="confirmarExclusao('a categoria &quot;{{ categoria.nome }}&quot;', function() {
+                                            document.getElementById('formExcluir{{ categoria.id }}').submit();
+                                        })">
                                     <i class="bi bi-trash-fill"></i>
                                 </button>
                             </div>
@@ -138,6 +140,11 @@
         </div>
     </div>
 </div>
+
+<!-- Formulários ocultos para exclusão -->
+{% for categoria in categorias %}
+<form id="formExcluir{{ categoria.id }}" method="post" action="/admin/categoria/excluir/{{ categoria.id }}" style="display: none;"></form>
+{% endfor %}
 
 {% else %}
 <div class="row">
@@ -157,27 +164,6 @@
 {% endif %}
 </div>
 
-<!-- Modal de confirmação de exclusão -->
-<div class="modal fade" id="modalExclusao" tabindex="-1" aria-labelledby="modalExclusaoLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="modalExclusaoLabel">Confirmar Exclusão</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <p>Tem certeza que deseja excluir a categoria <strong id="nomeCategoria"></strong>?</p>
-                <p class="text-danger"><small>Esta ação não pode ser desfeita.</small></p>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                <form id="formExclusao" method="post" style="display: inline;">
-                    <button type="submit" class="btn btn-danger">Excluir</button>
-                </form>
-            </div>
-        </div>
-    </div>
-</div>
 {% endblock %}
 
 {% block scripts %}
@@ -190,11 +176,5 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 });
 
-function confirmarExclusao(id, nome) {
-    document.getElementById('nomeCategoria').textContent = nome;
-    document.getElementById('formExclusao').action = '/admin/categoria/excluir/' + id;
-    var modal = new bootstrap.Modal(document.getElementById('modalExclusao'));
-    modal.show();
-}
 </script>
 {% endblock %}

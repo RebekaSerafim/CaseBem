@@ -43,30 +43,30 @@
                         {% if fornecedor.cnpj %}
                         <div class="mb-3">
                             <small class="text-muted">CNPJ:</small>
-                            <div>{{ fornecedor.cnpj }}</div>
+                            <div class="cnpj-format">{{ fornecedor.cnpj }}</div>
                         </div>
                         {% endif %}
 
                         {% if fornecedor.telefone %}
                         <div class="mb-3">
                             <small class="text-muted">Telefone:</small>
-                            <div>{{ fornecedor.telefone }}</div>
+                            <div class="phone-format">{{ fornecedor.telefone }}</div>
                         </div>
                         {% endif %}
                     </div>
 
                     <div class="col-md-6">
                         <div class="mb-3">
-                            <small class="text-muted">Tipos de Serviço:</small>
+                            <small class="text-muted">Tipos de Fornecimento:</small>
                             <div class="mt-1">
                                 {% if fornecedor.prestador %}
-                                    <span class="badge bg-info me-1">Prestador de Serviços</span>
+                                    <span class="badge bg-info me-1">Serviços</span>
                                 {% endif %}
                                 {% if fornecedor.vendedor %}
-                                    <span class="badge bg-success me-1">Vendedor de Produtos</span>
+                                    <span class="badge bg-success me-1">Produtos</span>
                                 {% endif %}
                                 {% if fornecedor.locador %}
-                                    <span class="badge bg-warning me-1">Locador de Espaços</span>
+                                    <span class="badge bg-warning me-1">Espaços</span>
                                 {% endif %}
                                 {% if not fornecedor.prestador and not fornecedor.vendedor and not fornecedor.locador %}
                                     <span class="text-muted">Nenhum tipo selecionado</span>
@@ -93,12 +93,16 @@
                         <div class="d-flex justify-content-center gap-3">
                             <button type="button" class="btn btn-success"
                                     data-bs-toggle="tooltip" data-bs-placement="top" title="Aprovar fornecedor"
-                                    onclick="aprovarFornecedor({{ fornecedor.id }}, '{{ fornecedor.nome }}')">
+                                    onclick="confirmarAprovacao('o fornecedor &quot;{{ fornecedor.nome }}&quot;', function() {
+                                        document.getElementById('formAprovar{{ fornecedor.id }}').submit();
+                                    })">
                                 <i class="bi bi-check-circle-fill me-2"></i>Aprovar Fornecedor
                             </button>
                             <button type="button" class="btn btn-danger"
                                     data-bs-toggle="tooltip" data-bs-placement="top" title="Rejeitar fornecedor"
-                                    onclick="rejeitarFornecedor({{ fornecedor.id }}, '{{ fornecedor.nome }}')">
+                                    onclick="confirmarRejeicao('o fornecedor &quot;{{ fornecedor.nome }}&quot;', function() {
+                                        document.getElementById('formRejeitar{{ fornecedor.id }}').submit();
+                                    })">
                                 <i class="bi bi-x-circle-fill me-2"></i>Rejeitar Fornecedor
                             </button>
                         </div>
@@ -131,14 +135,14 @@
                                 {% if fornecedor_item.cnpj %}
                                 <div class="mb-3">
                                     <small class="text-muted">CNPJ:</small>
-                                    <div>{{ fornecedor_item.cnpj }}</div>
+                                    <div class="cnpj-format">{{ fornecedor_item.cnpj }}</div>
                                 </div>
                                 {% endif %}
 
                                 {% if fornecedor_item.telefone %}
                                 <div class="mb-3">
                                     <small class="text-muted">Telefone:</small>
-                                    <div>{{ fornecedor_item.telefone }}</div>
+                                    <div class="phone-format">{{ fornecedor_item.telefone }}</div>
                                 </div>
                                 {% endif %}
 
@@ -176,12 +180,16 @@
                                 <div class="d-flex justify-content-center gap-2">
                                     <button type="button" class="btn btn-success btn-sm btn-action"
                                             data-bs-toggle="tooltip" data-bs-placement="top" title="Aprovar fornecedor"
-                                            onclick="aprovarFornecedor({{ fornecedor_item.id }}, '{{ fornecedor_item.nome }}')">
+                                            onclick="confirmarAprovacao('o fornecedor &quot;{{ fornecedor_item.nome }}&quot;', function() {
+                                                document.getElementById('formAprovar{{ fornecedor_item.id }}').submit();
+                                            })">
                                         <i class="bi bi-check-circle-fill"></i>
                                     </button>
                                     <button type="button" class="btn btn-danger btn-sm btn-action"
                                             data-bs-toggle="tooltip" data-bs-placement="top" title="Rejeitar fornecedor"
-                                            onclick="rejeitarFornecedor({{ fornecedor_item.id }}, '{{ fornecedor_item.nome }}')">
+                                            onclick="confirmarRejeicao('o fornecedor &quot;{{ fornecedor_item.nome }}&quot;', function() {
+                                                document.getElementById('formRejeitar{{ fornecedor_item.id }}').submit();
+                                            })">
                                         <i class="bi bi-x-circle-fill "></i>
                                     </button>
                                 </div>
@@ -209,65 +217,19 @@
     </div>
 </div>
 
-<!-- Modal de confirmação para aprovação -->
-<div class="modal fade" id="modalAprovacao" tabindex="-1">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Aprovar Fornecedor</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
-            <div class="modal-body">
-                <p>Tem certeza que deseja aprovar o fornecedor <strong id="nomeAprovacao"></strong>?</p>
-                <small class="text-muted">
-                    Após a aprovação, o fornecedor poderá receber demandas e enviar orçamentos.
-                </small>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                <form method="post" id="formAprovacao">
-                    <button type="submit" class="btn btn-success">
-                        <i class="fas fa-check"></i> Aprovar Fornecedor
-                    </button>
-                </form>
-            </div>
-        </div>
-    </div>
-</div>
+<!-- Formulários ocultos para aprovação e rejeição -->
+{% if fornecedor %}
+<form id="formAprovar{{ fornecedor.id }}" method="post" action="/admin/verificacao/{{ fornecedor.id }}/aprovar" style="display: none;"></form>
+<form id="formRejeitar{{ fornecedor.id }}" method="post" action="/admin/verificacao/{{ fornecedor.id }}/rejeitar" style="display: none;"></form>
+{% endif %}
 
-<!-- Modal de confirmação para rejeição -->
-<div class="modal fade" id="modalRejeicao" tabindex="-1">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Rejeitar Fornecedor</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
-            <div class="modal-body">
-                <p>Tem certeza que deseja rejeitar o fornecedor <strong id="nomeRejeicao"></strong>?</p>
+{% if fornecedores_pendentes %}
+{% for fornecedor_item in fornecedores_pendentes %}
+<form id="formAprovar{{ fornecedor_item.id }}" method="post" action="/admin/verificacao/{{ fornecedor_item.id }}/aprovar" style="display: none;"></form>
+<form id="formRejeitar{{ fornecedor_item.id }}" method="post" action="/admin/verificacao/{{ fornecedor_item.id }}/rejeitar" style="display: none;"></form>
+{% endfor %}
+{% endif %}
 
-                <div class="mb-3">
-                    <label for="observacoesRejeicao" class="form-label">Observações (opcional)</label>
-                    <textarea class="form-control" id="observacoesRejeicao" name="observacoes" rows="3"
-                              placeholder="Motivo da rejeição, documentação pendente, etc."></textarea>
-                    <div class="form-text">Estas observações podem ajudar o fornecedor a entender o motivo da rejeição.</div>
-                </div>
-
-                <small class="text-muted">
-                    O fornecedor voltará ao status de não verificado e não poderá receber demandas.
-                </small>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                <form method="post" id="formRejeicao">
-                    <button type="submit" class="btn btn-danger">
-                        <i class="fas fa-times"></i> Rejeitar Fornecedor
-                    </button>
-                </form>
-            </div>
-        </div>
-    </div>
-</div>
 {% endblock %}
 
 {% block scripts %}
@@ -280,16 +242,5 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 });
 
-function aprovarFornecedor(idFornecedor, nomeFornecedor) {
-    document.getElementById('nomeAprovacao').textContent = nomeFornecedor;
-    document.getElementById('formAprovacao').action = `/admin/verificacao/${idFornecedor}/aprovar`;
-    new bootstrap.Modal(document.getElementById('modalAprovacao')).show();
-}
-
-function rejeitarFornecedor(idFornecedor, nomeFornecedor) {
-    document.getElementById('nomeRejeicao').textContent = nomeFornecedor;
-    document.getElementById('formRejeicao').action = `/admin/verificacao/${idFornecedor}/rejeitar`;
-    new bootstrap.Modal(document.getElementById('modalRejeicao')).show();
-}
 </script>
 {% endblock %}

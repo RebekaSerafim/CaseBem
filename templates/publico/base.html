@@ -101,6 +101,52 @@
     <script src="/static/js/scripts.js"></script>
     <script src="/static/js/toast-manager.js"></script>
     {% include 'components/toast-handler.html' %}
+
+    <script>
+    // Funções globais para formatação de documentos e telefone
+    function formatarTelefone(telefone) {
+        if (!telefone || telefone === '-' || telefone === 'Não informado') return telefone;
+        let digits = telefone.replace(/\D/g, '');
+        if (digits.length < 10) return telefone;
+        if (digits.length === 10) {
+            return digits.replace(/(\d{2})(\d{4})(\d{4})/, '($1) $2-$3');
+        } else if (digits.length === 11) {
+            return digits.replace(/(\d{2})(\d{5})(\d{4})/, '($1) $2-$3');
+        }
+        if (digits.length > 11) {
+            digits = digits.substring(0, 11);
+            return digits.replace(/(\d{2})(\d{5})(\d{4})/, '($1) $2-$3');
+        }
+        return telefone;
+    }
+
+    function formatarCPF(cpf) {
+        if (!cpf || cpf === '-' || cpf === 'Não informado') return cpf;
+        let digits = cpf.replace(/\D/g, '');
+        if (digits.length !== 11) return cpf;
+        return digits.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, '$1.$2.$3-$4');
+    }
+
+    function formatarCNPJ(cnpj) {
+        if (!cnpj || cnpj === '-' || cnpj === 'Não informado') return cnpj;
+        let digits = cnpj.replace(/\D/g, '');
+        if (digits.length !== 14) return cnpj;
+        return digits.replace(/(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})/, '$1.$2.$3/$4-$5');
+    }
+
+    // Aplica formatações automáticas quando a página carrega
+    document.addEventListener('DOMContentLoaded', function() {
+        document.querySelectorAll('.phone-format').forEach(function(cell) {
+            cell.textContent = formatarTelefone(cell.textContent.trim());
+        });
+        document.querySelectorAll('.cpf-format').forEach(function(cell) {
+            cell.textContent = formatarCPF(cell.textContent.trim());
+        });
+        document.querySelectorAll('.cnpj-format').forEach(function(cell) {
+            cell.textContent = formatarCNPJ(cell.textContent.trim());
+        });
+    });
+    </script>
 </body>
 
 </html>

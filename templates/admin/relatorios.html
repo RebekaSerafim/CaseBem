@@ -7,27 +7,10 @@
     <div class="col-12">
         <div class="d-flex justify-content-between align-items-center mb-4">
             <h1>Relatórios e Estatísticas</h1>
-            <div class="btn-group">
-                <button type="button" class="btn btn-primary" onclick="window.print()">
+            <div>
+                <button type="button" class="btn btn-primary no-print" onclick="window.print()">
                     <i class="bi bi-printer"></i> Imprimir
                 </button>
-                <div class="btn-group">
-                    <button type="button" class="btn btn-success dropdown-toggle" data-bs-toggle="dropdown">
-                        <i class="bi bi-download"></i> Exportar
-                    </button>
-                    <ul class="dropdown-menu">
-                        <li><a class="dropdown-item" href="/admin/relatorios/exportar?formato=csv">
-                            <i class="bi bi-file-earmark-spreadsheet"></i> Baixar CSV
-                        </a></li>
-                        <li><a class="dropdown-item" href="/admin/relatorios/exportar?formato=json">
-                            <i class="bi bi-file-earmark-code"></i> Baixar JSON
-                        </a></li>
-                        <li><hr class="dropdown-divider"></li>
-                        <li><a class="dropdown-item" href="#" onclick="exportarDados()">
-                            <i class="bi bi-table"></i> Exportar Resumo CSV
-                        </a></li>
-                    </ul>
-                </div>
             </div>
         </div>
     </div>
@@ -199,7 +182,7 @@
                 </h5>
             </div>
             <div class="card-body">
-                <table class="table table-sm">
+                <table class="table table-sm mb-0">
                     <tbody>
                         <tr>
                             <td><i class="bi bi-people text-primary"></i> Total de Noivos</td>
@@ -236,7 +219,7 @@
             </div>
             <div class="card-body">
                 <div class="table-responsive">
-                    <table class="table table-striped">
+                    <table class="table table-striped mb-0">
                         <thead>
                             <tr>
                                 <th>Tipo de Item</th>
@@ -379,47 +362,71 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 
-// Função para exportar dados
-function exportarDados() {
-    const dados = [
-        ['Tipo', 'Valor'],
-        ['Total de Usuários', '{{ stats_gerais.total_usuarios }}'],
-        ['Noivos', '{{ stats_gerais.total_noivos }}'],
-        ['Fornecedores', '{{ stats_gerais.total_fornecedores }}'],
-        ['Administradores', '{{ stats_gerais.total_admins }}'],
-        ['Total de Itens', '{{ stats_gerais.total_itens }}'],
-        ['Produtos', '{{ stats_itens.produtos }}'],
-        ['Serviços', '{{ stats_itens.servicos }}'],
-        ['Espaços', '{{ stats_itens.espacos }}'],
-        ['Categorias', '{{ stats_gerais.total_categorias }}'],
-        ['Orçamentos', '{{ stats_gerais.total_orcamentos }}'],
-        ['Demandas', '{{ stats_gerais.total_demandas }}'],
-        ['Fornecedores Verificados', '{{ stats_gerais.fornecedores_verificados }}'],
-        ['Fornecedores Não Verificados', '{{ stats_gerais.fornecedores_nao_verificados }}']
-    ];
-
-    let csvContent = "data:text/csv;charset=utf-8,";
-    dados.forEach(function(linha) {
-        let row = linha.join(",");
-        csvContent += row + "\r\n";
-    });
-
-    const encodedUri = encodeURI(csvContent);
-    const link = document.createElement("a");
-    link.setAttribute("href", encodedUri);
-    link.setAttribute("download", "relatorio_case_bem_" + new Date().toISOString().split('T')[0] + ".csv");
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-}
-
-// Estilos para impressão
-window.addEventListener('beforeprint', function() {
-    document.querySelectorAll('.btn-group').forEach(el => el.style.display = 'none');
-});
-
-window.addEventListener('afterprint', function() {
-    document.querySelectorAll('.btn-group').forEach(el => el.style.display = 'block');
-});
 </script>
+
+<style>
+/* CSS para impressão */
+@media print {
+    /* Ocultar elementos que não devem aparecer na impressão */
+    .no-print,
+    .navbar,
+    nav,
+    header,
+    footer {
+        display: none !important;
+    }
+
+    /* Remover margens do corpo da página */
+    body {
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+
+    /* Remover margens e padding do container principal */
+    .container,
+    .container-fluid {
+        margin: 0 !important;
+        padding: 0 !important;
+        max-width: none !important;
+        width: 100% !important;
+    }
+
+    /* Ajustar margens da área de conteúdo */
+    main {
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+
+    /* Ajustar layout dos cards para impressão */
+    .card {
+        border: 1px solid #ddd !important;
+        box-shadow: none !important;
+        margin-bottom: 1rem !important;
+        page-break-inside: avoid;
+    }
+
+    /* Garantir que as cores apareçam na impressão */
+    .bg-primary,
+    .bg-success,
+    .bg-warning,
+    .bg-info,
+    .bg-danger {
+        color: white !important;
+        -webkit-print-color-adjust: exact !important;
+        color-adjust: exact !important;
+    }
+
+    /* Ajustar título principal */
+    h1 {
+        margin-top: 0 !important;
+        page-break-after: avoid;
+    }
+
+    /* Evitar quebra de página dentro de elementos importantes */
+    .row {
+        page-break-inside: avoid;
+    }
+}
+</style>
+
 {% endblock %}

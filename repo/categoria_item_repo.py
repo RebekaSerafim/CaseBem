@@ -139,6 +139,7 @@ def buscar_categorias(busca: str = "", tipo_fornecimento: str = "", status: str 
             tipo_fornecimento, tipo_fornecimento,  # filtro por tipo
             status, status, status  # filtro por status
         ))
+
         resultados = cursor.fetchall()
         return [CategoriaItem(
             id=resultado["id"],

@@ -22,9 +22,9 @@
                                    value="{{ admin.nome if admin else '' }}" required>
                         </div>
                         <div class="col-md-6 mb-3">
-                            <label for="email" class="form-label">Email *</label>
-                            <input type="email" class="form-control" id="email" name="email"
-                                   value="{{ admin.email if admin else '' }}" required>
+                            <label for="data_nascimento" class="form-label">Data de Nascimento</label>
+                            <input type="date" class="form-control" id="data_nascimento" name="data_nascimento"
+                                   value="{{ admin.data_nascimento if admin and admin.data_nascimento else '' }}">
                         </div>
                     </div>
 
@@ -37,30 +37,28 @@
                         <div class="col-md-6 mb-3">
                             <label for="telefone" class="form-label">Telefone</label>
                             <input type="tel" class="form-control" id="telefone" name="telefone"
-                                   value="{{ admin.telefone if admin else '' }}" placeholder="(00) 00000-0000">
+                                   value="{{ admin.telefone if admin else '' }}" placeholder="(00) 00000-0000" maxlength="15">
                         </div>
                     </div>
 
-                    {% if acao == "criar" %}
                     <div class="row">
                         <div class="col-md-6 mb-3">
-                            <label for="data_nascimento" class="form-label">Data de Nascimento</label>
-                            <input type="date" class="form-control" id="data_nascimento" name="data_nascimento"
-                                   value="{{ admin.data_nascimento if admin and admin.data_nascimento else '' }}">
+                            <label for="email" class="form-label">E-mail *</label>
+                            <input type="email" class="form-control" id="email" name="email"
+                                   value="{{ admin.email if admin else '' }}" required>
                         </div>
+                        {% if acao == "criar" %}
                         <div class="col-md-6 mb-3">
                             <label for="senha" class="form-label">Senha Temporária *</label>
                             <input type="password" class="form-control" id="senha" name="senha" required minlength="6">
                             <div class="form-text">Mínimo 6 caracteres. O administrador deverá alterar na primeira utilização.</div>
                         </div>
+                        {% else %}
+                        <div class="col-md-6 mb-3">
+                            <!-- Campo vazio para manter layout na edição -->
+                        </div>
+                        {% endif %}
                     </div>
-                    {% else %}
-                    <div class="mb-3">
-                        <label for="data_nascimento" class="form-label">Data de Nascimento</label>
-                        <input type="date" class="form-control" id="data_nascimento" name="data_nascimento"
-                               value="{{ admin.data_nascimento if admin and admin.data_nascimento else '' }}">
-                    </div>
-                    {% endif %}
 
                     {% if acao == "criar" %}
                     <div class="mb-3">
@@ -103,10 +101,18 @@ document.getElementById('cpf').addEventListener('input', function (e) {
 // Máscara para telefone
 document.getElementById('telefone').addEventListener('input', function (e) {
     let value = e.target.value.replace(/\D/g, '');
+
+    // Limita a 11 dígitos (celular com 9 dígitos + DDD)
+    if (value.length > 11) {
+        value = value.substring(0, 11);
+    }
+
     if (value.length <= 10) {
+        // Telefone fixo: (XX) XXXX-XXXX
         value = value.replace(/(\d{2})(\d)/, '($1) $2');
         value = value.replace(/(\d{4})(\d)/, '$1-$2');
     } else {
+        // Celular: (XX) XXXXX-XXXX
         value = value.replace(/(\d{2})(\d)/, '($1) $2');
         value = value.replace(/(\d{5})(\d)/, '$1-$2');
     }

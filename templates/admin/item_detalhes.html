@@ -89,9 +89,9 @@
             <div class="card-body">
                 {% if fornecedor %}
                     <strong>Nome/Empresa:</strong> {{ fornecedor.nome_empresa or fornecedor.nome or 'Não informado' }}<br>
-                    <strong>CNPJ:</strong> {{ fornecedor.cnpj or 'Não informado' }}<br>
+                    <strong>CNPJ:</strong> <span class="cnpj-format">{{ fornecedor.cnpj or 'Não informado' }}</span><br>
                     <strong>Email:</strong> {{ fornecedor.email or 'Não informado' }}<br>
-                    <strong>Telefone:</strong> {{ fornecedor.telefone or 'Não informado' }}<br>
+                    <strong>Telefone:</strong> <span class="phone-format">{{ fornecedor.telefone or 'Não informado' }}</span><br>
                     <strong>Verificado:</strong>
                     <span class="badge {{ 'bg-success' if fornecedor.verificado else 'bg-warning' }}">
                         {{ "Sim" if fornecedor.verificado else "Não" }}
@@ -123,12 +123,13 @@
             <div class="card-body">
                 <div class="d-grid gap-2">
                     {% if item.ativo %}
-                    <form method="post" action="/admin/item/{{ item.id }}/desativar">
-                        <button type="submit" class="btn btn-warning w-100"
-                                onclick="return confirm('Tem certeza que deseja desativar este item?')">
-                            <i class="bi bi-eye-slash-fill"></i> Desativar Item
-                        </button>
-                    </form>
+                    <button type="button" class="btn btn-warning w-100"
+                            onclick="confirmarDesativacao('o item &quot;{{ item.nome }}&quot;', function() {
+                                document.getElementById('formDesativarItem').submit();
+                            })">
+                        <i class="bi bi-eye-slash-fill"></i> Desativar Item
+                    </button>
+                    <form id="formDesativarItem" method="post" action="/admin/item/{{ item.id }}/desativar" style="display: none;"></form>
                     {% else %}
                     <form method="post" action="/admin/item/{{ item.id }}/ativar">
                         <button type="submit" class="btn btn-success w-100">
