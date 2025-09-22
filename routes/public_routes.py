@@ -338,7 +338,8 @@ async def post_cadastro_fornecedor(request: Request,
         descricao=dados.descricao,
         prestador=eh_prestador,
         vendedor=eh_vendedor,
-        locador=eh_locador
+        locador=eh_locador,
+        newsletter=dados.newsletter == "on"
     )
     fornecedor_id = fornecedor_repo.inserir_fornecedor(fornecedor)
     return RedirectResponse("/login", status.HTTP_303_SEE_OTHER)

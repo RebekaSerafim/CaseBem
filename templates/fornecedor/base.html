@@ -44,8 +44,8 @@
                     <ul class="navbar-nav">
                         {% if usuario_logado %}
                         <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle text-white" href="#" id="navbarDropdownFornecedor" role="button"
-                                data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">
+                            <a class="nav-link dropdown-toggle text-white" href="#" id="navbarDropdown" role="button"
+                                data-bs-toggle="dropdown">
                                 {{ usuario_logado.nome }}
                             </a>
                             <ul class="dropdown-menu dropdown-menu-end">
@@ -66,20 +66,6 @@
 
     <main class="flex-grow-1">
         <div class="container py-4">
-            {% if erro %}
-            <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                {{ erro }}
-                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-            </div>
-            {% endif %}
-
-            {% if sucesso %}
-            <div class="alert alert-success alert-dismissible fade show" role="alert">
-                {{ sucesso }}
-                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-            </div>
-            {% endif %}
-
             {% block conteudo %}
             {% endblock %}
         </div>
@@ -87,11 +73,13 @@
 
     <footer class="bg-primary text-white text-center py-3 mt-auto">
         <div class="container">
-            <p class="mb-0">&copy; 2025 Case Bem - Painel do Fornecedor. Todos os direitos reservados.</p>
+            <p class="mb-0">&copy; 2025 Case Bem - Área do Fornecedor. Todos os direitos reservados.</p>
         </div>
     </footer>
 
     <script src="/static/js/bootstrap.bundle.min.js"></script>
+    <script src="/static/js/toast-manager.js"></script>
+    {% include 'components/toast-handler.html' %}
     {% block scripts %}
     {% endblock %}
 </body>

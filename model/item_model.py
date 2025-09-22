@@ -18,3 +18,4 @@ class Item:
     observacoes: Optional[str] = None
     ativo: bool = True
     data_cadastro: Optional[str] = None
+    categoria: Optional[int] = None

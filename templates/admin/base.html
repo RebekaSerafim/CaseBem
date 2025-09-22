@@ -70,20 +70,6 @@
 
     <main class="flex-grow-1">
         <div class="container py-4">
-            {% if erro %}
-            <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                {{ erro }}
-                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-            </div>
-            {% endif %}
-
-            {% if sucesso %}
-            <div class="alert alert-success alert-dismissible fade show" role="alert">
-                {{ sucesso }}
-                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-            </div>
-            {% endif %}
-
             {% block conteudo %}
             {% endblock %}
         </div>
@@ -96,6 +82,8 @@
     </footer>
 
     <script src="/static/js/bootstrap.bundle.min.js"></script>
+    <script src="/static/js/toast-manager.js"></script>
+    {% include 'components/toast-handler.html' %}
     {% block scripts %}
     {% endblock %}
 </body>

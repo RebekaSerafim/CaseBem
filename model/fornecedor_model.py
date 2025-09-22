@@ -13,3 +13,4 @@ class Fornecedor(Usuario):
     locador: bool = False
     verificado: bool = False
     data_verificacao: Optional[str] = None
+    newsletter: bool = False

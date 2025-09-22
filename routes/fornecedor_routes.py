@@ -1,19 +1,25 @@
 from fastapi import APIRouter, Request, Form, status
 from fastapi.responses import RedirectResponse
 from fastapi.templating import Jinja2Templates
+from model.demanda_model import StatusDemanda
 from util.auth_decorator import requer_autenticacao
 from model.usuario_model import TipoUsuario
 from model.item_model import Item, TipoItem
-from repo import fornecedor_repo, item_repo, orcamento_repo, demanda_repo, usuario_repo, categoria_item_repo
+from repo import fornecedor_repo, item_repo, orcamento_repo, demanda_repo, usuario_repo, categoria_item_repo, casal_repo
 
 router = APIRouter()
 templates = Jinja2Templates(directory="templates")
 
 # ==================== DASHBOARD ====================
 
+@router.get("/fornecedor")
+@requer_autenticacao([TipoUsuario.FORNECEDOR.value])
+async def root_fornecedor(request: Request, usuario_logado: dict = {}):
+    return RedirectResponse("/fornecedor/dashboard", status_code=status.HTTP_303_SEE_OTHER)
+
 @router.get("/fornecedor/dashboard")
 @requer_autenticacao([TipoUsuario.FORNECEDOR.value])
-async def dashboard_fornecedor(request: Request, usuario_logado: dict = None):
+async def dashboard_fornecedor(request: Request, usuario_logado: dict = {}):
     """Dashboard principal do fornecedor"""
     try:
         id_fornecedor = usuario_logado["id"]
@@ -70,7 +76,7 @@ async def dashboard_fornecedor(request: Request, usuario_logado: dict = None):
 
 @router.get("/fornecedor/itens")
 @requer_autenticacao([TipoUsuario.FORNECEDOR.value])
-async def listar_itens(request: Request, usuario_logado: dict = None):
+async def listar_itens(request: Request, usuario_logado: dict = {}):
     """Lista todos os itens do fornecedor"""
     try:
         id_fornecedor = usuario_logado["id"]
@@ -91,7 +97,7 @@ async def listar_itens(request: Request, usuario_logado: dict = None):
 
 @router.get("/fornecedor/itens/novo")
 @requer_autenticacao([TipoUsuario.FORNECEDOR.value])
-async def novo_item_form(request: Request, usuario_logado: dict = None):
+async def novo_item_form(request: Request, usuario_logado: dict = {}):
     """Formulário para criar novo item"""
     categorias = categoria_item_repo.obter_categorias_ativas()
     return templates.TemplateResponse("fornecedor/item_form.html", {
@@ -111,7 +117,8 @@ async def criar_item(
     descricao: str = Form(...),
     preco: float = Form(...),
     observacoes: str = Form(""),
-    usuario_logado: dict = None
+    categoria: str = Form(""),
+    usuario_logado: dict = {}
 ):
     """Cria um novo item"""
     try:
@@ -132,6 +139,7 @@ async def criar_item(
             })
 
         # Criar item
+        categoria_id = int(categoria) if categoria else None
         novo_item = Item(
             id=0,
             id_fornecedor=id_fornecedor,
@@ -141,7 +149,8 @@ async def criar_item(
             preco=preco,
             observacoes=observacoes if observacoes else None,
             ativo=True,
-            data_cadastro=None
+            data_cadastro=None,
+            categoria=categoria_id
         )
 
         item_id = item_repo.inserir_item(novo_item)
@@ -173,7 +182,7 @@ async def criar_item(
 
 @router.get("/fornecedor/itens/{id_item}/editar")
 @requer_autenticacao([TipoUsuario.FORNECEDOR.value])
-async def editar_item_form(request: Request, id_item: int, usuario_logado: dict = None):
+async def editar_item_form(request: Request, id_item: int, usuario_logado: dict = {}):
     """Formulário para editar item"""
     try:
         id_fornecedor = usuario_logado["id"]
@@ -205,8 +214,9 @@ async def atualizar_item(
     descricao: str = Form(...),
     preco: float = Form(...),
     observacoes: str = Form(""),
+    categoria: str = Form(""),
     ativo: bool = Form(True),
-    usuario_logado: dict = None
+    usuario_logado: dict = {}
 ):
     """Atualiza um item existente"""
     try:
@@ -233,6 +243,7 @@ async def atualizar_item(
             })
 
         # Atualizar item
+        categoria_id = int(categoria) if categoria else None
         item_atualizado = Item(
             id=id_item,
             id_fornecedor=id_fornecedor,
@@ -242,7 +253,8 @@ async def atualizar_item(
             preco=preco,
             observacoes=observacoes if observacoes else None,
             ativo=ativo,
-            data_cadastro=item_existente.data_cadastro
+            data_cadastro=item_existente.data_cadastro,
+            categoria=categoria_id
         )
 
         sucesso = item_repo.atualizar_item(item_atualizado)
@@ -267,7 +279,7 @@ async def atualizar_item(
 
 @router.post("/fornecedor/itens/{id_item}/excluir")
 @requer_autenticacao([TipoUsuario.FORNECEDOR.value])
-async def excluir_item(request: Request, id_item: int, usuario_logado: dict = None):
+async def excluir_item(request: Request, id_item: int, usuario_logado: dict = {}):
     """Exclui um item"""
     try:
         id_fornecedor = usuario_logado["id"]
@@ -280,7 +292,7 @@ async def excluir_item(request: Request, id_item: int, usuario_logado: dict = No
 
 @router.post("/fornecedor/itens/{id_item}/ativar")
 @requer_autenticacao([TipoUsuario.FORNECEDOR.value])
-async def ativar_item(request: Request, id_item: int, usuario_logado: dict = None):
+async def ativar_item(request: Request, id_item: int, usuario_logado: dict = {}):
     """Ativa um item"""
     try:
         id_fornecedor = usuario_logado["id"]
@@ -293,7 +305,7 @@ async def ativar_item(request: Request, id_item: int, usuario_logado: dict = Non
 
 @router.post("/fornecedor/itens/{id_item}/desativar")
 @requer_autenticacao([TipoUsuario.FORNECEDOR.value])
-async def desativar_item(request: Request, id_item: int, usuario_logado: dict = None):
+async def desativar_item(request: Request, id_item: int, usuario_logado: dict = {}):
     """Desativa um item"""
     try:
         id_fornecedor = usuario_logado["id"]
@@ -308,7 +320,7 @@ async def desativar_item(request: Request, id_item: int, usuario_logado: dict = 
 
 @router.get("/fornecedor/orcamentos")
 @requer_autenticacao([TipoUsuario.FORNECEDOR.value])
-async def listar_orcamentos(request: Request, status_filter: str = None, usuario_logado: dict = None):
+async def listar_orcamentos(request: Request, status_filter: str = "", usuario_logado: dict = {}):
     """Lista orçamentos do fornecedor"""
     try:
         id_fornecedor = usuario_logado["id"]
@@ -327,10 +339,12 @@ async def listar_orcamentos(request: Request, status_filter: str = None, usuario
                 # Buscar dados da demanda
                 demanda = demanda_repo.obter_demanda_por_id(orcamento.id_demanda)
 
-                # Buscar dados do noivo
+                # Buscar dados do casal e noivo
                 noivo = None
                 if demanda:
-                    noivo = usuario_repo.obter_usuario_por_id(demanda.id_noivo)
+                    casal = casal_repo.obter_casal_por_id(demanda.id_casal)
+                    if casal:
+                        noivo = usuario_repo.obter_usuario_por_id(casal.id_noivo1)
 
                 orcamento_data = {
                     "orcamento": orcamento,
@@ -364,22 +378,30 @@ async def listar_orcamentos(request: Request, status_filter: str = None, usuario
 
 @router.get("/fornecedor/demandas")
 @requer_autenticacao([TipoUsuario.FORNECEDOR.value])
-async def listar_demandas(request: Request, categoria: str = None, usuario_logado: dict = None):
+async def listar_demandas(request: Request, categoria: str = "", usuario_logado: dict = {}):
     """Lista demandas disponíveis para o fornecedor"""
     try:
         # Buscar todas as demandas ativas
-        demandas = demanda_repo.obter_demandas_por_status("ATIVA")
+        demandas = demanda_repo.obter_demandas_por_status(StatusDemanda.ATIVA.value)
 
         # Filtrar por categoria se especificado
         if categoria:
-            demandas = [d for d in demandas if d.categoria and d.categoria.upper() == categoria.upper()]
+            try:
+                categoria_id = int(categoria)
+                demandas = [d for d in demandas if d.id_categoria == categoria_id]
+            except ValueError:
+                # Se categoria não for um número válido, ignorar o filtro
+                pass
 
         # Enriquecer dados das demandas
         demandas_enriched = []
         for demanda in demandas:
             try:
-                # Buscar dados do noivo
-                noivo = usuario_repo.obter_usuario_por_id(demanda.id_noivo)
+                # Buscar dados do casal e noivo
+                casal = casal_repo.obter_casal_por_id(demanda.id_casal)
+                noivo = None
+                if casal:
+                    noivo = usuario_repo.obter_usuario_por_id(casal.id_noivo1)
 
                 # Verificar se já existe orçamento deste fornecedor para esta demanda
                 orcamentos_existentes = orcamento_repo.obter_orcamentos_por_demanda(demanda.id)
@@ -416,7 +438,7 @@ async def listar_demandas(request: Request, categoria: str = None, usuario_logad
 
 @router.get("/fornecedor/demandas/{id_demanda}/propor")
 @requer_autenticacao([TipoUsuario.FORNECEDOR.value])
-async def form_propor_orcamento(request: Request, id_demanda: int, usuario_logado: dict = None):
+async def form_propor_orcamento(request: Request, id_demanda: int, usuario_logado: dict = {}):
     """Formulário para propor orçamento para uma demanda"""
     try:
         # Buscar a demanda
@@ -424,8 +446,11 @@ async def form_propor_orcamento(request: Request, id_demanda: int, usuario_logad
         if not demanda:
             return RedirectResponse("/fornecedor/demandas?erro=demanda_nao_encontrada", status_code=status.HTTP_303_SEE_OTHER)
 
-        # Buscar dados do noivo
-        noivo = usuario_repo.obter_usuario_por_id(demanda.id_noivo)
+        # Buscar dados do casal e noivo
+        casal = casal_repo.obter_casal_por_id(demanda.id_casal)
+        noivo = None
+        if casal:
+            noivo = usuario_repo.obter_usuario_por_id(casal.id_noivo1)
 
         # Verificar se já existe orçamento deste fornecedor para esta demanda
         orcamentos_existentes = orcamento_repo.obter_orcamentos_por_demanda(id_demanda)
@@ -452,7 +477,7 @@ async def criar_orcamento(
     valor_total: float = Form(...),
     observacoes: str = Form(""),
     data_validade: str = Form(None),
-    usuario_logado: dict = None
+    usuario_logado: dict = {}
 ):
     """Cria um novo orçamento para uma demanda"""
     try:
@@ -482,6 +507,7 @@ async def criar_orcamento(
 
         # Criar o orçamento
         novo_orcamento = Orcamento(
+            id=0,
             id_demanda=id_demanda,
             id_fornecedor_prestador=usuario_logado["id"],
             data_hora_cadastro=datetime.now(),
@@ -507,7 +533,7 @@ async def criar_orcamento(
 
 @router.get("/fornecedor/perfil")
 @requer_autenticacao([TipoUsuario.FORNECEDOR.value])
-async def perfil_fornecedor(request: Request, usuario_logado: dict = None):
+async def perfil_fornecedor(request: Request, usuario_logado: dict = {}):
     """Página de perfil do fornecedor"""
     try:
         id_fornecedor = usuario_logado["id"]
@@ -536,10 +562,11 @@ async def atualizar_perfil(
     nome_empresa: str = Form(""),
     cnpj: str = Form(""),
     descricao: str = Form(""),
-    prestador: bool = Form(False),
-    vendedor: bool = Form(False),
-    locador: bool = Form(False),
-    usuario_logado: dict = None
+    prestador: str = Form(None),
+    vendedor: str = Form(None),
+    locador: str = Form(None),
+    newsletter: str = Form(None),
+    usuario_logado: dict = {}
 ):
     """Atualiza perfil do fornecedor"""
     try:
@@ -553,6 +580,21 @@ async def atualizar_perfil(
                 "erro": "Fornecedor não encontrado"
             })
 
+        # Converter checkboxes para boolean
+        prestador_bool = prestador == "on"
+        vendedor_bool = vendedor == "on"
+        locador_bool = locador == "on"
+        newsletter_bool = newsletter == "on"
+
+        # Validar que pelo menos um tipo foi selecionado
+        if not (prestador_bool or vendedor_bool or locador_bool):
+            return templates.TemplateResponse("fornecedor/perfil.html", {
+                "request": request,
+                "usuario_logado": usuario_logado,
+                "fornecedor": fornecedor,
+                "erro": "Selecione pelo menos um tipo de fornecimento"
+            })
+
         # Atualizar dados
         fornecedor.nome = nome
         fornecedor.email = email
@@ -560,9 +602,10 @@ async def atualizar_perfil(
         fornecedor.nome_empresa = nome_empresa
         fornecedor.cnpj = cnpj
         fornecedor.descricao = descricao
-        fornecedor.prestador = prestador
-        fornecedor.vendedor = vendedor
-        fornecedor.locador = locador
+        fornecedor.prestador = prestador_bool
+        fornecedor.vendedor = vendedor_bool
+        fornecedor.locador = locador_bool
+        fornecedor.newsletter = newsletter_bool
 
         sucesso = fornecedor_repo.atualizar_fornecedor(fornecedor)
 

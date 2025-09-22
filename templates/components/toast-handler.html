@@ -1,0 +1,36 @@
+<!-- Sistema automático de exibição de toasts baseado nas variáveis de contexto -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Verificar se há mensagens de sucesso
+    {% if sucesso %}
+    window.showSuccess(`{{ sucesso|escapejs }}`);
+    {% endif %}
+
+    // Verificar se há mensagens de erro
+    {% if erro %}
+    window.showError(`{{ erro|escapejs }}`);
+    {% endif %}
+
+    // Verificar se há mensagens de aviso
+    {% if warning %}
+    window.showWarning(`{{ warning|escapejs }}`);
+    {% endif %}
+
+    // Verificar se há mensagens de informação
+    {% if info %}
+    window.showInfo(`{{ info|escapejs }}`);
+    {% endif %}
+
+    // Verificar se há mensagens de alerta
+    {% if alert %}
+    window.showAlert(`{{ alert|escapejs }}`);
+    {% endif %}
+
+    // Verificar se há múltiplas mensagens (array)
+    {% if messages %}
+    {% for message in messages %}
+    window.showToast(`{{ message.text|escapejs }}`, `{{ message.type|default:"info" }}`, {{ message.duration|default:5000 }});
+    {% endfor %}
+    {% endif %}
+});
+</script>

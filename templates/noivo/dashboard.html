@@ -3,11 +3,12 @@
 {% block title %}Dashboard Noivos{% endblock %}
 
 {% block conteudo %}
-<div class="row">
+<div class="row mb-3">
     <div class="col-12">
-        <h1 class="mb-4">
-            Bem-vindos, {{ usuario_logado.nome }}! 💕
+        <h1 class="mb-0">
+            Bem-vindos, {{ usuario_logado.nome }}!
         </h1>
+        <p class="badge bg-success mb-2">Noivos</p>
     </div>
 </div>
 
@@ -51,15 +52,15 @@
 
 <div class="row">
     <!-- Cards de Estatísticas -->
-    <div class="col-xl-3 col-md-6 mb-4">
+    <div class="col-xl-3 col-lg-6 col-sm-6 col-12 mb-4">
         <div class="card border-left-primary shadow h-100 py-2">
             <div class="card-body">
-                <div class="row no-gutters align-items-center">
+                <div class="row g-0 align-items-center">
                     <div class="col mr-2">
-                        <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                        <div class="text-xs font-weight-bold text-primary text-uppercase mb-1 text-center">
                             Demandas Ativas
                         </div>
-                        <div class="h5 mb-0 font-weight-bold text-gray-800">
+                        <div class="h3 mb-0 font-weight-bold text-gray-800 text-center">
                             {{ stats.demandas_ativas or 0 }}
                         </div>
                     </div>
@@ -71,15 +72,15 @@
         </div>
     </div>
 
-    <div class="col-xl-3 col-md-6 mb-4">
+    <div class="col-xl-3 col-lg-6 col-sm-6 col-12 mb-4">
         <div class="card border-left-success shadow h-100 py-2">
             <div class="card-body">
-                <div class="row no-gutters align-items-center">
+                <div class="row g-0 align-items-center">
                     <div class="col mr-2">
-                        <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                        <div class="text-xs font-weight-bold text-success text-uppercase mb-1 text-center">
                             Orçamentos Recebidos
                         </div>
-                        <div class="h5 mb-0 font-weight-bold text-gray-800">
+                        <div class="h3 mb-0 font-weight-bold text-gray-800 text-center">
                             {{ stats.orcamentos_recebidos or 0 }}
                         </div>
                     </div>
@@ -91,15 +92,15 @@
         </div>
     </div>
 
-    <div class="col-xl-3 col-md-6 mb-4">
+    <div class="col-xl-3 col-lg-6 col-sm-6 col-12 mb-4">
         <div class="card border-left-warning shadow h-100 py-2">
             <div class="card-body">
-                <div class="row no-gutters align-items-center">
+                <div class="row g-0 align-items-center">
                     <div class="col mr-2">
-                        <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
+                        <div class="text-xs font-weight-bold text-warning text-uppercase mb-1 text-center">
                             Orçamentos Pendentes
                         </div>
-                        <div class="h5 mb-0 font-weight-bold text-gray-800">
+                        <div class="h3 mb-0 font-weight-bold text-gray-800 text-center">
                             {{ stats.orcamentos_pendentes or 0 }}
                         </div>
                     </div>
@@ -111,15 +112,15 @@
         </div>
     </div>
 
-    <div class="col-xl-3 col-md-6 mb-4">
+    <div class="col-xl-3 col-lg-6 col-sm-6 col-12 mb-4">
         <div class="card border-left-info shadow h-100 py-2">
             <div class="card-body">
-                <div class="row no-gutters align-items-center">
+                <div class="row g-0 align-items-center">
                     <div class="col mr-2">
-                        <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
+                        <div class="text-xs font-weight-bold text-info text-uppercase mb-1 text-center">
                             Favoritos
                         </div>
-                        <div class="h5 mb-0 font-weight-bold text-gray-800">
+                        <div class="h3 mb-0 font-weight-bold text-gray-800 text-center">
                             {{ stats.favoritos or 0 }}
                         </div>
                     </div>
@@ -137,7 +138,7 @@
     <div class="col-lg-6 mb-4">
         <div class="card shadow">
             <div class="card-header py-3">
-                <h6 class="m-0 font-weight-bold text-success">Ações Rápidas</h6>
+                <h6 class="m-0 font-weight-bold text-primary">Ações Rápidas</h6>
             </div>
             <div class="card-body">
                 <div class="list-group list-group-flush">
@@ -186,7 +187,7 @@
     <div class="col-lg-6 mb-4">
         <div class="card shadow">
             <div class="card-header py-3">
-                <h6 class="m-0 font-weight-bold text-success">Timeline do Casamento</h6>
+                <h6 class="m-0 font-weight-bold text-primary">Timeline do Casamento</h6>
             </div>
             <div class="card-body">
                 {% if casal and casal.data_casamento %}
@@ -220,7 +221,7 @@
                     <i class="fas fa-calendar-alt fa-3x text-gray-300 mb-3"></i>
                     <h6>Defina a data do seu casamento</h6>
                     <p class="text-muted small">Complete seu perfil para ver a timeline</p>
-                    <a href="/noivo/perfil" class="btn btn-sm btn-success">Completar Perfil</a>
+                    <a href="/noivo/perfil" class="btn btn-sm btn-primary">Completar Perfil</a>
                 </div>
                 {% endif %}
             </div>
@@ -234,8 +235,8 @@
     <div class="col-12">
         <div class="card shadow">
             <div class="card-header py-3 d-flex justify-content-between align-items-center">
-                <h6 class="m-0 font-weight-bold text-success">Demandas Recentes</h6>
-                <a href="/noivo/demandas" class="btn btn-sm btn-success">Ver Todas</a>
+                <h6 class="m-0 font-weight-bold text-primary">Demandas Recentes</h6>
+                <a href="/noivo/demandas" class="btn btn-sm btn-primary">Ver Todas</a>
             </div>
             <div class="card-body">
                 <div class="table-responsive">
@@ -264,7 +265,7 @@
                                 <td>{{ demanda.orcamentos_count or 0 }}</td>
                                 <td>{{ demanda.data_criacao or '-' }}</td>
                                 <td>
-                                    <a href="/noivo/demanda/{{ demanda.id }}" class="btn btn-sm btn-outline-success">
+                                    <a href="/noivo/demanda/{{ demanda.id }}" class="btn btn-sm btn-outline-primary">
                                         Ver Detalhes
                                     </a>
                                 </td>
@@ -285,7 +286,7 @@
                 <i class="fas fa-heart fa-3x text-gray-300 mb-3"></i>
                 <h5>Nenhuma demanda criada</h5>
                 <p class="text-muted">Comece criando sua primeira demanda para receber orçamentos!</p>
-                <a href="/noivo/demanda/nova" class="btn btn-success">Criar Primeira Demanda</a>
+                <a href="/noivo/demanda/nova" class="btn btn-primary">Criar Primeira Demanda</a>
             </div>
         </div>
     </div>

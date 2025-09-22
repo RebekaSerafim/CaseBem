@@ -166,7 +166,6 @@
         return true;
     }
 
-
     // Medidor de força de senha
     document.getElementById("senha").addEventListener("input", function() {
         let senha = this.value;
@@ -204,9 +203,13 @@
         if (senha.value !== confirmarSenha.value) {
             confirmarSenha.classList.add("is-invalid");
             e.preventDefault();
+            return;
         } else {
             confirmarSenha.classList.remove("is-invalid");
         }
+
+        // Remover máscaras antes do envio (usa função do scripts.js)
+        removerMascaras();
     });
 </script>
 {% endblock %}

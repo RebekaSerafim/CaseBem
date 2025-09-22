@@ -25,7 +25,8 @@ def inserir_item(item: Item) -> Optional[int]:
                 item.descricao,
                 item.preco,
                 item.observacoes,
-                item.ativo
+                item.ativo,
+                item.categoria
             ))
             return cursor.lastrowid
     except Exception as e:
@@ -44,6 +45,7 @@ def atualizar_item(item: Item) -> bool:
                 item.preco,
                 item.observacoes,
                 item.ativo,
+                item.categoria,
                 item.id,
                 item.id_fornecedor
             ))
@@ -81,7 +83,8 @@ def obter_item_por_id(id_item: int) -> Optional[Item]:
                     preco=resultado["preco"],
                     observacoes=resultado["observacoes"],
                     ativo=bool(resultado["ativo"]),
-                    data_cadastro=resultado["data_cadastro"]
+                    data_cadastro=resultado["data_cadastro"],
+                    categoria=resultado["id_categoria"]
                 )
             return None
     except Exception as e:
@@ -105,7 +108,8 @@ def obter_itens_por_fornecedor(id_fornecedor: int) -> List[Item]:
                 preco=resultado["preco"],
                 observacoes=resultado["observacoes"],
                 ativo=bool(resultado["ativo"]),
-                data_cadastro=resultado["data_cadastro"]
+                data_cadastro=resultado["data_cadastro"],
+                categoria=resultado["id_categoria"]
             ) for resultado in resultados]
     except Exception as e:
         print(f"Erro ao obter itens por fornecedor: {e}")
@@ -128,7 +132,8 @@ def obter_itens_por_tipo(tipo: TipoItem) -> List[Item]:
                 preco=resultado["preco"],
                 observacoes=resultado["observacoes"],
                 ativo=bool(resultado["ativo"]),
-                data_cadastro=resultado["data_cadastro"]
+                data_cadastro=resultado["data_cadastro"],
+                categoria=resultado["id_categoria"]
             ) for resultado in resultados]
     except Exception as e:
         print(f"Erro ao obter itens por tipo: {e}")
@@ -153,7 +158,8 @@ def obter_itens_por_pagina(numero_pagina: int, tamanho_pagina: int) -> List[Item
                 preco=resultado["preco"],
                 observacoes=resultado["observacoes"],
                 ativo=bool(resultado["ativo"]),
-                data_cadastro=resultado["data_cadastro"]
+                data_cadastro=resultado["data_cadastro"],
+                categoria=resultado["id_categoria"]
             ) for resultado in resultados]
     except Exception as e:
         print(f"Erro ao obter itens por página: {e}")
@@ -179,7 +185,8 @@ def buscar_itens(termo_busca: str, numero_pagina: int = 1, tamanho_pagina: int =
                 preco=resultado["preco"],
                 observacoes=resultado["observacoes"],
                 ativo=bool(resultado["ativo"]),
-                data_cadastro=resultado["data_cadastro"]
+                data_cadastro=resultado["data_cadastro"],
+                categoria=resultado["id_categoria"]
             ) for resultado in resultados]
     except Exception as e:
         print(f"Erro ao buscar itens: {e}")
