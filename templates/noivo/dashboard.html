@@ -5,45 +5,26 @@
 {% block conteudo %}
 <div class="row">
     <div class="col-12">
-        <h1 class="mb-4">
-            Bem-vindos, {{ usuario_logado.nome }}! 💕
+        <h1 class="mb-0">
+            Bem-vindos, {{ usuario_logado.nome }}!
         </h1>
+        <p class="badge bg-success mb-2">Noivos</p>
     </div>
 </div>
 
 <!-- Informações do Casal -->
-{% if casal %}
-<div class="row mb-4">
+{% if not casal %}
+<div class="row mb-2">
     <div class="col-12">
-        <div class="card shadow">
-            <div class="card-header py-3">
-                <h6 class="m-0 font-weight-bold text-success">Informações do Casal</h6>
-            </div>
-            <div class="card-body">
-                <div class="row">
-                    <div class="col-md-6">
-                        <p><strong>Data do Casamento:</strong> {{ casal.data_casamento or 'Não definida' }}</p>
-                        <p><strong>Local Previsto:</strong> {{ casal.local_previsto or 'Não definido' }}</p>
-                    </div>
-                    <div class="col-md-6">
-                        <p><strong>Orçamento Estimado:</strong> {{ casal.orcamento_estimado or 'Não definido' }}</p>
-                        <p><strong>Número de Convidados:</strong> {{ casal.numero_convidados or 'Não definido' }}</p>
-                    </div>
-                </div>
-                <div class="text-end">
-                    <a href="/noivo/perfil" class="btn btn-sm btn-outline-success">Editar Informações</a>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-{% else %}
-<div class="row mb-4">
-    <div class="col-12">
-        <div class="alert alert-info" role="alert">
+        <div class="alert alert-warning" role="alert">
             <h5 class="alert-heading">Complete seu Perfil de Casal</h5>
-            <p>Para começar a usar o sistema, complete as informações do seu casamento!</p>
-            <a href="/noivo/perfil" class="btn btn-info">Completar Perfil</a>
+            <p>Para começar a usar o sistema, complete as informações do seu casamento:</p>
+            <ul class="mb-0">
+                <li>Defina a data do casamento</li>
+                <li>Informe o local previsto</li>
+                <li>Estabeleça seu orçamento estimado</li>
+                <li>Defina o número de convidados</li>
+            </ul>
         </div>
     </div>
 </div>
@@ -51,15 +32,35 @@
 
 <div class="row">
     <!-- Cards de Estatísticas -->
-    <div class="col-xl-3 col-md-6 mb-4">
+    <div class="col-xl-2 col-lg-4 col-sm-6 col-12 mb-4">
         <div class="card border-left-primary shadow h-100 py-2">
             <div class="card-body">
-                <div class="row no-gutters align-items-center">
+                <div class="row g-0 align-items-center">
                     <div class="col mr-2">
-                        <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                        <div class="text-xs font-weight-bold text-primary text-uppercase mb-1 text-center">
+                            Total Demandas
+                        </div>
+                        <div class="h3 mb-0 font-weight-bold text-gray-800 text-center">
+                            {{ stats.total_demandas or 0 }}
+                        </div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-clipboard-list fa-2x text-gray-300"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-2 col-lg-4 col-sm-6 col-12 mb-4">
+        <div class="card border-left-success shadow h-100 py-2">
+            <div class="card-body">
+                <div class="row g-0 align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-success text-uppercase mb-1 text-center">
                             Demandas Ativas
                         </div>
-                        <div class="h5 mb-0 font-weight-bold text-gray-800">
+                        <div class="h3 mb-0 font-weight-bold text-gray-800 text-center">
                             {{ stats.demandas_ativas or 0 }}
                         </div>
                     </div>
@@ -71,15 +72,15 @@
         </div>
     </div>
 
-    <div class="col-xl-3 col-md-6 mb-4">
-        <div class="card border-left-success shadow h-100 py-2">
+    <div class="col-xl-2 col-lg-4 col-sm-6 col-12 mb-4">
+        <div class="card border-left-info shadow h-100 py-2">
             <div class="card-body">
-                <div class="row no-gutters align-items-center">
+                <div class="row g-0 align-items-center">
                     <div class="col mr-2">
-                        <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                        <div class="text-xs font-weight-bold text-info text-uppercase mb-1 text-center">
                             Orçamentos Recebidos
                         </div>
-                        <div class="h5 mb-0 font-weight-bold text-gray-800">
+                        <div class="h3 mb-0 font-weight-bold text-gray-800 text-center">
                             {{ stats.orcamentos_recebidos or 0 }}
                         </div>
                     </div>
@@ -91,15 +92,15 @@
         </div>
     </div>
 
-    <div class="col-xl-3 col-md-6 mb-4">
+    <div class="col-xl-2 col-lg-4 col-sm-6 col-12 mb-4">
         <div class="card border-left-warning shadow h-100 py-2">
             <div class="card-body">
-                <div class="row no-gutters align-items-center">
+                <div class="row g-0 align-items-center">
                     <div class="col mr-2">
-                        <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
+                        <div class="text-xs font-weight-bold text-warning text-uppercase mb-1 text-center">
                             Orçamentos Pendentes
                         </div>
-                        <div class="h5 mb-0 font-weight-bold text-gray-800">
+                        <div class="h3 mb-0 font-weight-bold text-gray-800 text-center">
                             {{ stats.orcamentos_pendentes or 0 }}
                         </div>
                     </div>
@@ -111,20 +112,40 @@
         </div>
     </div>
 
-    <div class="col-xl-3 col-md-6 mb-4">
-        <div class="card border-left-info shadow h-100 py-2">
+    <div class="col-xl-2 col-lg-4 col-sm-6 col-12 mb-4">
+        <div class="card border-left-danger shadow h-100 py-2">
             <div class="card-body">
-                <div class="row no-gutters align-items-center">
+                <div class="row g-0 align-items-center">
                     <div class="col mr-2">
-                        <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
+                        <div class="text-xs font-weight-bold text-danger text-uppercase mb-1 text-center">
                             Favoritos
                         </div>
-                        <div class="h5 mb-0 font-weight-bold text-gray-800">
+                        <div class="h3 mb-0 font-weight-bold text-gray-800 text-center">
                             {{ stats.favoritos or 0 }}
                         </div>
                     </div>
                     <div class="col-auto">
                         <i class="fas fa-heart fa-2x text-gray-300"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-2 col-lg-4 col-sm-6 col-12 mb-4">
+        <div class="card border-left-dark shadow h-100 py-2">
+            <div class="card-body">
+                <div class="row g-0 align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-dark text-uppercase mb-1 text-center">
+                            Fornecedores
+                        </div>
+                        <div class="h3 mb-0 font-weight-bold text-gray-800 text-center">
+                            {{ stats.total_fornecedores or 0 }}
+                        </div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-store fa-2x text-gray-300"></i>
                     </div>
                 </div>
             </div>
@@ -137,7 +158,7 @@
     <div class="col-lg-6 mb-4">
         <div class="card shadow">
             <div class="card-header py-3">
-                <h6 class="m-0 font-weight-bold text-success">Ações Rápidas</h6>
+                <h6 class="m-0 font-weight-bold text-primary">Ações Rápidas</h6>
             </div>
             <div class="card-body">
                 <div class="list-group list-group-flush">
@@ -147,34 +168,28 @@
                             <small class="d-block text-muted">Solicitar produtos ou serviços para seu casamento</small>
                         </div>
                     </a>
-                    <a href="/noivo/demandas" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
+                    <a href="/noivo/demandas" class="list-group-item list-group-item-action">
                         <div>
                             <strong>Minhas Demandas</strong>
                             <small class="d-block text-muted">Gerenciar solicitações ativas</small>
                         </div>
-                        {% if stats.demandas_ativas > 0 %}
-                        <span class="badge bg-primary rounded-pill">{{ stats.demandas_ativas }}</span>
-                        {% endif %}
                     </a>
-                    <a href="/noivo/orcamentos" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
+                    <a href="/noivo/orcamentos" class="list-group-item list-group-item-action">
                         <div>
                             <strong>Orçamentos Recebidos</strong>
                             <small class="d-block text-muted">Analisar propostas dos fornecedores</small>
                         </div>
-                        {% if stats.orcamentos_pendentes > 0 %}
-                        <span class="badge bg-warning rounded-pill">{{ stats.orcamentos_pendentes }}</span>
-                        {% endif %}
                     </a>
-                    <a href="/noivo/fornecedores" class="list-group-item list-group-item-action">
+                    <a href="/noivo/favoritos" class="list-group-item list-group-item-action">
                         <div>
-                            <strong>Buscar Fornecedores</strong>
-                            <small class="d-block text-muted">Encontrar produtos e serviços</small>
+                            <strong>Meus Favoritos</strong>
+                            <small class="d-block text-muted">Ver produtos e serviços salvos</small>
                         </div>
                     </a>
-                    <a href="/noivo/checklist" class="list-group-item list-group-item-action">
+                    <a href="/noivo/perfil" class="list-group-item list-group-item-action">
                         <div>
-                            <strong>Checklist do Casamento</strong>
-                            <small class="d-block text-muted">Acompanhar progresso da organização</small>
+                            <strong>Editar Perfil</strong>
+                            <small class="d-block text-muted">Atualizar dados pessoais e do casamento</small>
                         </div>
                     </a>
                 </div>
@@ -182,45 +197,34 @@
         </div>
     </div>
 
-    <!-- Timeline do Casamento -->
+    <!-- Informações do Casal -->
     <div class="col-lg-6 mb-4">
         <div class="card shadow">
             <div class="card-header py-3">
-                <h6 class="m-0 font-weight-bold text-success">Timeline do Casamento</h6>
+                <h6 class="m-0 font-weight-bold text-primary">Informações do Casal</h6>
             </div>
             <div class="card-body">
-                {% if casal and casal.data_casamento %}
-                <div class="timeline">
-                    <div class="timeline-item">
-                        <div class="timeline-marker bg-success"></div>
-                        <div class="timeline-content">
-                            <h6 class="timeline-title">Data do Casamento</h6>
-                            <p class="timeline-text">{{ casal.data_casamento }}</p>
-                        </div>
-                    </div>
-
-                    <div class="timeline-item">
-                        <div class="timeline-marker bg-info"></div>
-                        <div class="timeline-content">
-                            <h6 class="timeline-title">Demandas Criadas</h6>
-                            <p class="timeline-text">{{ stats.demandas_ativas or 0 }} ativas</p>
-                        </div>
-                    </div>
-
-                    <div class="timeline-item">
-                        <div class="timeline-marker bg-warning"></div>
-                        <div class="timeline-content">
-                            <h6 class="timeline-title">Orçamentos</h6>
-                            <p class="timeline-text">{{ stats.orcamentos_recebidos or 0 }} recebidos</p>
-                        </div>
+                {% if casal %}
+                <div class="row">
+                    <div class="col-12">
+                        <p><strong>Data do Casamento:</strong> {{ casal.data_casamento or 'Não definida' }}</p>
+                        <p><strong>Local Previsto:</strong> {{ casal.local_previsto or 'Não definido' }}</p>
+                        <p><strong>Orçamento Estimado:</strong> {{ casal.orcamento_estimado or 'Não definido' }}</p>
+                        <p><strong>Número de Convidados:</strong> {{ casal.numero_convidados or 'Não definido' }}</p>
                     </div>
                 </div>
+
+                {% if not casal.data_casamento or not casal.local_previsto %}
+                <div class="alert alert-info mt-3 mb-0" role="alert">
+                    <small>Complete suas informações de casamento para melhor experiência!</small>
+                </div>
+                {% endif %}
                 {% else %}
                 <div class="text-center py-4">
-                    <i class="fas fa-calendar-alt fa-3x text-gray-300 mb-3"></i>
-                    <h6>Defina a data do seu casamento</h6>
-                    <p class="text-muted small">Complete seu perfil para ver a timeline</p>
-                    <a href="/noivo/perfil" class="btn btn-sm btn-success">Completar Perfil</a>
+                    <i class="fas fa-heart fa-3x text-gray-300 mb-3"></i>
+                    <h6>Defina as informações do seu casamento</h6>
+                    <p class="text-muted small">Complete seu perfil para começar a usar o sistema</p>
+                    <a href="/noivo/perfil" class="btn btn-sm btn-primary">Completar Perfil</a>
                 </div>
                 {% endif %}
             </div>
@@ -234,8 +238,8 @@
     <div class="col-12">
         <div class="card shadow">
             <div class="card-header py-3 d-flex justify-content-between align-items-center">
-                <h6 class="m-0 font-weight-bold text-success">Demandas Recentes</h6>
-                <a href="/noivo/demandas" class="btn btn-sm btn-success">Ver Todas</a>
+                <h6 class="m-0 font-weight-bold text-primary">Demandas Recentes</h6>
+                <a href="/noivo/demandas" class="btn btn-sm btn-primary">Ver Todas</a>
             </div>
             <div class="card-body">
                 <div class="table-responsive">
@@ -264,7 +268,7 @@
                                 <td>{{ demanda.orcamentos_count or 0 }}</td>
                                 <td>{{ demanda.data_criacao or '-' }}</td>
                                 <td>
-                                    <a href="/noivo/demanda/{{ demanda.id }}" class="btn btn-sm btn-outline-success">
+                                    <a href="/noivo/demanda/{{ demanda.id }}" class="btn btn-sm btn-outline-primary">
                                         Ver Detalhes
                                     </a>
                                 </td>
@@ -282,10 +286,10 @@
     <div class="col-12">
         <div class="card shadow">
             <div class="card-body text-center py-5">
-                <i class="fas fa-heart fa-3x text-gray-300 mb-3"></i>
+                <i class="fas fa-clipboard-list fa-3x text-gray-300 mb-3"></i>
                 <h5>Nenhuma demanda criada</h5>
                 <p class="text-muted">Comece criando sua primeira demanda para receber orçamentos!</p>
-                <a href="/noivo/demanda/nova" class="btn btn-success">Criar Primeira Demanda</a>
+                <a href="/noivo/demanda/nova" class="btn btn-primary">Criar Primeira Demanda</a>
             </div>
         </div>
     </div>
@@ -295,60 +299,28 @@
 
 {% block scripts %}
 <style>
-.border-left-primary {
-    border-left: 0.25rem solid #4e73df !important;
-}
-.border-left-success {
-    border-left: 0.25rem solid #1cc88a !important;
-}
-.border-left-warning {
-    border-left: 0.25rem solid #f6c23e !important;
-}
-.border-left-info {
-    border-left: 0.25rem solid #36b9cc !important;
-}
+    .border-left-primary {
+        border-left: 0.25rem solid #4e73df !important;
+    }
 
-.timeline {
-    position: relative;
-    padding-left: 30px;
-}
+    .border-left-success {
+        border-left: 0.25rem solid #1cc88a !important;
+    }
 
-.timeline::before {
-    content: '';
-    position: absolute;
-    left: 15px;
-    top: 0;
-    bottom: 0;
-    width: 2px;
-    background: #e3e6f0;
-}
+    .border-left-warning {
+        border-left: 0.25rem solid #f6c23e !important;
+    }
 
-.timeline-item {
-    position: relative;
-    margin-bottom: 20px;
-}
+    .border-left-info {
+        border-left: 0.25rem solid #36b9cc !important;
+    }
 
-.timeline-marker {
-    position: absolute;
-    left: -37px;
-    top: 5px;
-    width: 12px;
-    height: 12px;
-    border-radius: 50%;
-    border: 2px solid #fff;
-    box-shadow: 0 0 5px rgba(0,0,0,0.1);
-}
+    .border-left-danger {
+        border-left: 0.25rem solid #dc3545 !important;
+    }
 
-.timeline-title {
-    margin-bottom: 5px;
-    font-size: 0.9rem;
-    font-weight: bold;
-}
-
-.timeline-text {
-    margin-bottom: 0;
-    font-size: 0.8rem;
-    color: #6c757d;
-}
+    .border-left-dark {
+        border-left: 0.25rem solid #343a40 !important;
+    }
 </style>
 {% endblock %}
