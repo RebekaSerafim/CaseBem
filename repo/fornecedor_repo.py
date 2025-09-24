@@ -25,8 +25,7 @@ def inserir_fornecedor(fornecedor: Fornecedor) -> Optional[int]:
                 cursor = conexao.cursor()
                 cursor.execute(INSERIR_FORNECEDOR,
                     (usuario_id, fornecedor.nome_empresa, fornecedor.cnpj,
-                     fornecedor.descricao, fornecedor.prestador,
-                     fornecedor.vendedor, fornecedor.locador,
+                     fornecedor.descricao,
                      fornecedor.verificado, fornecedor.data_verificacao,
                      fornecedor.newsletter))
                 return usuario_id
@@ -44,7 +43,6 @@ def atualizar_fornecedor(fornecedor: Fornecedor) -> bool:
             cursor = conexao.cursor()
             cursor.execute(ATUALIZAR_FORNECEDOR,
                 (fornecedor.nome_empresa, fornecedor.cnpj, fornecedor.descricao,
-                 fornecedor.prestador, fornecedor.vendedor, fornecedor.locador,
                  fornecedor.verificado, fornecedor.data_verificacao,
                  fornecedor.newsletter, fornecedor.id))
             return cursor.rowcount > 0
@@ -89,9 +87,6 @@ def obter_fornecedor_por_id(id: int) -> Optional[Fornecedor]:
                     nome_empresa=resultado["nome_empresa"],
                     cnpj=resultado["cnpj"],
                     descricao=resultado["descricao"],
-                    prestador=bool(resultado["prestador"]),
-                    vendedor=bool(resultado["vendedor"]),
-                    locador=bool(resultado["locador"]),
                     verificado=bool(resultado["verificado"]),
                     data_verificacao=resultado["data_verificacao"],
                     newsletter=bool(resultado["newsletter"])
@@ -127,9 +122,6 @@ def obter_fornecedores_por_pagina(numero_pagina: int, tamanho_pagina: int) -> Li
                 nome_empresa=resultado["nome_empresa"],
                 cnpj=resultado["cnpj"],
                 descricao=resultado["descricao"],
-                prestador=bool(resultado["prestador"]),
-                vendedor=bool(resultado["vendedor"]),
-                locador=bool(resultado["locador"]),
                 verificado=bool(resultado["verificado"]),
                 data_verificacao=resultado["data_verificacao"],
                 newsletter=bool(resultado["newsletter"])
@@ -138,113 +130,6 @@ def obter_fornecedores_por_pagina(numero_pagina: int, tamanho_pagina: int) -> Li
         print(f"Erro ao obter fornecedores por página: {e}")
     return []
 
-def obter_prestadores() -> List[Fornecedor]:
-    try:
-        with obter_conexao() as conexao:
-            cursor = conexao.cursor()
-            cursor.execute(OBTER_PRESTADORES)
-            resultados = cursor.fetchall()
-
-            return [Fornecedor(
-                # Campos de Usuario na ordem correta
-                id=resultado["id"],
-                nome=resultado["nome"],
-                cpf=resultado["cpf"],
-                data_nascimento=resultado["data_nascimento"],
-                email=resultado["email"],
-                telefone=resultado["telefone"],
-                senha=resultado["senha"],
-                perfil=TipoUsuario.FORNECEDOR,
-
-                token_redefinicao=resultado["token_redefinicao"],
-                data_token=resultado["data_token"],
-                data_cadastro=resultado["data_cadastro"],
-                # Campos específicos de Fornecedor
-                nome_empresa=resultado["nome_empresa"],
-                cnpj=resultado["cnpj"],
-                descricao=resultado["descricao"],
-                prestador=bool(resultado["prestador"]),
-                vendedor=bool(resultado["vendedor"]),
-                locador=bool(resultado["locador"]),
-                verificado=bool(resultado["verificado"]),
-                data_verificacao=resultado["data_verificacao"],
-                newsletter=bool(resultado["newsletter"])
-            ) for resultado in resultados]
-    except Exception as e:
-        print(f"Erro ao obter prestadores: {e}")
-    return []
-
-def obter_vendedores() -> List[Fornecedor]:
-    try:
-        with obter_conexao() as conexao:
-            cursor = conexao.cursor()
-            cursor.execute(OBTER_VENDEDORES)
-            resultados = cursor.fetchall()
-
-            return [Fornecedor(
-                # Campos de Usuario na ordem correta
-                id=resultado["id"],
-                nome=resultado["nome"],
-                cpf=resultado["cpf"],
-                data_nascimento=resultado["data_nascimento"],
-                email=resultado["email"],
-                telefone=resultado["telefone"],
-                senha=resultado["senha"],
-                perfil=TipoUsuario.FORNECEDOR,
-
-                token_redefinicao=resultado["token_redefinicao"],
-                data_token=resultado["data_token"],
-                data_cadastro=resultado["data_cadastro"],
-                # Campos específicos de Fornecedor
-                nome_empresa=resultado["nome_empresa"],
-                cnpj=resultado["cnpj"],
-                descricao=resultado["descricao"],
-                prestador=bool(resultado["prestador"]),
-                vendedor=bool(resultado["vendedor"]),
-                locador=bool(resultado["locador"]),
-                verificado=bool(resultado["verificado"]),
-                data_verificacao=resultado["data_verificacao"],
-                newsletter=bool(resultado["newsletter"])
-            ) for resultado in resultados]
-    except Exception as e:
-        print(f"Erro ao obter vendedores: {e}")
-    return []
-
-def obter_locadores() -> List[Fornecedor]:
-    try:
-        with obter_conexao() as conexao:
-            cursor = conexao.cursor()
-            cursor.execute(OBTER_LOCADORES)
-            resultados = cursor.fetchall()
-
-            return [Fornecedor(
-                # Campos de Usuario na ordem correta
-                id=resultado["id"],
-                nome=resultado["nome"],
-                cpf=resultado["cpf"],
-                data_nascimento=resultado["data_nascimento"],
-                email=resultado["email"],
-                telefone=resultado["telefone"],
-                senha=resultado["senha"],
-                perfil=TipoUsuario.FORNECEDOR,
-
-                token_redefinicao=resultado["token_redefinicao"],
-                data_token=resultado["data_token"],
-                data_cadastro=resultado["data_cadastro"],
-                # Campos específicos de Fornecedor
-                nome_empresa=resultado["nome_empresa"],
-                cnpj=resultado["cnpj"],
-                descricao=resultado["descricao"],
-                prestador=bool(resultado["prestador"]),
-                vendedor=bool(resultado["vendedor"]),
-                locador=bool(resultado["locador"]),
-                verificado=bool(resultado["verificado"]),
-                data_verificacao=resultado["data_verificacao"],
-                newsletter=bool(resultado["newsletter"])
-            ) for resultado in resultados]
-    except Exception as e:
-        print(f"Erro ao obter locadores: {e}")
-    return []
 def contar_fornecedores() -> int:
     """Conta o total de fornecedores no sistema"""
     try:

@@ -9,7 +9,7 @@ configurar_filtros_jinja(templates)
 @router.get("/blocked")
 async def blocked_page(request: Request):
     """Página mostrada quando um IP está bloqueado"""
-    return templates.TemplateResponse("blocked.html", {
+    return templates.TemplateResponse("publico/blocked.html", {
         "request": request
     })
 

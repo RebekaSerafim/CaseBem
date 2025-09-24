@@ -82,10 +82,7 @@ def fornecedor_exemplo():
         # Campos específicos de Fornecedor
         nome_empresa="Empresa Teste",
         cnpj="12.345.678/0001-90",
-        descricao="Descrição dos serviços",
-        prestador=True,
-        vendedor=True,
-        locador=False
+        descricao="Descrição dos serviços"
     )
     return fornecedor
 
@@ -113,10 +110,7 @@ def lista_fornecedores_exemplo():
             # Campos específicos de Fornecedor
             nome_empresa=f"Empresa {i:02d}",
             cnpj=f"12.345.67{i:01d}/0001-90",
-            descricao=f"Descrição dos serviços {i:02d}",
-            prestador=(i % 3 == 1),
-            vendedor=(i % 3 == 2),
-            locador=(i % 3 == 0)
+            descricao=f"Descrição dos serviços {i:02d}"
         )
         fornecedores.append(fornecedor)
     return fornecedores

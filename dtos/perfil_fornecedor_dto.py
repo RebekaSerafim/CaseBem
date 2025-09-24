@@ -21,11 +21,6 @@ class PerfilFornecedorDTO(BaseModel):
     cnpj: Optional[str] = Field(None, description="CNPJ da empresa")
     descricao: Optional[str] = Field(None, description="Descrição dos serviços/produtos/espaços")
 
-    # Tipos de fornecimento (checkboxes)
-    prestador: bool = Field(False, description="Fornece serviços")
-    vendedor: bool = Field(False, description="Fornece produtos")
-    locador: bool = Field(False, description="Fornece espaços")
-
     # Preferências
     newsletter: bool = Field(False, description="Aceita receber newsletter")
 
@@ -57,16 +52,10 @@ class PerfilFornecedorDTO(BaseModel):
         except ValidacaoError as e:
             raise ValueError(str(e))
 
-    @validator('prestador', 'vendedor', 'locador')
-    def validar_pelo_menos_um_tipo(cls, v, values, field):
-        # Esta validação será executada após todos os campos
-        # Será feita uma validação final no método __init__ ou usando root_validator
-        return v
-
     @validator('*', pre=True)
     def converter_checkboxes(cls, v, field):
         """Converter valores de checkbox vindos do form"""
-        if field.name in ['prestador', 'vendedor', 'locador', 'newsletter']:
+        if field.name in ['newsletter']:
             return converter_checkbox_para_bool(v)
         return v
 
@@ -82,16 +71,6 @@ class PerfilFornecedorDTO(BaseModel):
                 "cnpj": "12.345.678/0001-90",
                 "nome_empresa": "Empresa LTDA",
                 "descricao": "Serviços de fotografia para casamentos",
-                "prestador": True,
-                "vendedor": False,
-                "locador": False,
                 "newsletter": True
             }
         }
-
-    def __init__(self, **data):
-        super().__init__(**data)
-
-        # Validar que pelo menos um tipo de fornecimento foi selecionado
-        if not (self.prestador or self.vendedor or self.locador):
-            raise ValueError('Selecione pelo menos um tipo de fornecimento')

@@ -121,13 +121,15 @@ WHERE tipo = ?;
 
 OBTER_ITENS_PUBLICOS_FILTRADOS = """
 SELECT i.id, i.id_fornecedor, i.tipo, i.nome, i.descricao, i.preco, i.observacoes, i.ativo, i.data_cadastro, i.id_categoria,
-       u.nome as fornecedor_nome, f.nome_empresa as fornecedor_empresa
+       u.nome as fornecedor_nome, f.nome_empresa as fornecedor_empresa, c.nome as categoria_nome
 FROM item i
 JOIN usuario u ON i.id_fornecedor = u.id
 LEFT JOIN fornecedor f ON i.id_fornecedor = f.id
+LEFT JOIN categoria c ON i.id_categoria = c.id
 WHERE i.ativo = 1
   AND (? IS NULL OR i.tipo = ?)
   AND (? IS NULL OR i.nome LIKE ? OR i.descricao LIKE ? OR i.observacoes LIKE ?)
+  AND (? IS NULL OR i.id_categoria = ?)
 ORDER BY i.data_cadastro DESC
 LIMIT ? OFFSET ?;
 """
@@ -136,7 +138,9 @@ CONTAR_ITENS_PUBLICOS_FILTRADOS = """
 SELECT COUNT(*) as total
 FROM item i
 JOIN usuario u ON i.id_fornecedor = u.id
+LEFT JOIN categoria c ON i.id_categoria = c.id
 WHERE i.ativo = 1
   AND (? IS NULL OR i.tipo = ?)
-  AND (? IS NULL OR i.nome LIKE ? OR i.descricao LIKE ? OR i.observacoes LIKE ?);
+  AND (? IS NULL OR i.nome LIKE ? OR i.descricao LIKE ? OR i.observacoes LIKE ?)
+  AND (? IS NULL OR i.id_categoria = ?);
 """

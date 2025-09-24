@@ -1,0 +1,563 @@
+{
+  "_ORDEM_ORIGINAL_DADOS2DB": "Os primeiros 41 itens mantêm a ordem exata do banco dados2.db para preservar compatibilidade com fotos",
+
+  "Decoração e Ambientação": [
+    {
+      "nome": "Decoração Completa",
+      "preco": 3500.0,
+      "descricao": "Decoração completa do evento"
+    },
+    {
+      "nome": "Decoração do Altar",
+      "preco": 650.0,
+      "descricao": "Decoração específica do altar"
+    },
+    {
+      "nome": "Arranjos Mesa",
+      "preco": 85.0,
+      "descricao": "Arranjos para mesas dos convidados"
+    }
+  ],
+
+  "Flores e Arranjos": [
+    {
+      "nome": "Buquê de Noiva Rosas",
+      "preco": 280.0,
+      "descricao": "Buquê clássico com rosas brancas"
+    },
+    {
+      "nome": "Boutonnière para Noivo",
+      "preco": 35.0,
+      "descricao": "Flor para lapela do noivo"
+    },
+    {
+      "nome": "Corsage para Madrinhas",
+      "preco": 25.0,
+      "descricao": "Arranjo para pulso das madrinhas"
+    },
+    {
+      "nome": "Buquê de Noiva Peônias",
+      "preco": 350.0,
+      "descricao": "Buquê sofisticado com peônias"
+    }
+  ],
+
+  "Limpeza": [
+    {
+      "nome": "Limpeza Pós-Evento",
+      "preco": 300.0,
+      "descricao": "Limpeza completa após o evento"
+    },
+    {
+      "nome": "Limpeza Durante Evento",
+      "preco": 180.0,
+      "descricao": "Equipe de limpeza durante o evento"
+    },
+    {
+      "nome": "Banheiro Químico Luxo",
+      "preco": 220.0,
+      "descricao": "Banheiro químico de alto padrão"
+    }
+  ],
+
+  "Beleza e Estética": [
+    {
+      "nome": "Maquiagem de Noiva",
+      "preco": 280.0,
+      "descricao": "Maquiagem profissional para noiva"
+    },
+    {
+      "nome": "Penteado de Noiva",
+      "preco": 220.0,
+      "descricao": "Penteado elegante para noiva"
+    },
+    {
+      "nome": "Teste de Maquiagem",
+      "preco": 120.0,
+      "descricao": "Teste antes do casamento"
+    },
+    {
+      "nome": "Maquiagem Madrinhas",
+      "preco": 80.0,
+      "descricao": "Maquiagem para madrinhas"
+    }
+  ],
+
+  "Música e Som": [
+    {
+      "nome": "DJ para Cerimônia",
+      "preco": 650.0,
+      "descricao": "DJ especializado em cerimônias religiosas"
+    },
+    {
+      "nome": "DJ para Recepção 6h",
+      "preco": 1200.0,
+      "descricao": "DJ para festa com 6 horas de duração"
+    },
+    {
+      "nome": "Iluminação LED Premium",
+      "preco": 850.0,
+      "descricao": "Sistema de iluminação completo"
+    },
+    {
+      "nome": "Som para Cerimônia",
+      "preco": 350.0,
+      "descricao": "Sistema de som para cerimônia"
+    },
+    {
+      "nome": "Banda ao Vivo 4h",
+      "preco": 2800.0,
+      "descricao": "Banda completa para recepção"
+    },
+    {
+      "nome": "Coral para Cerimônia",
+      "preco": 480.0,
+      "descricao": "Coral com 6 vozes para cerimônia"
+    },
+    {
+      "nome": "Violinista Solo",
+      "preco": 320.0,
+      "descricao": "Violinista para entrada da noiva"
+    },
+    {
+      "nome": "Projeção Mapeada",
+      "preco": 1200.0,
+      "descricao": "Projeção com efeitos visuais 3D"
+    }
+  ],
+
+  "Transporte": [
+    {
+      "nome": "Van para Convidados",
+      "preco": 350.0,
+      "descricao": "Transporte para convidados"
+    },
+    {
+      "nome": "Carro Antigo Conversível",
+      "preco": 650.0,
+      "descricao": "Carro clássico para fotos"
+    },
+    {
+      "nome": "Limousine Branca",
+      "preco": 850.0,
+      "descricao": "Limousine para transporte dos noivos"
+    },
+    {
+      "nome": "Helicóptero",
+      "preco": 3500.0,
+      "descricao": "Chegada espetacular de helicóptero"
+    },
+    {
+      "nome": "Ônibus Executivo",
+      "preco": 800.0,
+      "descricao": "Ônibus de luxo para grupos grandes"
+    },
+    {
+      "nome": "Charrete Romântica",
+      "preco": 450.0,
+      "descricao": "Charrete decorada com cavalos"
+    }
+  ],
+
+  "Segurança": [
+    {
+      "nome": "Segurança Particular",
+      "preco": 400.0,
+      "descricao": "Serviço de segurança para o evento"
+    },
+    {
+      "nome": "Segurança VIP",
+      "preco": 800.0,
+      "descricao": "Segurança especializada para eventos de alto padrão"
+    },
+    {
+      "nome": "Detector de Metais",
+      "preco": 250.0,
+      "descricao": "Equipamento e operador para controle de acesso"
+    },
+    {
+      "nome": "Brigadista",
+      "preco": 300.0,
+      "descricao": "Brigadista de incêndio certificado"
+    }
+  ],
+
+  "Bebidas": [
+    {
+      "nome": "Vinho Tinto Seleção",
+      "preco": 85.0,
+      "descricao": "Vinho tinto nacional selecionado"
+    },
+    {
+      "nome": "Caipirinha Bar",
+      "preco": 12.0,
+      "descricao": "Caipirinha preparada na hora"
+    },
+    {
+      "nome": "Champagne Importado",
+      "preco": 180.0,
+      "descricao": "Champagne francês para brinde"
+    },
+    {
+      "nome": "Coquetel Molecular",
+      "preco": 28.0,
+      "descricao": "Drinks com técnica molecular"
+    },
+    {
+      "nome": "Cerveja Artesanal",
+      "preco": 18.0,
+      "descricao": "Cerveja artesanal premium"
+    },
+    {
+      "nome": "Smoothie Bar",
+      "preco": 15.0,
+      "descricao": "Smoothies naturais e funcionais"
+    },
+    {
+      "nome": "Whisky Premium",
+      "preco": 120.0,
+      "descricao": "Whisky escocês single malt"
+    }
+  ],
+
+  "Hospedagem": [
+    {
+      "nome": "Suíte Presidencial",
+      "preco": 350.0,
+      "descricao": "Suíte luxo para os noivos"
+    },
+    {
+      "nome": "Quarto Standard",
+      "preco": 120.0,
+      "descricao": "Quarto confortável para convidados"
+    },
+    {
+      "nome": "Pacote Weekend",
+      "preco": 280.0,
+      "descricao": "Pacote final de semana para família"
+    }
+  ],
+
+  "Vestidos e Roupas": [
+    {
+      "nome": "Véu de Noiva 3 metros",
+      "preco": 280.0,
+      "descricao": "Véu longo para cerimônia"
+    },
+    {
+      "nome": "Vestido de Noiva Princesa",
+      "preco": 2800.0,
+      "descricao": "Vestido estilo princesa com cauda"
+    },
+    {
+      "nome": "Vestido de Noiva Sereia",
+      "preco": 3200.0,
+      "descricao": "Vestido estilo sereia moderno"
+    },
+    {
+      "nome": "Sapato de Noiva Perolado",
+      "preco": 320.0,
+      "descricao": "Sapato elegante perolado"
+    }
+  ],
+
+  "Cerimonial e Assessoria": [
+    {
+      "nome": "Cerimonial Completo",
+      "preco": 2500.0,
+      "descricao": "Assessoria completa do casamento"
+    },
+    {
+      "nome": "Cerimonial Cerimônia",
+      "preco": 800.0,
+      "descricao": "Coordenação apenas da cerimônia"
+    },
+    {
+      "nome": "Day-of Coordinator",
+      "preco": 1200.0,
+      "descricao": "Coordenação apenas no dia do casamento"
+    },
+    {
+      "nome": "Planejamento 12 Meses",
+      "preco": 3500.0,
+      "descricao": "Planejamento completo com 12 meses de antecedência"
+    },
+    {
+      "nome": "Consultoria por Hora",
+      "preco": 150.0,
+      "descricao": "Consultoria especializada por hora"
+    }
+  ],
+
+  "Fotografia e Filmagem": [
+    {
+      "nome": "Filmagem Cerimônia",
+      "preco": 1200.0,
+      "descricao": "Filmagem profissional da cerimônia religiosa"
+    },
+    {
+      "nome": "Ensaio Pré-Wedding",
+      "preco": 850.0,
+      "descricao": "Sessão fotográfica romântica antes do casamento"
+    },
+    {
+      "nome": "Cobertura Completa do Casamento",
+      "preco": 2500.0,
+      "descricao": "Fotografia completa da cerimônia e recepção"
+    },
+    {
+      "nome": "Vídeo Highlights",
+      "preco": 800.0,
+      "descricao": "Vídeo resumo dos melhores momentos"
+    },
+    {
+      "nome": "Álbum Premium 30x30",
+      "preco": 680.0,
+      "descricao": "Álbum fotográfico de luxo com 50 páginas"
+    },
+    {
+      "nome": "Drone Aéreo",
+      "preco": 450.0,
+      "descricao": "Filmagem aérea com drone profissional"
+    },
+    {
+      "nome": "Impressão Fine Art",
+      "preco": 120.0,
+      "descricao": "Impressão em papel algodão para quadro"
+    },
+    {
+      "nome": "Making Of",
+      "preco": 320.0,
+      "descricao": "Documentário dos preparativos do casamento"
+    }
+  ],
+
+  "Espaços para Cerimônia": [
+    {
+      "nome": "Gazebo para Cerimônia",
+      "preco": 350.0,
+      "descricao": "Gazebo romântico para altar"
+    },
+    {
+      "nome": "Jardim para Cerimônia",
+      "preco": 800.0,
+      "descricao": "Jardim paisagístico ao ar livre"
+    },
+    {
+      "nome": "Capela Ecumênica",
+      "preco": 600.0,
+      "descricao": "Capela para cerimônias religiosas"
+    }
+  ],
+
+  "Convites e Papelaria": [
+    {
+      "nome": "Convite Clássico 100un",
+      "preco": 350.0,
+      "descricao": "Convites clássicos 100 unidades"
+    },
+    {
+      "nome": "Save the Date 100un",
+      "preco": 220.0,
+      "descricao": "Save the Date 100 unidades"
+    },
+    {
+      "nome": "Lembrancinha Sabonete 100un",
+      "preco": 280.0,
+      "descricao": "Lembrancinhas de sabonete"
+    },
+    {
+      "nome": "Menu Personalizado 100un",
+      "preco": 180.0,
+      "descricao": "Menus personalizados"
+    }
+  ],
+
+  "Espaços para Recepção": [
+    {
+      "nome": "Salão de Festas 150 pessoas",
+      "preco": 2400.0,
+      "descricao": "Salão amplo para 150 convidados"
+    },
+    {
+      "nome": "Espaço Gourmet",
+      "preco": 450.0,
+      "descricao": "Área para coquetel e confraternização"
+    },
+    {
+      "nome": "Sala de Noiva",
+      "preco": 200.0,
+      "descricao": "Espaço exclusivo para preparação da noiva"
+    },
+    {
+      "nome": "Salão de Festas 100 pessoas",
+      "preco": 1800.0,
+      "descricao": "Salão climatizado para 100 convidados"
+    }
+  ],
+
+  "Celebrante": [
+    {
+      "nome": "Celebrante Civil",
+      "preco": 400.0,
+      "descricao": "Celebrante para cerimônia civil"
+    },
+    {
+      "nome": "Celebrante Religioso",
+      "preco": 500.0,
+      "descricao": "Celebrante para cerimônia religiosa"
+    },
+    {
+      "nome": "Celebrante Bilíngue",
+      "preco": 650.0,
+      "descricao": "Celebrante que conduz cerimônia em dois idiomas"
+    },
+    {
+      "nome": "Celebrante Temático",
+      "preco": 550.0,
+      "descricao": "Celebrante especializado em cerimônias temáticas"
+    }
+  ],
+
+  "Móveis e Utensílios": [
+    {
+      "nome": "Cadeira Tiffany",
+      "preco": 8.0,
+      "descricao": "Cadeira elegante estilo Tiffany"
+    },
+    {
+      "nome": "Mesa Redonda 8 pessoas",
+      "preco": 45.0,
+      "descricao": "Mesa redonda para 8 convidados"
+    },
+    {
+      "nome": "Toalha Mesa Rendada",
+      "preco": 25.0,
+      "descricao": "Toalha de mesa com renda"
+    },
+    {
+      "nome": "Mesa Imperial 12 pessoas",
+      "preco": 80.0,
+      "descricao": "Mesa retangular imperial para 12 pessoas"
+    },
+    {
+      "nome": "Cadeira Ghost",
+      "preco": 12.0,
+      "descricao": "Cadeira transparente moderna"
+    },
+    {
+      "nome": "Guardanapo Bordado",
+      "preco": 5.0,
+      "descricao": "Guardanapo de tecido bordado"
+    }
+  ],
+
+  "Bolos e Doces": [
+    {
+      "nome": "Bem-Casados 100un",
+      "preco": 250.0,
+      "descricao": "Bem-casados tradicionais"
+    },
+    {
+      "nome": "Bolo de Casamento 3 andares",
+      "preco": 380.0,
+      "descricao": "Bolo tradicional de 3 andares"
+    },
+    {
+      "nome": "Doces Finos 100un",
+      "preco": 320.0,
+      "descricao": "Seleção de doces finos"
+    },
+    {
+      "nome": "Naked Cake",
+      "preco": 280.0,
+      "descricao": "Bolo rústico sem cobertura"
+    },
+    {
+      "nome": "Macarrons Franceses 100un",
+      "preco": 380.0,
+      "descricao": "Macarons artesanais franceses"
+    },
+    {
+      "nome": "Cupcakes Decorados 50un",
+      "preco": 200.0,
+      "descricao": "Cupcakes personalizados"
+    },
+    {
+      "nome": "Torre de Profiteroles",
+      "preco": 420.0,
+      "descricao": "Torre francesa de profiteroles"
+    },
+    {
+      "nome": "Brigadeiros Gourmet 100un",
+      "preco": 180.0,
+      "descricao": "Brigadeiros gourmet variados"
+    }
+  ],
+
+  "Buffet e Catering": [
+    {
+      "nome": "Mesa de Doces Finos",
+      "preco": 850.0,
+      "descricao": "Mesa de doces gourmet"
+    },
+    {
+      "nome": "Buffet Completo 150 pessoas",
+      "preco": 6200.0,
+      "descricao": "Buffet completo para 150 convidados"
+    },
+    {
+      "nome": "Bar Premium",
+      "preco": 1200.0,
+      "descricao": "Serviço de bar com drinks premium"
+    },
+    {
+      "nome": "Buffet Completo 100 pessoas",
+      "preco": 4500.0,
+      "descricao": "Buffet completo para 100 convidados"
+    },
+    {
+      "nome": "Estação de Sushi",
+      "preco": 980.0,
+      "descricao": "Chef preparando sushi ao vivo"
+    },
+    {
+      "nome": "Coffee Break Premium",
+      "preco": 320.0,
+      "descricao": "Coffee break gourmet para 50 pessoas"
+    },
+    {
+      "nome": "Brunch Tardio",
+      "preco": 1800.0,
+      "descricao": "Brunch sofisticado pós-cerimônia"
+    },
+    {
+      "nome": "Estação de Massas",
+      "preco": 750.0,
+      "descricao": "Massas frescas preparadas na hora"
+    }
+  ],
+
+  "Alianças e Joias": [
+    {
+      "nome": "Brincos de Pérola",
+      "preco": 320.0,
+      "descricao": "Brincos elegantes de pérola"
+    },
+    {
+      "nome": "Anel de Noivado Solitário",
+      "preco": 2200.0,
+      "descricao": "Anel solitário com diamante"
+    },
+    {
+      "nome": "Aliança Ouro 18k Lisa",
+      "preco": 580.0,
+      "descricao": "Aliança clássica em ouro 18k"
+    },
+    {
+      "nome": "Aliança com Diamante",
+      "preco": 1200.0,
+      "descricao": "Aliança com diamantes cravados"
+    }
+  ]
+}

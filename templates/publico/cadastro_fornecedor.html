@@ -14,41 +14,6 @@
                 {% endif %}
 
                 <form id="formCadastro" method="post" action="/cadastro-fornecedor" onsubmit="removerMascaras()">
-                    <!-- Tipo de Profissional -->
-                    <div class="row mb-4">
-                        <div class="col-12">
-                            <label class="form-label fw-bold">Tipo de Fornecimento *</label>
-                            <div class="row mt-2">
-                                <div class="col-md-4">
-                                    <div class="form-check">
-                                        <input class="form-check-input" type="checkbox" name="perfis" value="prestador" id="prestador" {{ 'checked' if dados and 'prestador' in dados.perfis else '' }}>
-                                        <label class="form-check-label" for="prestador">
-                                            <strong>Serviços</strong><br>
-                                            <small class="text-muted">Fotografia, música, cerimonial, etc.</small>
-                                        </label>
-                                    </div>
-                                </div>
-                                <div class="col-md-4">
-                                    <div class="form-check">
-                                        <input class="form-check-input" type="checkbox" name="perfis" value="vendedor" id="vendedor" {{ 'checked' if dados and 'vendedor' in dados.perfis else '' }}>
-                                        <label class="form-check-label" for="vendedor">
-                                            <strong>Produtos</strong><br>
-                                            <small class="text-muted">Vestidos, bolos, decoração, etc.</small>
-                                        </label>
-                                    </div>
-                                </div>
-                                <div class="col-md-4">
-                                    <div class="form-check">
-                                        <input class="form-check-input" type="checkbox" name="perfis" value="locador" id="locador" {{ 'checked' if dados and 'locador' in dados.perfis else '' }}>
-                                        <label class="form-check-label" for="locador">
-                                            <strong>Espaços</strong><br>
-                                            <small class="text-muted">Salões, sítios, igrejas, etc.</small>
-                                        </label>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
 
                     <!-- Dados Pessoais -->
                     <h5 class="mb-3">Dados Pessoais</h5>

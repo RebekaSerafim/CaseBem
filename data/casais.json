@@ -1,0 +1,82 @@
+[
+  {
+    "noivo1": {"nome": "João Silva", "email": "joao.silva@email.com", "telefone": "(11) 99888-7766", "cpf": "123.456.789-01"},
+    "noiva1": {"nome": "Maria Santos", "email": "maria.santos@email.com", "telefone": "(11) 99888-7767", "cpf": "987.654.321-01"},
+    "data_casamento": "2024-12-15",
+    "local_previsto": "Igreja São João Batista - Salão Jardim das Rosas",
+    "orcamento_estimado": "R$ 35.000,00",
+    "numero_convidados": 120
+  },
+  {
+    "noivo1": {"nome": "Pedro Oliveira", "email": "pedro.oliveira@email.com", "telefone": "(21) 98777-6655", "cpf": "234.567.890-12"},
+    "noiva1": {"nome": "Ana Costa", "email": "ana.costa@email.com", "telefone": "(21) 98777-6656", "cpf": "876.543.210-12"},
+    "data_casamento": "2025-02-22",
+    "local_previsto": "Praia de Copacabana - Hotel Copacabana Palace",
+    "orcamento_estimado": "R$ 85.000,00",
+    "numero_convidados": 200
+  },
+  {
+    "noivo1": {"nome": "Carlos Mendes", "email": "carlos.mendes@email.com", "telefone": "(31) 97666-5544", "cpf": "345.678.901-23"},
+    "noiva1": {"nome": "Julia Ferreira", "email": "julia.ferreira@email.com", "telefone": "(31) 97666-5545", "cpf": "765.432.109-23"},
+    "data_casamento": "2024-11-30",
+    "local_previsto": "Fazenda Vista Alegre - Tiradentes/MG",
+    "orcamento_estimado": "R$ 45.000,00",
+    "numero_convidados": 80
+  },
+  {
+    "noivo1": {"nome": "Rafael Lima", "email": "rafael.lima@email.com", "telefone": "(41) 96555-4433", "cpf": "456.789.012-34"},
+    "noiva1": {"nome": "Camila Rodrigues", "email": "camila.rodrigues@email.com", "telefone": "(41) 96555-4434", "cpf": "654.321.098-34"},
+    "data_casamento": "2025-03-15",
+    "local_previsto": "Jardim Botânico de Curitiba",
+    "orcamento_estimado": "R$ 28.000,00",
+    "numero_convidados": 95
+  },
+  {
+    "noivo1": {"nome": "Gabriel Souza", "email": "gabriel.souza@email.com", "telefone": "(51) 95444-3322", "cpf": "567.890.123-45"},
+    "noiva1": {"nome": "Isabela Martins", "email": "isabela.martins@email.com", "telefone": "(51) 95444-3323", "cpf": "543.210.987-45"},
+    "data_casamento": "2025-01-18",
+    "local_previsto": "Vinícola Casa Valduga - Bento Gonçalves/RS",
+    "orcamento_estimado": "R$ 55.000,00",
+    "numero_convidados": 140
+  },
+  {
+    "noivo1": {"nome": "Thiago Alves", "email": "thiago.alves@email.com", "telefone": "(61) 94333-2211", "cpf": "678.901.234-56"},
+    "noiva1": {"nome": "Fernanda Castro", "email": "fernanda.castro@email.com", "telefone": "(61) 94333-2212", "cpf": "432.109.876-56"},
+    "data_casamento": "2024-10-25",
+    "local_previsto": "Espaço Villa Regia - Brasília/DF",
+    "orcamento_estimado": "R$ 40.000,00",
+    "numero_convidados": 110
+  },
+  {
+    "noivo1": {"nome": "Bruno Pereira", "email": "bruno.pereira@email.com", "telefone": "(85) 93222-1100", "cpf": "789.012.345-67"},
+    "noiva1": {"nome": "Larissa Gomes", "email": "larissa.gomes@email.com", "telefone": "(85) 93222-1101", "cpf": "321.098.765-67"},
+    "data_casamento": "2025-05-10",
+    "local_previsto": "Beach Park Resort - Fortaleza/CE",
+    "orcamento_estimado": "R$ 60.000,00",
+    "numero_convidados": 160
+  },
+  {
+    "noivo1": {"nome": "Diego Santos", "email": "diego.santos@email.com", "telefone": "(71) 92111-0099", "cpf": "890.123.456-78"},
+    "noiva1": {"nome": "Natália Silva", "email": "natalia.silva@email.com", "telefone": "(71) 92111-0100", "cpf": "210.987.654-78"},
+    "data_casamento": "2025-04-05",
+    "local_previsto": "Pelourinho - Salvador/BA",
+    "orcamento_estimado": "R$ 38.000,00",
+    "numero_convidados": 85
+  },
+  {
+    "noivo1": {"nome": "Rodrigo Costa", "email": "rodrigo.costa@email.com", "telefone": "(62) 91000-9988", "cpf": "901.234.567-89"},
+    "noiva1": {"nome": "Beatriz Ribeiro", "email": "beatriz.ribeiro@email.com", "telefone": "(62) 91000-9989", "cpf": "109.876.543-89"},
+    "data_casamento": "2024-12-28",
+    "local_previsto": "Clube Jaó - Goiânia/GO",
+    "orcamento_estimado": "R$ 32.000,00",
+    "numero_convidados": 75
+  },
+  {
+    "noivo1": {"nome": "Leonardo Barbosa", "email": "leonardo.barbosa@email.com", "telefone": "(47) 90999-8877", "cpf": "012.345.678-90"},
+    "noiva1": {"nome": "Priscila Moreira", "email": "priscila.moreira@email.com", "telefone": "(47) 90999-8878", "cpf": "098.765.432-90"},
+    "data_casamento": "2025-06-20",
+    "local_previsto": "Vila Germânica - Blumenau/SC",
+    "orcamento_estimado": "R$ 42.000,00",
+    "numero_convidados": 130
+  }
+]

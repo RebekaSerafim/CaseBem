@@ -343,11 +343,6 @@ async def post_cadastro_fornecedor(request: Request,
     # Criar hash da senha
     senha_hash = criar_hash_senha(dados.senha)
 
-    # Verificar quais tipos de fornecimento foram selecionados
-    eh_prestador = "prestador" in dados.perfis
-    eh_vendedor = "vendedor" in dados.perfis
-    eh_locador = "locador" in dados.perfis
-
     # Criar fornecedor (que herda de Usuario)
     fornecedor = Fornecedor(
         # Campos de Usuario na ordem correta
@@ -359,7 +354,7 @@ async def post_cadastro_fornecedor(request: Request,
         telefone=dados.telefone,
         senha=senha_hash,
         perfil=TipoUsuario.FORNECEDOR,
-        
+
         token_redefinicao=None,
         data_token=None,
         data_cadastro=None,
@@ -367,9 +362,6 @@ async def post_cadastro_fornecedor(request: Request,
         nome_empresa=dados.nome_empresa,
         cnpj=dados.cnpj,
         descricao=dados.descricao,
-        prestador=eh_prestador,
-        vendedor=eh_vendedor,
-        locador=eh_locador,
         newsletter=dados.newsletter == "on"
     )
     fornecedor_id = fornecedor_repo.inserir_fornecedor(fornecedor)
@@ -401,11 +393,6 @@ async def post_cadastro_geral(request: Request,
     # Criar hash da senha
     senha_hash = criar_hash_senha(senha)
 
-    # Definir qual tipo de fornecedor baseado no tipo
-    eh_prestador = tipo == "P"
-    eh_vendedor = tipo == "F"
-    eh_locador = tipo == "L"
-
     # Criar fornecedor
     fornecedor = Fornecedor(
         # Campos de Usuario na ordem correta
@@ -417,17 +404,14 @@ async def post_cadastro_geral(request: Request,
         telefone=telefone,
         senha=senha_hash,
         perfil=TipoUsuario.FORNECEDOR,
-        
+
         token_redefinicao=None,
         data_token=None,
         data_cadastro=None,
         # Campos específicos de Fornecedor
         nome_empresa=None,
         cnpj=None,
-        descricao=None,
-        prestador=eh_prestador,
-        vendedor=eh_vendedor,
-        locador=eh_locador
+        descricao=None
     )
     fornecedor_id = fornecedor_repo.inserir_fornecedor(fornecedor)
     return RedirectResponse("/login", status.HTTP_303_SEE_OTHER)
@@ -499,17 +483,40 @@ async def listar_itens_publicos(
     request: Request,
     tipo: str = None,
     busca: str = None,
+    categoria: str = None,
     pagina: int = 1
 ):
     """Lista itens públicos com filtros e paginação"""
     try:
-        from repo import item_repo
+        from repo import item_repo, categoria_repo
+        from model.item_model import TipoItem
         import math
+
+        # Converter categoria para int se não estiver vazia
+        categoria_int = None
+        if categoria and categoria.strip():
+            try:
+                categoria_int = int(categoria)
+            except ValueError:
+                categoria_int = None
+
+        # Obter categorias para o filtro
+        categorias = []
+        if tipo:
+            tipo_map = {
+                'produto': TipoItem.PRODUTO,
+                'servico': TipoItem.SERVICO,
+                'espaco': TipoItem.ESPACO
+            }
+            tipo_enum = tipo_map.get(tipo)
+            if tipo_enum:
+                categorias = categoria_repo.obter_categorias_por_tipo_ativas(tipo_enum)
 
         # Obter itens e total
         itens, total_itens = item_repo.obter_itens_publicos(
             tipo=tipo,
             busca=busca,
+            categoria=categoria_int,
             pagina=pagina,
             tamanho_pagina=12
         )
@@ -524,7 +531,9 @@ async def listar_itens_publicos(
             "pagina_atual": pagina,
             "total_paginas": total_paginas,
             "tipo": tipo,
-            "busca": busca
+            "busca": busca,
+            "categoria": categoria_int,
+            "categorias": categorias
         })
 
     except Exception as e:

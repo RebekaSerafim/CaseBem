@@ -26,9 +26,6 @@ class TestFornecedorRepo:
         assert fornecedor_db.email == "fornecedor@email.com", "O email do fornecedor inserido não confere"
         assert fornecedor_db.perfil.value == "FORNECEDOR", "O perfil do fornecedor inserido não confere"
         assert fornecedor_db.nome_empresa == "Empresa Teste", "O nome da empresa não confere"
-        assert fornecedor_db.prestador == True, "O fornecedor deveria ser prestador"
-        assert fornecedor_db.vendedor == True, "O fornecedor deveria ser vendedor"
-        assert fornecedor_db.locador == False, "O fornecedor não deveria ser locador"
 
     def test_obter_fornecedor_por_id_existente(self, test_db, fornecedor_exemplo):
         # Arrange
@@ -78,41 +75,3 @@ class TestFornecedorRepo:
         fornecedor_db = fornecedor_repo.obter_fornecedor_por_id(id_fornecedor_inserido)
         assert fornecedor_db is None, "O fornecedor deveria ter sido excluído"
 
-    def test_obter_prestadores(self, test_db, lista_fornecedores_exemplo):
-        # Arrange
-        usuario_repo.criar_tabela_usuarios()
-        fornecedor_repo.criar_tabela_fornecedor()
-        for fornecedor in lista_fornecedores_exemplo:
-            fornecedor_repo.inserir_fornecedor(fornecedor)
-        # Act
-        prestadores = fornecedor_repo.obter_prestadores()
-        # Assert
-        assert len(prestadores) > 0, "Deveria retornar pelo menos um prestador"
-        for prestador in prestadores:
-            assert prestador.prestador == True, "Todos os retornados deveriam ser prestadores"
-
-    def test_obter_vendedores(self, test_db, lista_fornecedores_exemplo):
-        # Arrange
-        usuario_repo.criar_tabela_usuarios()
-        fornecedor_repo.criar_tabela_fornecedor()
-        for fornecedor in lista_fornecedores_exemplo:
-            fornecedor_repo.inserir_fornecedor(fornecedor)
-        # Act
-        vendedores = fornecedor_repo.obter_vendedores()
-        # Assert
-        assert len(vendedores) > 0, "Deveria retornar pelo menos um vendedor"
-        for vendedor in vendedores:
-            assert vendedor.vendedor == True, "Todos os retornados deveriam ser vendedores"
-
-    def test_obter_locadores(self, test_db, lista_fornecedores_exemplo):
-        # Arrange
-        usuario_repo.criar_tabela_usuarios()
-        fornecedor_repo.criar_tabela_fornecedor()
-        for fornecedor in lista_fornecedores_exemplo:
-            fornecedor_repo.inserir_fornecedor(fornecedor)
-        # Act
-        locadores = fornecedor_repo.obter_locadores()
-        # Assert
-        assert len(locadores) > 0, "Deveria retornar pelo menos um locador"
-        for locador in locadores:
-            assert locador.locador == True, "Todos os retornados deveriam ser locadores"

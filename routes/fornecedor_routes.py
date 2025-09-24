@@ -785,9 +785,6 @@ async def atualizar_perfil(
     nome_empresa: str = Form(""),
     cnpj: str = Form(""),
     descricao: str = Form(""),
-    prestador: str = Form(None),
-    vendedor: str = Form(None),
-    locador: str = Form(None),
     newsletter: str = Form(None),
     usuario_logado: dict = {}
 ):
@@ -804,19 +801,7 @@ async def atualizar_perfil(
             })
 
         # Converter checkboxes para boolean
-        prestador_bool = prestador == "on"
-        vendedor_bool = vendedor == "on"
-        locador_bool = locador == "on"
         newsletter_bool = newsletter == "on"
-
-        # Validar que pelo menos um tipo foi selecionado
-        if not (prestador_bool or vendedor_bool or locador_bool):
-            return templates.TemplateResponse("fornecedor/perfil.html", {
-                "request": request,
-                "usuario_logado": usuario_logado,
-                "fornecedor": fornecedor,
-                "erro": "Selecione pelo menos um tipo de fornecimento"
-            })
 
         # Atualizar dados
         fornecedor.nome = nome
@@ -825,9 +810,6 @@ async def atualizar_perfil(
         fornecedor.nome_empresa = nome_empresa
         fornecedor.cnpj = cnpj
         fornecedor.descricao = descricao
-        fornecedor.prestador = prestador_bool
-        fornecedor.vendedor = vendedor_bool
-        fornecedor.locador = locador_bool
         fornecedor.newsletter = newsletter_bool
 
         sucesso = fornecedor_repo.atualizar_fornecedor(fornecedor)

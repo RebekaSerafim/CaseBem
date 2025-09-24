@@ -252,13 +252,14 @@ def obter_estatisticas_itens() -> List[Dict[str, Any]]:
         return []
 
 def obter_itens_publicos(tipo: Optional[str] = None, busca: Optional[str] = None,
-                        pagina: int = 1, tamanho_pagina: int = 12) -> tuple[List[dict], int]:
+                        categoria: Optional[int] = None, pagina: int = 1, tamanho_pagina: int = 12) -> tuple[List[dict], int]:
     """
     Obtém itens públicos com filtros opcionais e paginação
 
     Args:
         tipo: Filtro por tipo (produto, servico, espaco)
         busca: Termo de busca textual
+        categoria: Filtro por categoria
         pagina: Número da página (começa em 1)
         tamanho_pagina: Quantidade de itens por página
 
@@ -279,12 +280,15 @@ def obter_itens_publicos(tipo: Optional[str] = None, busca: Optional[str] = None
                 'espaco': 'ESPAÇO'
             }
             tipo_param = tipo_map.get(tipo) if tipo else None
+            # Converter busca vazia para None para funcionar corretamente com SQL
+            busca = busca if busca and busca.strip() else None
             busca_like = f"%{busca}%" if busca else None
 
             # Contar total de itens
             cursor.execute(CONTAR_ITENS_PUBLICOS_FILTRADOS, (
                 tipo_param, tipo_param,
-                busca, busca_like, busca_like, busca_like
+                busca, busca_like, busca_like, busca_like,
+                categoria, categoria
             ))
             total = cursor.fetchone()["total"]
 
@@ -292,6 +296,7 @@ def obter_itens_publicos(tipo: Optional[str] = None, busca: Optional[str] = None
             cursor.execute(OBTER_ITENS_PUBLICOS_FILTRADOS, (
                 tipo_param, tipo_param,
                 busca, busca_like, busca_like, busca_like,
+                categoria, categoria,
                 tamanho_pagina, offset
             ))
             resultados = cursor.fetchall()
@@ -308,6 +313,8 @@ def obter_itens_publicos(tipo: Optional[str] = None, busca: Optional[str] = None
                     "observacoes": resultado["observacoes"],
                     "ativo": bool(resultado["ativo"]),
                     "data_cadastro": resultado["data_cadastro"],
+                    "id_categoria": resultado["id_categoria"],
+                    "categoria_nome": resultado["categoria_nome"],
                     "fornecedor_nome": resultado["fornecedor_nome"],
                     "fornecedor_empresa": resultado["fornecedor_empresa"]
                 }

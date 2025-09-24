@@ -26,7 +26,7 @@ configurar_filtros_jinja(templates)
 @requer_autenticacao([TipoUsuario.ADMIN.value, TipoUsuario.FORNECEDOR.value, TipoUsuario.NOIVO.value])
 async def get_alterar_senha(request: Request, usuario_logado: dict = None):
     """Página para alteração de senha (todos os perfis)"""
-    return templates.TemplateResponse("alterar_senha.html", {
+    return templates.TemplateResponse("usuario/alterar_senha.html", {
         "request": request,
         "usuario_logado": usuario_logado
     })
@@ -43,7 +43,7 @@ async def post_alterar_senha(
     """Processa alteração de senha (todos os perfis)"""
     # Validar confirmação de senha
     if nova_senha != confirmar_senha:
-        return templates.TemplateResponse("alterar_senha.html", {
+        return templates.TemplateResponse("usuario/alterar_senha.html", {
             "request": request,
             "usuario_logado": usuario_logado,
             "erro": "A nova senha e confirmação não coincidem"
@@ -52,7 +52,7 @@ async def post_alterar_senha(
     # Validar força da nova senha
     senha_valida, erro_senha = validar_forca_senha(nova_senha)
     if not senha_valida:
-        return templates.TemplateResponse("alterar_senha.html", {
+        return templates.TemplateResponse("usuario/alterar_senha.html", {
             "request": request,
             "usuario_logado": usuario_logado,
             "erro": erro_senha
@@ -62,7 +62,7 @@ async def post_alterar_senha(
         # Buscar usuário atual
         usuario = usuario_repo.obter_usuario_por_id(usuario_logado['id'])
         if not usuario:
-            return templates.TemplateResponse("alterar_senha.html", {
+            return templates.TemplateResponse("usuario/alterar_senha.html", {
                 "request": request,
                 "usuario_logado": usuario_logado,
                 "erro": "Usuário não encontrado"
@@ -70,7 +70,7 @@ async def post_alterar_senha(
 
         # Verificar senha atual
         if not verificar_senha(senha_atual, usuario.senha):
-            return templates.TemplateResponse("alterar_senha.html", {
+            return templates.TemplateResponse("usuario/alterar_senha.html", {
                 "request": request,
                 "usuario_logado": usuario_logado,
                 "erro": "Senha atual incorreta"
@@ -83,13 +83,13 @@ async def post_alterar_senha(
         sucesso = usuario_repo.atualizar_senha_usuario(usuario.id, nova_senha_hash)
 
         if sucesso:
-            return templates.TemplateResponse("alterar_senha.html", {
+            return templates.TemplateResponse("usuario/alterar_senha.html", {
                 "request": request,
                 "usuario_logado": usuario_logado,
                 "sucesso": "Senha alterada com sucesso!"
             })
         else:
-            return templates.TemplateResponse("alterar_senha.html", {
+            return templates.TemplateResponse("usuario/alterar_senha.html", {
                 "request": request,
                 "usuario_logado": usuario_logado,
                 "erro": "Erro ao atualizar senha no banco de dados"
@@ -97,7 +97,7 @@ async def post_alterar_senha(
 
     except Exception as e:
         print(f"Erro ao alterar senha: {e}")
-        return templates.TemplateResponse("alterar_senha.html", {
+        return templates.TemplateResponse("usuario/alterar_senha.html", {
             "request": request,
             "usuario_logado": usuario_logado,
             "erro": "Erro interno do servidor"
