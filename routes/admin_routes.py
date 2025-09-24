@@ -184,19 +184,38 @@ async def dashboard_admin(request: Request, usuario_logado: dict = None):
 
 @router.get("/admin/usuarios")
 @requer_autenticacao([TipoUsuario.ADMIN.value])
-async def listar_usuarios(request: Request, usuario_logado: dict = None):
-    """Lista todos os usuários do sistema com filtros"""
+async def listar_usuarios(
+    request: Request,
+    pagina: int = 1,
+    usuario_logado: dict = None
+):
+    """Lista todos os usuários do sistema com filtros e paginação"""
     try:
+        import math
+
         # Obter parâmetros de filtro da URL
         busca = request.query_params.get("search", "").strip()
         tipo_usuario = request.query_params.get("tipo_usuario", "").strip()
         status = request.query_params.get("status", "").strip()
+        tamanho_pagina = 10
 
         # Aplicar filtros se fornecidos, senão listar todos
         if busca or tipo_usuario or status:
-            usuarios = usuario_repo.buscar_usuarios(busca, tipo_usuario, status, 1, 100)
+            usuarios, total_usuarios = usuario_repo.buscar_usuarios_paginado(
+                busca=busca,
+                tipo_usuario=tipo_usuario,
+                status=status,
+                pagina=pagina,
+                tamanho_pagina=tamanho_pagina
+            )
         else:
-            usuarios = usuario_repo.obter_usuarios_por_pagina(1, 100)
+            usuarios, total_usuarios = usuario_repo.obter_usuarios_paginado(
+                pagina=pagina,
+                tamanho_pagina=tamanho_pagina
+            )
+
+        # Calcular total de páginas
+        total_paginas = math.ceil(total_usuarios / tamanho_pagina) if total_usuarios > 0 else 1
 
         # Buscar dados de fornecedores para verificar status de verificação
         fornecedores_dados = {}
@@ -210,14 +229,24 @@ async def listar_usuarios(request: Request, usuario_logado: dict = None):
             "request": request,
             "usuario_logado": usuario_logado,
             "usuarios": usuarios,
-            "fornecedores_dados": fornecedores_dados
+            "fornecedores_dados": fornecedores_dados,
+            "total_usuarios": total_usuarios,
+            "pagina_atual": pagina,
+            "total_paginas": total_paginas,
+            "busca": busca,
+            "tipo_usuario": tipo_usuario,
+            "status": status
         })
     except Exception as e:
         print(f"Erro ao listar usuários: {e}")
         return templates.TemplateResponse("admin/usuarios.html", {
             "request": request,
             "usuario_logado": usuario_logado,
-            "erro": "Erro ao carregar usuários"
+            "erro": "Erro ao carregar usuários",
+            "usuarios": [],
+            "total_usuarios": 0,
+            "pagina_atual": 1,
+            "total_paginas": 1
         })
 
 # ==================== GESTÃO DE ADMINISTRADORES ====================
@@ -605,38 +634,40 @@ async def rejeitar_fornecedor(request: Request, id_fornecedor: int, observacoes:
 
 @router.get("/admin/itens")
 @requer_autenticacao([TipoUsuario.ADMIN.value])
-async def listar_itens(request: Request, usuario_logado: dict = None):
-    """Lista todos os itens do sistema com filtros"""
+async def listar_itens(
+    request: Request,
+    pagina: int = 1,
+    usuario_logado: dict = None
+):
+    """Lista todos os itens do sistema com filtros e paginação"""
     try:
+        import math
+
         # Obter parâmetros de filtro da URL
         busca = request.query_params.get("search", "").strip()
         tipo_item = request.query_params.get("tipo_item", "").strip()
         status_filtro = request.query_params.get("status", "").strip()
         categoria_id = request.query_params.get("categoria", "").strip()
+        tamanho_pagina = 10
 
         # Aplicar filtros se fornecidos, senão listar todos
-        if busca:
-            itens = item_repo.buscar_itens(busca, 1, 100)
+        if busca or tipo_item or status_filtro or categoria_id:
+            itens, total_itens = item_repo.buscar_itens_paginado(
+                busca=busca,
+                tipo_item=tipo_item,
+                status=status_filtro,
+                categoria_id=categoria_id,
+                pagina=pagina,
+                tamanho_pagina=tamanho_pagina
+            )
         else:
-            itens = item_repo.obter_itens_por_pagina(1, 100)
+            itens, total_itens = item_repo.obter_itens_paginado(
+                pagina=pagina,
+                tamanho_pagina=tamanho_pagina
+            )
 
-        # Filtrar por tipo se especificado
-        if tipo_item:
-            itens = [item for item in itens if item.tipo.value == tipo_item]
-
-        # Filtrar por status se especificado
-        if status_filtro == "ativo":
-            itens = [item for item in itens if item.ativo]
-        elif status_filtro == "inativo":
-            itens = [item for item in itens if not item.ativo]
-
-        # Filtrar por categoria se especificado
-        if categoria_id:
-            try:
-                categoria_id_int = int(categoria_id)
-                itens = [item for item in itens if item.id_categoria == categoria_id_int]
-            except ValueError:
-                pass
+        # Calcular total de páginas
+        total_paginas = math.ceil(total_itens / tamanho_pagina) if total_itens > 0 else 1
 
         # Buscar dados das categorias para exibir nomes
         categorias_dados = {}
@@ -659,14 +690,25 @@ async def listar_itens(request: Request, usuario_logado: dict = None):
             "itens": itens,
             "categorias_dados": categorias_dados,
             "categorias": categorias,
-            "tipos_item": [tipo for tipo in TipoItem]
+            "tipos_item": [tipo for tipo in TipoItem],
+            "total_itens": total_itens,
+            "pagina_atual": pagina,
+            "total_paginas": total_paginas,
+            "busca": busca,
+            "tipo_item": tipo_item,
+            "status_filtro": status_filtro,
+            "categoria_id": categoria_id
         })
     except Exception as e:
         print(f"Erro ao listar itens: {e}")
         return templates.TemplateResponse("admin/itens.html", {
             "request": request,
             "usuario_logado": usuario_logado,
-            "erro": "Erro ao carregar itens"
+            "erro": "Erro ao carregar itens",
+            "itens": [],
+            "total_itens": 0,
+            "pagina_atual": 1,
+            "total_paginas": 1
         })
 
 @router.get("/admin/item/{id_item}")
@@ -881,32 +923,61 @@ async def exportar_relatorios(request: Request, formato: str = "json", usuario_l
 
 @router.get("/admin/categorias")
 @requer_autenticacao([TipoUsuario.ADMIN.value])
-async def listar_categorias(request: Request, usuario_logado: dict = None):
-    """Lista todas as categorias de item com filtros"""
+async def listar_categorias(
+    request: Request,
+    pagina: int = 1,
+    usuario_logado: dict = None
+):
+    """Lista todas as categorias de item com filtros e paginação"""
     try:
+        import math
+
         # Obter parâmetros de filtro da URL
         busca = request.query_params.get("search", "").strip()
         tipo_fornecimento = request.query_params.get("tipo_fornecimento", "").strip()
         status_filtro = request.query_params.get("status", "").strip()
+        tamanho_pagina = 10
 
         # Aplicar filtros se fornecidos, senão listar todas
         if busca or tipo_fornecimento or status_filtro:
-            categorias = categoria_repo.buscar_categorias(busca, tipo_fornecimento, status_filtro)
+            categorias, total_categorias = categoria_repo.buscar_categorias_paginado(
+                busca=busca,
+                tipo_fornecimento=tipo_fornecimento,
+                status=status_filtro,
+                pagina=pagina,
+                tamanho_pagina=tamanho_pagina
+            )
         else:
-            categorias = categoria_repo.obter_categorias()
+            categorias, total_categorias = categoria_repo.obter_categorias_paginado(
+                pagina=pagina,
+                tamanho_pagina=tamanho_pagina
+            )
+
+        # Calcular total de páginas
+        total_paginas = math.ceil(total_categorias / tamanho_pagina) if total_categorias > 0 else 1
 
         return templates.TemplateResponse("admin/categorias.html", {
             "request": request,
             "usuario_logado": usuario_logado,
             "categorias": categorias,
-            "tipos_item": [tipo for tipo in TipoItem]
+            "tipos_item": [tipo for tipo in TipoItem],
+            "total_categorias": total_categorias,
+            "pagina_atual": pagina,
+            "total_paginas": total_paginas,
+            "busca": busca,
+            "tipo_fornecimento": tipo_fornecimento,
+            "status_filtro": status_filtro
         })
     except Exception as e:
         print(f"Erro ao listar categorias: {e}")
         return templates.TemplateResponse("admin/categorias.html", {
             "request": request,
             "usuario_logado": usuario_logado,
-            "erro": "Erro ao carregar categorias"
+            "erro": "Erro ao carregar categorias",
+            "categorias": [],
+            "total_categorias": 0,
+            "pagina_atual": 1,
+            "total_paginas": 1
         })
 
 @router.get("/admin/categoria/nova")

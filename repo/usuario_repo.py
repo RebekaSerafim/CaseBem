@@ -259,3 +259,101 @@ def ativar_usuario(id_usuario: int) -> bool:
     except Exception as e:
         print(f"Erro ao ativar usuário: {e}")
         return False
+
+def obter_usuarios_paginado(pagina: int, tamanho_pagina: int) -> tuple[list[Usuario], int]:
+    """Obtém usuários paginados e retorna lista de usuários e total"""
+    try:
+        with obter_conexao() as conexao:
+            cursor = conexao.cursor()
+
+            # Contar total de usuários
+            cursor.execute("SELECT COUNT(*) as total FROM usuario")
+            total = cursor.fetchone()["total"]
+
+            # Buscar usuários da página
+            offset = (pagina - 1) * tamanho_pagina
+            cursor.execute(OBTER_USUARIOS_POR_PAGINA, (tamanho_pagina, offset))
+            resultados = cursor.fetchall()
+
+            usuarios = [Usuario(
+                id=resultado["id"],
+                nome=resultado["nome"],
+                cpf=resultado["cpf"],
+                data_nascimento=resultado["data_nascimento"],
+                email=resultado["email"],
+                telefone=resultado["telefone"],
+                senha=resultado["senha"],
+                perfil=TipoUsuario(resultado["perfil"]),
+                token_redefinicao=resultado["token_redefinicao"],
+                data_token=resultado["data_token"],
+                data_cadastro=resultado["data_cadastro"],
+                ativo=bool(resultado["ativo"])
+            ) for resultado in resultados]
+
+            return usuarios, total
+    except Exception as e:
+        print(f"Erro ao obter usuários paginados: {e}")
+        return [], 0
+
+def buscar_usuarios_paginado(busca: str = "", tipo_usuario: str = "", status: str = "", pagina: int = 1, tamanho_pagina: int = 10) -> tuple[list[Usuario], int]:
+    """Busca usuários paginados com filtros e retorna lista de usuários e total"""
+    try:
+        with obter_conexao() as conexao:
+            cursor = conexao.cursor()
+
+            # Construir consulta baseada nos filtros
+            condicoes = []
+            parametros = []
+            parametros_count = []
+
+            if busca:
+                condicoes.append("(nome LIKE ? OR email LIKE ?)")
+                busca_param = f"%{busca}%"
+                parametros.extend([busca_param, busca_param])
+                parametros_count.extend([busca_param, busca_param])
+
+            if tipo_usuario:
+                condicoes.append("perfil = ?")
+                parametros.append(tipo_usuario)
+                parametros_count.append(tipo_usuario)
+
+            if status == "ativo":
+                condicoes.append("ativo = 1")
+            elif status == "inativo":
+                condicoes.append("ativo = 0")
+
+            where_clause = ""
+            if condicoes:
+                where_clause = "WHERE " + " AND ".join(condicoes)
+
+            # Contar total
+            sql_count = f"SELECT COUNT(*) as total FROM usuario {where_clause}"
+            cursor.execute(sql_count, parametros_count)
+            total = cursor.fetchone()["total"]
+
+            # Buscar usuários da página
+            offset = (pagina - 1) * tamanho_pagina
+            sql_select = f"SELECT * FROM usuario {where_clause} ORDER BY id DESC LIMIT ? OFFSET ?"
+            parametros.extend([tamanho_pagina, offset])
+            cursor.execute(sql_select, parametros)
+            resultados = cursor.fetchall()
+
+            usuarios = [Usuario(
+                id=resultado["id"],
+                nome=resultado["nome"],
+                cpf=resultado["cpf"],
+                data_nascimento=resultado["data_nascimento"],
+                email=resultado["email"],
+                telefone=resultado["telefone"],
+                senha=resultado["senha"],
+                perfil=TipoUsuario(resultado["perfil"]),
+                token_redefinicao=resultado["token_redefinicao"],
+                data_token=resultado["data_token"],
+                data_cadastro=resultado["data_cadastro"],
+                ativo=bool(resultado["ativo"])
+            ) for resultado in resultados]
+
+            return usuarios, total
+    except Exception as e:
+        print(f"Erro ao buscar usuários paginados: {e}")
+        return [], 0
