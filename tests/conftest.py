@@ -75,7 +75,7 @@ def fornecedor_exemplo():
         telefone="(28) 99999-5000",
         senha="123456",
         perfil=TipoUsuario.FORNECEDOR,
-        foto=None,
+
         token_redefinicao=None,
         data_token=None,
         data_cadastro=None,
@@ -106,7 +106,7 @@ def lista_fornecedores_exemplo():
             telefone=f"(28) 99999-50{i:02d}",
             senha="123456",
             perfil=TipoUsuario.FORNECEDOR,
-            foto=None,
+    
             token_redefinicao=None,
             data_token=None,
             data_cadastro=None,

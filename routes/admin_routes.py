@@ -7,10 +7,41 @@ from model.categoria_model import Categoria
 from model.item_model import TipoItem
 from repo import usuario_repo, fornecedor_repo, item_repo, categoria_repo, orcamento_repo, demanda_repo
 from util.flash_messages import informar_sucesso, informar_erro, informar_aviso
-from util.template_helpers import template_response_with_flash
+from util.template_helpers import template_response_with_flash, configurar_filtros_jinja
 
 router = APIRouter()
 templates = Jinja2Templates(directory="templates")
+configurar_filtros_jinja(templates)
+
+def get_admin_active_page(request: Request) -> str:
+    """Determina qual página está ativa na área admin"""
+    url_path = str(request.url.path)
+
+    if url_path == "/admin/dashboard":
+        return "dashboard"
+    elif url_path == "/admin/perfil":
+        return "perfil"
+    elif url_path.startswith("/admin/usuarios"):
+        return "usuarios"
+    elif url_path.startswith("/admin/categorias"):
+        return "categorias"
+    elif url_path.startswith("/admin/itens"):
+        return "itens"
+    elif url_path.startswith("/admin/relatorios"):
+        return "relatorios"
+    else:
+        return ""
+
+def render_admin_template(request: Request, template_name: str, context: dict = None):
+    """Renderiza template admin incluindo active_page"""
+    if context is None:
+        context = {}
+
+    context.update({
+        "active_page": get_admin_active_page(request)
+    })
+
+    return templates.TemplateResponse(template_name, context)
 
 # ==================== REDIRECIONAMENTO RAIZ ====================
 
@@ -31,7 +62,8 @@ async def perfil_admin(request: Request, usuario_logado: dict = None):
         return templates.TemplateResponse("admin/perfil.html", {
             "request": request,
             "usuario_logado": usuario_logado,
-            "admin": admin
+            "admin": admin,
+            "active_page": get_admin_active_page(request)
         })
     except Exception as e:
         print(f"Erro ao carregar perfil admin: {e}")
@@ -136,14 +168,16 @@ async def dashboard_admin(request: Request, usuario_logado: dict = None):
             "request": request,
             "usuario_logado": usuario_logado,
             "stats": stats,
-            "fornecedores_recentes": fornecedores_recentes
+            "fornecedores_recentes": fornecedores_recentes,
+            "active_page": get_admin_active_page(request)
         })
     except Exception as e:
         print(f"Erro no dashboard admin: {e}")
         return templates.TemplateResponse("admin/dashboard.html", {
             "request": request,
             "usuario_logado": usuario_logado,
-            "erro": "Erro ao carregar estatísticas"
+            "erro": "Erro ao carregar estatísticas",
+            "active_page": get_admin_active_page(request)
         })
 
 # ==================== GESTÃO DE USUÁRIOS ====================
@@ -271,7 +305,6 @@ async def criar_admin(
             telefone=telefone,
             senha=senha_hash,
             perfil=TipoUsuario.ADMIN,
-            foto=None,
             token_redefinicao=None,
             data_token=None,
             data_cadastro=None,
@@ -579,7 +612,7 @@ async def listar_itens(request: Request, usuario_logado: dict = None):
         busca = request.query_params.get("search", "").strip()
         tipo_item = request.query_params.get("tipo_item", "").strip()
         status_filtro = request.query_params.get("status", "").strip()
-        fornecedor_id = request.query_params.get("fornecedor", "").strip()
+        categoria_id = request.query_params.get("categoria", "").strip()
 
         # Aplicar filtros se fornecidos, senão listar todos
         if busca:
@@ -597,35 +630,35 @@ async def listar_itens(request: Request, usuario_logado: dict = None):
         elif status_filtro == "inativo":
             itens = [item for item in itens if not item.ativo]
 
-        # Filtrar por fornecedor se especificado
-        if fornecedor_id:
+        # Filtrar por categoria se especificado
+        if categoria_id:
             try:
-                fornecedor_id_int = int(fornecedor_id)
-                itens = [item for item in itens if item.id_fornecedor == fornecedor_id_int]
+                categoria_id_int = int(categoria_id)
+                itens = [item for item in itens if item.id_categoria == categoria_id_int]
             except ValueError:
                 pass
 
-        # Buscar dados dos fornecedores para exibir nomes
-        fornecedores_dados = {}
+        # Buscar dados das categorias para exibir nomes
+        categorias_dados = {}
         for item in itens:
-            if item.id_fornecedor not in fornecedores_dados:
+            if item.id_categoria and item.id_categoria not in categorias_dados:
                 try:
-                    fornecedor = fornecedor_repo.obter_fornecedor_por_id(item.id_fornecedor)
-                    if fornecedor:
-                        fornecedores_dados[item.id_fornecedor] = fornecedor
+                    categoria = categoria_repo.obter_categoria_por_id(item.id_categoria)
+                    if categoria:
+                        categorias_dados[item.id_categoria] = categoria
                 except Exception as e:
-                    print(f"Erro ao buscar fornecedor {item.id_fornecedor}: {e}")
+                    print(f"Erro ao buscar categoria {item.id_categoria}: {e}")
                     continue
 
-        # Buscar todos os fornecedores para o filtro
-        todos_fornecedores = fornecedor_repo.obter_fornecedores_por_pagina(1, 1000)
+        # Buscar todas as categorias para o filtro
+        categorias = categoria_repo.obter_categorias()
 
         return templates.TemplateResponse("admin/itens.html", {
             "request": request,
             "usuario_logado": usuario_logado,
             "itens": itens,
-            "fornecedores_dados": fornecedores_dados,
-            "todos_fornecedores": todos_fornecedores,
+            "categorias_dados": categorias_dados,
+            "categorias": categorias,
             "tipos_item": [tipo for tipo in TipoItem]
         })
     except Exception as e:
@@ -667,7 +700,7 @@ async def visualizar_item(request: Request, id_item: int, usuario_logado: dict =
             "erro": "Erro ao carregar item"
         })
 
-@router.post("/admin/item/{id_item}/ativar")
+@router.get("/admin/item/{id_item}/ativar")
 @requer_autenticacao([TipoUsuario.ADMIN.value])
 async def ativar_item_admin(request: Request, id_item: int, usuario_logado: dict = None):
     """Ativa um item (admin pode ativar qualquer item)"""
@@ -685,7 +718,7 @@ async def ativar_item_admin(request: Request, id_item: int, usuario_logado: dict
         print(f"Erro ao ativar item: {e}")
         return RedirectResponse("/admin/itens", status_code=status.HTTP_303_SEE_OTHER)
 
-@router.post("/admin/item/{id_item}/desativar")
+@router.get("/admin/item/{id_item}/desativar")
 @requer_autenticacao([TipoUsuario.ADMIN.value])
 async def desativar_item_admin(request: Request, id_item: int, usuario_logado: dict = None):
     """Desativa um item (admin pode desativar qualquer item)"""

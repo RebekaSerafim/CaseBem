@@ -1,7 +1,7 @@
 {% extends "admin/base.html" %}
 
 {% block title %}
-    {% if acao == "criar" %}Nova Categoria{% else %}Editar Categoria{% endif %} - Admin
+    {% if acao == "criar" %}Nova Categoria{% else %}Editar Categoria{% endif %}
 {% endblock %}
 
 {% block conteudo %}
@@ -74,9 +74,12 @@
                         </div>
                     </div>
 
-                    <div class="d-flex justify-content-end gap-2">
-                        <a href="/admin/categorias" class="btn btn-info btn-lg">Cancelar</a>
+                    <div class="d-flex justify-content-end gap-4 mt-4">
+                        <a href="/admin/categorias" class="btn btn-info btn-lg">
+                            <i class="bi bi-x-circle-fill"></i> Cancelar
+                        </a>
                         <button type="submit" class="btn btn-primary btn-lg">
+                            <i class="bi bi-check-circle-fill"></i> 
                             {% if acao == "criar" %}
                                 Criar Categoria
                             {% else %}

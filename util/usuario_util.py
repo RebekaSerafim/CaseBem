@@ -20,8 +20,7 @@ def usuario_para_sessao(usuario: Usuario) -> Dict[str, Any]:
         "id": usuario.id,
         "nome": usuario.nome,
         "email": usuario.email,
-        "perfil": usuario.perfil.value,  # Converter Enum para string
-        "foto": usuario.foto
+        "perfil": usuario.perfil.value  # Converter Enum para string
     }
 
 

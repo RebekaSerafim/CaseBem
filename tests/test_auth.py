@@ -45,7 +45,7 @@ def usuario_admin():
         telefone="11999999999",
         senha=criar_hash_senha("senha123"),
         perfil=TipoUsuario.ADMIN,
-        foto=None,
+
         token_redefinicao=None,
         data_token=None,
         data_cadastro=None
@@ -64,7 +64,7 @@ def usuario_noivo():
         telefone="11999999999",
         senha=criar_hash_senha("senha123"),
         perfil=TipoUsuario.NOIVO,
-        foto=None,
+
         token_redefinicao=None,
         data_token=None,
         data_cadastro=None
@@ -82,7 +82,6 @@ class TestUsuarioUtil:
         assert sessao_dict["nome"] == "Admin Teste"
         assert sessao_dict["email"] == "admin@teste.com"
         assert sessao_dict["perfil"] == "ADMIN"  # Enum convertido para string
-        assert sessao_dict["foto"] is None
 
     def test_eh_admin(self, usuario_admin):
         """Testa verificação de administrador"""

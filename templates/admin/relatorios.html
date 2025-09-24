@@ -1,6 +1,6 @@
 {% extends "admin/base.html" %}
 
-{% block title %}Relatórios - Admin{% endblock %}
+{% block title %}Relatórios{% endblock %}
 
 {% block conteudo %}
 <div class="row">
@@ -242,9 +242,9 @@
                                     </span>
                                 </td>
                                 <td>{{ item_tipo.quantidade }}</td>
-                                <td>R$ {{ "%.2f"|format(item_tipo.preco_medio) }}</td>
-                                <td>R$ {{ "%.2f"|format(item_tipo.preco_minimo) }}</td>
-                                <td>R$ {{ "%.2f"|format(item_tipo.preco_maximo) }}</td>
+                                <td>{{ item_tipo.preco_medio|moeda }}</td>
+                                <td>{{ item_tipo.preco_minimo|moeda }}</td>
+                                <td>{{ item_tipo.preco_maximo|moeda }}</td>
                                 <td>
                                     {% set total_itens = stats_gerais.total_itens %}
                                     {% if total_itens > 0 %}

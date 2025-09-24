@@ -7,7 +7,7 @@
     <link href="/static/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="/static/css/styles.css">
     <link rel="icon" type="image/svg+xml" href="/static/img/logo_icon_bk.svg">
-    <title>{% block title %}Fornecedor - Case Bem{% endblock %}</title>
+    <title>CaseBem :: {% block title %}Fornecedor{% endblock %}</title>
 </head>
 
 <body class="d-flex flex-column min-vh-100">
@@ -29,26 +29,35 @@
                 <div class="collapse navbar-collapse" id="navbarNav">
                     <ul class="navbar-nav ms-3 me-auto">
                         <li class="nav-item">
-                            <a class="nav-link text-white" href="/fornecedor/perfil">Meu Perfil</a>
+                            <a class="nav-link text-white {% if active_page == 'dashboard' %}active{% endif %}"
+                               {% if active_page == 'dashboard' %}aria-current="page"{% endif %} href="/fornecedor/dashboard">Início</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link text-white" href="/fornecedor/itens">Meus Itens</a>
+                            <a class="nav-link text-white {% if active_page == 'itens' %}active{% endif %}"
+                               {% if active_page == 'itens' %}aria-current="page"{% endif %} href="/fornecedor/itens">Meus Itens</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link text-white" href="/fornecedor/demandas">Demandas</a>
+                            <a class="nav-link text-white {% if active_page == 'demandas' %}active{% endif %}"
+                               {% if active_page == 'demandas' %}aria-current="page"{% endif %} href="/fornecedor/demandas">Demandas</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link text-white" href="/fornecedor/orcamentos">Orçamentos</a>
+                            <a class="nav-link text-white {% if active_page == 'orcamentos' %}active{% endif %}"
+                               {% if active_page == 'orcamentos' %}aria-current="page"{% endif %} href="/fornecedor/orcamentos">Orçamentos</a>
                         </li>
                     </ul>
                     <ul class="navbar-nav">
                         {% if usuario_logado %}
                         <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle text-white" href="#" id="navbarDropdown" role="button"
+                            <a class="nav-link dropdown-toggle text-white d-flex align-items-center" href="#" id="navbarDropdown" role="button"
                                 data-bs-toggle="dropdown">
+                                <img src="{{ obter_avatar_ou_padrao(usuario_logado.id) }}"
+                                     class="rounded-circle me-2"
+                                     style="width: 32px; height: 32px; object-fit: cover; border: 2px solid rgba(255,255,255,0.3);"
+                                     alt="Avatar">
                                 {{ usuario_logado.nome }}
                             </a>
                             <ul class="dropdown-menu dropdown-menu-end">
+                                <li><a class="dropdown-item" href="/fornecedor/perfil">Alterar Dados de Perfil</a></li>
                                 <li><a class="dropdown-item" href="/alterar-senha">Alterar Senha</a></li>
                                 <li><hr class="dropdown-divider"></li>
                                 <li><a class="dropdown-item" href="/logout">Sair</a></li>

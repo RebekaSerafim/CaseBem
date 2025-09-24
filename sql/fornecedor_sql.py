@@ -32,7 +32,7 @@ WHERE id = ?;
 
 OBTER_FORNECEDOR_POR_ID = """
 SELECT u.id, u.nome, u.cpf, u.data_nascimento, u.email, u.telefone, u.senha, u.perfil,
-       u.foto, u.token_redefinicao, u.data_token, u.data_cadastro,
+       u.token_redefinicao, u.data_token, u.data_cadastro,
        f.nome_empresa, f.cnpj, f.descricao, f.prestador, f.vendedor, f.locador,
        f.verificado, f.data_verificacao, f.newsletter
 FROM usuario u
@@ -42,7 +42,7 @@ WHERE u.id = ?;
 
 OBTER_FORNECEDORES_POR_PAGINA = """
 SELECT u.id, u.nome, u.cpf, u.data_nascimento, u.email, u.telefone, u.senha, u.perfil,
-       u.foto, u.token_redefinicao, u.data_token, u.data_cadastro,
+       u.token_redefinicao, u.data_token, u.data_cadastro,
        f.nome_empresa, f.cnpj, f.descricao, f.prestador, f.vendedor, f.locador,
        f.verificado, f.data_verificacao, f.newsletter
 FROM usuario u
@@ -53,7 +53,7 @@ LIMIT ? OFFSET ?;
 
 OBTER_FORNECEDORES_POR_TIPO = """
 SELECT u.id, u.nome, u.cpf, u.data_nascimento, u.email, u.telefone, u.senha, u.perfil,
-       u.foto, u.token_redefinicao, u.data_token, u.data_cadastro,
+       u.token_redefinicao, u.data_token, u.data_cadastro,
        f.nome_empresa, f.cnpj, f.descricao, f.prestador, f.vendedor, f.locador,
        f.verificado, f.data_verificacao, f.newsletter
 FROM usuario u
@@ -64,7 +64,7 @@ ORDER BY u.nome ASC;
 
 OBTER_PRESTADORES = """
 SELECT u.id, u.nome, u.cpf, u.data_nascimento, u.email, u.telefone, u.senha, u.perfil,
-       u.foto, u.token_redefinicao, u.data_token, u.data_cadastro,
+       u.token_redefinicao, u.data_token, u.data_cadastro,
        f.nome_empresa, f.cnpj, f.descricao, f.prestador, f.vendedor, f.locador,
        f.verificado, f.data_verificacao, f.newsletter
 FROM usuario u
@@ -75,7 +75,7 @@ ORDER BY u.nome ASC;
 
 OBTER_VENDEDORES = """
 SELECT u.id, u.nome, u.cpf, u.data_nascimento, u.email, u.telefone, u.senha, u.perfil,
-       u.foto, u.token_redefinicao, u.data_token, u.data_cadastro,
+       u.token_redefinicao, u.data_token, u.data_cadastro,
        f.nome_empresa, f.cnpj, f.descricao, f.prestador, f.vendedor, f.locador,
        f.verificado, f.data_verificacao, f.newsletter
 FROM usuario u
@@ -86,7 +86,7 @@ ORDER BY u.nome ASC;
 
 OBTER_LOCADORES = """
 SELECT u.id, u.nome, u.cpf, u.data_nascimento, u.email, u.telefone, u.senha, u.perfil,
-       u.foto, u.token_redefinicao, u.data_token, u.data_cadastro,
+       u.token_redefinicao, u.data_token, u.data_cadastro,
        f.nome_empresa, f.cnpj, f.descricao, f.prestador, f.vendedor, f.locador,
        f.verificado, f.data_verificacao, f.newsletter
 FROM usuario u

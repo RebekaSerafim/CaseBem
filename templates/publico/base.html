@@ -7,7 +7,7 @@
     <link href="/static/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="/static/css/styles.css">
     <link rel="icon" type="image/svg+xml" href="/static/img/logo_icon_bk.svg">
-    <title>Case Bem</title>
+    <title>CaseBem :: {% block title %}Início{% endblock %}</title>
 </head>
 
 <body class="d-flex flex-column min-vh-100">
@@ -26,22 +26,28 @@
                 <div class="collapse navbar-collapse" id="navbarNav">
                     <ul class="navbar-nav ms-3 me-auto">
                         <li class="nav-item">
-                            <a class="nav-link active" aria-current="page" href="/">Home</a>
+                            <a class="nav-link {% if active_page == 'home' %}active{% endif %}"
+                               {% if active_page == 'home' %}aria-current="page"{% endif %} href="/">Home</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="/produtos">Produtos</a>
+                            <a class="nav-link {% if active_page == 'servicos' %}active{% endif %}"
+                               {% if active_page == 'servicos' %}aria-current="page"{% endif %} href="/itens?tipo=servico">Serviços</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="/servicos">Serviços</a>
+                            <a class="nav-link {% if active_page == 'espacos' %}active{% endif %}"
+                               {% if active_page == 'espacos' %}aria-current="page"{% endif %} href="/itens?tipo=espaco">Espaços</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="/locais">Locais</a>
+                            <a class="nav-link {% if active_page == 'produtos' %}active{% endif %}"
+                               {% if active_page == 'produtos' %}aria-current="page"{% endif %} href="/itens?tipo=produto">Produtos</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="/sobre">Sobre</a>
+                            <a class="nav-link {% if active_page == 'sobre' %}active{% endif %}"
+                               {% if active_page == 'sobre' %}aria-current="page"{% endif %} href="/sobre">Sobre</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="/contato">Contato</a>
+                            <a class="nav-link {% if active_page == 'contato' %}active{% endif %}"
+                               {% if active_page == 'contato' %}aria-current="page"{% endif %} href="/contato">Contato</a>
                         </li>
                     </ul>
                     <ul class="navbar-nav">
@@ -84,7 +90,7 @@
             </div>
         </nav>
     </header>
-    <main class="d-flex flex-grow-1 flex-column">
+    <main class="d-flex flex-grow-1 flex-column bg-img-casamento">
         {% block conteudo %}
         {% endblock %}
     </main>

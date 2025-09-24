@@ -1,6 +1,6 @@
 {% extends "admin/base.html" %}
 
-{% block title %}Usuários - Admin{% endblock %}
+{% block title %}Usuários{% endblock %}
 
 {% block conteudo %}
 <div class="row">
@@ -188,27 +188,6 @@
 </div>
 {% endif %}
 
-<!-- Modal de confirmação de bloqueio -->
-<div class="modal fade" id="modalBloqueio" tabindex="-1" aria-labelledby="modalBloqueioLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="modalBloqueioLabel">Confirmar Bloqueio</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <p>Tem certeza que deseja bloquear o usuário <strong id="nomeUsuario"></strong>?</p>
-                <p class="text-warning"><small>O usuário não poderá mais acessar o sistema.</small></p>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                <form id="formBloqueio" method="post" style="display: inline;">
-                    <button type="submit" class="btn btn-warning">Bloquear</button>
-                </form>
-            </div>
-        </div>
-    </div>
-</div>
 {% endblock %}
 
 {% block scripts %}
@@ -222,10 +201,21 @@ document.addEventListener('DOMContentLoaded', function () {
 });
 
 function confirmarBloqueio(id, nome) {
-    document.getElementById('nomeUsuario').textContent = nome;
-    document.getElementById('formBloqueio').action = '/admin/usuarios/' + id + '/bloquear';
-    var modal = new bootstrap.Modal(document.getElementById('modalBloqueio'));
-    modal.show();
+    mostrarModalConfirmacao({
+        titulo: 'Confirmar Bloqueio',
+        texto: `Tem certeza que deseja bloquear o usuário ${nome}?`,
+        subtexto: 'O usuário não poderá mais acessar o sistema.',
+        tipo: 'warning',
+        textoBotao: 'Bloquear',
+        onConfirmar: function() {
+            // Criar form dinamicamente e submeter
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = `/admin/usuarios/${id}/bloquear`;
+            document.body.appendChild(form);
+            form.submit();
+        }
+    });
 }
 </script>
 {% endblock %}

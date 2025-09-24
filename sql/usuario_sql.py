@@ -8,7 +8,6 @@ CREATE TABLE IF NOT EXISTS usuario (
     telefone TEXT,
     senha TEXT NOT NULL,
     perfil TEXT NOT NULL DEFAULT 'NOIVO',
-    foto TEXT,
     token_redefinicao TEXT,
     data_token TIMESTAMP,
     data_cadastro TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -39,26 +38,26 @@ WHERE id = ?;
 """
 
 OBTER_USUARIO_POR_ID = """
-SELECT id, nome, cpf, data_nascimento, email, telefone, senha, perfil, foto, token_redefinicao, data_token, data_cadastro, ativo
+SELECT id, nome, cpf, data_nascimento, email, telefone, senha, perfil, token_redefinicao, data_token, data_cadastro, ativo
 FROM usuario
 WHERE id = ?;
 """
 
 OBTER_USUARIO_POR_EMAIL = """
-SELECT id, nome, cpf, data_nascimento, email, telefone, senha, perfil, foto, token_redefinicao, data_token, data_cadastro, ativo
+SELECT id, nome, cpf, data_nascimento, email, telefone, senha, perfil, token_redefinicao, data_token, data_cadastro, ativo
 FROM usuario
 WHERE email = ?;
 """
 
 OBTER_USUARIOS_POR_PAGINA = """
-SELECT id, nome, cpf, data_nascimento, email, telefone, senha, perfil, foto, token_redefinicao, data_token, data_cadastro, ativo
+SELECT id, nome, cpf, data_nascimento, email, telefone, senha, perfil, token_redefinicao, data_token, data_cadastro, ativo
 FROM usuario
 ORDER BY nome ASC
 LIMIT ? OFFSET ?;
 """
 
 OBTER_USUARIOS_POR_TIPO_POR_PAGINA = """
-SELECT id, nome, cpf, data_nascimento, email, telefone, senha, perfil, foto, token_redefinicao, data_token, data_cadastro, ativo
+SELECT id, nome, cpf, data_nascimento, email, telefone, senha, perfil, token_redefinicao, data_token, data_cadastro, ativo
 FROM usuario
 WHERE perfil = ?
 ORDER BY nome ASC
@@ -81,7 +80,7 @@ ALTER TABLE usuario ADD COLUMN ativo BOOLEAN NOT NULL DEFAULT 1;
 """
 
 BUSCAR_USUARIOS = """
-SELECT id, nome, cpf, data_nascimento, email, telefone, senha, perfil, foto, token_redefinicao, data_token, data_cadastro, ativo
+SELECT id, nome, cpf, data_nascimento, email, telefone, senha, perfil, token_redefinicao, data_token, data_cadastro, ativo
 FROM usuario
 WHERE (? = '' OR nome LIKE '%' || ? || '%' OR email LIKE '%' || ? || '%')
   AND (? = '' OR perfil = ?)

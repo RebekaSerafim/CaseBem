@@ -1,8 +1,10 @@
 from fastapi import APIRouter, Request
 from fastapi.templating import Jinja2Templates
+from util.template_helpers import configurar_filtros_jinja
 
 router = APIRouter()
 templates = Jinja2Templates(directory="templates")
+configurar_filtros_jinja(templates)
 
 @router.get("/blocked")
 async def blocked_page(request: Request):

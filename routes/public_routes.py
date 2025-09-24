@@ -14,10 +14,37 @@ from util.auth_decorator import criar_sessao
 from util.security import criar_hash_senha, verificar_senha, validar_forca_senha, validar_cpf, validar_cnpj, validar_telefone
 from util.usuario_util import usuario_para_sessao
 from util.flash_messages import informar_sucesso, informar_erro, informar_aviso
-from util.template_helpers import template_response_with_flash
+from util.template_helpers import template_response_with_flash, configurar_filtros_jinja
 
 router = APIRouter()
 templates = Jinja2Templates(directory="templates")
+configurar_filtros_jinja(templates)
+
+def get_active_page(request: Request) -> str:
+    """Determina qual página está ativa baseada na URL"""
+    url_path = str(request.url.path)
+
+    if url_path == "/":
+        return "home"
+    elif url_path == "/sobre":
+        return "sobre"
+    elif url_path == "/contato":
+        return "contato"
+    elif url_path.startswith("/itens"):
+        # Verificar parâmetros da query para determinar o tipo específico
+        tipo_param = request.query_params.get("tipo")
+        if tipo_param == "servico":
+            return "servicos"
+        elif tipo_param == "espaco":
+            return "espacos"
+        elif tipo_param == "produto":
+            return "produtos"
+        else:
+            return "itens"
+    elif url_path.startswith("/item/"):
+        return "itens"
+    else:
+        return ""
 
 def render_template_with_user(request: Request, template_name: str, context: dict = None):
     """Renderiza template incluindo informações do usuário logado"""
@@ -28,7 +55,8 @@ def render_template_with_user(request: Request, template_name: str, context: dic
 
     context.update({
         "request": request,
-        "usuario_logado": obter_usuario_logado(request)
+        "usuario_logado": obter_usuario_logado(request),
+        "active_page": get_active_page(request)
     })
 
     return templates.TemplateResponse(template_name, context)
@@ -189,7 +217,7 @@ async def post_cadastro_noivos(request: Request,
         telefone=dados.telefone1,
         senha=senha_hash,
         perfil=TipoUsuario.NOIVO,
-        foto=None,
+        
         token_redefinicao=None,
         data_token=None,
         data_cadastro=None
@@ -206,7 +234,7 @@ async def post_cadastro_noivos(request: Request,
         telefone=dados.telefone2,
         senha=senha_hash,
         perfil=TipoUsuario.NOIVO,
-        foto=None,
+        
         token_redefinicao=None,
         data_token=None,
         data_cadastro=None
@@ -331,7 +359,7 @@ async def post_cadastro_fornecedor(request: Request,
         telefone=dados.telefone,
         senha=senha_hash,
         perfil=TipoUsuario.FORNECEDOR,
-        foto=None,
+        
         token_redefinicao=None,
         data_token=None,
         data_cadastro=None,
@@ -389,7 +417,7 @@ async def post_cadastro_geral(request: Request,
         telefone=telefone,
         senha=senha_hash,
         perfil=TipoUsuario.FORNECEDOR,
-        foto=None,
+        
         token_redefinicao=None,
         data_token=None,
         data_cadastro=None,
@@ -459,29 +487,78 @@ async def logout(request: Request):
     return RedirectResponse("/", status.HTTP_303_SEE_OTHER)
 
 @router.get("/contato")
-async def get_root():
-    response = templates.TemplateResponse("publico/contato.html", {"request": {}})
-    return response
+async def get_contato(request: Request):
+    return render_template_with_user(request, "publico/contato.html")
 
 @router.get("/sobre")
-async def get_root():
-    response = templates.TemplateResponse("publico/sobre.html", {"request": {}})
-    return response
+async def get_sobre(request: Request):
+    return render_template_with_user(request, "publico/sobre.html")
+
+@router.get("/itens")
+async def listar_itens_publicos(
+    request: Request,
+    tipo: str = None,
+    busca: str = None,
+    pagina: int = 1
+):
+    """Lista itens públicos com filtros e paginação"""
+    try:
+        from repo import item_repo
+        import math
+
+        # Obter itens e total
+        itens, total_itens = item_repo.obter_itens_publicos(
+            tipo=tipo,
+            busca=busca,
+            pagina=pagina,
+            tamanho_pagina=12
+        )
+
+        # Calcular total de páginas
+        total_paginas = math.ceil(total_itens / 12) if total_itens > 0 else 1
+
+        return template_response_with_flash(templates, "publico/itens.html", {
+            "request": request,
+            "itens": itens,
+            "total_itens": total_itens,
+            "pagina_atual": pagina,
+            "total_paginas": total_paginas,
+            "tipo": tipo,
+            "busca": busca
+        })
+
+    except Exception as e:
+        print(f"Erro ao listar itens públicos: {e}")
+        return template_response_with_flash(templates, "publico/itens.html", {
+            "request": request,
+            "itens": [],
+            "total_itens": 0,
+            "pagina_atual": 1,
+            "total_paginas": 1,
+            "tipo": tipo,
+            "busca": busca,
+            "erro": "Erro ao carregar itens"
+        })
 
 @router.get("/produtos")
-async def get_root():
-    response = templates.TemplateResponse("publico/produtos.html", {"request": {}})
-    return response
+async def produtos_redirect(request: Request):
+    """Redireciona para a página de itens com filtro de produtos"""
+    return RedirectResponse("/itens?tipo=produto", status_code=status.HTTP_302_FOUND)
 
 @router.get("/servicos")
-async def get_root():
-    response = templates.TemplateResponse("publico/servicos.html", {"request": {}})
-    return response
+async def servicos_redirect(request: Request):
+    """Redireciona para a página de itens com filtro de serviços"""
+    return RedirectResponse("/itens?tipo=servico", status_code=status.HTTP_302_FOUND)
+
+@router.get("/espacos")
+async def espacos_redirect(request: Request):
+    """Redireciona para a página de itens com filtro de espaços"""
+    return RedirectResponse("/itens?tipo=espaco", status_code=status.HTTP_302_FOUND)
 
 @router.get("/locais")
-async def get_root():
-    response = templates.TemplateResponse("publico/locais.html", {"request": {}})
-    return response
+async def locais_redirect(request: Request):
+    """Redireciona para a página de itens com filtro de espaços (alias para espacos)"""
+    return RedirectResponse("/itens?tipo=espaco", status_code=status.HTTP_302_FOUND)
 
 @router.get("/fornecedores")
 async def get_root():
@@ -508,14 +585,45 @@ async def get_root(id: int):
     response = templates.TemplateResponse("publico/detalhes_prestador.html", {"request": {}, "id": id})
     return response
 
+@router.get("/item/{id}")
+async def detalhes_item_publico(request: Request, id: int):
+    """Exibe detalhes de um item específico"""
+    try:
+        from repo import item_repo
+
+        item = item_repo.obter_item_publico_por_id(id)
+
+        if not item:
+            return template_response_with_flash(templates, "publico/item_detalhes.html", {
+                "request": request,
+                "erro": "Item não encontrado"
+            })
+
+        return template_response_with_flash(templates, "publico/item_detalhes.html", {
+            "request": request,
+            "item": item
+        })
+
+    except Exception as e:
+        print(f"Erro ao obter detalhes do item: {e}")
+        return template_response_with_flash(templates, "publico/item_detalhes.html", {
+            "request": request,
+            "erro": "Erro ao carregar detalhes do item"
+        })
+
 @router.get("/produtos/{id}")
-async def get_root(id: int):
-    response = templates.TemplateResponse("publico/detalhes_produto.html", {"request": {}, "id": id})
-    return response
+async def produto_detalhes_redirect(id: int):
+    """Redireciona detalhes de produto para a nova rota unificada"""
+    return RedirectResponse(f"/item/{id}", status_code=status.HTTP_301_MOVED_PERMANENTLY)
 
 @router.get("/servicos/{id}")
-async def get_root(id: int):
-    response = templates.TemplateResponse("publico/detalhes_servico.html", {"request": {}, "id": id})
-    return response
+async def servico_detalhes_redirect(id: int):
+    """Redireciona detalhes de serviço para a nova rota unificada"""
+    return RedirectResponse(f"/item/{id}", status_code=status.HTTP_301_MOVED_PERMANENTLY)
+
+@router.get("/espacos/{id}")
+async def espaco_detalhes_redirect(id: int):
+    """Redireciona detalhes de espaço para a nova rota unificada"""
+    return RedirectResponse(f"/item/{id}", status_code=status.HTTP_301_MOVED_PERMANENTLY)
 
 

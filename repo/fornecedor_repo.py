@@ -82,7 +82,6 @@ def obter_fornecedor_por_id(id: int) -> Optional[Fornecedor]:
                     telefone=resultado["telefone"],
                     senha=resultado["senha"],
                     perfil=TipoUsuario.FORNECEDOR,
-                    foto=resultado["foto"],
                     token_redefinicao=resultado["token_redefinicao"],
                     data_token=resultado["data_token"],
                     data_cadastro=resultado["data_cadastro"],
@@ -120,7 +119,7 @@ def obter_fornecedores_por_pagina(numero_pagina: int, tamanho_pagina: int) -> Li
                 telefone=resultado["telefone"],
                 senha=resultado["senha"],
                 perfil=TipoUsuario.FORNECEDOR,
-                foto=resultado["foto"],
+
                 token_redefinicao=resultado["token_redefinicao"],
                 data_token=resultado["data_token"],
                 data_cadastro=resultado["data_cadastro"],
@@ -131,6 +130,8 @@ def obter_fornecedores_por_pagina(numero_pagina: int, tamanho_pagina: int) -> Li
                 prestador=bool(resultado["prestador"]),
                 vendedor=bool(resultado["vendedor"]),
                 locador=bool(resultado["locador"]),
+                verificado=bool(resultado["verificado"]),
+                data_verificacao=resultado["data_verificacao"],
                 newsletter=bool(resultado["newsletter"])
             ) for resultado in resultados]
     except Exception as e:
@@ -154,7 +155,7 @@ def obter_prestadores() -> List[Fornecedor]:
                 telefone=resultado["telefone"],
                 senha=resultado["senha"],
                 perfil=TipoUsuario.FORNECEDOR,
-                foto=resultado["foto"],
+
                 token_redefinicao=resultado["token_redefinicao"],
                 data_token=resultado["data_token"],
                 data_cadastro=resultado["data_cadastro"],
@@ -165,6 +166,8 @@ def obter_prestadores() -> List[Fornecedor]:
                 prestador=bool(resultado["prestador"]),
                 vendedor=bool(resultado["vendedor"]),
                 locador=bool(resultado["locador"]),
+                verificado=bool(resultado["verificado"]),
+                data_verificacao=resultado["data_verificacao"],
                 newsletter=bool(resultado["newsletter"])
             ) for resultado in resultados]
     except Exception as e:
@@ -188,7 +191,7 @@ def obter_vendedores() -> List[Fornecedor]:
                 telefone=resultado["telefone"],
                 senha=resultado["senha"],
                 perfil=TipoUsuario.FORNECEDOR,
-                foto=resultado["foto"],
+
                 token_redefinicao=resultado["token_redefinicao"],
                 data_token=resultado["data_token"],
                 data_cadastro=resultado["data_cadastro"],
@@ -199,6 +202,8 @@ def obter_vendedores() -> List[Fornecedor]:
                 prestador=bool(resultado["prestador"]),
                 vendedor=bool(resultado["vendedor"]),
                 locador=bool(resultado["locador"]),
+                verificado=bool(resultado["verificado"]),
+                data_verificacao=resultado["data_verificacao"],
                 newsletter=bool(resultado["newsletter"])
             ) for resultado in resultados]
     except Exception as e:
@@ -222,7 +227,7 @@ def obter_locadores() -> List[Fornecedor]:
                 telefone=resultado["telefone"],
                 senha=resultado["senha"],
                 perfil=TipoUsuario.FORNECEDOR,
-                foto=resultado["foto"],
+
                 token_redefinicao=resultado["token_redefinicao"],
                 data_token=resultado["data_token"],
                 data_cadastro=resultado["data_cadastro"],
@@ -233,6 +238,8 @@ def obter_locadores() -> List[Fornecedor]:
                 prestador=bool(resultado["prestador"]),
                 vendedor=bool(resultado["vendedor"]),
                 locador=bool(resultado["locador"]),
+                verificado=bool(resultado["verificado"]),
+                data_verificacao=resultado["data_verificacao"],
                 newsletter=bool(resultado["newsletter"])
             ) for resultado in resultados]
     except Exception as e:

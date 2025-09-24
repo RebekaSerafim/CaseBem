@@ -1,6 +1,6 @@
 {% extends "fornecedor/base.html" %}
 
-{% block title %}Dashboard Fornecedor{% endblock %}
+{% block title %}Dashboard{% endblock %}
 
 {% block conteudo %}
 <div class="row">
@@ -286,7 +286,7 @@
                                         {{ item.tipo.value }}
                                     </span>
                                 </td>
-                                <td>R$ {{ "%.2f"|format(item.preco) }}</td>
+                                <td>{{ item.preco|moeda }}</td>
                                 <td>
                                     {% if item.ativo %}
                                     <span class="badge bg-success">Ativo</span>

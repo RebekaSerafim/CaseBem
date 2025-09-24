@@ -1,6 +1,6 @@
 {% extends "admin/base.html" %}
 
-{% block title %}{{ "Novo" if acao == "criar" else "Editar" }} Administrador - Admin{% endblock %}
+{% block title %}{{ "Novo" if acao == "criar" else "Editar" }} Administrador{% endblock %}
 
 {% block conteudo %}
 <div class="container d-flex align-items-center justify-content-center flex-grow-1 py-4">
@@ -71,8 +71,8 @@
                     </div>
                     {% endif %}
 
-                    <div class="d-flex justify-content-end gap-2">
-                        <a href="/admin/usuarios" class="btn btn-secondary btn-lg">
+                    <div class="d-flex justify-content-end gap-4 mt-4">
+                        <a href="/admin/usuarios" class="btn btn-info btn-lg">
                             <i class="bi bi-x-circle-fill"></i> Cancelar
                         </a>
                         <button type="submit" class="btn btn-primary btn-lg">

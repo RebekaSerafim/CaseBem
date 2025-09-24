@@ -1,6 +1,6 @@
 {% extends "fornecedor/base.html" %}
 
-{% block title %}{{ "Novo Item" if acao == "criar" else "Editar Item" }} - Fornecedor - Case Bem{% endblock %}
+{% block title %}{{ "Novo Item" if acao == "criar" else "Editar Item" }}{% endblock %}
 
 {% block conteudo %}
 <div class="container d-flex align-items-center justify-content-center flex-grow-1 py-4">
@@ -11,6 +11,28 @@
                     <h3>{{ "Cadastrar Novo Item" if acao == "criar" else "Editar Item" }}</h3>
                     <small class="text-muted">{{ "Adicione um novo item ao seu catálogo" if acao == "criar" else "Edite as informações do item" }}</small>
                 </div>
+
+                <!-- Preview da foto do item (apenas para edição) -->
+                {% if acao == "editar" and item %}
+                <div class="text-center mb-4">
+                    <div class="position-relative d-inline-block">
+                        <img id="foto-item" src="{{ obter_foto_item_ou_padrao(item.id) }}"
+                             class="rounded border"
+                             style="width: 200px; height: 200px; object-fit: cover;"
+                             alt="Foto do item">
+
+                        <!-- Overlay para upload -->
+                        <div class="position-absolute bottom-0 end-0">
+                            <button type="button" class="btn btn-primary btn-sm rounded-circle" data-bs-toggle="modal" data-bs-target="#modalFotoItem">
+                                <i class="bi bi-camera-fill"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="mt-2">
+                        <small class="text-muted">Clique no ícone da câmera para alterar a foto</small>
+                    </div>
+                </div>
+                {% endif %}
                 <form method="post" enctype="multipart/form-data">
                     <div class="row">
                         <div class="col-md-8 mb-3">
@@ -43,13 +65,13 @@
                                    value="{{ item.preco if item else '' }}" required>
                         </div>
                         <div class="col-md-6 mb-3">
-                            <label for="categoria" class="form-label">Categoria</label>
-                            <select class="form-select" id="categoria" name="categoria">
+                            <label for="categoria" class="form-label">Categoria *</label>
+                            <select class="form-select" id="categoria" name="categoria" required>
                                 <option value="">Selecione uma categoria</option>
                                 {% for categoria in categorias %}
                                 <option value="{{ categoria.id }}"
                                         data-tipo="{{ categoria.tipo_fornecimento.value }}"
-                                        {{ "selected" if item and item.categoria and item.categoria == categoria.id|string else "" }}>
+                                        {{ "selected" if item and item.id_categoria and item.id_categoria == categoria.id else "" }}>
                                     {{ categoria.nome }}
                                 </option>
                                 {% endfor %}
@@ -57,13 +79,14 @@
                         </div>
                     </div>
 
+                    <!-- Upload de foto apenas para criação de novo item -->
+                    {% if acao == "criar" %}
                     <div class="mb-3">
-                        <label for="imagem" class="form-label">Imagem do Item</label>
-                        <input type="file" class="form-control" id="imagem" name="imagem" accept="image/*">
-                        {% if item and item.imagem %}
-                        <small class="text-muted">Imagem atual: {{ item.imagem }}</small>
-                        {% endif %}
+                        <label for="foto" class="form-label">Foto do Item</label>
+                        <input type="file" class="form-control" id="foto" name="foto" accept="image/jpeg,image/png,image/jpg,image/webp">
+                        <small class="form-text text-muted">Formatos aceitos: JPG, PNG, WEBP. Máximo 5MB. A imagem será redimensionada automaticamente.</small>
                     </div>
+                    {% endif %}
 
                     <div class="mb-3">
                         <div class="form-check">
@@ -97,20 +120,18 @@ document.addEventListener('DOMContentLoaded', function() {
         const tipoSelecionado = tipoSelect.value;
 
         // Limpar todas as opções exceto a primeira (placeholder)
-        categoriaSelect.innerHTML = '<option value="">Selecione uma categoria</option>';
-
         if (tipoSelecionado) {
+            categoriaSelect.innerHTML = '<option value="">Selecione uma categoria *</option>';
             // Filtrar e adicionar apenas as categorias do tipo selecionado
             todasCategorias.forEach(option => {
                 if (option.dataset.tipo === tipoSelecionado) {
                     categoriaSelect.appendChild(option.cloneNode(true));
                 }
             });
+            categoriaSelect.required = true;
         } else {
-            // Se nenhum tipo foi selecionado, mostrar todas as categorias
-            todasCategorias.forEach(option => {
-                categoriaSelect.appendChild(option.cloneNode(true));
-            });
+            categoriaSelect.innerHTML = '<option value="">Primeiro selecione um tipo</option>';
+            categoriaSelect.required = false;
         }
     }
 
@@ -121,4 +142,91 @@ document.addEventListener('DOMContentLoaded', function() {
     filtrarCategorias();
 });
 </script>
+
+<!-- Modal para alterar foto do item -->
+{% if acao == "editar" and item %}
+<div class="modal fade" id="modalFotoItem" tabindex="-1" aria-labelledby="modalFotoItemLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalFotoItemLabel">Alterar Foto do Item</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <!-- Preview da nova foto -->
+                <div class="text-center mb-3">
+                    <img id="preview-foto-item" src="{{ obter_foto_item_ou_padrao(item.id) }}"
+                         class="rounded border"
+                         style="width: 200px; height: 200px; object-fit: cover;"
+                         alt="Preview da foto do item">
+                </div>
+
+                <!-- Upload de nova foto -->
+                <form id="formFotoItem" method="post" action="/fornecedor/itens/{{ item.id }}/alterar-foto" enctype="multipart/form-data">
+                    <div class="mb-3">
+                        <label for="foto" class="form-label">Selecionar Nova Foto</label>
+                        <input type="file" class="form-control" id="foto" name="foto"
+                               accept="image/jpeg,image/png,image/jpg,image/webp" required>
+                        <div class="form-text">
+                            Formatos aceitos: JPG, PNG, WEBP. Máximo 5MB. A imagem será redimensionada automaticamente.
+                        </div>
+                    </div>
+                </form>
+
+                <!-- Remover foto atual -->
+                {% if foto_item_existe(item.id) %}
+                <div class="text-center mt-3">
+                    <form method="post" action="/fornecedor/itens/{{ item.id }}/remover-foto" style="display: inline;">
+                        <button type="submit" class="btn btn-outline-danger btn-sm"
+                                onclick="return confirm('Deseja realmente remover a foto deste item?')">
+                            <i class="bi bi-trash"></i> Remover Foto Atual
+                        </button>
+                    </form>
+                </div>
+                {% endif %}
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="submit" form="formFotoItem" class="btn btn-primary">Salvar Foto</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Preview da foto antes do upload
+document.addEventListener('DOMContentLoaded', function() {
+    const inputFoto = document.getElementById('foto');
+    const previewImg = document.getElementById('preview-foto-item');
+    const fotoItemImg = document.getElementById('foto-item');
+
+    if (inputFoto) {
+        inputFoto.addEventListener('change', function(e) {
+            if (e.target.files && e.target.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    if (previewImg) {
+                        previewImg.src = e.target.result;
+                    }
+                };
+                reader.readAsDataURL(e.target.files[0]);
+            }
+        });
+    }
+
+    // Reset preview quando modal fecha
+    const modal = document.getElementById('modalFotoItem');
+    if (modal) {
+        modal.addEventListener('hidden.bs.modal', function () {
+            if (previewImg && fotoItemImg) {
+                previewImg.src = fotoItemImg.src;
+            }
+            if (inputFoto) {
+                inputFoto.value = '';
+            }
+        });
+    }
+});
+</script>
+{% endif %}
 {% endblock %}

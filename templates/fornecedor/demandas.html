@@ -87,7 +87,7 @@
                 <div class="alert alert-info py-2 mb-3">
                     <small>
                         <strong>Faixa de Orçamento:</strong>
-                        R$ {{ "%.2f"|format(demanda.orcamento_min) }} - R$ {{ "%.2f"|format(demanda.orcamento_max) }}
+                        {{ demanda.orcamento_min|moeda }} - {{ demanda.orcamento_max|moeda }}
                     </small>
                 </div>
                 {% endif %}

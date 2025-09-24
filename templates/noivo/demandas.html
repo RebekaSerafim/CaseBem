@@ -81,7 +81,7 @@
                 <div class="alert alert-info py-2 mb-3">
                     <small>
                         <strong>Orçamento:</strong>
-                        R$ {{ "%.2f"|format(demanda.orcamento_min) }} - R$ {{ "%.2f"|format(demanda.orcamento_max) }}
+                        {{ demanda.orcamento_min|moeda }} - {{ demanda.orcamento_max|moeda }}
                     </small>
                 </div>
                 {% endif %}
@@ -189,62 +189,34 @@
 </div>
 {% endif %}
 
-<!-- Modal de confirmação -->
-<div class="modal fade" id="modalConfirmacao" tabindex="-1">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="modalTitulo">Confirmar Ação</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
-            <div class="modal-body" id="modalMensagem">
-                <!-- Conteúdo será preenchido via JavaScript -->
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                <button type="button" class="btn btn-primary" id="btnConfirmar">Confirmar</button>
-            </div>
-        </div>
-    </div>
-</div>
 {% endblock %}
 
 {% block scripts %}
 <script>
-let acaoConfirmacao = null;
-
 function finalizarDemanda(id) {
-    document.getElementById('modalTitulo').textContent = 'Finalizar Demanda';
-    document.getElementById('modalMensagem').innerHTML =
-        'Tem certeza que deseja finalizar esta demanda?<br><small class="text-muted">Esta ação não pode ser desfeita e a demanda não receberá mais orçamentos.</small>';
-    document.getElementById('btnConfirmar').className = 'btn btn-warning';
-    document.getElementById('btnConfirmar').textContent = 'Finalizar';
-
-    acaoConfirmacao = () => {
-        window.location.href = `/noivo/demanda/${id}/finalizar`;
-    };
-
-    new bootstrap.Modal(document.getElementById('modalConfirmacao')).show();
+    mostrarModalConfirmacao({
+        titulo: 'Finalizar Demanda',
+        texto: 'Tem certeza que deseja finalizar esta demanda?',
+        subtexto: 'Esta ação não pode ser desfeita e a demanda não receberá mais orçamentos.',
+        tipo: 'warning',
+        textoBotao: 'Finalizar',
+        onConfirmar: function() {
+            window.location.href = `/noivo/demanda/${id}/finalizar`;
+        }
+    });
 }
 
 function cancelarDemanda(id) {
-    document.getElementById('modalTitulo').textContent = 'Cancelar Demanda';
-    document.getElementById('modalMensagem').innerHTML =
-        'Tem certeza que deseja cancelar esta demanda?<br><small class="text-muted">Esta ação não pode ser desfeita.</small>';
-    document.getElementById('btnConfirmar').className = 'btn btn-danger';
-    document.getElementById('btnConfirmar').textContent = 'Cancelar Demanda';
-
-    acaoConfirmacao = () => {
-        window.location.href = `/noivo/demanda/${id}/cancelar`;
-    };
-
-    new bootstrap.Modal(document.getElementById('modalConfirmacao')).show();
+    mostrarModalConfirmacao({
+        titulo: 'Cancelar Demanda',
+        texto: 'Tem certeza que deseja cancelar esta demanda?',
+        subtexto: 'Esta ação não pode ser desfeita.',
+        tipo: 'danger',
+        textoBotao: 'Cancelar Demanda',
+        onConfirmar: function() {
+            window.location.href = `/noivo/demanda/${id}/cancelar`;
+        }
+    });
 }
-
-document.getElementById('btnConfirmar').addEventListener('click', function() {
-    if (acaoConfirmacao) {
-        acaoConfirmacao();
-    }
-});
 </script>
 {% endblock %}

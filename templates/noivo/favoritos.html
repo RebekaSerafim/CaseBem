@@ -47,7 +47,7 @@
                 <div class="mb-3">
                     <div class="d-flex justify-content-between align-items-center">
                         <span class="text-muted">Preço:</span>
-                        <span class="h5 text-success mb-0">R$ {{ "%.2f"|format(favorito.preco) }}</span>
+                        <span class="h5 text-success mb-0">{{ favorito.preco|moeda }}</span>
                     </div>
                 </div>
 
@@ -96,66 +96,41 @@
 </div>
 {% endif %}
 
-<!-- Modal de confirmação -->
-<div class="modal fade" id="modalConfirmacao" tabindex="-1">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Remover dos Favoritos</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
-            <div class="modal-body">
-                <p>Tem certeza que deseja remover <strong id="nomeItem"></strong> dos seus favoritos?</p>
-                <small class="text-muted">Você pode adicionar novamente a qualquer momento.</small>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                <button type="button" class="btn btn-danger" id="btnConfirmarRemocao">
-                    <i class="fas fa-heart-broken"></i> Remover Favorito
-                </button>
-            </div>
-        </div>
-    </div>
-</div>
 {% endblock %}
 
 {% block scripts %}
 <script>
-let itemParaRemover = null;
-
 function removerFavorito(idItem, nomeItem) {
-    itemParaRemover = idItem;
-    document.getElementById('nomeItem').textContent = nomeItem;
-    new bootstrap.Modal(document.getElementById('modalConfirmacao')).show();
-}
+    mostrarModalConfirmacao({
+        titulo: 'Remover dos Favoritos',
+        texto: `Tem certeza que deseja remover ${nomeItem} dos seus favoritos?`,
+        subtexto: 'Você pode adicionar novamente a qualquer momento.',
+        tipo: 'warning',
+        textoBotao: 'Remover Favorito',
+        onConfirmar: async function() {
+            try {
+                const response = await fetch(`/noivo/favoritos/remover/${idItem}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    }
+                });
 
-document.getElementById('btnConfirmarRemocao').addEventListener('click', async function() {
-    if (!itemParaRemover) return;
+                const result = await response.json();
 
-    try {
-        const response = await fetch(`/noivo/favoritos/remover/${itemParaRemover}`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
+                if (result.success) {
+                    // Recarregar a página para atualizar a lista
+                    window.location.reload();
+                } else {
+                    alert('Erro ao remover favorito: ' + result.message);
+                }
+            } catch (error) {
+                console.error('Erro:', error);
+                alert('Erro ao remover favorito');
             }
-        });
-
-        const result = await response.json();
-
-        if (result.success) {
-            // Recarregar a página para atualizar a lista
-            window.location.reload();
-        } else {
-            alert('Erro ao remover favorito: ' + result.message);
         }
-    } catch (error) {
-        console.error('Erro:', error);
-        alert('Erro ao remover favorito');
-    }
-
-    // Fechar modal
-    bootstrap.Modal.getInstance(document.getElementById('modalConfirmacao')).hide();
-});
+    });
+}
 
 // Função para adicionar favorito (pode ser usada em outras páginas)
 async function adicionarFavorito(idItem) {

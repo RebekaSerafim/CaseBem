@@ -7,10 +7,32 @@ from model.item_model import TipoItem
 from model.demanda_model import Demanda
 from repo import usuario_repo, item_repo, demanda_repo, orcamento_repo, casal_repo, favorito_repo, fornecedor_repo
 from util.flash_messages import informar_sucesso, informar_erro, informar_aviso
-from util.template_helpers import template_response_with_flash
+from util.template_helpers import template_response_with_flash, configurar_filtros_jinja
 
 router = APIRouter()
 templates = Jinja2Templates(directory="templates")
+configurar_filtros_jinja(templates)
+
+def get_noivo_active_page(request: Request) -> str:
+    """Determina qual página está ativa na área noivo"""
+    url_path = str(request.url.path)
+
+    if url_path == "/noivo/dashboard":
+        return "dashboard"
+    elif url_path == "/noivo/perfil":
+        return "perfil"
+    elif url_path.startswith("/noivo/fornecedores"):
+        return "fornecedores"
+    elif url_path.startswith("/noivo/demandas"):
+        return "demandas"
+    elif url_path.startswith("/noivo/orcamentos"):
+        return "orcamentos"
+    elif url_path.startswith("/noivo/checklist"):
+        return "checklist"
+    elif url_path.startswith("/noivo/favoritos"):
+        return "favoritos"
+    else:
+        return ""
 
 # ==================== REDIRECIONAMENTO RAIZ ====================
 

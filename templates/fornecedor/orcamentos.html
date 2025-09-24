@@ -77,7 +77,7 @@
                 <div class="row text-center mb-3">
                     <div class="col-6">
                         <small class="text-muted">Valor Total</small>
-                        <div class="fw-bold text-success">R$ {{ "%.2f"|format(orcamento.valor_total) }}</div>
+                        <div class="fw-bold text-success">{{ orcamento.valor_total|moeda }}</div>
                     </div>
                     <div class="col-6">
                         <small class="text-muted">Itens</small>
@@ -149,48 +149,21 @@
 </div>
 {% endif %}
 
-<!-- Modal de confirmação -->
-<div class="modal fade" id="modalConfirmacao" tabindex="-1">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="modalTitulo">Confirmar Ação</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
-            <div class="modal-body" id="modalMensagem">
-                <!-- Conteúdo será preenchido via JavaScript -->
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                <button type="button" class="btn btn-danger" id="btnConfirmar">Confirmar</button>
-            </div>
-        </div>
-    </div>
-</div>
 {% endblock %}
 
 {% block scripts %}
 <script>
-let acaoConfirmacao = null;
-
 function cancelarOrcamento(id) {
-    document.getElementById('modalTitulo').textContent = 'Cancelar Orçamento';
-    document.getElementById('modalMensagem').innerHTML =
-        'Tem certeza que deseja cancelar este orçamento?<br><small class="text-muted">Esta ação não pode ser desfeita.</small>';
-    document.getElementById('btnConfirmar').className = 'btn btn-danger';
-    document.getElementById('btnConfirmar').textContent = 'Cancelar Orçamento';
-
-    acaoConfirmacao = () => {
-        window.location.href = `/fornecedor/orcamento/${id}/cancelar`;
-    };
-
-    new bootstrap.Modal(document.getElementById('modalConfirmacao')).show();
+    mostrarModalConfirmacao({
+        titulo: 'Cancelar Orçamento',
+        texto: 'Tem certeza que deseja cancelar este orçamento?',
+        subtexto: 'Esta ação não pode ser desfeita.',
+        tipo: 'danger',
+        textoBotao: 'Cancelar Orçamento',
+        onConfirmar: function() {
+            window.location.href = `/fornecedor/orcamento/${id}/cancelar`;
+        }
+    });
 }
-
-document.getElementById('btnConfirmar').addEventListener('click', function() {
-    if (acaoConfirmacao) {
-        acaoConfirmacao();
-    }
-});
 </script>
 {% endblock %}

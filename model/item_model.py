@@ -15,7 +15,7 @@ class Item:
     nome: str
     descricao: str
     preco: float
+    id_categoria: int
     observacoes: Optional[str] = None
     ativo: bool = True
     data_cadastro: Optional[str] = None
-    categoria: Optional[int] = None

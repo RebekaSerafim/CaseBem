@@ -1,6 +1,6 @@
 {% extends "admin/base.html" %}
 
-{% block title %}Detalhes do Usuário - Admin{% endblock %}
+{% block title %}Detalhes do Usuário{% endblock %}
 
 {% block conteudo %}
 <div class="row">
@@ -21,10 +21,10 @@
             <div class="card-header">
                 <h5 class="card-title mb-0">Informações Básicas</h5>
             </div>
-            <div class="card-body">
+            <div class="card-body pb-1">
                 <div class="row">
                     <div class="col-md-6">
-                        <dl class="row">
+                        <dl class="row mb-0">
                             <dt class="col-sm-4">ID:</dt>
                             <dd class="col-sm-8">{{ usuario.id }}</dd>
 
@@ -39,7 +39,7 @@
                         </dl>
                     </div>
                     <div class="col-md-6">
-                        <dl class="row">
+                        <dl class="row mb-0">
                             <dt class="col-sm-4">Tipo:</dt>
                             <dd class="col-sm-8">
                                 <span class="badge
@@ -72,69 +72,22 @@
             <div class="card-header">
                 <h5 class="card-title mb-0">Informações do Fornecedor</h5>
             </div>
-            <div class="card-body">
-                <div class="row">
-                    <div class="col-md-6">
-                        <dl class="row">
-                            <dt class="col-sm-4">CNPJ:</dt>
-                            <dd class="col-sm-8 cnpj-format">{{ fornecedor.cnpj or '-' }}</dd>
+            <div class="card-body pb-1">
+                <dl class="row mb-0">
+                    <dt class="col-sm-3">CNPJ:</dt>
+                    <dd class="col-sm-9 cnpj-format">{{ fornecedor.cnpj or '-' }}</dd>
 
-                            <dt class="col-sm-4">Razão Social:</dt>
-                            <dd class="col-sm-8">{{ fornecedor.razao_social or '-' }}</dd>
-
-                            <dt class="col-sm-4">Nome Fantasia:</dt>
-                            <dd class="col-sm-8">{{ fornecedor.nome_fantasia or '-' }}</dd>
-
-                            <dt class="col-sm-4">Website:</dt>
-                            <dd class="col-sm-8">
-                                {% if fornecedor.website %}
-                                    <a href="{{ fornecedor.website }}" target="_blank">{{ fornecedor.website }}</a>
-                                {% else %}
-                                    -
-                                {% endif %}
-                            </dd>
-                        </dl>
-                    </div>
-                    <div class="col-md-6">
-                        <dl class="row">
-                            <dt class="col-sm-4">Verificado:</dt>
-                            <dd class="col-sm-8">
-                                <span class="badge {{ 'bg-success' if fornecedor.verificado else 'bg-warning' }}">
-                                    {{ "Sim" if fornecedor.verificado else "Não" }}
-                                </span>
-                            </dd>
-
-                            {% if fornecedor.data_verificacao %}
-                            <dt class="col-sm-4">Data Verificação:</dt>
-                            <dd class="col-sm-8">{{ fornecedor.data_verificacao or '-' }}</dd>
-                            {% endif %}
-
-                            <dt class="col-sm-4">Endereço:</dt>
-                            <dd class="col-sm-8">{{ fornecedor.endereco or '-' }}</dd>
-
-                            <dt class="col-sm-4">Cidade/Estado:</dt>
-                            <dd class="col-sm-8">{{ fornecedor.cidade or '-' }}{% if fornecedor.cidade and fornecedor.estado %}/{{ fornecedor.estado }}{% elif fornecedor.estado %} - {{ fornecedor.estado }}{% endif %}</dd>
-                        </dl>
-                    </div>
-                </div>
-
-                {% if fornecedor.descricao %}
-                <div class="row mt-3">
-                    <div class="col-12">
-                        <dt>Descrição:</dt>
-                        <dd>{{ fornecedor.descricao }}</dd>
-                    </div>
-                </div>
-                {% endif %}
-
-                {% if fornecedor.observacoes %}
-                <div class="row mt-3">
-                    <div class="col-12">
-                        <dt>Observações:</dt>
-                        <dd>{{ fornecedor.observacoes }}</dd>
-                    </div>
-                </div>
-                {% endif %}
+                    <dt class="col-sm-3">Verificado:</dt>
+                    <dd class="col-sm-9">
+                        <span class="badge {{ 'bg-success' if fornecedor.verificado else 'bg-warning' }}">
+                            {{ "Sim" if fornecedor.verificado else "Não" }}
+                        </span>
+                    </dd>
+                    {% if fornecedor.descricao %}
+                    <dt class="col-sm-3">Descrição:</dt>
+                    <dd class="col-sm-9">{{ fornecedor.descricao }}</dd>
+                    {% endif %}
+                </dl>
             </div>
         </div>
         {% endif %}
@@ -147,86 +100,57 @@
             </div>
             <div class="card-body">
                 {% if usuario.perfil.value == 'FORNECEDOR' and fornecedor %}
-                    {% if not fornecedor.verificado %}
-                    <form method="post" action="/admin/verificacao/{{ fornecedor.id }}/aprovar" class="mb-2">
-                        <button type="submit"
-                                class="btn btn-success w-100"
-                                data-bs-toggle="tooltip"
-                                data-bs-placement="top"
-                                title="Aprovar fornecedor para o sistema">
-                            <i class="bi bi-check-circle-fill"></i> Aprovar Fornecedor
+                {% if not fornecedor.verificado %}
+                <form method="post" action="/admin/verificacao/{{ fornecedor.id }}/aprovar" class="mb-2">
+                    <button type="submit" class="btn btn-success w-100" data-bs-toggle="tooltip" data-bs-placement="top"
+                        title="Aprovar fornecedor para o sistema">
+                        <i class="bi bi-check-circle-fill"></i> Aprovar Fornecedor
+                    </button>
+                </form>
+
+                <button type="button" class="btn btn-warning w-100 mb-2" data-bs-toggle="tooltip"
+                    data-bs-placement="top" title="Rejeitar cadastro do fornecedor" onclick="mostrarFormRejeicao()">
+                    <i class="bi bi-x-circle-fill"></i> Rejeitar Fornecedor
+                </button>
+
+                <div id="formRejeicao" style="display: none;" class="mt-3">
+                    <form method="post" action="/admin/verificacao/{{ fornecedor.id }}/rejeitar">
+                        <div class="mb-3">
+                            <label for="observacoes" class="form-label">Motivo da rejeição:</label>
+                            <textarea class="form-control" id="observacoes" name="observacoes" rows="3"></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-warning w-100">
+                            <i class="bi bi-x-circle-fill"></i> Confirmar Rejeição
+                        </button>
+                        <button type="button" class="btn btn-secondary w-100 mt-2" onclick="esconderFormRejeicao()">
+                            Cancelar
                         </button>
                     </form>
-
-                    <button type="button"
-                            class="btn btn-warning w-100 mb-2"
-                            data-bs-toggle="tooltip"
-                            data-bs-placement="top"
-                            title="Rejeitar cadastro do fornecedor"
-                            onclick="mostrarFormRejeicao()">
-                        <i class="bi bi-x-circle-fill"></i> Rejeitar Fornecedor
-                    </button>
-
-                    <div id="formRejeicao" style="display: none;" class="mt-3">
-                        <form method="post" action="/admin/verificacao/{{ fornecedor.id }}/rejeitar">
-                            <div class="mb-3">
-                                <label for="observacoes" class="form-label">Motivo da rejeição:</label>
-                                <textarea class="form-control" id="observacoes" name="observacoes" rows="3"></textarea>
-                            </div>
-                            <button type="submit" class="btn btn-warning w-100">
-                                <i class="bi bi-x-circle-fill"></i> Confirmar Rejeição
-                            </button>
-                            <button type="button" class="btn btn-secondary w-100 mt-2"
-                                    onclick="esconderFormRejeicao()">
-                                Cancelar
-                            </button>
-                        </form>
-                    </div>
-                    {% else %}
-                    <div class="alert alert-success">
-                        <i class="bi bi-check-circle-fill"></i> Fornecedor já verificado
-                    </div>
-                    {% endif %}
-                {% endif %}
-
-                {% if usuario.perfil.value != 'ADMIN' %}
-                    {% if usuario.ativo %}
-                    <button type="button"
-                            class="btn btn-warning w-100"
-                            data-bs-toggle="tooltip"
-                            data-bs-placement="top"
-                            title="Bloquear acesso do usuário ao sistema"
-                            onclick="confirmarBloqueio({{ usuario.id }}, '{{ usuario.nome }}')">
-                        <i class="bi bi-lock-fill"></i> Bloquear Usuário
-                    </button>
-                    {% else %}
-                    <form method="post" action="/admin/usuarios/{{ usuario.id }}/ativar">
-                        <button type="submit"
-                                class="btn btn-success w-100"
-                                data-bs-toggle="tooltip"
-                                data-bs-placement="top"
-                                title="Reativar acesso do usuário ao sistema">
-                            <i class="bi bi-unlock-fill"></i> Ativar Usuário
-                        </button>
-                    </form>
-                    {% endif %}
-                {% endif %}
-            </div>
-        </div>
-
-        <div class="card mt-4">
-            <div class="card-header">
-                <h5 class="card-title mb-0">Estatísticas</h5>
-            </div>
-            <div class="card-body">
-                <div class="text-center">
-                    <p class="mb-1"><strong>Tempo no Sistema</strong></p>
-                    <p class="text-muted">
-                        {{ usuario.data_cadastro or 'Data não disponível' }}
-                    </p>
                 </div>
+                {% else %}
+                <div class="alert alert-success">
+                    <i class="bi bi-check-circle-fill"></i> Fornecedor já verificado
+                </div>
+                {% endif %}
+                {% endif %}
+
+                {% if usuario.ativo %}
+                <button type="button" class="btn btn-warning w-100" data-bs-toggle="tooltip" data-bs-placement="top"
+                    title="Bloquear acesso do usuário ao sistema"
+                    onclick="confirmarBloqueio({{ usuario.id }}, '{{ usuario.nome }}')">
+                    <i class="bi bi-lock-fill"></i> Bloquear Usuário
+                </button>
+                {% else %}
+                <form method="post" action="/admin/usuarios/{{ usuario.id }}/ativar">
+                    <button type="submit" class="btn btn-success w-100" data-bs-toggle="tooltip" data-bs-placement="top"
+                        title="Reativar acesso do usuário ao sistema">
+                        <i class="bi bi-unlock-fill"></i> Ativar Usuário
+                    </button>
+                </form>
+                {% endif %}
             </div>
         </div>
+
     </div>
 </div>
 
@@ -247,52 +171,42 @@
 </div>
 {% endif %}
 
-<!-- Modal de confirmação de bloqueio -->
-<div class="modal fade" id="modalBloqueio" tabindex="-1" aria-labelledby="modalBloqueioLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="modalBloqueioLabel">Confirmar Bloqueio</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <p>Tem certeza que deseja bloquear o usuário <strong id="nomeUsuario"></strong>?</p>
-                <p class="text-warning"><small>O usuário não poderá mais acessar o sistema.</small></p>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                <form id="formBloqueio" method="post" style="display: inline;">
-                    <button type="submit" class="btn btn-warning">Bloquear</button>
-                </form>
-            </div>
-        </div>
-    </div>
-</div>
 {% endblock %}
 
 {% block scripts %}
 <script>
-// Inicializar tooltips
-document.addEventListener('DOMContentLoaded', function () {
-    var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
-    var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
-        return new bootstrap.Tooltip(tooltipTriggerEl);
+    // Inicializar tooltips
+    document.addEventListener('DOMContentLoaded', function () {
+        var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+        var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+            return new bootstrap.Tooltip(tooltipTriggerEl);
+        });
     });
-});
 
-function confirmarBloqueio(id, nome) {
-    document.getElementById('nomeUsuario').textContent = nome;
-    document.getElementById('formBloqueio').action = '/admin/usuarios/' + id + '/bloquear';
-    var modal = new bootstrap.Modal(document.getElementById('modalBloqueio'));
-    modal.show();
-}
+    function confirmarBloqueio(id, nome) {
+        mostrarModalConfirmacao({
+            titulo: 'Confirmar Bloqueio',
+            texto: `Tem certeza que deseja bloquear o usuário ${nome}?`,
+            subtexto: 'O usuário não poderá mais acessar o sistema.',
+            tipo: 'warning',
+            textoBotao: 'Bloquear',
+            onConfirmar: function() {
+                // Criar form dinamicamente e submeter
+                const form = document.createElement('form');
+                form.method = 'POST';
+                form.action = `/admin/usuarios/${id}/bloquear`;
+                document.body.appendChild(form);
+                form.submit();
+            }
+        });
+    }
 
-function mostrarFormRejeicao() {
-    document.getElementById('formRejeicao').style.display = 'block';
-}
+    function mostrarFormRejeicao() {
+        document.getElementById('formRejeicao').style.display = 'block';
+    }
 
-function esconderFormRejeicao() {
-    document.getElementById('formRejeicao').style.display = 'none';
-}
+    function esconderFormRejeicao() {
+        document.getElementById('formRejeicao').style.display = 'none';
+    }
 </script>
 {% endblock %}

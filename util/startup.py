@@ -6,8 +6,8 @@ from model.fornecedor_model import Fornecedor
 from model.casal_model import Casal
 from repo import usuario_repo, fornecedor_repo, casal_repo, item_repo, categoria_repo, fornecedor_item_repo, item_demanda_repo, item_orcamento_repo, demanda_repo, orcamento_repo, favorito_repo, chat_repo
 from util.security import criar_hash_senha
+from util.migracoes_avatar import migrar_sistema_avatar
 import random
-from datetime import datetime, timedelta
 
 def criar_tabelas_banco():
     """
@@ -52,7 +52,6 @@ def criar_admin_padrao() -> Optional[int]:
             telefone="(28) 99999-0000",
             senha=senha_hash,
             perfil=TipoUsuario.ADMIN,
-            foto=None,
             token_redefinicao=None,
             data_token=None,
             data_cadastro=None
@@ -131,6 +130,284 @@ def criar_categorias():
 
     except Exception as e:
         print(f"❌ Erro ao criar categorias padrão: {e}")
+
+def gerar_itens_por_categoria():
+    """
+    Gera um conjunto diversificado de itens garantindo 1-4 itens por categoria.
+    """
+    itens_templates = {
+        # SERVIÇOS
+        "Fotografia e Filmagem": [
+            {"nome": "Ensaio Pré-Wedding", "preco": 850.0, "descricao": "Sessão fotográfica romântica antes do casamento"},
+            {"nome": "Cobertura Completa do Casamento", "preco": 2500.0, "descricao": "Fotografia completa da cerimônia e recepção"},
+            {"nome": "Filmagem Cerimônia", "preco": 1200.0, "descricao": "Filmagem profissional da cerimônia religiosa"},
+            {"nome": "Vídeo Highlights", "preco": 800.0, "descricao": "Vídeo resumo dos melhores momentos"}
+        ],
+        "Música e Som": [
+            {"nome": "DJ para Cerimônia", "preco": 650.0, "descricao": "DJ especializado em cerimônias religiosas"},
+            {"nome": "DJ para Recepção 6h", "preco": 1200.0, "descricao": "DJ para festa com 6 horas de duração"},
+            {"nome": "Iluminação LED Premium", "preco": 850.0, "descricao": "Sistema de iluminação completo"},
+            {"nome": "Som para Cerimônia", "preco": 350.0, "descricao": "Sistema de som para cerimônia"}
+        ],
+        "Buffet e Catering": [
+            {"nome": "Buffet Completo 100 pessoas", "preco": 4500.0, "descricao": "Buffet completo para 100 convidados"},
+            {"nome": "Buffet Completo 150 pessoas", "preco": 6200.0, "descricao": "Buffet completo para 150 convidados"},
+            {"nome": "Bar Premium", "preco": 1200.0, "descricao": "Serviço de bar com drinks premium"},
+            {"nome": "Mesa de Doces Finos", "preco": 850.0, "descricao": "Mesa de doces gourmet"}
+        ],
+        "Beleza e Estética": [
+            {"nome": "Maquiagem de Noiva", "preco": 280.0, "descricao": "Maquiagem profissional para noiva"},
+            {"nome": "Penteado de Noiva", "preco": 220.0, "descricao": "Penteado elegante para noiva"},
+            {"nome": "Teste de Maquiagem", "preco": 120.0, "descricao": "Teste antes do casamento"},
+            {"nome": "Maquiagem Madrinhas", "preco": 80.0, "descricao": "Maquiagem para madrinhas"}
+        ],
+        "Transporte": [
+            {"nome": "Limousine Branca", "preco": 850.0, "descricao": "Limousine para transporte dos noivos"},
+            {"nome": "Carro Antigo Conversível", "preco": 650.0, "descricao": "Carro clássico para fotos"},
+            {"nome": "Van para Convidados", "preco": 350.0, "descricao": "Transporte para convidados"}
+        ],
+        "Cerimonial e Assessoria": [
+            {"nome": "Cerimonial Completo", "preco": 2500.0, "descricao": "Assessoria completa do casamento"},
+            {"nome": "Cerimonial Cerimônia", "preco": 800.0, "descricao": "Coordenação apenas da cerimônia"}
+        ],
+        "Celebrante": [
+            {"nome": "Celebrante Religioso", "preco": 500.0, "descricao": "Celebrante para cerimônia religiosa"},
+            {"nome": "Celebrante Civil", "preco": 400.0, "descricao": "Celebrante para cerimônia civil"}
+        ],
+        "Decoração e Ambientação": [
+            {"nome": "Decoração Completa", "preco": 3500.0, "descricao": "Decoração completa do evento"},
+            {"nome": "Decoração do Altar", "preco": 650.0, "descricao": "Decoração específica do altar"},
+            {"nome": "Arranjos Mesa", "preco": 85.0, "descricao": "Arranjos para mesas dos convidados"}
+        ],
+        "Segurança": [
+            {"nome": "Segurança Particular", "preco": 400.0, "descricao": "Serviço de segurança para o evento"}
+        ],
+        "Limpeza": [
+            {"nome": "Limpeza Pós-Evento", "preco": 300.0, "descricao": "Limpeza completa após o evento"}
+        ],
+
+        # PRODUTOS
+        "Vestidos e Roupas": [
+            {"nome": "Vestido de Noiva Princesa", "preco": 2800.0, "descricao": "Vestido estilo princesa com cauda"},
+            {"nome": "Vestido de Noiva Sereia", "preco": 3200.0, "descricao": "Vestido estilo sereia moderno"},
+            {"nome": "Véu de Noiva 3 metros", "preco": 280.0, "descricao": "Véu longo para cerimônia"},
+            {"nome": "Sapato de Noiva Perolado", "preco": 320.0, "descricao": "Sapato elegante perolado"}
+        ],
+        "Alianças e Joias": [
+            {"nome": "Aliança Ouro 18k Lisa", "preco": 580.0, "descricao": "Aliança clássica em ouro 18k"},
+            {"nome": "Aliança com Diamante", "preco": 1200.0, "descricao": "Aliança com diamantes cravados"},
+            {"nome": "Anel de Noivado Solitário", "preco": 2200.0, "descricao": "Anel solitário com diamante"},
+            {"nome": "Brincos de Pérola", "preco": 320.0, "descricao": "Brincos elegantes de pérola"}
+        ],
+        "Convites e Papelaria": [
+            {"nome": "Convite Clássico 100un", "preco": 350.0, "descricao": "Convites clássicos 100 unidades"},
+            {"nome": "Save the Date 100un", "preco": 220.0, "descricao": "Save the Date 100 unidades"},
+            {"nome": "Menu Personalizado 100un", "preco": 180.0, "descricao": "Menus personalizados"},
+            {"nome": "Lembrancinha Sabonete 100un", "preco": 280.0, "descricao": "Lembrancinhas de sabonete"}
+        ],
+        "Bolos e Doces": [
+            {"nome": "Bolo de Casamento 3 andares", "preco": 380.0, "descricao": "Bolo tradicional de 3 andares"},
+            {"nome": "Bem-Casados 100un", "preco": 250.0, "descricao": "Bem-casados tradicionais"},
+            {"nome": "Doces Finos 100un", "preco": 320.0, "descricao": "Seleção de doces finos"}
+        ],
+        "Flores e Arranjos": [
+            {"nome": "Buquê de Noiva Rosas", "preco": 280.0, "descricao": "Buquê clássico com rosas brancas"},
+            {"nome": "Buquê de Noiva Peônias", "preco": 350.0, "descricao": "Buquê sofisticado com peônias"},
+            {"nome": "Corsage para Madrinhas", "preco": 25.0, "descricao": "Arranjo para pulso das madrinhas"},
+            {"nome": "Boutonnière para Noivo", "preco": 35.0, "descricao": "Flor para lapela do noivo"}
+        ],
+        "Móveis e Utensílios": [
+            {"nome": "Mesa Redonda 8 pessoas", "preco": 45.0, "descricao": "Mesa redonda para 8 convidados"},
+            {"nome": "Cadeira Tiffany", "preco": 8.0, "descricao": "Cadeira elegante estilo Tiffany"},
+            {"nome": "Toalha Mesa Rendada", "preco": 25.0, "descricao": "Toalha de mesa com renda"}
+        ],
+        "Bebidas": [
+            {"nome": "Champagne Importado", "preco": 180.0, "descricao": "Champagne francês para brinde"},
+            {"nome": "Vinho Tinto Seleção", "preco": 85.0, "descricao": "Vinho tinto nacional selecionado"},
+            {"nome": "Caipirinha Bar", "preco": 12.0, "descricao": "Caipirinha preparada na hora"}
+        ],
+
+        # ESPAÇOS
+        "Espaços para Cerimônia": [
+            {"nome": "Capela Ecumênica", "preco": 600.0, "descricao": "Capela para cerimônias religiosas"},
+            {"nome": "Jardim para Cerimônia", "preco": 800.0, "descricao": "Jardim paisagístico ao ar livre"},
+            {"nome": "Gazebo para Cerimônia", "preco": 350.0, "descricao": "Gazebo romântico para altar"}
+        ],
+        "Espaços para Recepção": [
+            {"nome": "Salão de Festas 100 pessoas", "preco": 1800.0, "descricao": "Salão climatizado para 100 convidados"},
+            {"nome": "Salão de Festas 150 pessoas", "preco": 2400.0, "descricao": "Salão amplo para 150 convidados"},
+            {"nome": "Espaço Gourmet", "preco": 450.0, "descricao": "Área para coquetel e confraternização"},
+            {"nome": "Sala de Noiva", "preco": 200.0, "descricao": "Espaço exclusivo para preparação da noiva"}
+        ],
+        "Hospedagem": [
+            {"nome": "Suíte Presidencial", "preco": 350.0, "descricao": "Suíte luxo para os noivos"},
+            {"nome": "Quarto Standard", "preco": 120.0, "descricao": "Quarto confortável para convidados"},
+            {"nome": "Pacote Weekend", "preco": 280.0, "descricao": "Pacote final de semana para família"}
+        ]
+    }
+
+    return itens_templates
+
+def criar_fornecedores_inteligente():
+    """
+    Cria fornecedores de teste com distribuição inteligente de itens por categoria.
+    Garante que cada categoria tenha entre 1-4 itens.
+    """
+    try:
+        # Verificar se já existem fornecedores
+        total_fornecedores = fornecedor_repo.contar_fornecedores()
+        if total_fornecedores >= 5:
+            print("✅ Fornecedores de teste já existem no sistema")
+            return
+
+        # Obter categorias para associar aos itens
+        categorias = categoria_repo.obter_categorias()
+        if not categorias:
+            print("❌ Nenhuma categoria encontrada. Execute criar_categorias() primeiro.")
+            return
+
+        # Obter templates de itens
+        itens_templates = gerar_itens_por_categoria()
+
+        print("🏢 Criando fornecedores com distribuição inteligente de itens...")
+
+        # Criar um mapeamento de categoria para seus itens
+        categoria_para_itens = {}
+        for categoria in categorias:
+            if categoria.nome in itens_templates:
+                categoria_para_itens[categoria.id] = itens_templates[categoria.nome]
+
+        # Distribuir itens aleatoriamente garantindo 1-4 por categoria
+        itens_por_categoria = {}
+        for categoria_id, itens_disponiveis in categoria_para_itens.items():
+            # Escolher entre 1-4 itens aleatoriamente para esta categoria
+            quantidade = random.randint(1, min(4, len(itens_disponiveis)))
+            itens_selecionados = random.sample(itens_disponiveis, quantidade)
+            itens_por_categoria[categoria_id] = itens_selecionados
+
+        # Criar fornecedores para distribuir os itens
+        fornecedores_base = [
+            {
+                "nome": "Ana Costa",
+                "email": "ana@casamentosperfeitos.com",
+                "telefone": "(11) 98765-4321",
+                "empresa": "Casamentos Perfeitos",
+                "cnpj": "12.345.678/0001-90",
+                "descricao": "Empresa especializada em produtos e serviços para casamentos"
+            },
+            {
+                "nome": "Carlos Silva",
+                "email": "carlos@eventosmagicos.com",
+                "telefone": "(21) 99876-5432",
+                "empresa": "Eventos Mágicos",
+                "cnpj": "23.456.789/0001-01",
+                "descricao": "Prestadora de serviços completos para eventos especiais"
+            },
+            {
+                "nome": "Mariana Santos",
+                "email": "mariana@belezaperfeita.com",
+                "telefone": "(31) 98765-9876",
+                "empresa": "Beleza & Estilo",
+                "cnpj": "34.567.890/0001-12",
+                "descricao": "Especializada em beleza e produtos para noivas"
+            },
+            {
+                "nome": "Pedro Oliveira",
+                "email": "pedro@espacoseletos.com",
+                "telefone": "(41) 99654-3210",
+                "empresa": "Espaços Seletos",
+                "cnpj": "45.678.901/0001-23",
+                "descricao": "Locação de espaços únicos para cerimônias e recepções"
+            },
+            {
+                "nome": "Julia Ferreira",
+                "email": "julia@fornecedorpremium.com",
+                "telefone": "(51) 98888-7777",
+                "empresa": "Premium Fornecedores",
+                "cnpj": "56.789.012/0001-34",
+                "descricao": "Fornecedora premium de produtos e serviços de luxo"
+            }
+        ]
+
+        # Distribuir categorias entre fornecedores
+        categorias_ids = list(itens_por_categoria.keys())
+        random.shuffle(categorias_ids)
+
+        categorias_por_fornecedor = []
+        for i in range(len(fornecedores_base)):
+            categorias_por_fornecedor.append([])
+
+        # Distribuir categorias garantindo que cada fornecedor tenha pelo menos uma
+        for i, categoria_id in enumerate(categorias_ids):
+            fornecedor_idx = i % len(fornecedores_base)
+            categorias_por_fornecedor[fornecedor_idx].append(categoria_id)
+
+        # Criar fornecedores e seus itens
+        for i, fornecedor_data in enumerate(fornecedores_base):
+            # Criar fornecedor
+            senha_hash = criar_hash_senha("1234aA@#")
+
+            fornecedor = Fornecedor(
+                id=0,
+                nome=fornecedor_data["nome"],
+                cpf=None,
+                data_nascimento=None,
+                email=fornecedor_data["email"],
+                telefone=fornecedor_data["telefone"],
+                senha=senha_hash,
+                perfil=TipoUsuario.FORNECEDOR,
+                token_redefinicao=None,
+                data_token=None,
+                data_cadastro=None,
+                ativo=True,
+                nome_empresa=fornecedor_data["empresa"],
+                cnpj=fornecedor_data["cnpj"],
+                descricao=fornecedor_data["descricao"],
+                prestador=True,
+                vendedor=True,
+                locador=True,
+                verificado=True
+            )
+
+            fornecedor_id = fornecedor_repo.inserir_fornecedor(fornecedor)
+
+            if fornecedor_id:
+                print(f"✅ Fornecedor '{fornecedor.nome_empresa}' criado com sucesso! ID: {fornecedor_id}")
+
+                # Criar itens para as categorias deste fornecedor
+                total_itens = 0
+                for categoria_id in categorias_por_fornecedor[i]:
+                    categoria = next((c for c in categorias if c.id == categoria_id), None)
+                    if categoria and categoria_id in itens_por_categoria:
+                        for item_data in itens_por_categoria[categoria_id]:
+                            item = Item(
+                                id=0,
+                                id_fornecedor=fornecedor_id,
+                                tipo=categoria.tipo_fornecimento,
+                                nome=item_data["nome"],
+                                descricao=item_data["descricao"],
+                                preco=item_data["preco"],
+                                id_categoria=categoria_id,
+                                observacoes=None,
+                                ativo=True,
+                                data_cadastro=None
+                            )
+
+                            item_id = item_repo.inserir_item(item)
+                            if item_id:
+                                print(f"  ✅ Item '{item.nome}' criado na categoria '{categoria.nome}' - R$ {item.preco:.2f}")
+                                total_itens += 1
+                            else:
+                                print(f"  ❌ Erro ao criar item '{item.nome}'")
+
+                print(f"  📦 Total de {total_itens} itens criados para {fornecedor.nome_empresa}")
+            else:
+                print(f"❌ Erro ao criar fornecedor '{fornecedor_data['empresa']}'")
+
+        print("✅ Fornecedores e itens criados com distribuição inteligente!")
+
+    except Exception as e:
+        print(f"❌ Erro ao criar fornecedores: {e}")
 
 def criar_fornecedores_exemplo():
     """
@@ -399,7 +676,6 @@ def criar_fornecedores_exemplo():
                 telefone=fornecedor_data["fornecedor"]["telefone"],
                 senha=senha_hash,
                 perfil=TipoUsuario.FORNECEDOR,
-                foto=None,
                 token_redefinicao=None,
                 data_token=None,
                 data_cadastro=None,
@@ -427,15 +703,38 @@ def criar_fornecedores_exemplo():
                     categoria_id = None
 
                     if categorias_tipo:
-                        # Escolher categoria mais apropriada baseada no nome do item
-                        for cat in categorias_tipo:
-                            if any(palavra in item_data["nome"].lower() for palavra in cat.nome.lower().split()):
-                                categoria_id = cat.id
-                                break
+                        # Mapeamento específico por fornecedor
+                        nome_fornecedor = fornecedor_data["fornecedor"]["nome"]
+                        if "Fotos Mágicas" in nome_fornecedor:
+                            categoria_id = next((c.id for c in categorias_tipo if "Fotografia" in c.nome), categorias_tipo[0].id)
+                        elif "Flores do Amor" in nome_fornecedor:
+                            categoria_id = next((c.id for c in categorias_tipo if "Flores" in c.nome), categorias_tipo[0].id)
+                        elif "Sabores da Casa" in nome_fornecedor:
+                            categoria_id = next((c.id for c in categorias_tipo if "Buffet" in c.nome), categorias_tipo[0].id)
+                        elif "Vestir Bem" in nome_fornecedor:
+                            categoria_id = next((c.id for c in categorias_tipo if "Vestidos" in c.nome), categorias_tipo[0].id)
+                        elif "Música Certa" in nome_fornecedor:
+                            categoria_id = next((c.id for c in categorias_tipo if "Música" in c.nome), categorias_tipo[0].id)
+                        elif "Beleza Perfeita" in nome_fornecedor:
+                            categoria_id = next((c.id for c in categorias_tipo if "Beleza" in c.nome), categorias_tipo[0].id)
+                        elif "Alianças Top" in nome_fornecedor:
+                            categoria_id = next((c.id for c in categorias_tipo if "Alianças" in c.nome), categorias_tipo[0].id)
+                        elif "Convites Únicos" in nome_fornecedor:
+                            categoria_id = next((c.id for c in categorias_tipo if "Convites" in c.nome), categorias_tipo[0].id)
+                        elif "Transporte VIP" in nome_fornecedor:
+                            categoria_id = next((c.id for c in categorias_tipo if "Transporte" in c.nome), categorias_tipo[0].id)
+                        elif "Espaços Mágicos" in nome_fornecedor:
+                            categoria_id = next((c.id for c in categorias_tipo if "Espaços" in c.nome), categorias_tipo[0].id)
+                        else:
+                            # Escolher categoria mais apropriada baseada no nome do item
+                            for cat in categorias_tipo:
+                                if any(palavra in item_data["nome"].lower() for palavra in cat.nome.lower().split()):
+                                    categoria_id = cat.id
+                                    break
 
-                        # Se não encontrou categoria específica, usa a primeira do tipo
-                        if not categoria_id:
-                            categoria_id = categorias_tipo[0].id
+                            # Se não encontrou categoria específica, usa a primeira do tipo
+                            if not categoria_id:
+                                categoria_id = categorias_tipo[0].id
 
                     item = Item(
                         id=0,
@@ -447,7 +746,7 @@ def criar_fornecedores_exemplo():
                         observacoes=None,
                         ativo=True,
                         data_cadastro=None,
-                        categoria=categoria_id
+                        id_categoria=categoria_id
                     )
 
                     item_id = item_repo.inserir_item(item)
@@ -573,7 +872,6 @@ def criar_casais_exemplo():
                 telefone=casal_data["noivo1"]["telefone"],
                 senha=senha_hash,
                 perfil=TipoUsuario.NOIVO,
-                foto=None,
                 token_redefinicao=None,
                 data_token=None,
                 data_cadastro=None
@@ -595,7 +893,6 @@ def criar_casais_exemplo():
                 telefone=casal_data["noiva1"]["telefone"],
                 senha=senha_hash,
                 perfil=TipoUsuario.NOIVO,
-                foto=None,
                 token_redefinicao=None,
                 data_token=None,
                 data_cadastro=None
@@ -641,6 +938,9 @@ def inicializar_sistema():
     # Criar todas as tabelas necessárias
     criar_tabelas_banco()
 
+    # Executar migração do sistema de avatar
+    migrar_sistema_avatar()
+
     # Criar administrador padrão se necessário
     criar_admin_padrao()
 
@@ -648,7 +948,7 @@ def inicializar_sistema():
     criar_categorias()
 
     # Criar fornecedores de exemplo se necessário
-    criar_fornecedores_exemplo()
+    criar_fornecedores_inteligente()
 
     # Criar casais de teste se necessário
     criar_casais_exemplo()

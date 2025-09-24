@@ -86,7 +86,7 @@
                 <div class="alert alert-info py-2 mb-3">
                     <small>
                         <strong>Faixa de Orçamento Solicitada:</strong><br>
-                        R$ {{ "%.2f"|format(demanda.orcamento_min) }} - R$ {{ "%.2f"|format(demanda.orcamento_max) }}
+                        {{ demanda.orcamento_min|moeda }} - {{ demanda.orcamento_max|moeda }}
                     </small>
                 </div>
                 {% endif %}
@@ -135,7 +135,7 @@
                         <hr>
                         <div class="d-flex justify-content-between align-items-center">
                             <h5>Valor Total:</h5>
-                            <h4 class="text-success">R$ {{ "%.2f"|format(orcamento.valor_total) }}</h4>
+                            <h4 class="text-success">{{ orcamento.valor_total|moeda }}</h4>
                         </div>
                     </div>
                 </div>
@@ -183,17 +183,17 @@
                                     </div>
                                 </td>
                                 <td>{{ item.quantidade }}</td>
-                                <td>R$ {{ "%.2f"|format(item.preco_unitario) }}</td>
+                                <td>{{ item.preco_unitario|moeda }}</td>
                                 <td>
                                     {% if item.desconto > 0 %}
-                                        R$ {{ "%.2f"|format(item.desconto) }}
+                                        {{ item.desconto|moeda }}
                                     {% else %}
                                         -
                                     {% endif %}
                                 </td>
                                 <td>
                                     <strong class="text-success">
-                                        R$ {{ "%.2f"|format(item.preco_total) }}
+                                        {{ item.preco_total|moeda }}
                                     </strong>
                                 </td>
                                 <td>
@@ -209,7 +209,7 @@
                         <tfoot>
                             <tr class="table-light">
                                 <th colspan="4">Total Geral</th>
-                                <th class="text-success">R$ {{ "%.2f"|format(orcamento.valor_total) }}</th>
+                                <th class="text-success">{{ orcamento.valor_total|moeda }}</th>
                                 <th></th>
                             </tr>
                         </tfoot>
@@ -253,34 +253,21 @@
 </div>
 {% endif %}
 
-<!-- Modal de confirmação -->
-<div class="modal fade" id="modalConfirmacao" tabindex="-1">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Cancelar Orçamento</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
-            <div class="modal-body">
-                <p>Tem certeza que deseja cancelar este orçamento?</p>
-                <small class="text-muted">Esta ação não pode ser desfeita.</small>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                <button type="button" class="btn btn-danger" id="btnConfirmar">Cancelar Orçamento</button>
-            </div>
-        </div>
-    </div>
-</div>
 {% endblock %}
 
 {% block scripts %}
 <script>
 function cancelarOrcamento(id) {
-    document.getElementById('btnConfirmar').onclick = function() {
-        window.location.href = `/fornecedor/orcamento/${id}/cancelar`;
-    };
-    new bootstrap.Modal(document.getElementById('modalConfirmacao')).show();
+    mostrarModalConfirmacao({
+        titulo: 'Cancelar Orçamento',
+        texto: 'Tem certeza que deseja cancelar este orçamento?',
+        subtexto: 'Esta ação não pode ser desfeita.',
+        tipo: 'danger',
+        textoBotao: 'Cancelar Orçamento',
+        onConfirmar: function() {
+            window.location.href = `/fornecedor/orcamento/${id}/cancelar`;
+        }
+    });
 }
 </script>
 {% endblock %}

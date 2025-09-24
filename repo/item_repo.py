@@ -2,6 +2,14 @@ from typing import Optional, List, Dict, Any
 from util.database import obter_conexao
 from sql.item_sql import *
 from model.item_model import Item, TipoItem
+from repo.categoria_repo import obter_categoria_por_id
+
+def validar_categoria_para_tipo(tipo: TipoItem, id_categoria: int) -> bool:
+    """Valida se uma categoria pertence a um tipo específico"""
+    categoria = obter_categoria_por_id(id_categoria)
+    if not categoria:
+        return False
+    return categoria.tipo_fornecimento == tipo
 
 def criar_tabela_item() -> bool:
     """Cria a tabela de itens se não existir"""
@@ -16,6 +24,10 @@ def criar_tabela_item() -> bool:
 def inserir_item(item: Item) -> Optional[int]:
     """Insere um novo item e retorna seu ID"""
     try:
+        # Validar se a categoria pertence ao tipo do item
+        if not validar_categoria_para_tipo(item.tipo, item.id_categoria):
+            raise ValueError(f"Categoria {item.id_categoria} não pertence ao tipo {item.tipo.value}")
+
         with obter_conexao() as conexao:
             cursor = conexao.cursor()
             cursor.execute(INSERIR_ITEM, (
@@ -24,6 +36,7 @@ def inserir_item(item: Item) -> Optional[int]:
                 item.nome,
                 item.descricao,
                 item.preco,
+                item.id_categoria,
                 item.observacoes,
                 item.ativo
             ))
@@ -35,6 +48,10 @@ def inserir_item(item: Item) -> Optional[int]:
 def atualizar_item(item: Item) -> bool:
     """Atualiza um item existente"""
     try:
+        # Validar se a categoria pertence ao tipo do item
+        if not validar_categoria_para_tipo(item.tipo, item.id_categoria):
+            raise ValueError(f"Categoria {item.id_categoria} não pertence ao tipo {item.tipo.value}")
+
         with obter_conexao() as conexao:
             cursor = conexao.cursor()
             cursor.execute(ATUALIZAR_ITEM, (
@@ -42,6 +59,7 @@ def atualizar_item(item: Item) -> bool:
                 item.nome,
                 item.descricao,
                 item.preco,
+                item.id_categoria,
                 item.observacoes,
                 item.ativo,
                 item.id,
@@ -82,7 +100,7 @@ def obter_item_por_id(id_item: int) -> Optional[Item]:
                     observacoes=resultado["observacoes"],
                     ativo=bool(resultado["ativo"]),
                     data_cadastro=resultado["data_cadastro"],
-                    categoria=None
+                    id_categoria=resultado["id_categoria"]
                 )
             return None
     except Exception as e:
@@ -107,7 +125,7 @@ def obter_itens_por_fornecedor(id_fornecedor: int) -> List[Item]:
                 observacoes=resultado["observacoes"],
                 ativo=bool(resultado["ativo"]),
                 data_cadastro=resultado["data_cadastro"],
-                categoria=None
+                id_categoria=resultado["id_categoria"]
             ) for resultado in resultados]
     except Exception as e:
         print(f"Erro ao obter itens por fornecedor: {e}")
@@ -131,7 +149,7 @@ def obter_itens_por_tipo(tipo: TipoItem) -> List[Item]:
                 observacoes=resultado["observacoes"],
                 ativo=bool(resultado["ativo"]),
                 data_cadastro=resultado["data_cadastro"],
-                categoria=None
+                id_categoria=resultado["id_categoria"]
             ) for resultado in resultados]
     except Exception as e:
         print(f"Erro ao obter itens por tipo: {e}")
@@ -157,7 +175,7 @@ def obter_itens_por_pagina(numero_pagina: int, tamanho_pagina: int) -> List[Item
                 observacoes=resultado["observacoes"],
                 ativo=bool(resultado["ativo"]),
                 data_cadastro=resultado["data_cadastro"],
-                categoria=None
+                id_categoria=resultado["id_categoria"]
             ) for resultado in resultados]
     except Exception as e:
         print(f"Erro ao obter itens por página: {e}")
@@ -184,7 +202,7 @@ def buscar_itens(termo_busca: str, numero_pagina: int = 1, tamanho_pagina: int =
                 observacoes=resultado["observacoes"],
                 ativo=bool(resultado["ativo"]),
                 data_cadastro=resultado["data_cadastro"],
-                categoria=None
+                id_categoria=resultado["id_categoria"]
             ) for resultado in resultados]
     except Exception as e:
         print(f"Erro ao buscar itens: {e}")
@@ -232,6 +250,121 @@ def obter_estatisticas_itens() -> List[Dict[str, Any]]:
     except Exception as e:
         print(f"Erro ao obter estatísticas de itens: {e}")
         return []
+
+def obter_itens_publicos(tipo: Optional[str] = None, busca: Optional[str] = None,
+                        pagina: int = 1, tamanho_pagina: int = 12) -> tuple[List[dict], int]:
+    """
+    Obtém itens públicos com filtros opcionais e paginação
+
+    Args:
+        tipo: Filtro por tipo (produto, servico, espaco)
+        busca: Termo de busca textual
+        pagina: Número da página (começa em 1)
+        tamanho_pagina: Quantidade de itens por página
+
+    Returns:
+        Tupla com (lista de itens, total de itens)
+    """
+    try:
+        with obter_conexao() as conexao:
+            cursor = conexao.cursor()
+
+            # Preparar parâmetros para busca
+            offset = (pagina - 1) * tamanho_pagina
+
+            # Mapear tipos de URL para tipos do banco
+            tipo_map = {
+                'produto': 'PRODUTO',
+                'servico': 'SERVIÇO',
+                'espaco': 'ESPAÇO'
+            }
+            tipo_param = tipo_map.get(tipo) if tipo else None
+            busca_like = f"%{busca}%" if busca else None
+
+            # Contar total de itens
+            cursor.execute(CONTAR_ITENS_PUBLICOS_FILTRADOS, (
+                tipo_param, tipo_param,
+                busca, busca_like, busca_like, busca_like
+            ))
+            total = cursor.fetchone()["total"]
+
+            # Buscar itens da página
+            cursor.execute(OBTER_ITENS_PUBLICOS_FILTRADOS, (
+                tipo_param, tipo_param,
+                busca, busca_like, busca_like, busca_like,
+                tamanho_pagina, offset
+            ))
+            resultados = cursor.fetchall()
+
+            itens = []
+            for resultado in resultados:
+                item_dict = {
+                    "id": resultado["id"],
+                    "id_fornecedor": resultado["id_fornecedor"],
+                    "tipo": resultado["tipo"],
+                    "nome": resultado["nome"],
+                    "descricao": resultado["descricao"],
+                    "preco": resultado["preco"],
+                    "observacoes": resultado["observacoes"],
+                    "ativo": bool(resultado["ativo"]),
+                    "data_cadastro": resultado["data_cadastro"],
+                    "fornecedor_nome": resultado["fornecedor_nome"],
+                    "fornecedor_empresa": resultado["fornecedor_empresa"]
+                }
+                itens.append(item_dict)
+
+            return itens, total
+
+    except Exception as e:
+        print(f"Erro ao obter itens públicos: {e}")
+        return [], 0
+
+def obter_item_publico_por_id(id_item: int) -> Optional[dict]:
+    """Obtém um item específico com informações do fornecedor para exibição pública"""
+    try:
+        with obter_conexao() as conexao:
+            cursor = conexao.cursor()
+            query = """
+            SELECT i.id, i.id_fornecedor, i.tipo, i.nome, i.descricao, i.preco, i.observacoes, i.ativo, i.data_cadastro,
+                   u.nome as fornecedor_nome, u.email as fornecedor_email, u.telefone as fornecedor_telefone,
+                   f.nome_empresa as fornecedor_empresa, f.descricao as fornecedor_descricao,
+                   c.nome as categoria_nome, c.descricao as categoria_descricao
+            FROM item i
+            JOIN usuario u ON i.id_fornecedor = u.id
+            LEFT JOIN fornecedor f ON i.id_fornecedor = f.id
+            LEFT JOIN categoria c ON i.id_categoria = c.id
+            WHERE i.id = ? AND i.ativo = 1
+            """
+            cursor.execute(query, (id_item,))
+            resultado = cursor.fetchone()
+
+            if resultado:
+                return {
+                    "id": resultado["id"],
+                    "id_fornecedor": resultado["id_fornecedor"],
+                    "tipo": resultado["tipo"],
+                    "nome": resultado["nome"],
+                    "descricao": resultado["descricao"],
+                    "preco": resultado["preco"],
+                    "observacoes": resultado["observacoes"],
+                    "ativo": bool(resultado["ativo"]),
+                    "data_cadastro": resultado["data_cadastro"],
+                    "categoria": {
+                        "nome": resultado["categoria_nome"],
+                        "descricao": resultado["categoria_descricao"]
+                    } if resultado["categoria_nome"] else None,
+                    "fornecedor": {
+                        "nome": resultado["fornecedor_nome"],
+                        "email": resultado["fornecedor_email"],
+                        "telefone": resultado["fornecedor_telefone"],
+                        "empresa": resultado["fornecedor_empresa"],
+                        "descricao": resultado["fornecedor_descricao"]
+                    }
+                }
+            return None
+    except Exception as e:
+        print(f"Erro ao obter item público por ID: {e}")
+        return None
 
 def ativar_item(id_item: int, id_fornecedor: int) -> bool:
     """Ativa um item"""

@@ -10,6 +10,7 @@ python-jose[cryptography]
 itsdangerous
 python-dotenv
 mailersend
+pillow
 
 # Dependências de teste
 pytest

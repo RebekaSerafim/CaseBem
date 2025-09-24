@@ -17,7 +17,6 @@ class Usuario:
     telefone: str
     senha: str
     perfil: TipoUsuario
-    foto: Optional[str]
     token_redefinicao: Optional[str]
     data_token: Optional[str]
     data_cadastro: Optional[str]

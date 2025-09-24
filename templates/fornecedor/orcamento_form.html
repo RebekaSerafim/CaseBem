@@ -41,7 +41,7 @@
                         <div class="alert alert-info mb-2">
                             <small>
                                 <strong>Faixa de Orçamento:</strong><br>
-                                R$ {{ "%.2f"|format(demanda.orcamento_min) }} - R$ {{ "%.2f"|format(demanda.orcamento_max) }}
+                                {{ demanda.orcamento_min|moeda }} - {{ demanda.orcamento_max|moeda }}
                             </small>
                         </div>
                         {% endif %}
@@ -113,7 +113,7 @@
                                             <option value="{{ item.id }}"
                                                     data-preco="{{ item.preco }}"
                                                     {% if item.id == item_orcamento.id_item %}selected{% endif %}>
-                                                {{ item.nome }} - R$ {{ "%.2f"|format(item.preco) }}
+                                                {{ item.nome }} - {{ item.preco|moeda }}
                                             </option>
                                             {% endfor %}
                                         </select>
@@ -166,7 +166,7 @@
                                         <option value="">Selecione um item</option>
                                         {% for item in meus_itens %}
                                         <option value="{{ item.id }}" data-preco="{{ item.preco }}">
-                                            {{ item.nome }} - R$ {{ "%.2f"|format(item.preco) }}
+                                            {{ item.nome }} - {{ item.preco|moeda }}
                                         </option>
                                         {% endfor %}
                                     </select>
@@ -263,7 +263,7 @@ function adicionarItem() {
                         <option value="">Selecione um item</option>
                         {% for item in meus_itens %}
                         <option value="{{ item.id }}" data-preco="{{ item.preco }}">
-                            {{ item.nome }} - R$ {{ "%.2f"|format(item.preco) }}
+                            {{ item.nome }} - {{ item.preco|moeda }}
                         </option>
                         {% endfor %}
                     </select>

@@ -9,7 +9,7 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
     <link rel="stylesheet" href="/static/css/styles.css">
     <link rel="stylesheet" href="/static/css/btn-actions.css">
-    <title>{% block title %}Admin - Case Bem{% endblock %}</title>
+    <title>CaseBem :: {% block title %}Admin{% endblock %}</title>
 </head>
 
 <body class="d-flex flex-column min-vh-100">
@@ -31,29 +31,39 @@
                 <div class="collapse navbar-collapse" id="navbarNav">
                     <ul class="navbar-nav ms-3 me-auto">
                         <li class="nav-item">
-                            <a class="nav-link text-white" href="/admin/perfil">Meu Perfil</a>
+                            <a class="nav-link text-white {% if active_page == 'dashboard' %}active{% endif %}"
+                               {% if active_page == 'dashboard' %}aria-current="page"{% endif %} href="/admin/dashboard">Início</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link text-white" href="/admin/usuarios">Usuários</a>
+                            <a class="nav-link text-white {% if active_page == 'usuarios' %}active{% endif %}"
+                               {% if active_page == 'usuarios' %}aria-current="page"{% endif %} href="/admin/usuarios">Usuários</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link text-white" href="/admin/categorias">Categorias</a>
+                            <a class="nav-link text-white {% if active_page == 'categorias' %}active{% endif %}"
+                               {% if active_page == 'categorias' %}aria-current="page"{% endif %} href="/admin/categorias">Categorias</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link text-white" href="/admin/itens">Itens</a>
+                            <a class="nav-link text-white {% if active_page == 'itens' %}active{% endif %}"
+                               {% if active_page == 'itens' %}aria-current="page"{% endif %} href="/admin/itens">Itens</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link text-white" href="/admin/relatorios">Relatórios</a>
+                            <a class="nav-link text-white {% if active_page == 'relatorios' %}active{% endif %}"
+                               {% if active_page == 'relatorios' %}aria-current="page"{% endif %} href="/admin/relatorios">Relatórios</a>
                         </li>
                     </ul>
                     <ul class="navbar-nav">
                         {% if usuario_logado %}
                         <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle text-white" href="#" id="navbarDropdownAdmin"
+                            <a class="nav-link dropdown-toggle text-white d-flex align-items-center" href="#" id="navbarDropdownAdmin"
                                 role="button" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">
+                                <img src="{{ obter_avatar_ou_padrao(usuario_logado.id) }}"
+                                     class="rounded-circle me-2"
+                                     style="width: 32px; height: 32px; object-fit: cover; border: 2px solid rgba(255,255,255,0.3);"
+                                     alt="Avatar">
                                 {{ usuario_logado.nome }}
                             </a>
                             <ul class="dropdown-menu dropdown-menu-end">
+                                <li><a class="dropdown-item" href="/admin/perfil">Alterar Dados de Perfil</a></li>
                                 <li><a class="dropdown-item" href="/alterar-senha">Alterar Senha</a></li>
                                 <li>
                                     <hr class="dropdown-divider">

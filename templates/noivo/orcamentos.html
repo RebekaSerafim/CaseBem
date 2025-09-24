@@ -83,7 +83,7 @@
                 <div class="row text-center mb-3">
                     <div class="col-6">
                         <small class="text-muted">Valor Total</small>
-                        <div class="fw-bold text-success">R$ {{ "%.2f"|format(orcamento.valor_total) }}</div>
+                        <div class="fw-bold text-success">{{ orcamento.valor_total|moeda }}</div>
                     </div>
                     <div class="col-6">
                         <small class="text-muted">Itens</small>
@@ -195,62 +195,34 @@
 </div>
 {% endif %}
 
-<!-- Modal de confirmação -->
-<div class="modal fade" id="modalConfirmacao" tabindex="-1">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="modalTitulo">Confirmar Ação</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
-            <div class="modal-body" id="modalMensagem">
-                <!-- Conteúdo será preenchido via JavaScript -->
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                <button type="button" class="btn btn-primary" id="btnConfirmar">Confirmar</button>
-            </div>
-        </div>
-    </div>
-</div>
 {% endblock %}
 
 {% block scripts %}
 <script>
-let acaoConfirmacao = null;
-
 function aceitarOrcamento(id) {
-    document.getElementById('modalTitulo').textContent = 'Aceitar Orçamento';
-    document.getElementById('modalMensagem').innerHTML =
-        'Tem certeza que deseja aceitar este orçamento?<br><small class="text-muted">Esta ação irá rejeitar automaticamente todos os outros orçamentos desta demanda.</small>';
-    document.getElementById('btnConfirmar').className = 'btn btn-success';
-    document.getElementById('btnConfirmar').textContent = 'Aceitar Orçamento';
-
-    acaoConfirmacao = () => {
-        window.location.href = `/noivo/orcamento/${id}/aceitar`;
-    };
-
-    new bootstrap.Modal(document.getElementById('modalConfirmacao')).show();
+    mostrarModalConfirmacao({
+        titulo: 'Aceitar Orçamento',
+        texto: 'Tem certeza que deseja aceitar este orçamento?',
+        subtexto: 'Esta ação irá rejeitar automaticamente todos os outros orçamentos desta demanda.',
+        tipo: 'success',
+        textoBotao: 'Aceitar Orçamento',
+        onConfirmar: function() {
+            window.location.href = `/noivo/orcamento/${id}/aceitar`;
+        }
+    });
 }
 
 function rejeitarOrcamento(id) {
-    document.getElementById('modalTitulo').textContent = 'Rejeitar Orçamento';
-    document.getElementById('modalMensagem').innerHTML =
-        'Tem certeza que deseja rejeitar este orçamento?<br><small class="text-muted">Esta ação não pode ser desfeita.</small>';
-    document.getElementById('btnConfirmar').className = 'btn btn-danger';
-    document.getElementById('btnConfirmar').textContent = 'Rejeitar Orçamento';
-
-    acaoConfirmacao = () => {
-        window.location.href = `/noivo/orcamento/${id}/rejeitar`;
-    };
-
-    new bootstrap.Modal(document.getElementById('modalConfirmacao')).show();
+    mostrarModalConfirmacao({
+        titulo: 'Rejeitar Orçamento',
+        texto: 'Tem certeza que deseja rejeitar este orçamento?',
+        subtexto: 'Esta ação não pode ser desfeita.',
+        tipo: 'danger',
+        textoBotao: 'Rejeitar Orçamento',
+        onConfirmar: function() {
+            window.location.href = `/noivo/orcamento/${id}/rejeitar`;
+        }
+    });
 }
-
-document.getElementById('btnConfirmar').addEventListener('click', function() {
-    if (acaoConfirmacao) {
-        acaoConfirmacao();
-    }
-});
 </script>
 {% endblock %}

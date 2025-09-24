@@ -1,16 +1,39 @@
-from fastapi import APIRouter, Request, Form, status
+from fastapi import APIRouter, Request, Form, status, UploadFile, File
 from fastapi.responses import RedirectResponse
 from fastapi.templating import Jinja2Templates
+from PIL import Image
 from model.demanda_model import StatusDemanda
 from util.auth_decorator import requer_autenticacao
 from model.usuario_model import TipoUsuario
 from model.item_model import Item, TipoItem
 from repo import fornecedor_repo, item_repo, orcamento_repo, demanda_repo, usuario_repo, categoria_repo, casal_repo
 from util.flash_messages import informar_sucesso, informar_erro, informar_aviso
-from util.template_helpers import template_response_with_flash
+from util.template_helpers import template_response_with_flash, configurar_filtros_jinja
+from util.item_foto_util import (
+    criar_diretorio_itens, obter_caminho_foto_item_fisico,
+    excluir_foto_item, foto_item_existe
+)
 
 router = APIRouter()
 templates = Jinja2Templates(directory="templates")
+configurar_filtros_jinja(templates)
+
+def get_fornecedor_active_page(request: Request) -> str:
+    """Determina qual página está ativa na área fornecedor"""
+    url_path = str(request.url.path)
+
+    if url_path == "/fornecedor/dashboard":
+        return "dashboard"
+    elif url_path == "/fornecedor/perfil":
+        return "perfil"
+    elif url_path.startswith("/fornecedor/itens"):
+        return "itens"
+    elif url_path.startswith("/fornecedor/demandas"):
+        return "demandas"
+    elif url_path.startswith("/fornecedor/orcamentos"):
+        return "orcamentos"
+    else:
+        return ""
 
 # ==================== DASHBOARD ====================
 
@@ -96,17 +119,56 @@ async def listar_itens(request: Request, usuario_logado: dict = {}):
         id_fornecedor = usuario_logado["id"]
         meus_itens = item_repo.obter_itens_por_fornecedor(id_fornecedor)
 
+        # Obter parâmetros de filtro
+        search = request.query_params.get('search', '').strip()
+        tipo_filter = request.query_params.get('tipo', '')
+        status_filter = request.query_params.get('status', '')
+        preco_max = request.query_params.get('preco_max', '')
+
+        # Aplicar filtros
+        itens_filtrados = meus_itens
+
+        # Filtro por busca (nome ou descrição)
+        if search:
+            itens_filtrados = [
+                item for item in itens_filtrados
+                if search.lower() in item.nome.lower() or search.lower() in item.descricao.lower()
+            ]
+
+        # Filtro por tipo
+        if tipo_filter:
+            itens_filtrados = [
+                item for item in itens_filtrados
+                if item.tipo.value.lower() == tipo_filter.lower()
+            ]
+
+        # Filtro por status
+        if status_filter:
+            if status_filter == 'ativo':
+                itens_filtrados = [item for item in itens_filtrados if item.ativo]
+            elif status_filter == 'inativo':
+                itens_filtrados = [item for item in itens_filtrados if not item.ativo]
+
+        # Filtro por preço máximo
+        if preco_max:
+            try:
+                preco_max_valor = float(preco_max)
+                itens_filtrados = [item for item in itens_filtrados if item.preco <= preco_max_valor]
+            except ValueError:
+                pass  # Ignorar se não for um número válido
+
         return templates.TemplateResponse("fornecedor/itens.html", {
             "request": request,
             "usuario_logado": usuario_logado,
-            "itens": meus_itens
+            "itens": itens_filtrados
         })
     except Exception as e:
         print(f"Erro ao listar itens: {e}")
         return templates.TemplateResponse("fornecedor/itens.html", {
             "request": request,
             "usuario_logado": usuario_logado,
-            "erro": "Erro ao carregar itens"
+            "erro": "Erro ao carregar itens",
+            "itens": []
         })
 
 @router.get("/fornecedor/itens/novo")
@@ -131,7 +193,8 @@ async def criar_item(
     descricao: str = Form(...),
     preco: float = Form(...),
     observacoes: str = Form(""),
-    categoria: str = Form(""),
+    categoria: str = Form(...),
+    foto: UploadFile = File(None),
     usuario_logado: dict = {}
 ):
     """Cria um novo item"""
@@ -152,8 +215,44 @@ async def criar_item(
                 "categorias": categorias
             })
 
+        # Validar categoria
+        if not categoria:
+            categorias = categoria_repo.obter_categorias_ativas()
+            return templates.TemplateResponse("fornecedor/item_form.html", {
+                "request": request,
+                "usuario_logado": usuario_logado,
+                "erro": "Categoria é obrigatória",
+                "acao": "criar",
+                "tipos_item": [tipo.value for tipo in TipoItem],
+                "categorias": categorias
+            })
+
+        try:
+            categoria_id = int(categoria)
+        except ValueError:
+            categorias = categoria_repo.obter_categorias_ativas()
+            return templates.TemplateResponse("fornecedor/item_form.html", {
+                "request": request,
+                "usuario_logado": usuario_logado,
+                "erro": "Categoria inválida",
+                "acao": "criar",
+                "tipos_item": [tipo.value for tipo in TipoItem],
+                "categorias": categorias
+            })
+
+        # Validar se categoria pertence ao tipo
+        if not item_repo.validar_categoria_para_tipo(tipo_enum, categoria_id):
+            categorias = categoria_repo.obter_categorias_ativas()
+            return templates.TemplateResponse("fornecedor/item_form.html", {
+                "request": request,
+                "usuario_logado": usuario_logado,
+                "erro": f"A categoria selecionada não pertence ao tipo {tipo_enum.value}",
+                "acao": "criar",
+                "tipos_item": [tipo.value for tipo in TipoItem],
+                "categorias": categorias
+            })
+
         # Criar item
-        categoria_id = int(categoria) if categoria else None
         novo_item = Item(
             id=0,
             id_fornecedor=id_fornecedor,
@@ -164,13 +263,61 @@ async def criar_item(
             observacoes=observacoes if observacoes else None,
             ativo=True,
             data_cadastro=None,
-            categoria=categoria_id
+            id_categoria=categoria_id
         )
 
         item_id = item_repo.inserir_item(novo_item)
 
         if item_id:
-            informar_sucesso(request, "Item criado com sucesso!")
+            # Processar foto se fornecida
+            if foto and foto.filename:
+                try:
+                    # Validar tipo de arquivo
+                    tipos_permitidos = ["image/jpeg", "image/png", "image/jpg", "image/webp"]
+                    if foto.content_type in tipos_permitidos:
+                        # Validar tamanho do arquivo (máximo 5MB)
+                        conteudo_foto = await foto.read()
+                        if len(conteudo_foto) <= 5 * 1024 * 1024:  # 5MB
+                            # Criar diretório se não existir
+                            criar_diretorio_itens()
+
+                            # Obter caminho físico baseado no ID do item
+                            caminho_arquivo = obter_caminho_foto_item_fisico(item_id)
+
+                            # Processar imagem com Pillow
+                            from io import BytesIO
+                            imagem_bytes = BytesIO(conteudo_foto)
+                            imagem = Image.open(imagem_bytes)
+
+                            # Converter para RGB se necessário
+                            if imagem.mode in ("RGBA", "P"):
+                                imagem = imagem.convert("RGB")
+
+                            # Redimensionar para 600x600 mantendo proporção
+                            imagem.thumbnail((600, 600), Image.Resampling.LANCZOS)
+
+                            # Criar uma imagem quadrada com fundo branco
+                            imagem_quadrada = Image.new("RGB", (600, 600), (255, 255, 255))
+
+                            # Centralizar a imagem redimensionada
+                            x = (600 - imagem.width) // 2
+                            y = (600 - imagem.height) // 2
+                            imagem_quadrada.paste(imagem, (x, y))
+
+                            # Salvar como JPG com qualidade 85%
+                            imagem_quadrada.save(caminho_arquivo, "JPEG", quality=85, optimize=True)
+
+                            informar_sucesso(request, "Item criado com sucesso e foto adicionada!")
+                        else:
+                            informar_sucesso(request, "Item criado com sucesso! Foto não salva - arquivo muito grande (máx. 5MB)")
+                    else:
+                        informar_sucesso(request, "Item criado com sucesso! Foto não salva - tipo de arquivo inválido")
+                except Exception as e:
+                    print(f"Erro ao processar foto do item {item_id}: {e}")
+                    informar_sucesso(request, "Item criado com sucesso! Erro ao salvar foto")
+            else:
+                informar_sucesso(request, "Item criado com sucesso!")
+
             return RedirectResponse("/fornecedor/itens", status_code=status.HTTP_303_SEE_OTHER)
         else:
             categorias = categoria_repo.obter_categorias_ativas()
@@ -229,7 +376,7 @@ async def atualizar_item(
     descricao: str = Form(...),
     preco: float = Form(...),
     observacoes: str = Form(""),
-    categoria: str = Form(""),
+    categoria: str = Form(...),
     ativo: bool = Form(True),
     usuario_logado: dict = {}
 ):
@@ -257,8 +404,47 @@ async def atualizar_item(
                 "categorias": categorias
             })
 
+        # Validar categoria
+        if not categoria:
+            categorias = categoria_repo.obter_categorias_ativas()
+            return templates.TemplateResponse("fornecedor/item_form.html", {
+                "request": request,
+                "usuario_logado": usuario_logado,
+                "erro": "Categoria é obrigatória",
+                "acao": "editar",
+                "item": item_existente,
+                "tipos_item": [tipo.value for tipo in TipoItem],
+                "categorias": categorias
+            })
+
+        try:
+            categoria_id = int(categoria)
+        except ValueError:
+            categorias = categoria_repo.obter_categorias_ativas()
+            return templates.TemplateResponse("fornecedor/item_form.html", {
+                "request": request,
+                "usuario_logado": usuario_logado,
+                "erro": "Categoria inválida",
+                "acao": "editar",
+                "item": item_existente,
+                "tipos_item": [tipo.value for tipo in TipoItem],
+                "categorias": categorias
+            })
+
+        # Validar se categoria pertence ao tipo
+        if not item_repo.validar_categoria_para_tipo(tipo_enum, categoria_id):
+            categorias = categoria_repo.obter_categorias_ativas()
+            return templates.TemplateResponse("fornecedor/item_form.html", {
+                "request": request,
+                "usuario_logado": usuario_logado,
+                "erro": f"A categoria selecionada não pertence ao tipo {tipo_enum.value}",
+                "acao": "editar",
+                "item": item_existente,
+                "tipos_item": [tipo.value for tipo in TipoItem],
+                "categorias": categorias
+            })
+
         # Atualizar item
-        categoria_id = int(categoria) if categoria else None
         item_atualizado = Item(
             id=id_item,
             id_fornecedor=id_fornecedor,
@@ -269,7 +455,7 @@ async def atualizar_item(
             observacoes=observacoes if observacoes else None,
             ativo=ativo,
             data_cadastro=item_existente.data_cadastro,
-            categoria=categoria_id
+            id_categoria=categoria_id
         )
 
         sucesso = item_repo.atualizar_item(item_atualizado)
@@ -668,3 +854,102 @@ async def atualizar_perfil(
             "usuario_logado": usuario_logado,
             "erro": "Erro interno do servidor"
         })
+
+@router.post("/fornecedor/itens/{item_id}/alterar-foto")
+@requer_autenticacao([TipoUsuario.FORNECEDOR.value])
+async def alterar_foto_item(
+    request: Request,
+    item_id: int,
+    foto: UploadFile = File(...),
+    usuario_logado: dict = {}
+):
+    """Processa o upload de foto do item"""
+
+    # Verificar se o item pertence ao fornecedor logado
+    item = item_repo.obter_item_por_id(item_id)
+    if not item or item.id_fornecedor != usuario_logado['id']:
+        informar_erro(request, "Item não encontrado ou não autorizado")
+        return RedirectResponse("/fornecedor/itens", status_code=status.HTTP_303_SEE_OTHER)
+
+    # Validar tipo de arquivo
+    tipos_permitidos = ["image/jpeg", "image/png", "image/jpg", "image/webp"]
+    if foto.content_type not in tipos_permitidos:
+        informar_erro(request, "Tipo de arquivo inválido. Use JPG, PNG ou WEBP")
+        return RedirectResponse(f"/fornecedor/itens/{item_id}/editar", status_code=status.HTTP_303_SEE_OTHER)
+
+    # Validar tamanho do arquivo (máximo 5MB)
+    conteudo = await foto.read()
+    if len(conteudo) > 5 * 1024 * 1024:  # 5MB
+        informar_erro(request, "Arquivo muito grande. Máximo 5MB")
+        return RedirectResponse(f"/fornecedor/itens/{item_id}/editar", status_code=status.HTTP_303_SEE_OTHER)
+
+    try:
+        # Criar diretório se não existir
+        criar_diretorio_itens()
+
+        # Obter caminho físico baseado no ID do item
+        caminho_arquivo = obter_caminho_foto_item_fisico(item_id)
+
+        # Processar imagem com Pillow
+        try:
+            # Criar uma nova instância BytesIO com o conteúdo
+            from io import BytesIO
+            imagem_bytes = BytesIO(conteudo)
+
+            # Abrir imagem
+            imagem = Image.open(imagem_bytes)
+
+            # Converter para RGB se necessário (para salvar como JPG)
+            if imagem.mode in ("RGBA", "P"):
+                imagem = imagem.convert("RGB")
+
+            # Redimensionar para 600x600 mantendo proporção
+            imagem.thumbnail((600, 600), Image.Resampling.LANCZOS)
+
+            # Criar uma imagem quadrada com fundo branco
+            imagem_quadrada = Image.new("RGB", (600, 600), (255, 255, 255))
+
+            # Centralizar a imagem redimensionada
+            x = (600 - imagem.width) // 2
+            y = (600 - imagem.height) // 2
+            imagem_quadrada.paste(imagem, (x, y))
+
+            # Salvar como JPG com qualidade 85%
+            imagem_quadrada.save(caminho_arquivo, "JPEG", quality=85, optimize=True)
+
+        except Exception as e:
+            print(f"Erro ao processar imagem: {e}")
+            informar_erro(request, "Erro ao processar imagem")
+            return RedirectResponse(f"/fornecedor/itens/{item_id}/editar", status_code=status.HTTP_303_SEE_OTHER)
+
+        informar_sucesso(request, "Foto do item alterada com sucesso!")
+        return RedirectResponse(f"/fornecedor/itens/{item_id}/editar", status_code=status.HTTP_303_SEE_OTHER)
+
+    except Exception as e:
+        print(f"Erro ao salvar foto do item {item_id}: {e}")
+        informar_erro(request, "Erro interno do servidor")
+        return RedirectResponse(f"/fornecedor/itens/{item_id}/editar", status_code=status.HTTP_303_SEE_OTHER)
+
+@router.post("/fornecedor/itens/{item_id}/remover-foto")
+@requer_autenticacao([TipoUsuario.FORNECEDOR.value])
+async def remover_foto_item(request: Request, item_id: int, usuario_logado: dict = {}):
+    """Remove a foto do item"""
+
+    # Verificar se o item pertence ao fornecedor logado
+    item = item_repo.obter_item_por_id(item_id)
+    if not item or item.id_fornecedor != usuario_logado['id']:
+        informar_erro(request, "Item não encontrado ou não autorizado")
+        return RedirectResponse("/fornecedor/itens", status_code=status.HTTP_303_SEE_OTHER)
+
+    try:
+        if excluir_foto_item(item_id):
+            informar_sucesso(request, "Foto do item removida com sucesso!")
+        else:
+            informar_aviso(request, "Nenhuma foto encontrada para remover")
+
+        return RedirectResponse(f"/fornecedor/itens/{item_id}/editar", status_code=status.HTTP_303_SEE_OTHER)
+
+    except Exception as e:
+        print(f"Erro ao remover foto do item {item_id}: {e}")
+        informar_erro(request, "Erro interno do servidor")
+        return RedirectResponse(f"/fornecedor/itens/{item_id}/editar", status_code=status.HTTP_303_SEE_OTHER)

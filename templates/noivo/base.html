@@ -7,7 +7,7 @@
     <link href="/static/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="/static/css/styles.css">
     <link rel="icon" type="image/svg+xml" href="/static/img/logo_icon_bk.svg">
-    <title>{% block title %}Noivos - Case Bem{% endblock %}</title>
+    <title>CaseBem :: {% block title %}Noivos{% endblock %}</title>
 </head>
 
 <body class="d-flex flex-column min-vh-100">
@@ -28,30 +28,40 @@
                 <div class="collapse navbar-collapse" id="navbarNav">
                     <ul class="navbar-nav ms-3 me-auto">
                         <li class="nav-item">
-                            <a class="nav-link text-white" href="/noivo/perfil">Meu Perfil</a>
+                            <a class="nav-link text-white {% if active_page == 'dashboard' %}active{% endif %}"
+                               {% if active_page == 'dashboard' %}aria-current="page"{% endif %} href="/noivo/dashboard">Início</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link text-white" href="/noivo/fornecedores">Fornecedores</a>
+                            <a class="nav-link text-white {% if active_page == 'fornecedores' %}active{% endif %}"
+                               {% if active_page == 'fornecedores' %}aria-current="page"{% endif %} href="/noivo/fornecedores">Fornecedores</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link text-white" href="/noivo/demandas">Minhas Demandas</a>
+                            <a class="nav-link text-white {% if active_page == 'demandas' %}active{% endif %}"
+                               {% if active_page == 'demandas' %}aria-current="page"{% endif %} href="/noivo/demandas">Minhas Demandas</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link text-white" href="/noivo/orcamentos">Orçamentos</a>
+                            <a class="nav-link text-white {% if active_page == 'orcamentos' %}active{% endif %}"
+                               {% if active_page == 'orcamentos' %}aria-current="page"{% endif %} href="/noivo/orcamentos">Orçamentos</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link text-white" href="/noivo/checklist">Checklist</a>
+                            <a class="nav-link text-white {% if active_page == 'checklist' %}active{% endif %}"
+                               {% if active_page == 'checklist' %}aria-current="page"{% endif %} href="/noivo/checklist">Checklist</a>
                         </li>
                     </ul>
                     <ul class="navbar-nav">
                         {% if usuario_logado %}
                         <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle text-white" href="#" id="navbarDropdown" role="button"
+                            <a class="nav-link dropdown-toggle text-white d-flex align-items-center" href="#" id="navbarDropdown" role="button"
                                 data-bs-toggle="dropdown">
+                                <img src="{{ obter_avatar_ou_padrao(usuario_logado.id) }}"
+                                     class="rounded-circle me-2"
+                                     style="width: 32px; height: 32px; object-fit: cover; border: 2px solid rgba(255,255,255,0.3);"
+                                     alt="Avatar">
                                 {{ usuario_logado.nome }}
                             </a>
                             <ul class="dropdown-menu">
-                                <li><a class="dropdown-item" href="/noivo/perfil">Meu Perfil</a></li>
+                                <li><a class="dropdown-item" href="/noivo/perfil">Alterar Dados de Perfil</a></li>
+                                <li><a class="dropdown-item" href="/alterar-senha">Alterar Senha</a></li>
                                 <li>
                                     <hr class="dropdown-divider">
                                 </li>
