@@ -26,28 +26,28 @@
                 <div class="collapse navbar-collapse" id="navbarNav">
                     <ul class="navbar-nav ms-3 me-auto">
                         <li class="nav-item">
-                            <a class="nav-link {% if active_page == 'home' %}active{% endif %}"
-                               {% if active_page == 'home' %}aria-current="page"{% endif %} href="/">Home</a>
+                            <a class="nav-link {% if get_active_page_from_url(request) == 'home' %}active{% endif %}"
+                               {% if get_active_page_from_url(request) == 'home' %}aria-current="page"{% endif %} href="/">Home</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link {% if active_page == 'servicos' %}active{% endif %}"
-                               {% if active_page == 'servicos' %}aria-current="page"{% endif %} href="/itens?tipo=servico">Serviços</a>
+                            <a class="nav-link {% if get_active_page_from_url(request) == 'servicos' %}active{% endif %}"
+                               {% if get_active_page_from_url(request) == 'servicos' %}aria-current="page"{% endif %} href="/itens?tipo=servico">Serviços</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link {% if active_page == 'espacos' %}active{% endif %}"
-                               {% if active_page == 'espacos' %}aria-current="page"{% endif %} href="/itens?tipo=espaco">Espaços</a>
+                            <a class="nav-link {% if get_active_page_from_url(request) == 'espacos' %}active{% endif %}"
+                               {% if get_active_page_from_url(request) == 'espacos' %}aria-current="page"{% endif %} href="/itens?tipo=espaco">Espaços</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link {% if active_page == 'produtos' %}active{% endif %}"
-                               {% if active_page == 'produtos' %}aria-current="page"{% endif %} href="/itens?tipo=produto">Produtos</a>
+                            <a class="nav-link {% if get_active_page_from_url(request) == 'produtos' %}active{% endif %}"
+                               {% if get_active_page_from_url(request) == 'produtos' %}aria-current="page"{% endif %} href="/itens?tipo=produto">Produtos</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link {% if active_page == 'sobre' %}active{% endif %}"
-                               {% if active_page == 'sobre' %}aria-current="page"{% endif %} href="/sobre">Sobre</a>
+                            <a class="nav-link {% if get_active_page_from_url(request) == 'sobre' %}active{% endif %}"
+                               {% if get_active_page_from_url(request) == 'sobre' %}aria-current="page"{% endif %} href="/sobre">Sobre</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link {% if active_page == 'contato' %}active{% endif %}"
-                               {% if active_page == 'contato' %}aria-current="page"{% endif %} href="/contato">Contato</a>
+                            <a class="nav-link {% if get_active_page_from_url(request) == 'contato' %}active{% endif %}"
+                               {% if get_active_page_from_url(request) == 'contato' %}aria-current="page"{% endif %} href="/contato">Contato</a>
                         </li>
                     </ul>
                     <ul class="navbar-nav">

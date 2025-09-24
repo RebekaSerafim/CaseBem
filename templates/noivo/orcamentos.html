@@ -100,7 +100,7 @@
                 {% endif %}
 
                 <div class="d-flex justify-content-between align-items-center">
-                    <small class="text-muted">Recebido em: {{ orcamento.data_envio or 'Data não definida' }}</small>
+                    <small class="text-muted">Recebido em: {{ orcamento.data_envio | formatar_data_hora }}</small>
                     {% if orcamento.status == 'PENDENTE' %}
                     <span class="badge bg-warning rounded-pill">Novo</span>
                     {% endif %}

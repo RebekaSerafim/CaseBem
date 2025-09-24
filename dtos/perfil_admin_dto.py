@@ -1,4 +1,4 @@
-from pydantic import BaseModel, EmailStr, Field, validator
+from pydantic import BaseModel, ConfigDict, EmailStr, Field, field_validator
 from typing import Optional
 import re
 
@@ -15,7 +15,8 @@ class PerfilAdminDTO(BaseModel):
     estado: Optional[str] = Field(None, max_length=2, description="Estado (sigla UF)")
     observacoes: Optional[str] = Field(None, max_length=1000, description="Observações sobre o administrador")
 
-    @validator('nome')
+    @field_validator('nome')
+    @classmethod
     def validar_nome(cls, v):
         if not v or not v.strip():
             raise ValueError('Nome é obrigatório')
@@ -35,7 +36,8 @@ class PerfilAdminDTO(BaseModel):
 
         return nome
 
-    @validator('telefone')
+    @field_validator('telefone')
+    @classmethod
     def validar_telefone(cls, v):
         if not v:
             return v
@@ -53,7 +55,8 @@ class PerfilAdminDTO(BaseModel):
 
         return telefone
 
-    @validator('cargo')
+    @field_validator('cargo')
+    @classmethod
     def validar_cargo(cls, v):
         if v is not None:
             # Remover espaços extras
@@ -65,7 +68,8 @@ class PerfilAdminDTO(BaseModel):
             return cargo
         return v
 
-    @validator('endereco')
+    @field_validator('endereco')
+    @classmethod
     def validar_endereco(cls, v):
         if v is not None:
             # Remover espaços extras
@@ -77,7 +81,8 @@ class PerfilAdminDTO(BaseModel):
             return endereco
         return v
 
-    @validator('cidade')
+    @field_validator('cidade')
+    @classmethod
     def validar_cidade(cls, v):
         if v is not None:
             # Remover espaços extras
@@ -94,7 +99,8 @@ class PerfilAdminDTO(BaseModel):
             return cidade
         return v
 
-    @validator('estado')
+    @field_validator('estado')
+    @classmethod
     def validar_estado(cls, v):
         if v is not None:
             estado = v.strip().upper()
@@ -116,7 +122,8 @@ class PerfilAdminDTO(BaseModel):
             return estado
         return v
 
-    @validator('observacoes')
+    @field_validator('observacoes')
+    @classmethod
     def validar_observacoes(cls, v):
         if v is not None:
             # Remover espaços extras
@@ -128,10 +135,10 @@ class PerfilAdminDTO(BaseModel):
             return observacoes
         return v
 
-    class Config:
-        str_strip_whitespace = True
-        validate_assignment = True
-        schema_extra = {
+    model_config = ConfigDict(
+        str_strip_whitespace=True,
+        validate_assignment=True,
+        json_schema_extra = {
             "example": {
                 "nome": "Maria Silva",
                 "email": "maria.admin@casebem.com",
@@ -142,4 +149,5 @@ class PerfilAdminDTO(BaseModel):
                 "estado": "SP",
                 "observacoes": "Responsável pela administração geral do sistema"
             }
-        }
+        }    )
+

@@ -28,7 +28,7 @@
                         </div>
                     </div>
                     <div class="col-md-2">
-                        <label for="tipo_item" class="form-label">Tipo de Item</label>
+                        <label for="tipo_item" class="form-label">Tipo</label>
                         <select class="form-select" id="tipo_item" name="tipo_item" onchange="filtrarCategorias(); submitForm();">
                             <option value="">Todos</option>
                             <option value="PRODUTO" {% if request.query_params.get('tipo_item') == 'PRODUTO' %}selected{% endif %}>Produto</option>

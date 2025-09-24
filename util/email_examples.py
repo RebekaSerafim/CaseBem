@@ -20,9 +20,10 @@ def exemplo_email_simples():
 
     service = MailerSendService()
 
+    sender_config = EmailConfig.get_sender_config("default")
     remetente = EmailSender(
-        email="noreply@casebem.com.br",
-        name="Case Bem"
+        email=sender_config["email"],
+        name=sender_config["name"]
     )
 
     destinatario = EmailRecipient(
@@ -59,9 +60,10 @@ def exemplo_email_com_anexo():
         disposition="attachment"
     )
 
+    sender_config = EmailConfig.get_sender_config("default")
     remetente = EmailSender(
-        email="documentos@casebem.com.br",
-        name="Case Bem - Documentos"
+        email=sender_config["email"],
+        name=sender_config["name"]
     )
 
     destinatario = EmailRecipient(
@@ -92,9 +94,10 @@ def exemplo_email_multiplos_destinatarios():
 
     service = MailerSendService()
 
+    sender_config = EmailConfig.get_sender_config("notifications")
     remetente = EmailSender(
-        email="newsletter@casebem.com.br",
-        name="Case Bem - Newsletter"
+        email=sender_config["email"],
+        name=sender_config["name"]
     )
 
     destinatarios = [

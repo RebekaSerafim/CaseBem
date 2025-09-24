@@ -48,8 +48,8 @@ def criar_admin_padrao() -> Optional[int]:
         admin = Usuario(
             id=0,
             nome="Administrador Padrão",
-            cpf=None,
-            data_nascimento=None,
+            cpf="000.000.000-00",
+            data_nascimento="1990-01-01",
             email="admin@casebem.com",
             telefone="(28) 99999-0000",
             senha=senha_hash,

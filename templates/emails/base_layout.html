@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ titulo | default('Case Bem') }}</title>
+    <style>
+        {{ base_css | safe }}
+    </style>
+</head>
+<body>
+    <div class="email-container">
+        <!-- Cabeçalho -->
+        <div class="email-header {{ header_class | default('success') }}">
+            <h1>{{ header_title }}</h1>
+        </div>
+
+        <!-- Corpo do e-mail -->
+        <div class="email-body">
+            {% block content %}
+            {% endblock %}
+        </div>
+
+        <!-- Rodapé -->
+        <div class="email-footer">
+            <p>Case Bem - Conectando sonhos, criando memórias</p>
+        </div>
+    </div>
+</body>
+</html>

@@ -53,7 +53,7 @@
 
                 <div class="mb-3">
                     <small class="text-muted">Adicionado em:</small>
-                    <div>{{ favorito.data_adicao or 'Data não disponível' }}</div>
+                    <div>{{ favorito.data_adicao | formatar_data }}</div>
                 </div>
             </div>
             <div class="card-footer bg-white border-top-0">

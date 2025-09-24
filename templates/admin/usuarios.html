@@ -26,9 +26,9 @@
                                value="{{ request.query_params.get('search', '') }}" placeholder="Nome ou email">
                     </div>
                     <div class="col-md-3">
-                        <label for="tipo_usuario" class="form-label">Tipo de Usuário</label>
+                        <label for="tipo_usuario" class="form-label">Perfil</label>
                         <select class="form-select" id="tipo_usuario" name="tipo_usuario">
-                            <option value="">Todos os tipos</option>
+                            <option value="">Todos</option>
                             <option value="ADMIN" {% if request.query_params.get('tipo_usuario') == 'ADMIN' %}selected{% endif %}>Administrador</option>
                             <option value="FORNECEDOR" {% if request.query_params.get('tipo_usuario') == 'FORNECEDOR' %}selected{% endif %}>Fornecedor</option>
                             <option value="NOIVO" {% if request.query_params.get('tipo_usuario') == 'NOIVO' %}selected{% endif %}>Noivo</option>

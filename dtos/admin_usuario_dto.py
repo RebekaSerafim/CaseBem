@@ -1,4 +1,4 @@
-from pydantic import BaseModel, EmailStr, Field, validator
+from pydantic import BaseModel, EmailStr, Field, field_validator, ConfigDict
 from typing import Optional
 from util.validacoes_dto import (
     validar_cpf, validar_telefone, validar_data_nascimento,
@@ -16,22 +16,25 @@ class AdminUsuarioDTO(BaseModel):
     data_nascimento: Optional[str] = Field(None, description="Data de nascimento (formato: YYYY-MM-DD)")
     senha: Optional[str] = Field(None, min_length=6, description="Senha (obrigatória apenas na criação)")
 
-    @validator('nome')
-    def validar_nome_dto(cls, v):
+    @field_validator('nome')
+    @classmethod
+    def validar_nome_dto(cls, v: str) -> str:
         try:
             return validar_nome_pessoa(v)
         except ValidacaoError as e:
             raise ValueError(str(e))
 
-    @validator('cpf')
-    def validar_cpf_dto(cls, v):
+    @field_validator('cpf')
+    @classmethod
+    def validar_cpf_dto(cls, v: Optional[str]) -> Optional[str]:
         try:
             return validar_cpf(v)
         except ValidacaoError as e:
             raise ValueError(str(e))
 
-    @validator('telefone')
-    def validar_telefone_dto(cls, v):
+    @field_validator('telefone')
+    @classmethod
+    def validar_telefone_dto(cls, v: Optional[str]) -> Optional[str]:
         if not v:
             return v
         try:
@@ -39,24 +42,26 @@ class AdminUsuarioDTO(BaseModel):
         except ValidacaoError as e:
             raise ValueError(str(e))
 
-    @validator('data_nascimento')
-    def validar_data_nascimento_dto(cls, v):
+    @field_validator('data_nascimento')
+    @classmethod
+    def validar_data_nascimento_dto(cls, v: Optional[str]) -> Optional[str]:
         try:
             return validar_data_nascimento(v, idade_minima=18)
         except ValidacaoError as e:
             raise ValueError(str(e))
 
-    @validator('senha')
-    def validar_senha_dto(cls, v):
+    @field_validator('senha')
+    @classmethod
+    def validar_senha_dto(cls, v: Optional[str]) -> Optional[str]:
         try:
             return validar_senha(v, obrigatorio=False)
         except ValidacaoError as e:
             raise ValueError(str(e))
 
-    class Config:
-        str_strip_whitespace = True
-        validate_assignment = True
-        schema_extra = {
+    model_config = ConfigDict(
+        str_strip_whitespace=True,
+        validate_assignment=True,
+        json_schema_extra={
             "example": {
                 "nome": "Carlos Santos",
                 "email": "carlos.admin@casebem.com",
@@ -66,3 +71,4 @@ class AdminUsuarioDTO(BaseModel):
                 "senha": "senhaSegura123"
             }
         }
+    )

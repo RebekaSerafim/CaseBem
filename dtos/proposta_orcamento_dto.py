@@ -1,4 +1,4 @@
-from pydantic import BaseModel, Field, validator
+from pydantic import BaseModel, ConfigDict, Field, field_validator
 from typing import Optional
 from decimal import Decimal
 from enum import Enum
@@ -25,7 +25,8 @@ class PropostaOrcamentoDTO(BaseModel):
     observacoes: Optional[str] = Field(None, max_length=1000, description="Observações adicionais")
     forma_pagamento: Optional[FormaPagamentoEnum] = Field(None, description="Forma de pagamento preferencial")
 
-    @validator('titulo')
+    @field_validator('titulo')
+    @classmethod
     def validar_titulo(cls, v):
         if not v or not v.strip():
             raise ValueError('Título é obrigatório')
@@ -41,7 +42,8 @@ class PropostaOrcamentoDTO(BaseModel):
 
         return titulo
 
-    @validator('descricao')
+    @field_validator('descricao')
+    @classmethod
     def validar_descricao(cls, v):
         if not v or not v.strip():
             raise ValueError('Descrição é obrigatória')
@@ -57,7 +59,8 @@ class PropostaOrcamentoDTO(BaseModel):
 
         return descricao
 
-    @validator('valor_total')
+    @field_validator('valor_total')
+    @classmethod
     def validar_valor_total(cls, v):
         if v is None:
             raise ValueError('Valor total é obrigatório')
@@ -75,7 +78,8 @@ class PropostaOrcamentoDTO(BaseModel):
 
         return v
 
-    @validator('prazo_entrega')
+    @field_validator('prazo_entrega')
+    @classmethod
     def validar_prazo_entrega(cls, v):
         if v is None:
             raise ValueError('Prazo de entrega é obrigatório')
@@ -88,7 +92,8 @@ class PropostaOrcamentoDTO(BaseModel):
 
         return v
 
-    @validator('observacoes')
+    @field_validator('observacoes')
+    @classmethod
     def validar_observacoes(cls, v):
         if v is not None:
             # Remover espaços extras
@@ -100,7 +105,8 @@ class PropostaOrcamentoDTO(BaseModel):
             return observacoes
         return v
 
-    @validator('forma_pagamento')
+    @field_validator('forma_pagamento')
+    @classmethod
     def validar_forma_pagamento(cls, v):
         if v is not None and isinstance(v, str):
             try:
@@ -110,11 +116,11 @@ class PropostaOrcamentoDTO(BaseModel):
                 raise ValueError(f'Forma de pagamento deve ser uma das opções: {", ".join(formas_validas)}')
         return v
 
-    class Config:
-        str_strip_whitespace = True
-        validate_assignment = True
-        use_enum_values = True
-        schema_extra = {
+    model_config = ConfigDict(
+        str_strip_whitespace=True,
+        validate_assignment=True,
+        use_enum_values=True,
+        json_schema_extra = {
             "example": {
                 "titulo": "Cobertura Fotográfica Premium",
                 "descricao": "Proposta para cobertura fotográfica completa do casamento, incluindo pré-wedding, cerimônia e festa. Entrega de álbum digital com 300 fotos tratadas e álbum físico de 50 páginas.",
@@ -123,4 +129,5 @@ class PropostaOrcamentoDTO(BaseModel):
                 "observacoes": "Inclui sessão de pré-wedding em local à escolha dos noivos",
                 "forma_pagamento": "PARCELADO"
             }
-        }
+        }    )
+

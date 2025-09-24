@@ -20,15 +20,15 @@
         <div class="card">
             <div class="card-body">
                 <form method="get" class="row g-3">
-                    <div class="col-md-4">
+                    <div class="col-md-5">
                         <label for="search" class="form-label">Buscar</label>
                         <input type="text" class="form-control" id="search" name="search"
                                value="{{ request.query_params.get('search', '') }}" placeholder="Nome ou descrição">
                     </div>
-                    <div class="col-md-3">
-                        <label for="tipo_fornecimento" class="form-label">Tipo de Fornecimento</label>
+                    <div class="col-md-2">
+                        <label for="tipo_fornecimento" class="form-label">Tipo</label>
                         <select class="form-select" id="tipo_fornecimento" name="tipo_fornecimento">
-                            <option value="">Todos os tipos</option>
+                            <option value="">Todos</option>
                             <option value="PRODUTO" {% if request.query_params.get('tipo_fornecimento') == 'PRODUTO' %}selected{% endif %}>Produto</option>
                             <option value="SERVIÇO" {% if request.query_params.get('tipo_fornecimento') == 'SERVIÇO' %}selected{% endif %}>Serviço</option>
                             <option value="ESPAÇO" {% if request.query_params.get('tipo_fornecimento') == 'ESPAÇO' %}selected{% endif %}>Espaço</option>

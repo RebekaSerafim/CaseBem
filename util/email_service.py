@@ -4,7 +4,9 @@ Serviço de envio de e-mails usando MailerSend
 import os
 from typing import List, Dict, Optional, Any
 from dataclasses import dataclass
+from jinja2 import Environment, FileSystemLoader
 from mailersend import MailerSendClient, Email, EmailBuilder
+from util.email_config import EmailConfig, get_email_settings
 
 
 @dataclass
@@ -40,6 +42,26 @@ class MailerSendService:
             raise ValueError("MAILERSEND_TOKEN não encontrado no arquivo .env")
 
         self.client = MailerSendClient(self.api_key)
+
+        # Configurar Jinja2 para templates de e-mail
+        self.jinja_env = Environment(
+            loader=FileSystemLoader('templates/emails'),
+            autoescape=True
+        )
+
+        # Carregar CSS base
+        css_path = os.path.join('templates/emails', 'base_email.css')
+        try:
+            with open(css_path, 'r', encoding='utf-8') as f:
+                self.base_css = f.read()
+        except FileNotFoundError:
+            self.base_css = ""
+
+    def render_template(self, template_name: str, **context) -> str:
+        """Renderiza um template de e-mail com o contexto fornecido"""
+        template = self.jinja_env.get_template(template_name)
+        context['base_css'] = self.base_css
+        return template.render(**context)
 
     def enviar_email_simples(
         self,
@@ -274,9 +296,11 @@ def get_email_service() -> MailerSendService:
 # Funções de conveniência para uso rápido
 def enviar_email_boas_vindas(email_destinatario: str, nome_destinatario: str) -> Dict[str, Any]:
     """Envia e-mail de boas-vindas para novos usuários"""
+    service = get_email_service()
+    sender_config = EmailConfig.get_sender_config("default")
     remetente = EmailSender(
-        email="noreply@casebem.com.br",
-        name="Case Bem"
+        email=sender_config["email"],
+        name=sender_config["name"]
     )
 
     destinatario = EmailRecipient(
@@ -284,47 +308,14 @@ def enviar_email_boas_vindas(email_destinatario: str, nome_destinatario: str) ->
         name=nome_destinatario
     )
 
-    conteudo_html = f"""
-    <html>
-    <body style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-        <div style="background-color: #f8f9fa; padding: 20px; text-align: center;">
-            <h1 style="color: #28a745;">Bem-vindo ao Case Bem!</h1>
-        </div>
+    # Renderizar template HTML
+    conteudo_html = service.render_template(
+        'boas_vindas.html',
+        nome_destinatario=nome_destinatario,
+        dashboard_url=EmailConfig.DASHBOARD_URL
+    )
 
-        <div style="padding: 20px;">
-            <p>Olá, <strong>{nome_destinatario}</strong>!</p>
-
-            <p>É com grande alegria que damos as boas-vindas ao <strong>Case Bem</strong>,
-               a plataforma que conecta casais aos melhores fornecedores para seu casamento dos sonhos.</p>
-
-            <p>Agora você pode:</p>
-            <ul>
-                <li>Navegar por diversos fornecedores especializados</li>
-                <li>Solicitar orçamentos personalizados</li>
-                <li>Organizar todos os detalhes do seu casamento em um só lugar</li>
-                <li>Acompanhar o progresso da organização do seu evento</li>
-            </ul>
-
-            <div style="text-align: center; margin: 30px 0;">
-                <a href="#" style="background-color: #28a745; color: white; padding: 15px 30px;
-                   text-decoration: none; border-radius: 5px; display: inline-block;">
-                   Começar Agora
-                </a>
-            </div>
-
-            <p>Se tiver alguma dúvida, nossa equipe está sempre pronta para ajudar!</p>
-
-            <p>Com carinho,<br>
-               <strong>Equipe Case Bem</strong></p>
-        </div>
-
-        <div style="background-color: #f8f9fa; padding: 15px; text-align: center; font-size: 12px; color: #6c757d;">
-            <p>Case Bem - Conectando sonhos, criando memórias</p>
-        </div>
-    </body>
-    </html>
-    """
-
+    # Conteúdo texto plano
     conteudo_texto = f"""
     Bem-vindo ao Case Bem!
 
@@ -347,21 +338,23 @@ def enviar_email_boas_vindas(email_destinatario: str, nome_destinatario: str) ->
     Case Bem - Conectando sonhos, criando memórias
     """
 
-    return get_email_service().enviar_email_simples(
+    return service.enviar_email_simples(
         remetente=remetente,
         destinatarios=[destinatario],
         assunto="Bem-vindo ao Case Bem! 💒",
         conteudo_html=conteudo_html,
         conteudo_texto=conteudo_texto,
-        tags=["boas-vindas", "novo-usuario"]
+        tags=EmailConfig.get_tags("boas_vindas")
     )
 
 
 def enviar_email_recuperacao_senha(email_destinatario: str, nome_destinatario: str, token_reset: str) -> Dict[str, Any]:
     """Envia e-mail para recuperação de senha"""
+    service = get_email_service()
+    sender_config = EmailConfig.get_sender_config("support")
     remetente = EmailSender(
-        email="noreply@casebem.com.br",
-        name="Case Bem - Suporte"
+        email=sender_config["email"],
+        name=sender_config["name"]
     )
 
     destinatario = EmailRecipient(
@@ -369,47 +362,16 @@ def enviar_email_recuperacao_senha(email_destinatario: str, nome_destinatario: s
         name=nome_destinatario
     )
 
-    link_reset = f"https://casebem.com.br/reset-senha?token={token_reset}"
+    link_reset = EmailConfig.build_url("reset-senha", {"token": token_reset})
 
-    conteudo_html = f"""
-    <html>
-    <body style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-        <div style="background-color: #dc3545; padding: 20px; text-align: center;">
-            <h1 style="color: white;">Recuperação de Senha</h1>
-        </div>
+    # Renderizar template HTML
+    conteudo_html = service.render_template(
+        'recuperacao_senha.html',
+        nome_destinatario=nome_destinatario,
+        link_reset=link_reset
+    )
 
-        <div style="padding: 20px;">
-            <p>Olá, <strong>{nome_destinatario}</strong>!</p>
-
-            <p>Recebemos uma solicitação para redefinir a senha da sua conta no Case Bem.</p>
-
-            <p>Se você fez esta solicitação, clique no botão abaixo para criar uma nova senha:</p>
-
-            <div style="text-align: center; margin: 30px 0;">
-                <a href="{link_reset}" style="background-color: #dc3545; color: white; padding: 15px 30px;
-                   text-decoration: none; border-radius: 5px; display: inline-block;">
-                   Redefinir Senha
-                </a>
-            </div>
-
-            <p><strong>Importante:</strong> Este link é válido por apenas 1 hora por questões de segurança.</p>
-
-            <p>Se você não solicitou a redefinição de senha, pode ignorar este e-mail.
-               Sua senha permanecerá inalterada.</p>
-
-            <p>Em caso de dúvidas, entre em contato conosco.</p>
-
-            <p>Atenciosamente,<br>
-               <strong>Equipe Case Bem</strong></p>
-        </div>
-
-        <div style="background-color: #f8f9fa; padding: 15px; text-align: center; font-size: 12px; color: #6c757d;">
-            <p>Case Bem - Conectando sonhos, criando memórias</p>
-        </div>
-    </body>
-    </html>
-    """
-
+    # Conteúdo texto plano
     conteudo_texto = f"""
     Recuperação de Senha - Case Bem
 
@@ -433,13 +395,13 @@ def enviar_email_recuperacao_senha(email_destinatario: str, nome_destinatario: s
     Case Bem - Conectando sonhos, criando memórias
     """
 
-    return get_email_service().enviar_email_simples(
+    return service.enviar_email_simples(
         remetente=remetente,
         destinatarios=[destinatario],
         assunto="Recuperação de Senha - Case Bem 🔐",
         conteudo_html=conteudo_html,
         conteudo_texto=conteudo_texto,
-        tags=["recuperacao-senha", "seguranca"]
+        tags=EmailConfig.get_tags("seguranca")
     )
 
 
@@ -451,9 +413,11 @@ def enviar_notificacao_orcamento(
     valor_orcamento: float
 ) -> Dict[str, Any]:
     """Envia notificação de novo orçamento recebido"""
+    service = get_email_service()
+    sender_config = EmailConfig.get_sender_config("notifications")
     remetente = EmailSender(
-        email="noreply@casebem.com.br",
-        name="Case Bem - Notificações"
+        email=sender_config["email"],
+        name=sender_config["name"]
     )
 
     destinatario = EmailRecipient(
@@ -463,58 +427,20 @@ def enviar_notificacao_orcamento(
 
     valor_formatado = f"R$ {valor_orcamento:,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")
 
-    conteudo_html = f"""
-    <html>
-    <body style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-        <div style="background-color: #17a2b8; padding: 20px; text-align: center;">
-            <h1 style="color: white;">Novo Orçamento Recebido! 💰</h1>
-        </div>
+    # Renderizar template HTML
+    conteudo_html = service.render_template(
+        'notificacao_orcamento.html',
+        nome_noivo=nome_noivo,
+        nome_fornecedor=nome_fornecedor,
+        item_nome=item_nome,
+        valor_formatado=valor_formatado,
+        dashboard_url=EmailConfig.DASHBOARD_URL
+    )
 
-        <div style="padding: 20px;">
-            <p>Olá, <strong>{nome_noivo}</strong>!</p>
-
-            <p>Temos uma ótima notícia! Você recebeu um novo orçamento para seu casamento.</p>
-
-            <div style="background-color: #f8f9fa; padding: 15px; border-radius: 5px; margin: 20px 0;">
-                <p><strong>Fornecedor:</strong> {nome_fornecedor}</p>
-                <p><strong>Item/Serviço:</strong> {item_nome}</p>
-                <p><strong>Valor:</strong> <span style="color: #28a745; font-size: 18px; font-weight: bold;">{valor_formatado}</span></p>
-            </div>
-
-            <p>Agora você pode:</p>
-            <ul>
-                <li>Revisar os detalhes completos do orçamento</li>
-                <li>Aceitar ou negociar a proposta</li>
-                <li>Entrar em contato direto com o fornecedor</li>
-                <li>Comparar com outros orçamentos</li>
-            </ul>
-
-            <div style="text-align: center; margin: 30px 0;">
-                <a href="#" style="background-color: #17a2b8; color: white; padding: 15px 30px;
-                   text-decoration: none; border-radius: 5px; display: inline-block;">
-                   Ver Orçamento
-                </a>
-            </div>
-
-            <p>Não perca tempo! Os melhores fornecedores têm agenda limitada.</p>
-
-            <p>Boa sorte com os preparativos do seu casamento!</p>
-
-            <p>Com carinho,<br>
-               <strong>Equipe Case Bem</strong></p>
-        </div>
-
-        <div style="background-color: #f8f9fa; padding: 15px; text-align: center; font-size: 12px; color: #6c757d;">
-            <p>Case Bem - Conectando sonhos, criando memórias</p>
-        </div>
-    </body>
-    </html>
-    """
-
-    return get_email_service().enviar_email_simples(
+    return service.enviar_email_simples(
         remetente=remetente,
         destinatarios=[destinatario],
         assunto=f"Novo orçamento de {nome_fornecedor} - Case Bem 💰",
         conteudo_html=conteudo_html,
-        tags=["orcamento", "notificacao", "noivo"]
+        tags=EmailConfig.get_tags("orcamentos")
     )

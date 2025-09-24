@@ -83,7 +83,7 @@
 
                         <div class="mb-3">
                             <small class="text-muted">Data de Cadastro:</small>
-                            <div>{{ fornecedor.data_cadastro or 'Data não disponível' }}</div>
+                            <div>{{ fornecedor.data_cadastro | formatar_data }}</div>
                         </div>
                     </div>
                 </div>
@@ -173,7 +173,7 @@
 
                                 <div class="mb-3">
                                     <small class="text-muted">Data de Cadastro:</small>
-                                    <div>{{ fornecedor_item.data_cadastro or 'Data não disponível' }}</div>
+                                    <div>{{ fornecedor_item.data_cadastro | formatar_data }}</div>
                                 </div>
                             </div>
                             <div class="card-footer bg-white border-top-0">

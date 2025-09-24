@@ -280,7 +280,7 @@
                                     <span class="badge bg-warning">Pendente</span>
                                     {% endif %}
                                 </td>
-                                <td class="text-center">{{ fornecedor.data_cadastro or '-' }}</td>
+                                <td class="text-center">{{ fornecedor.data_cadastro | formatar_data }}</td>
                                 <td class="text-center">
                                     <a href="/admin/usuarios/{{ fornecedor.id }}"
                                         class="btn btn-sm btn-primary">

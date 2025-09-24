@@ -87,7 +87,7 @@
                 {% endif %}
 
                 <div class="d-flex justify-content-between">
-                    <small class="text-muted">{{ demanda.data_criacao or 'Data não definida' }}</small>
+                    <small class="text-muted">{{ demanda.data_criacao | formatar_data }}</small>
                     {% if demanda.orcamentos_pendentes > 0 %}
                     <span class="badge bg-warning rounded-pill">{{ demanda.orcamentos_pendentes }} novos</span>
                     {% endif %}

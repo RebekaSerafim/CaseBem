@@ -7,7 +7,6 @@ from fastapi.templating import Jinja2Templates
 from util.flash_messages import get_flashed_messages
 from util.avatar_util import obter_avatar_ou_padrao, obter_caminho_avatar, avatar_existe
 from util.item_foto_util import obter_foto_item_ou_padrao, obter_caminho_foto_item, foto_item_existe
-import locale
 
 
 def formatar_moeda(valor):
@@ -149,6 +148,108 @@ def template_response_with_flash(templates: Jinja2Templates, template_name: str,
     return templates.TemplateResponse(template_name, context)
 
 
+def formatar_data(data):
+    """
+    Formata uma data do formato ISO (yyyy-mm-dd) para o padrão brasileiro (dd/mm/yyyy)
+
+    Args:
+        data: Data no formato string (yyyy-mm-dd) ou objeto date/datetime
+
+    Returns:
+        String formatada no padrão brasileiro ou string original se inválida
+    """
+    if data is None:
+        return "Data não disponível"
+
+    try:
+        from datetime import datetime, date
+
+        # Se já é um objeto date ou datetime
+        if isinstance(data, datetime):
+            return data.strftime("%d/%m/%Y")
+        elif isinstance(data, date):
+            return data.strftime("%d/%m/%Y")
+
+        # Se é string, tenta converter
+        if isinstance(data, str):
+            data = data.strip()
+            if not data:
+                return "Data não disponível"
+
+            # Tenta formato yyyy-mm-dd
+            try:
+                data_obj = datetime.strptime(data, "%Y-%m-%d")
+                return data_obj.strftime("%d/%m/%Y")
+            except ValueError:
+                pass
+
+            # Tenta formato yyyy-mm-dd hh:mm:ss
+            try:
+                data_obj = datetime.strptime(data[:10], "%Y-%m-%d")
+                return data_obj.strftime("%d/%m/%Y")
+            except ValueError:
+                pass
+
+        return str(data)
+    except (ValueError, TypeError, AttributeError):
+        return str(data) if data else "Data não disponível"
+
+
+def formatar_data_hora(data_hora):
+    """
+    Formata uma data/hora do formato ISO (yyyy-mm-dd hh:mm:ss) para o padrão brasileiro (dd/mm/yyyy às hh:mm)
+
+    Args:
+        data_hora: Data/hora no formato string ISO ou objeto datetime
+
+    Returns:
+        String formatada no padrão brasileiro ou string original se inválida
+    """
+    if data_hora is None:
+        return "Data não disponível"
+
+    try:
+        from datetime import datetime, date
+
+        # Se já é um objeto datetime
+        if isinstance(data_hora, datetime):
+            return data_hora.strftime("%d/%m/%Y às %H:%M")
+        elif isinstance(data_hora, date):
+            return data_hora.strftime("%d/%m/%Y")
+
+        # Se é string, tenta converter
+        if isinstance(data_hora, str):
+            data_hora = data_hora.strip()
+            if not data_hora:
+                return "Data não disponível"
+
+            # Tenta formato yyyy-mm-dd hh:mm:ss
+            try:
+                data_obj = datetime.strptime(data_hora, "%Y-%m-%d %H:%M:%S")
+                return data_obj.strftime("%d/%m/%Y às %H:%M")
+            except ValueError:
+                pass
+
+            # Tenta formato yyyy-mm-dd
+            try:
+                data_obj = datetime.strptime(data_hora, "%Y-%m-%d")
+                return data_obj.strftime("%d/%m/%Y")
+            except ValueError:
+                pass
+
+            # Se contém 'T' (formato ISO com T)
+            if 'T' in data_hora:
+                try:
+                    data_obj = datetime.fromisoformat(data_hora.replace('Z', '+00:00'))
+                    return data_obj.strftime("%d/%m/%Y às %H:%M")
+                except ValueError:
+                    pass
+
+        return str(data_hora)
+    except (ValueError, TypeError, AttributeError):
+        return str(data_hora) if data_hora else "Data não disponível"
+
+
 def configurar_filtros_jinja(templates: Jinja2Templates):
     """
     Configura filtros customizados para os templates Jinja2
@@ -157,19 +258,12 @@ def configurar_filtros_jinja(templates: Jinja2Templates):
         templates: Instância do Jinja2Templates para adicionar os filtros
     """
     templates.env.filters['moeda'] = formatar_moeda
+    templates.env.filters['formatar_data'] = formatar_data
+    templates.env.filters['formatar_data_hora'] = formatar_data_hora
     templates.env.globals['obter_avatar_ou_padrao'] = obter_avatar_ou_padrao
     templates.env.globals['obter_caminho_avatar'] = obter_caminho_avatar
     templates.env.globals['avatar_existe'] = avatar_existe
     templates.env.globals['obter_foto_item_ou_padrao'] = obter_foto_item_ou_padrao
     templates.env.globals['obter_caminho_foto_item'] = obter_caminho_foto_item
     templates.env.globals['foto_item_existe'] = foto_item_existe
-
-    # Interceptar TemplateResponse para adicionar active_page automaticamente
-    original_template_response = templates.TemplateResponse
-
-    def enhanced_template_response(name: str, context: dict):
-        if "request" in context and "active_page" not in context:
-            context["active_page"] = get_active_page_from_url(context["request"])
-        return original_template_response(name, context)
-
-    templates.TemplateResponse = enhanced_template_response
+    templates.env.globals['get_active_page_from_url'] = get_active_page_from_url

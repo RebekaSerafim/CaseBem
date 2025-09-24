@@ -51,7 +51,7 @@
                 <div>
                     {% if orcamento.data_resposta %}
                     <small class="text-muted">
-                        Respondido em: {{ orcamento.data_resposta }}
+                        Respondido em: {{ orcamento.data_resposta | formatar_data_hora }}
                     </small>
                     {% endif %}
                 </div>
@@ -78,7 +78,7 @@
                     </div>
                     <div class="col-6">
                         <small class="text-muted">Data da Demanda:</small>
-                        <div class="fw-bold">{{ demanda.data_criacao or 'Data não disponível' }}</div>
+                        <div class="fw-bold">{{ demanda.data_criacao | formatar_data }}</div>
                     </div>
                 </div>
 
@@ -113,7 +113,7 @@
                 <div class="row mb-3">
                     <div class="col-6">
                         <small class="text-muted">Data de Envio:</small>
-                        <div class="fw-bold">{{ orcamento.data_envio or 'Data não disponível' }}</div>
+                        <div class="fw-bold">{{ orcamento.data_envio | formatar_data_hora }}</div>
                     </div>
                     <div class="col-6">
                         <small class="text-muted">Prazo de Entrega:</small>

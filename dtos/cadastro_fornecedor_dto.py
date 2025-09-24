@@ -1,9 +1,14 @@
-from pydantic import BaseModel, EmailStr, validator, Field
+from pydantic import BaseModel, EmailStr, field_validator, ValidationInfo, Field, ConfigDict
 from typing import Optional, List
 
 
 class CadastroFornecedorDTO(BaseModel):
     """DTO para dados do formulário de cadastro de fornecedor"""
+
+    model_config = ConfigDict(
+        str_strip_whitespace=True,
+        validate_assignment=True
+    )
 
     # Dados pessoais
     nome: str = Field(..., min_length=2, description="Nome completo do fornecedor")
@@ -26,13 +31,9 @@ class CadastroFornecedorDTO(BaseModel):
     # Outros
     newsletter: Optional[str] = None
 
-    @validator('confirmar_senha')
-    def senhas_devem_coincidir(cls, v, values):
-        if 'senha' in values and v != values['senha']:
+    @field_validator('confirmar_senha')
+    @classmethod
+    def senhas_devem_coincidir(cls, v: str, info: ValidationInfo) -> str:
+        if 'senha' in info.data and v != info.data['senha']:
             raise ValueError('As senhas não coincidem')
         return v
-
-    class Config:
-        # Permite que o modelo aceite dados de formulário HTML
-        str_strip_whitespace = True
-        validate_assignment = True

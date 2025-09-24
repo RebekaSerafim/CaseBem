@@ -350,6 +350,21 @@ body {
     }
 }
 
+/* Estilos para nav-links ativos nas áreas restritas */
+.navbar-light.bg-danger .nav-link.text-white.active,
+.navbar-light.bg-primary .nav-link.text-white.active,
+.navbar-light.bg-success .nav-link.text-white.active {
+    color: var(--bs-warning) !important;
+}
+
+/* Hover nos nav-links das áreas restritas */
+.navbar-light.bg-danger .nav-link.text-white:hover,
+.navbar-light.bg-primary .nav-link.text-white:hover,
+.navbar-light.bg-success .nav-link.text-white:hover {
+    color: var(--bs-warning) !important;
+    transition: color 0.3s ease;
+}
+
 /* Animações suaves */
 .product-info>* {
     animation: fadeInUp 0.6s ease-out;
@@ -446,7 +461,7 @@ body {
 }
 
 /* Anula o font-size do Bootstrap especificamente para btn-action */
-.btn-group-sm > .btn-action,
+.btn-group-sm>.btn-action,
 .btn-action.btn-sm {
     font-size: inherit !important;
 }
@@ -527,47 +542,47 @@ body .btn-action.btn-sm i[class*="bi-"] {
 }
 
 /* Fallback para qualquer ícone dentro de btn-action */
-* .btn-action > i,
-* .btn-action > .bi,
-* .btn-action > [class^="bi-"],
-* .btn-action > [class*=" bi-"] {
+* .btn-action>i,
+* .btn-action>.bi,
+* .btn-action>[class^="bi-"],
+* .btn-action>[class*=" bi-"] {
     font-size: 1.8rem !important;
     line-height: 1 !important;
     width: auto !important;
     height: auto !important;
 }
 
-* .btn-action.btn-sm > i,
-* .btn-action.btn-sm > .bi,
-* .btn-action.btn-sm > [class^="bi-"],
-* .btn-action.btn-sm > [class*=" bi-"] {
+* .btn-action.btn-sm>i,
+* .btn-action.btn-sm>.bi,
+* .btn-action.btn-sm>[class^="bi-"],
+* .btn-action.btn-sm>[class*=" bi-"] {
     font-size: 1.5rem !important;
 }
 
 /* Sobrescreve especificamente o Bootstrap .btn-sm font-size para ícones */
-.btn-group-sm > .btn-action i,
+.btn-group-sm>.btn-action i,
 .btn-action.btn-sm i,
-.btn-group-sm > .btn-action .bi,
+.btn-group-sm>.btn-action .bi,
 .btn-action.btn-sm .bi,
-.btn-group-sm > .btn-action [class^="bi-"],
+.btn-group-sm>.btn-action [class^="bi-"],
 .btn-action.btn-sm [class^="bi-"],
-.btn-group-sm > .btn-action [class*=" bi-"],
+.btn-group-sm>.btn-action [class*=" bi-"],
 .btn-action.btn-sm [class*=" bi-"] {
     font-size: 1.5rem !important;
     line-height: 1 !important;
 }
 
 /* Força máxima contra Bootstrap - mais específico que .btn-group-sm>.btn, .btn-sm */
-.btn-group-sm > .btn-action > i,
-.btn-action.btn-sm > i,
-.btn-group-sm > .btn-action > [class*="bi-"],
-.btn-action.btn-sm > [class*="bi-"] {
+.btn-group-sm>.btn-action>i,
+.btn-action.btn-sm>i,
+.btn-group-sm>.btn-action>[class*="bi-"],
+.btn-action.btn-sm>[class*="bi-"] {
     font-size: 1.5rem !important;
     line-height: 1 !important;
 }
 
-.btn-action > i,
-.btn-action > [class*="bi-"] {
+.btn-action>i,
+.btn-action>[class*="bi-"] {
     font-size: 1.8rem !important;
     line-height: 1 !important;
 }
@@ -585,12 +600,12 @@ body .btn-action.btn-sm i[class*="bi-"] {
 }
 
 /* Regra final super específica - vence qualquer regra do Bootstrap */
-.btn-action.btn-sm > i[class*="bi-"],
-.btn-action > i[class*="bi-"],
-.btn-action.btn-sm > i[class*="bi-"],
-.btn-action > i[class*="bi-"],
-.btn-action.btn-sm > i[class*="bi-"],
-.btn-action > i[class*="bi-"] {
+.btn-action.btn-sm>i[class*="bi-"],
+.btn-action>i[class*="bi-"],
+.btn-action.btn-sm>i[class*="bi-"],
+.btn-action>i[class*="bi-"],
+.btn-action.btn-sm>i[class*="bi-"],
+.btn-action>i[class*="bi-"] {
     font-size: 1.5rem !important;
     line-height: 1 !important;
     transform: none !important;
@@ -598,9 +613,9 @@ body .btn-action.btn-sm i[class*="bi-"] {
     height: auto !important;
 }
 
-.btn-action:not(.btn-sm) > i[class*="bi-"],
-.btn-action:not(.btn-sm) > i[class*="bi-"],
-.btn-action:not(.btn-sm) > i[class*="bi-"] {
+.btn-action:not(.btn-sm)>i[class*="bi-"],
+.btn-action:not(.btn-sm)>i[class*="bi-"],
+.btn-action:not(.btn-sm)>i[class*="bi-"] {
     font-size: 1.8rem !important;
 }
 

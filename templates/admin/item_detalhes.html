@@ -44,11 +44,7 @@
                     </div>
                     <div class="col-md-6">
                         <strong>Data de Cadastro:</strong>
-                        {% if item.data_cadastro %}
-                            {{ item.data_cadastro[:10] }}
-                        {% else %}
-                            Não informado
-                        {% endif %}<br>
+                        {{ item.data_cadastro | formatar_data }}<br>
                         <strong>ID do Fornecedor:</strong> {{ item.id_fornecedor }}
                     </div>
                 </div>

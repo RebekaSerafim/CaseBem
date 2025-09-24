@@ -215,7 +215,7 @@
                 {% if casal %}
                 <div class="row">
                     <div class="col-12">
-                        <p><strong>Data do Casamento:</strong> {{ casal.data_casamento or 'Não definida' }}</p>
+                        <p><strong>Data do Casamento:</strong> {{ casal.data_casamento | formatar_data }}</p>
                         <p><strong>Local Previsto:</strong> {{ casal.local_previsto or 'Não definido' }}</p>
                         <p><strong>Orçamento Estimado:</strong> {{ casal.orcamento_estimado or 'Não definido' }}</p>
                         <p><strong>Número de Convidados:</strong> {{ casal.numero_convidados or 'Não definido' }}</p>
@@ -274,7 +274,7 @@
                                     </span>
                                 </td>
                                 <td>{{ demanda.orcamentos_count or 0 }}</td>
-                                <td>{{ demanda.data_criacao or '-' }}</td>
+                                <td>{{ demanda.data_criacao | formatar_data }}</td>
                                 <td>
                                     <a href="/noivo/demanda/{{ demanda.id }}" class="btn btn-sm btn-outline-primary">
                                         Ver Detalhes

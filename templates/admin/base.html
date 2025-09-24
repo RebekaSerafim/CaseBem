@@ -31,24 +31,24 @@
                 <div class="collapse navbar-collapse" id="navbarNav">
                     <ul class="navbar-nav ms-3 me-auto">
                         <li class="nav-item">
-                            <a class="nav-link text-white {% if active_page == 'dashboard' %}active{% endif %}"
-                               {% if active_page == 'dashboard' %}aria-current="page"{% endif %} href="/admin/dashboard">Início</a>
+                            <a class="nav-link text-white {% if get_active_page_from_url(request) == 'dashboard' %}active{% endif %}"
+                               {% if get_active_page_from_url(request) == 'dashboard' %}aria-current="page"{% endif %} href="/admin/dashboard">Início</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link text-white {% if active_page == 'usuarios' %}active{% endif %}"
-                               {% if active_page == 'usuarios' %}aria-current="page"{% endif %} href="/admin/usuarios">Usuários</a>
+                            <a class="nav-link text-white {% if get_active_page_from_url(request) == 'usuarios' %}active{% endif %}"
+                               {% if get_active_page_from_url(request) == 'usuarios' %}aria-current="page"{% endif %} href="/admin/usuarios">Usuários</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link text-white {% if active_page == 'categorias' %}active{% endif %}"
-                               {% if active_page == 'categorias' %}aria-current="page"{% endif %} href="/admin/categorias">Categorias</a>
+                            <a class="nav-link text-white {% if get_active_page_from_url(request) == 'categorias' %}active{% endif %}"
+                               {% if get_active_page_from_url(request) == 'categorias' %}aria-current="page"{% endif %} href="/admin/categorias">Categorias</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link text-white {% if active_page == 'itens' %}active{% endif %}"
-                               {% if active_page == 'itens' %}aria-current="page"{% endif %} href="/admin/itens">Itens</a>
+                            <a class="nav-link text-white {% if get_active_page_from_url(request) == 'itens' %}active{% endif %}"
+                               {% if get_active_page_from_url(request) == 'itens' %}aria-current="page"{% endif %} href="/admin/itens">Itens</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link text-white {% if active_page == 'relatorios' %}active{% endif %}"
-                               {% if active_page == 'relatorios' %}aria-current="page"{% endif %} href="/admin/relatorios">Relatórios</a>
+                            <a class="nav-link text-white {% if get_active_page_from_url(request) == 'relatorios' %}active{% endif %}"
+                               {% if get_active_page_from_url(request) == 'relatorios' %}aria-current="page"{% endif %} href="/admin/relatorios">Relatórios</a>
                         </li>
                     </ul>
                     <ul class="navbar-nav">

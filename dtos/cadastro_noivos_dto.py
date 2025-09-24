@@ -1,9 +1,13 @@
-from pydantic import BaseModel, EmailStr, validator, Field
+from pydantic import BaseModel, EmailStr, field_validator, ValidationInfo, Field, ConfigDict
 from typing import Optional
 
 
 class CadastroNoivosDTO(BaseModel):
     """DTO para dados do formulário de cadastro de noivos"""
+
+    model_config = ConfigDict(
+        str_strip_whitespace=True
+    )
 
     # Dados do casamento
     data_casamento: Optional[str] = None
@@ -34,18 +38,16 @@ class CadastroNoivosDTO(BaseModel):
     # Outros
     newsletter: Optional[str] = None
 
-    @validator('confirmar_senha')
-    def senhas_devem_coincidir(cls, v, values):
-        if 'senha' in values and v != values['senha']:
+    @field_validator('confirmar_senha')
+    @classmethod
+    def senhas_devem_coincidir(cls, v: str, info: ValidationInfo) -> str:
+        if 'senha' in info.data and v != info.data['senha']:
             raise ValueError('As senhas não coincidem')
         return v
 
-    @validator('email2')
-    def emails_devem_ser_diferentes(cls, v, values):
-        if 'email1' in values and v == values['email1']:
+    @field_validator('email2')
+    @classmethod
+    def emails_devem_ser_diferentes(cls, v: EmailStr, info: ValidationInfo) -> EmailStr:
+        if 'email1' in info.data and v == info.data['email1']:
             raise ValueError('Os e-mails dos noivos devem ser diferentes')
         return v
-
-    class Config:
-        # Permite que o modelo aceite dados de formulário HTML
-        str_strip_whitespace = True

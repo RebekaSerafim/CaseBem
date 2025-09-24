@@ -1,4 +1,4 @@
-from pydantic import BaseModel, Field, validator
+from pydantic import BaseModel, ConfigDict, Field, field_validator, ValidationInfo
 from typing import Optional
 from decimal import Decimal
 
@@ -13,7 +13,8 @@ class DemandaNoivoDTO(BaseModel):
     prazo_entrega: Optional[str] = Field(None, max_length=100, description="Prazo de entrega desejado")
     observacoes: Optional[str] = Field(None, max_length=1000, description="Observações adicionais")
 
-    @validator('titulo')
+    @field_validator('titulo')
+    @classmethod
     def validar_titulo(cls, v):
         if not v or not v.strip():
             raise ValueError('Título é obrigatório')
@@ -29,7 +30,8 @@ class DemandaNoivoDTO(BaseModel):
 
         return titulo
 
-    @validator('descricao')
+    @field_validator('descricao')
+    @classmethod
     def validar_descricao(cls, v):
         if not v or not v.strip():
             raise ValueError('Descrição é obrigatória')
@@ -45,7 +47,8 @@ class DemandaNoivoDTO(BaseModel):
 
         return descricao
 
-    @validator('orcamento_min')
+    @field_validator('orcamento_min')
+    @classmethod
     def validar_orcamento_min(cls, v):
         if v is not None:
             if v < 0:
@@ -61,8 +64,9 @@ class DemandaNoivoDTO(BaseModel):
 
         return v
 
-    @validator('orcamento_max')
-    def validar_orcamento_max(cls, v, values):
+    @field_validator('orcamento_max')
+    @classmethod
+    def validar_orcamento_max(cls, v, info: ValidationInfo):
         if v is not None:
             if v < 0:
                 raise ValueError('Orçamento máximo não pode ser negativo')
@@ -76,13 +80,14 @@ class DemandaNoivoDTO(BaseModel):
                 raise ValueError('Orçamento não pode ser superior a R$ 9.999.999,99')
 
             # Verificar se o orçamento máximo é maior que o mínimo
-            if 'orcamento_min' in values and values['orcamento_min'] is not None:
-                if v < values['orcamento_min']:
+            if 'orcamento_min' in info.data and info.data['orcamento_min'] is not None:
+                if v < info.data['orcamento_min']:
                     raise ValueError('Orçamento máximo deve ser maior ou igual ao mínimo')
 
         return v
 
-    @validator('prazo_entrega')
+    @field_validator('prazo_entrega')
+    @classmethod
     def validar_prazo_entrega(cls, v):
         if v is not None:
             # Remover espaços extras
@@ -94,7 +99,8 @@ class DemandaNoivoDTO(BaseModel):
             return prazo
         return v
 
-    @validator('observacoes')
+    @field_validator('observacoes')
+    @classmethod
     def validar_observacoes(cls, v):
         if v is not None:
             # Remover espaços extras
@@ -106,10 +112,10 @@ class DemandaNoivoDTO(BaseModel):
             return observacoes
         return v
 
-    class Config:
-        str_strip_whitespace = True
-        validate_assignment = True
-        schema_extra = {
+    model_config = ConfigDict(
+        str_strip_whitespace=True,
+        validate_assignment=True,
+        json_schema_extra = {
             "example": {
                 "titulo": "Fotografia para casamento",
                 "descricao": "Procuramos um fotógrafo para nosso casamento que será realizado no dia 15 de junho. Gostaríamos de cobertura completa da cerimônia e festa, com entrega de álbum digital.",
@@ -118,4 +124,5 @@ class DemandaNoivoDTO(BaseModel):
                 "prazo_entrega": "30 dias após o evento",
                 "observacoes": "Preferimos um estilo mais natural e espontâneo nas fotos"
             }
-        }
+        }    )
+

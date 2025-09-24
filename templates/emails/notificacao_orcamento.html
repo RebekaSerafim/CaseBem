@@ -1,0 +1,37 @@
+{% extends "base_layout.html" %}
+
+{% set header_title = "Novo Orçamento Recebido! 💰" %}
+{% set header_class = "info" %}
+
+{% block content %}
+    <p>Olá, <strong>{{ nome_noivo }}</strong>!</p>
+
+    <p>Temos uma ótima notícia! Você recebeu um novo orçamento para seu casamento.</p>
+
+    <div class="highlight-box">
+        <p><strong>Fornecedor:</strong> {{ nome_fornecedor }}</p>
+        <p><strong>Item/Serviço:</strong> {{ item_nome }}</p>
+        <p><strong>Valor:</strong> <span class="valor-destaque">{{ valor_formatado }}</span></p>
+    </div>
+
+    <p>Agora você pode:</p>
+    <ul>
+        <li>Revisar os detalhes completos do orçamento</li>
+        <li>Aceitar ou negociar a proposta</li>
+        <li>Entrar em contato direto com o fornecedor</li>
+        <li>Comparar com outros orçamentos</li>
+    </ul>
+
+    <div class="email-button-container">
+        <a href="{{ dashboard_url }}" class="email-button info">
+           Ver Orçamento
+        </a>
+    </div>
+
+    <p>Não perca tempo! Os melhores fornecedores têm agenda limitada.</p>
+
+    <p>Boa sorte com os preparativos do seu casamento!</p>
+
+    <p>Com carinho,<br>
+       <strong>Equipe Case Bem</strong></p>
+{% endblock %}

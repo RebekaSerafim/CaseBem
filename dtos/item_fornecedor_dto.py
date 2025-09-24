@@ -1,4 +1,4 @@
-from pydantic import BaseModel, Field, validator
+from pydantic import BaseModel, Field, field_validator, ConfigDict
 from typing import Optional
 from decimal import Decimal
 from enum import Enum
@@ -26,28 +26,32 @@ class ItemFornecedorDTO(BaseModel):
     observacoes: Optional[str] = Field(None, max_length=500, description="Observações adicionais")
     ativo: bool = Field(True, description="Item está ativo")
 
-    @validator('nome')
+    @field_validator('nome')
+    @classmethod
     def validar_nome_dto(cls, v):
         try:
             return validar_texto_obrigatorio(v, "Nome do item", min_chars=2, max_chars=100)
         except ValidacaoError as e:
             raise ValueError(str(e))
 
-    @validator('descricao')
+    @field_validator('descricao')
+    @classmethod
     def validar_descricao_dto(cls, v):
         try:
             return validar_texto_obrigatorio(v, "Descrição", min_chars=10, max_chars=1000)
         except ValidacaoError as e:
             raise ValueError(str(e))
 
-    @validator('preco')
+    @field_validator('preco')
+    @classmethod
     def validar_preco_dto(cls, v):
         try:
             return validar_valor_monetario(v, "Preço", obrigatorio=True)
         except ValidacaoError as e:
             raise ValueError(str(e))
 
-    @validator('categoria_id')
+    @field_validator('categoria_id')
+    @classmethod
     def validar_categoria_dto(cls, v):
         if v is None:
             return v
@@ -56,25 +60,27 @@ class ItemFornecedorDTO(BaseModel):
         except ValidacaoError as e:
             raise ValueError(str(e))
 
-    @validator('observacoes')
+    @field_validator('observacoes')
+    @classmethod
     def validar_observacoes_dto(cls, v):
         try:
             return validar_texto_opcional(v, max_chars=500)
         except ValidacaoError as e:
             raise ValueError(str(e))
 
-    @validator('tipo')
+    @field_validator('tipo')
+    @classmethod
     def validar_tipo_dto(cls, v):
         try:
             return validar_enum_valor(v, TipoItemEnum, "Tipo do item")
         except ValidacaoError as e:
             raise ValueError(str(e))
 
-    class Config:
-        str_strip_whitespace = True
-        validate_assignment = True
-        use_enum_values = True
-        schema_extra = {
+    model_config = ConfigDict(
+        str_strip_whitespace=True,
+        validate_assignment=True,
+        use_enum_values=True,
+        json_schema_extra = {
             "example": {
                 "nome": "Fotografia de Casamento",
                 "tipo": "SERVICO",
@@ -85,3 +91,4 @@ class ItemFornecedorDTO(BaseModel):
                 "ativo": True
             }
         }
+    )

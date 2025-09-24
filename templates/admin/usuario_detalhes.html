@@ -53,7 +53,7 @@
                             </dd>
 
                             <dt class="col-sm-4">Cadastro:</dt>
-                            <dd class="col-sm-8">{{ usuario.data_cadastro or '-' }}</dd>
+                            <dd class="col-sm-8">{{ usuario.data_cadastro | formatar_data }}</dd>
 
                             <dt class="col-sm-4">Status:</dt>
                             <dd class="col-sm-8">

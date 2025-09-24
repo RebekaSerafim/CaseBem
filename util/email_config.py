@@ -8,31 +8,32 @@ from typing import Dict, Any
 class EmailConfig:
     """Configurações centralizadas para o serviço de e-mail"""
 
-    # Configurações do remetente padrão
-    DEFAULT_SENDER_EMAIL = "noreply@casebem.com.br"
-    DEFAULT_SENDER_NAME = "Case Bem"
+    # Configurações do remetente padrão (carregadas do .env)
+    DEFAULT_SENDER_EMAIL = os.getenv("DEFAULT_SENDER_EMAIL", "noreply@casebem.com.br")
+    DEFAULT_SENDER_NAME = os.getenv("DEFAULT_SENDER_NAME", "Case Bem")
 
-    # Configurações de remetentes específicos
-    SUPPORT_SENDER_EMAIL = "suporte@casebem.com.br"
-    SUPPORT_SENDER_NAME = "Case Bem - Suporte"
+    # Configurações de remetentes específicos (carregadas do .env)
+    SUPPORT_SENDER_EMAIL = os.getenv("SUPPORT_SENDER_EMAIL", "suporte@casebem.com.br")
+    SUPPORT_SENDER_NAME = os.getenv("SUPPORT_SENDER_NAME", "Case Bem - Suporte")
 
-    NOTIFICATIONS_SENDER_EMAIL = "notificacoes@casebem.com.br"
-    NOTIFICATIONS_SENDER_NAME = "Case Bem - Notificações"
+    NOTIFICATIONS_SENDER_EMAIL = os.getenv("NOTIFICATIONS_SENDER_EMAIL", "notificacoes@casebem.com.br")
+    NOTIFICATIONS_SENDER_NAME = os.getenv("NOTIFICATIONS_SENDER_NAME", "Case Bem - Notificações")
 
-    # URLs base para links nos e-mails
+    # URLs base para links nos e-mails (carregadas do .env)
     BASE_URL = os.getenv("BASE_URL", "https://casebem.com.br")
     DASHBOARD_URL = f"{BASE_URL}/dashboard"
     LOGIN_URL = f"{BASE_URL}/login"
 
-    # Templates de e-mail (IDs do MailerSend, se usando templates)
+    # Templates de e-mail (IDs do MailerSend, carregados do .env)
     TEMPLATE_IDS = {
         "boas_vindas": os.getenv("MAILERSEND_TEMPLATE_WELCOME"),
         "recuperacao_senha": os.getenv("MAILERSEND_TEMPLATE_PASSWORD_RESET"),
         "novo_orcamento": os.getenv("MAILERSEND_TEMPLATE_NEW_QUOTE"),
         "orcamento_aceito": os.getenv("MAILERSEND_TEMPLATE_QUOTE_ACCEPTED"),
+        "nova_demanda": os.getenv("MAILERSEND_TEMPLATE_NEW_LEAD"),
     }
 
-    # Tags padrão para categorização
+    # Tags padrão para categorização (mantidas no código)
     DEFAULT_TAGS = {
         "sistema": ["sistema", "case-bem"],
         "boas_vindas": ["boas-vindas", "novo-usuario"],
@@ -41,9 +42,9 @@ class EmailConfig:
         "notificacoes": ["notificacao", "alerta"],
     }
 
-    # Configurações de retry e timeout
-    MAX_RETRIES = 3
-    TIMEOUT_SECONDS = 30
+    # Configurações de retry e timeout (carregadas do .env)
+    MAX_RETRIES = int(os.getenv("EMAIL_MAX_RETRIES", "3"))
+    TIMEOUT_SECONDS = int(os.getenv("EMAIL_TIMEOUT_SECONDS", "30"))
 
     @classmethod
     def get_sender_config(cls, tipo: str = "default") -> Dict[str, str]:
@@ -125,29 +126,22 @@ class EmailConfig:
 # Configurações específicas por ambiente
 def get_email_settings() -> Dict[str, Any]:
     """
-    Retorna configurações de e-mail baseadas no ambiente
+    Retorna configurações de e-mail baseadas nas variáveis de ambiente
 
     Returns:
         Dict com configurações do ambiente
     """
-    environment = os.getenv("ENVIRONMENT", "development")
+    # Função auxiliar para converter string do .env para boolean
+    def str_to_bool(value: str) -> bool:
+        return value.lower() in ('true', '1', 'yes', 'on')
 
-    settings = {
-        "development": {
-            "debug": True,
-            "log_emails": True,
-            "send_emails": False,  # Não enviar e-mails em desenvolvimento por padrão
-            "fake_send": True,     # Simular envio em desenvolvimento
-        },
-        "production": {
-            "debug": False,
-            "log_emails": True,
-            "send_emails": True,
-            "fake_send": False,
-        }
+    # Carrega configurações diretamente do .env
+    return {
+        "debug": str_to_bool(os.getenv("EMAIL_DEBUG", "true")),
+        "log_emails": str_to_bool(os.getenv("EMAIL_LOG_EMAILS", "true")),
+        "send_emails": str_to_bool(os.getenv("EMAIL_SEND_EMAILS", "false")),
+        "fake_send": str_to_bool(os.getenv("EMAIL_FAKE_SEND", "true")),
     }
-
-    return settings.get(environment, settings["development"])
 
 
 # Configurações de conteúdo de e-mail
