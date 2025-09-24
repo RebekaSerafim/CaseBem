@@ -83,7 +83,37 @@
                     {% if acao == "criar" %}
                     <div class="mb-3">
                         <label for="foto" class="form-label">Foto do Item</label>
-                        <input type="file" class="form-control" id="foto" name="foto" accept="image/jpeg,image/png,image/jpg,image/webp">
+
+                        <!-- Preview da foto selecionada -->
+                        <div class="text-center mb-3" id="preview-container" style="display: none;">
+                            <div class="position-relative d-inline-block">
+                                <img id="preview-foto-criar" src=""
+                                     class="rounded border"
+                                     style="width: 200px; height: 200px; object-fit: cover;"
+                                     alt="Preview da foto do item">
+                                <div class="position-absolute top-0 end-0 m-2">
+                                    <button type="button" class="btn btn-danger btn-sm rounded-circle" onclick="removerPreview()">
+                                        <i class="bi bi-x"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="mt-2">
+                                <small class="text-muted">Preview da foto selecionada</small>
+                            </div>
+                        </div>
+
+                        <!-- Campo de upload -->
+                        <div class="upload-area border-2 border-dashed rounded p-4 text-center bg-light"
+                             id="upload-area"
+                             onclick="document.getElementById('foto').click()"
+                             style="cursor: pointer; transition: all 0.3s ease;">
+                            <input type="file" class="d-none" id="foto" name="foto" accept="image/jpeg,image/png,image/jpg,image/webp">
+                            <div id="upload-content">
+                                <i class="bi bi-cloud-upload fs-1 text-primary mb-2"></i>
+                                <h6 class="mb-2">Clique aqui para selecionar uma foto</h6>
+                                <p class="text-muted mb-0">ou arraste e solte uma imagem</p>
+                            </div>
+                        </div>
                         <small class="form-text text-muted">Formatos aceitos: JPG, PNG, WEBP. Máximo 5MB. A imagem será redimensionada automaticamente.</small>
                     </div>
                     {% endif %}
@@ -140,7 +170,105 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Filtrar categorias na carga inicial da página
     filtrarCategorias();
+
+    // Preview da foto para criação de novo item
+    const inputFotoCriar = document.getElementById('foto');
+    const uploadArea = document.getElementById('upload-area');
+
+    if (inputFotoCriar && uploadArea) {
+        // Função para processar o arquivo
+        function processarArquivo(file) {
+            // Validar tamanho do arquivo (máximo 5MB)
+            if (file.size > 5 * 1024 * 1024) {
+                alert('Arquivo muito grande! O tamanho máximo permitido é 5MB.');
+                return false;
+            }
+
+            // Validar tipo do arquivo
+            const tiposPermitidos = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
+            if (!tiposPermitidos.includes(file.type)) {
+                alert('Tipo de arquivo não permitido! Use apenas JPG, PNG ou WEBP.');
+                return false;
+            }
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const previewImg = document.getElementById('preview-foto-criar');
+                const previewContainer = document.getElementById('preview-container');
+
+                if (previewImg && previewContainer) {
+                    previewImg.src = e.target.result;
+                    previewContainer.style.display = 'block';
+                    uploadArea.style.display = 'none'; // Esconder área de upload após selecionar
+                }
+            };
+            reader.readAsDataURL(file);
+            return true;
+        }
+
+        // Event listener para mudança no input
+        inputFotoCriar.addEventListener('change', function(e) {
+            if (e.target.files && e.target.files[0]) {
+                if (!processarArquivo(e.target.files[0])) {
+                    e.target.value = '';
+                }
+            }
+        });
+
+        // Drag and drop functionality
+        uploadArea.addEventListener('dragover', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            uploadArea.classList.add('border-primary', 'bg-primary-subtle');
+            uploadArea.style.borderColor = '#0d6efd';
+        });
+
+        uploadArea.addEventListener('dragleave', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            uploadArea.classList.remove('border-primary', 'bg-primary-subtle');
+            uploadArea.style.borderColor = '';
+        });
+
+        uploadArea.addEventListener('drop', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            uploadArea.classList.remove('border-primary', 'bg-primary-subtle');
+            uploadArea.style.borderColor = '';
+
+            const files = e.dataTransfer.files;
+            if (files && files[0]) {
+                if (processarArquivo(files[0])) {
+                    // Atualizar o input file com o arquivo selecionado
+                    const dataTransfer = new DataTransfer();
+                    dataTransfer.items.add(files[0]);
+                    inputFotoCriar.files = dataTransfer.files;
+                }
+            }
+        });
+    }
 });
+
+// Função para remover o preview e limpar o campo de arquivo
+function removerPreview() {
+    const inputFoto = document.getElementById('foto');
+    const previewContainer = document.getElementById('preview-container');
+    const previewImg = document.getElementById('preview-foto-criar');
+    const uploadArea = document.getElementById('upload-area');
+
+    if (inputFoto) {
+        inputFoto.value = '';
+    }
+    if (previewContainer) {
+        previewContainer.style.display = 'none';
+    }
+    if (previewImg) {
+        previewImg.src = '';
+    }
+    if (uploadArea) {
+        uploadArea.style.display = 'block'; // Mostrar área de upload novamente
+    }
+}
 </script>
 
 <!-- Modal para alterar foto do item -->

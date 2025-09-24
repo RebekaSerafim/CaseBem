@@ -268,33 +268,33 @@
                         <thead>
                             <tr>
                                 <th>Nome</th>
-                                <th>Tipo</th>
-                                <th>Preço</th>
-                                <th>Status</th>
-                                <th>Ações</th>
+                                <th class="text-center">Tipo</th>
+                                <th class="text-center">Preço</th>
+                                <th class="text-center">Status</th>
+                                <th class="text-center">Ações</th>
                             </tr>
                         </thead>
                         <tbody>
                             {% for item in itens_recentes %}
                             <tr>
                                 <td>{{ item.nome }}</td>
-                                <td>
+                                <td class="text-center">
                                     <span class="badge
                                         {% if item.tipo.value == 'PRODUTO' %}bg-success
-                                        {% elif item.tipo.value == 'SERVICO' %}bg-info
+                                        {% elif item.tipo.value == 'SERVIÇO' %}bg-info
                                         {% else %}bg-warning{% endif %}">
                                         {{ item.tipo.value }}
                                     </span>
                                 </td>
-                                <td>{{ item.preco|moeda }}</td>
-                                <td>
+                                <td class="text-center">{{ item.preco|moeda }}</td>
+                                <td class="text-center">
                                     {% if item.ativo %}
                                     <span class="badge bg-success">Ativo</span>
                                     {% else %}
                                     <span class="badge bg-secondary">Inativo</span>
                                     {% endif %}
                                 </td>
-                                <td>
+                                <td class="text-center">
                                     <a href="/fornecedor/itens/{{ item.id }}/editar"
                                         class="btn btn-sm btn-outline-primary">
                                         Editar

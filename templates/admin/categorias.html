@@ -141,6 +141,52 @@
     </div>
 </div>
 
+<!-- Paginação -->
+{% if total_paginas > 1 %}
+<div class="row mt-4">
+    <div class="col-12">
+        <nav aria-label="Paginação das categorias">
+            <ul class="pagination justify-content-center">
+                <!-- Página anterior -->
+                {% if pagina_atual > 1 %}
+                <li class="page-item">
+                    <a class="page-link" href="?{% if busca %}search={{ busca }}&{% endif %}{% if tipo_fornecimento %}tipo_fornecimento={{ tipo_fornecimento }}&{% endif %}{% if status_filtro %}status={{ status_filtro }}&{% endif %}pagina={{ pagina_atual - 1 }}">
+                        <i class="bi bi-chevron-left"></i> Anterior
+                    </a>
+                </li>
+                {% endif %}
+
+                <!-- Páginas numeradas -->
+                {% set inicio_pagina = [1, pagina_atual - 2]|max %}
+                {% set fim_pagina = [total_paginas + 1, pagina_atual + 3]|min %}
+                {% for num_pagina in range(inicio_pagina, fim_pagina) %}
+                <li class="page-item {{ 'active' if num_pagina == pagina_atual else '' }}">
+                    <a class="page-link" href="?{% if busca %}search={{ busca }}&{% endif %}{% if tipo_fornecimento %}tipo_fornecimento={{ tipo_fornecimento }}&{% endif %}{% if status_filtro %}status={{ status_filtro }}&{% endif %}pagina={{ num_pagina }}">
+                        {{ num_pagina }}
+                    </a>
+                </li>
+                {% endfor %}
+
+                <!-- Próxima página -->
+                {% if pagina_atual < total_paginas %}
+                <li class="page-item">
+                    <a class="page-link" href="?{% if busca %}search={{ busca }}&{% endif %}{% if tipo_fornecimento %}tipo_fornecimento={{ tipo_fornecimento }}&{% endif %}{% if status_filtro %}status={{ status_filtro }}&{% endif %}pagina={{ pagina_atual + 1 }}">
+                        Próxima <i class="bi bi-chevron-right"></i>
+                    </a>
+                </li>
+                {% endif %}
+            </ul>
+        </nav>
+
+        <!-- Info da paginação -->
+        <div class="text-center text-muted">
+            Página {{ pagina_atual }} de {{ total_paginas }}
+            ({{ (pagina_atual - 1) * 10 + 1 }} a {{ [pagina_atual * 10, total_categorias]|min }} de {{ total_categorias }} categorias)
+        </div>
+    </div>
+</div>
+{% endif %}
+
 <!-- Formulários ocultos para exclusão -->
 {% for categoria in categorias %}
 <form id="formExcluir{{ categoria.id }}" method="post" action="/admin/categoria/excluir/{{ categoria.id }}" style="display: none;"></form>
@@ -152,11 +198,24 @@
         <div class="card shadow">
             <div class="card-body text-center py-5">
                 <i class="bi bi-tags" style="font-size: 4rem; color: #6c757d;" class="mb-4"></i>
-                <h4>Nenhuma categoria cadastrada</h4>
-                <p class="text-muted">Comece criando a primeira categoria do sistema.</p>
+                <h4>Nenhuma categoria encontrada</h4>
+                <p class="text-muted">
+                    {% if busca or tipo_fornecimento or status_filtro %}
+                    Não encontramos categorias que correspondam aos filtros aplicados.
+                    Tente ajustar sua busca ou limpar os filtros.
+                    {% else %}
+                    Comece criando a primeira categoria do sistema.
+                    {% endif %}
+                </p>
+                {% if busca or tipo_fornecimento or status_filtro %}
+                <a href="/admin/categorias" class="btn btn-primary">
+                    <i class="bi bi-x"></i> Limpar Filtros
+                </a>
+                {% else %}
                 <a href="/admin/categoria/nova" class="btn btn-primary">
                     <i class="bi bi-plus-circle"></i> Cadastrar Primeira Categoria
                 </a>
+                {% endif %}
             </div>
         </div>
     </div>

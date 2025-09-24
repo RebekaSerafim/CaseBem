@@ -419,3 +419,106 @@ def contar_itens_por_tipo(tipo: TipoItem) -> int:
     except Exception as e:
         print(f"Erro ao contar itens por tipo: {e}")
         return 0
+
+def obter_itens_paginado(pagina: int, tamanho_pagina: int) -> tuple[List[Item], int]:
+    """Obtém itens paginados e retorna lista de itens e total"""
+    try:
+        with obter_conexao() as conexao:
+            cursor = conexao.cursor()
+
+            # Contar total de itens
+            cursor.execute("SELECT COUNT(*) as total FROM item")
+            total = cursor.fetchone()["total"]
+
+            # Buscar itens da página
+            offset = (pagina - 1) * tamanho_pagina
+            cursor.execute("SELECT * FROM item ORDER BY id DESC LIMIT ? OFFSET ?", (tamanho_pagina, offset))
+            resultados = cursor.fetchall()
+
+            itens = [Item(
+                id=resultado["id"],
+                id_fornecedor=resultado["id_fornecedor"],
+                tipo=TipoItem(resultado["tipo"]),
+                nome=resultado["nome"],
+                descricao=resultado["descricao"],
+                preco=resultado["preco"],
+                id_categoria=resultado["id_categoria"],
+                observacoes=resultado["observacoes"],
+                ativo=bool(resultado["ativo"]),
+                data_cadastro=resultado["data_cadastro"]
+            ) for resultado in resultados]
+
+            return itens, total
+    except Exception as e:
+        print(f"Erro ao obter itens paginados: {e}")
+        return [], 0
+
+def buscar_itens_paginado(busca: str = "", tipo_item: str = "", status: str = "", categoria_id: str = "", pagina: int = 1, tamanho_pagina: int = 10) -> tuple[List[Item], int]:
+    """Busca itens paginados com filtros e retorna lista de itens e total"""
+    try:
+        with obter_conexao() as conexao:
+            cursor = conexao.cursor()
+
+            # Construir consulta baseada nos filtros
+            condicoes = []
+            parametros = []
+            parametros_count = []
+
+            if busca:
+                condicoes.append("(nome LIKE ? OR descricao LIKE ? OR observacoes LIKE ?)")
+                busca_param = f"%{busca}%"
+                parametros.extend([busca_param, busca_param, busca_param])
+                parametros_count.extend([busca_param, busca_param, busca_param])
+
+            if tipo_item:
+                condicoes.append("tipo = ?")
+                parametros.append(tipo_item)
+                parametros_count.append(tipo_item)
+
+            if status == "ativo":
+                condicoes.append("ativo = 1")
+            elif status == "inativo":
+                condicoes.append("ativo = 0")
+
+            if categoria_id:
+                try:
+                    categoria_id_int = int(categoria_id)
+                    condicoes.append("id_categoria = ?")
+                    parametros.append(categoria_id_int)
+                    parametros_count.append(categoria_id_int)
+                except ValueError:
+                    pass
+
+            where_clause = ""
+            if condicoes:
+                where_clause = "WHERE " + " AND ".join(condicoes)
+
+            # Contar total
+            sql_count = f"SELECT COUNT(*) as total FROM item {where_clause}"
+            cursor.execute(sql_count, parametros_count)
+            total = cursor.fetchone()["total"]
+
+            # Buscar itens da página
+            offset = (pagina - 1) * tamanho_pagina
+            sql_select = f"SELECT * FROM item {where_clause} ORDER BY id DESC LIMIT ? OFFSET ?"
+            parametros.extend([tamanho_pagina, offset])
+            cursor.execute(sql_select, parametros)
+            resultados = cursor.fetchall()
+
+            itens = [Item(
+                id=resultado["id"],
+                id_fornecedor=resultado["id_fornecedor"],
+                tipo=TipoItem(resultado["tipo"]),
+                nome=resultado["nome"],
+                descricao=resultado["descricao"],
+                preco=resultado["preco"],
+                id_categoria=resultado["id_categoria"],
+                observacoes=resultado["observacoes"],
+                ativo=bool(resultado["ativo"]),
+                data_cadastro=resultado["data_cadastro"]
+            ) for resultado in resultados]
+
+            return itens, total
+    except Exception as e:
+        print(f"Erro ao buscar itens paginados: {e}")
+        return [], 0

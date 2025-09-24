@@ -162,3 +162,87 @@ def desativar_categoria(id: int) -> bool:
         cursor = conexao.cursor()
         cursor.execute(DESATIVAR_CATEGORIA, (id,))
         return (cursor.rowcount > 0)
+
+def obter_categorias_paginado(pagina: int, tamanho_pagina: int) -> tuple[List[Categoria], int]:
+    """Obtém categorias paginadas e retorna lista de categorias e total"""
+    try:
+        with obter_conexao() as conexao:
+            cursor = conexao.cursor()
+
+            # Contar total de categorias
+            cursor.execute("SELECT COUNT(*) as total FROM categoria")
+            total = cursor.fetchone()["total"]
+
+            # Buscar categorias da página
+            offset = (pagina - 1) * tamanho_pagina
+            cursor.execute("SELECT * FROM categoria ORDER BY id DESC LIMIT ? OFFSET ?", (tamanho_pagina, offset))
+            resultados = cursor.fetchall()
+
+            categorias = [Categoria(
+                id=resultado["id"],
+                nome=resultado["nome"],
+                tipo_fornecimento=TipoItem(resultado["tipo_fornecimento"]),
+                descricao=resultado["descricao"],
+                ativo=bool(resultado["ativo"])
+            ) for resultado in resultados]
+
+            return categorias, total
+    except Exception as e:
+        print(f"Erro ao obter categorias paginadas: {e}")
+        return [], 0
+
+def buscar_categorias_paginado(busca: str = "", tipo_fornecimento: str = "", status: str = "", pagina: int = 1, tamanho_pagina: int = 10) -> tuple[List[Categoria], int]:
+    """Busca categorias paginadas com filtros e retorna lista de categorias e total"""
+    try:
+        with obter_conexao() as conexao:
+            cursor = conexao.cursor()
+
+            # Construir consulta baseada nos filtros
+            condicoes = []
+            parametros = []
+            parametros_count = []
+
+            if busca:
+                condicoes.append("(nome LIKE ? OR descricao LIKE ?)")
+                busca_param = f"%{busca}%"
+                parametros.extend([busca_param, busca_param])
+                parametros_count.extend([busca_param, busca_param])
+
+            if tipo_fornecimento:
+                condicoes.append("tipo_fornecimento = ?")
+                parametros.append(tipo_fornecimento)
+                parametros_count.append(tipo_fornecimento)
+
+            if status == "ativo":
+                condicoes.append("ativo = 1")
+            elif status == "inativo":
+                condicoes.append("ativo = 0")
+
+            where_clause = ""
+            if condicoes:
+                where_clause = "WHERE " + " AND ".join(condicoes)
+
+            # Contar total
+            sql_count = f"SELECT COUNT(*) as total FROM categoria {where_clause}"
+            cursor.execute(sql_count, parametros_count)
+            total = cursor.fetchone()["total"]
+
+            # Buscar categorias da página
+            offset = (pagina - 1) * tamanho_pagina
+            sql_select = f"SELECT * FROM categoria {where_clause} ORDER BY id DESC LIMIT ? OFFSET ?"
+            parametros.extend([tamanho_pagina, offset])
+            cursor.execute(sql_select, parametros)
+            resultados = cursor.fetchall()
+
+            categorias = [Categoria(
+                id=resultado["id"],
+                nome=resultado["nome"],
+                tipo_fornecimento=TipoItem(resultado["tipo_fornecimento"]),
+                descricao=resultado["descricao"],
+                ativo=bool(resultado["ativo"])
+            ) for resultado in resultados]
+
+            return categorias, total
+    except Exception as e:
+        print(f"Erro ao buscar categorias paginadas: {e}")
+        return [], 0
