@@ -1,0 +1,269 @@
+{% extends "publico/base.html" %}
+
+{% block title %}
+    {% if item %}{{ item.nome }}{% else %}Item não encontrado{% endif %}
+{% endblock %}
+
+{% block conteudo %}
+<div class="container py-4">
+    {% if erro %}
+    <!-- Estado de erro -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card shadow-sm">
+                <div class="card-body text-center py-5">
+                    <i class="fas fa-exclamation-triangle fa-4x text-warning mb-4"></i>
+                    <h4>{{ erro }}</h4>
+                    <p class="text-muted">O item que você procura não foi encontrado ou não está disponível.</p>
+                    <a href="/itens" class="btn btn-primary">
+                        <i class="fas fa-arrow-left"></i> Voltar aos Itens
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {% elif item %}
+    <!-- Detalhes do item -->
+    <div class="row mb-3">
+        <div class="col-12">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="/">Home</a></li>
+                    <li class="breadcrumb-item">
+                        <a href="/itens?tipo={% if item.tipo == 'PRODUTO' %}produto{% elif item.tipo == 'SERVIÇO' %}servico{% elif item.tipo == 'ESPAÇO' %}espaco{% endif %}">
+                            {% if item.tipo == 'PRODUTO' %}Produtos
+                            {% elif item.tipo == 'SERVIÇO' %}Serviços
+                            {% elif item.tipo == 'ESPAÇO' %}Espaços
+                            {% else %}Itens{% endif %}
+                        </a>
+                    </li>
+                    <li class="breadcrumb-item active" aria-current="page">{{ item.nome }}</li>
+                </ol>
+            </nav>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Coluna principal - Detalhes do item -->
+        <div class="col-lg-8">
+            <div class="card shadow-sm mb-4">
+                <!-- Imagem do item -->
+                <div class="card-img-top position-relative overflow-hidden" style="height: 400px;">
+                    {% if item.id %}
+                        <img src="/static/img/itens/{{ '%06d'|format(item.id) }}.jpg"
+                             alt="{{ item.nome }}"
+                             class="w-100 h-100"
+                             style="object-fit: contain; object-position: center;"
+                             onerror="this.onerror=null; this.parentElement.innerHTML='<div class=\'d-flex align-items-center justify-content-center bg-light h-100\'><span class=\'text-muted\'><i class=\'fas fa-image fa-4x\'></i></span></div>';">
+                    {% else %}
+                        <div class="d-flex align-items-center justify-content-center bg-light h-100">
+                            <span class="text-muted">
+                                <i class="fas fa-image fa-4x"></i>
+                            </span>
+                        </div>
+                    {% endif %}
+                </div>
+
+                <div class="card-body">
+                    <!-- Header -->
+                    <div class="d-flex justify-content-between align-items-start mb-3">
+                        <div>
+                            <h1 class="card-title h3 mb-2">{{ item.nome }}</h1>
+                            <span class="badge fs-6
+                                {% if item.tipo == 'PRODUTO' %}bg-primary
+                                {% elif item.tipo == 'SERVIÇO' %}bg-success
+                                {% elif item.tipo == 'ESPAÇO' %}bg-info
+                                {% else %}bg-secondary{% endif %}">
+                                {% if item.tipo == 'PRODUTO' %}Produto
+                                {% elif item.tipo == 'SERVIÇO' %}Serviço
+                                {% elif item.tipo == 'ESPAÇO' %}Espaço
+                                {% else %}{{ item.tipo }}{% endif %}
+                            </span>
+                        </div>
+                        <div class="text-end">
+                            <h2 class="text-primary mb-0">{{ item.preco|moeda }}</h2>
+                        </div>
+                    </div>
+
+                    <!-- Descrição -->
+                    <div class="mb-4">
+                        <h5>Descrição</h5>
+                        <p class="text-muted">{{ item.descricao }}</p>
+                    </div>
+
+                    <!-- Observações (se existirem) -->
+                    {% if item.observacoes %}
+                    <div class="mb-4">
+                        <h5>Observações</h5>
+                        <p class="text-muted">{{ item.observacoes }}</p>
+                    </div>
+                    {% endif %}
+
+                    <!-- Informações adicionais -->
+                    <div class="row text-center bg-light rounded p-3">
+                        <div class="col-md-3">
+                            <i class="fas fa-calendar-alt text-primary mb-2"></i>
+                            <h6>Cadastrado em</h6>
+                            <small class="text-muted">
+                                {% if item.data_cadastro %}
+                                    {{ item.data_cadastro[:10] }}
+                                {% else %}
+                                    Não informado
+                                {% endif %}
+                            </small>
+                        </div>
+                        <div class="col-md-3">
+                            <i class="fas fa-check-circle text-success mb-2"></i>
+                            <h6>Status</h6>
+                            <small class="text-success">Disponível</small>
+                        </div>
+                        <div class="col-md-3">
+                            <i class="fas fa-layer-group text-info mb-2"></i>
+                            <h6>Tipo</h6>
+                            <small class="text-muted">
+                                {% if item.tipo == 'PRODUTO' %}Produto
+                                {% elif item.tipo == 'SERVIÇO' %}Serviço
+                                {% elif item.tipo == 'ESPAÇO' %}Espaço
+                                {% else %}{{ item.tipo }}{% endif %}
+                            </small>
+                        </div>
+                        <div class="col-md-3">
+                            <i class="fas fa-tag text-warning mb-2"></i>
+                            <h6>Categoria</h6>
+                            <small class="text-muted">
+                                {% if item.categoria and item.categoria.nome %}
+                                    {{ item.categoria.nome }}
+                                {% else %}
+                                    Não categorizado
+                                {% endif %}
+                            </small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sidebar - Informações do fornecedor -->
+        <div class="col-lg-4">
+            <div class="card shadow-sm mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-store"></i> Fornecedor
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <h6 class="card-title">{{ item.fornecedor.empresa or item.fornecedor.nome }}</h6>
+
+                    {% if item.fornecedor.descricao %}
+                    <p class="card-text text-muted small">{{ item.fornecedor.descricao[:100] }}{% if item.fornecedor.descricao|length > 100 %}...{% endif %}</p>
+                    {% endif %}
+
+                    <!-- Informações de contato -->
+                    <div class="mt-3">
+                        {% if item.fornecedor.telefone %}
+                        <p class="mb-2">
+                            <i class="fas fa-phone text-primary"></i>
+                            <span class="phone-format">{{ item.fornecedor.telefone }}</span>
+                        </p>
+                        {% endif %}
+
+                        {% if item.fornecedor.email %}
+                        <p class="mb-2">
+                            <i class="fas fa-envelope text-primary"></i>
+                            {{ item.fornecedor.email }}
+                        </p>
+                        {% endif %}
+                    </div>
+
+                    <!-- Botões de ação -->
+                    <div class="d-grid gap-2 mt-4">
+                        {% if usuario_logado and usuario_logado.perfil == 'NOIVO' %}
+                        <a href="/noivo/orcamento/solicitar/{{ item.id }}" class="btn btn-primary">
+                            <i class="fas fa-shopping-cart"></i> Solicitar Orçamento
+                        </a>
+                        <button class="btn btn-outline-primary" onclick="adicionarFavorito({{ item.id }})">
+                            <i class="fas fa-heart"></i> Adicionar aos Favoritos
+                        </button>
+                        {% else %}
+                        <a href="/login?redirect={{ request.url }}" class="btn btn-primary">
+                            <i class="fas fa-user"></i> Fazer Login para Solicitar
+                        </a>
+                        {% endif %}
+
+                        {% if item.fornecedor.telefone %}
+                        <a href="https://wa.me/55{{ item.fornecedor.telefone.replace('(', '').replace(')', '').replace('-', '').replace(' ', '') }}?text=Olá! Vi seu {{ item.tipo.lower() }} '{{ item.nome }}' no CaseBem e gostaria de mais informações."
+                           target="_blank" class="btn btn-success">
+                            <i class="fab fa-whatsapp"></i> WhatsApp
+                        </a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Botão voltar -->
+            <div class="card shadow-sm">
+                <div class="card-body text-center">
+                    <a href="javascript:history.back()" class="btn btn-outline-secondary">
+                        <i class="fas fa-arrow-left"></i> Voltar
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block scripts %}
+<!-- FontAwesome para ícones -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+{% if usuario_logado and usuario_logado.perfil == 'NOIVO' %}
+<script>
+async function adicionarFavorito(idItem) {
+    try {
+        const response = await fetch(`/noivo/favoritos/adicionar/${idItem}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+            // Mostrar notificação de sucesso
+            showNotification('Item adicionado aos favoritos!', 'success');
+        } else {
+            showNotification('Erro ao adicionar favorito: ' + result.message, 'error');
+        }
+    } catch (error) {
+        console.error('Erro:', error);
+        showNotification('Erro ao adicionar favorito', 'error');
+    }
+}
+
+function showNotification(message, type) {
+    // Criar notificação toast simples
+    const toast = document.createElement('div');
+    toast.className = `alert alert-${type === 'success' ? 'success' : 'danger'} position-fixed`;
+    toast.style.cssText = 'top: 20px; right: 20px; z-index: 9999; min-width: 300px;';
+    toast.innerHTML = `
+        ${message}
+        <button type="button" class="btn-close" onclick="this.parentElement.remove()"></button>
+    `;
+
+    document.body.appendChild(toast);
+
+    // Remover automaticamente após 3 segundos
+    setTimeout(() => {
+        if (toast.parentElement) {
+            toast.remove();
+        }
+    }, 3000);
+}
+</script>
+{% endif %}
+{% endblock %}

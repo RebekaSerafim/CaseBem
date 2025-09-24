@@ -48,6 +48,12 @@ body {
     transition: transform 0.5s ease;
 }
 
+/* Suporte para object-fit em navegadores mais antigos */
+.object-fit-cover {
+    object-fit: cover;
+    object-position: center;
+}
+
 .grid-image:hover img {
     transform: scale(1.05);
 }
@@ -552,16 +558,16 @@ body .btn-action.btn-sm i[class*="bi-"] {
 }
 
 /* Força máxima contra Bootstrap - mais específico que .btn-group-sm>.btn, .btn-sm */
-html body .btn-group-sm > .btn-action > i,
-html body .btn-action.btn-sm > i,
-html body .btn-group-sm > .btn-action > [class*="bi-"],
-html body .btn-action.btn-sm > [class*="bi-"] {
+.btn-group-sm > .btn-action > i,
+.btn-action.btn-sm > i,
+.btn-group-sm > .btn-action > [class*="bi-"],
+.btn-action.btn-sm > [class*="bi-"] {
     font-size: 1.5rem !important;
     line-height: 1 !important;
 }
 
-html body .btn-action > i,
-html body .btn-action > [class*="bi-"] {
+.btn-action > i,
+.btn-action > [class*="bi-"] {
     font-size: 1.8rem !important;
     line-height: 1 !important;
 }
@@ -579,12 +585,12 @@ html body .btn-action > [class*="bi-"] {
 }
 
 /* Regra final super específica - vence qualquer regra do Bootstrap */
-html body div .btn-action.btn-sm > i[class*="bi-"],
-html body div .btn-action > i[class*="bi-"],
-html body table .btn-action.btn-sm > i[class*="bi-"],
-html body table .btn-action > i[class*="bi-"],
-html body .container .btn-action.btn-sm > i[class*="bi-"],
-html body .container .btn-action > i[class*="bi-"] {
+.btn-action.btn-sm > i[class*="bi-"],
+.btn-action > i[class*="bi-"],
+.btn-action.btn-sm > i[class*="bi-"],
+.btn-action > i[class*="bi-"],
+.btn-action.btn-sm > i[class*="bi-"],
+.btn-action > i[class*="bi-"] {
     font-size: 1.5rem !important;
     line-height: 1 !important;
     transform: none !important;
@@ -592,8 +598,14 @@ html body .container .btn-action > i[class*="bi-"] {
     height: auto !important;
 }
 
-html body div .btn-action:not(.btn-sm) > i[class*="bi-"],
-html body table .btn-action:not(.btn-sm) > i[class*="bi-"],
-html body .container .btn-action:not(.btn-sm) > i[class*="bi-"] {
+.btn-action:not(.btn-sm) > i[class*="bi-"],
+.btn-action:not(.btn-sm) > i[class*="bi-"],
+.btn-action:not(.btn-sm) > i[class*="bi-"] {
     font-size: 1.8rem !important;
+}
+
+.bg-img-casamento {
+    background: url('/static/img/casebem-bg-full.jpg') no-repeat center center;
+    background-size: cover;
+    position: relative;
 }
