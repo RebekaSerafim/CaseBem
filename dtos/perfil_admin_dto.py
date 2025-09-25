@@ -1,6 +1,9 @@
 from pydantic import BaseModel, ConfigDict, EmailStr, Field, field_validator
 from typing import Optional
-import re
+from util.validacoes_dto import (
+    validar_nome_pessoa, validar_telefone, validar_texto_opcional,
+    validar_estado_brasileiro, ValidacaoError
+)
 
 
 class PerfilAdminDTO(BaseModel):
@@ -17,123 +20,64 @@ class PerfilAdminDTO(BaseModel):
 
     @field_validator('nome')
     @classmethod
-    def validar_nome(cls, v):
-        if not v or not v.strip():
-            raise ValueError('Nome é obrigatório')
-
-        # Remover espaços extras
-        nome = ' '.join(v.split())
-
-        if len(nome) < 2:
-            raise ValueError('Nome deve ter pelo menos 2 caracteres')
-
-        if len(nome) > 100:
-            raise ValueError('Nome deve ter no máximo 100 caracteres')
-
-        # Verificar se contém apenas letras, espaços e acentos
-        if not re.match(r'^[a-zA-ZÀ-ÿ\s]+$', nome):
-            raise ValueError('Nome deve conter apenas letras e espaços')
-
-        return nome
+    def validar_nome_dto(cls, v):
+        try:
+            return validar_nome_pessoa(v, min_chars=2, max_chars=100)
+        except ValidacaoError as e:
+            raise ValueError(str(e))
 
     @field_validator('telefone')
     @classmethod
-    def validar_telefone(cls, v):
+    def validar_telefone_dto(cls, v):
         if not v:
             return v
-
-        # Remover caracteres especiais
-        telefone = re.sub(r'[^0-9]', '', v)
-
-        if len(telefone) < 10 or len(telefone) > 11:
-            raise ValueError('Telefone deve ter 10 ou 11 dígitos')
-
-        # Validar DDD
-        ddd = telefone[:2]
-        if not (11 <= int(ddd) <= 99):
-            raise ValueError('DDD inválido')
-
-        return telefone
+        try:
+            return validar_telefone(v)
+        except ValidacaoError as e:
+            raise ValueError(str(e))
 
     @field_validator('cargo')
     @classmethod
-    def validar_cargo(cls, v):
-        if v is not None:
-            # Remover espaços extras
-            cargo = ' '.join(v.split()) if v.strip() else None
-
-            if cargo and len(cargo) > 50:
-                raise ValueError('Cargo deve ter no máximo 50 caracteres')
-
-            return cargo
-        return v
+    def validar_cargo_dto(cls, v):
+        try:
+            return validar_texto_opcional(v, max_chars=50)
+        except ValidacaoError as e:
+            raise ValueError(str(e))
 
     @field_validator('endereco')
     @classmethod
-    def validar_endereco(cls, v):
-        if v is not None:
-            # Remover espaços extras
-            endereco = ' '.join(v.split()) if v.strip() else None
-
-            if endereco and len(endereco) > 200:
-                raise ValueError('Endereço deve ter no máximo 200 caracteres')
-
-            return endereco
-        return v
+    def validar_endereco_dto(cls, v):
+        try:
+            return validar_texto_opcional(v, max_chars=200)
+        except ValidacaoError as e:
+            raise ValueError(str(e))
 
     @field_validator('cidade')
     @classmethod
-    def validar_cidade(cls, v):
-        if v is not None:
-            # Remover espaços extras
-            cidade = ' '.join(v.split()) if v.strip() else None
-
-            if cidade:
-                if len(cidade) > 50:
-                    raise ValueError('Cidade deve ter no máximo 50 caracteres')
-
-                # Verificar se contém apenas letras, espaços e acentos
-                if not re.match(r'^[a-zA-ZÀ-ÿ\s]+$', cidade):
-                    raise ValueError('Cidade deve conter apenas letras e espaços')
-
-            return cidade
-        return v
+    def validar_cidade_dto(cls, v):
+        try:
+            # Validar como nome de pessoa (apenas letras e espaços)
+            if v:
+                validar_nome_pessoa(v, min_chars=1, max_chars=50)
+            return validar_texto_opcional(v, max_chars=50)
+        except ValidacaoError as e:
+            raise ValueError(str(e))
 
     @field_validator('estado')
     @classmethod
-    def validar_estado(cls, v):
-        if v is not None:
-            estado = v.strip().upper()
-
-            if estado:
-                if len(estado) != 2:
-                    raise ValueError('Estado deve ter exatamente 2 caracteres (sigla UF)')
-
-                # Lista de estados brasileiros válidos
-                estados_validos = [
-                    'AC', 'AL', 'AP', 'AM', 'BA', 'CE', 'DF', 'ES', 'GO',
-                    'MA', 'MT', 'MS', 'MG', 'PA', 'PB', 'PR', 'PE', 'PI',
-                    'RJ', 'RN', 'RS', 'RO', 'RR', 'SC', 'SP', 'SE', 'TO'
-                ]
-
-                if estado not in estados_validos:
-                    raise ValueError('Sigla de estado inválida')
-
-            return estado
-        return v
+    def validar_estado_dto(cls, v):
+        try:
+            return validar_estado_brasileiro(v)
+        except ValidacaoError as e:
+            raise ValueError(str(e))
 
     @field_validator('observacoes')
     @classmethod
-    def validar_observacoes(cls, v):
-        if v is not None:
-            # Remover espaços extras
-            observacoes = ' '.join(v.split()) if v.strip() else None
-
-            if observacoes and len(observacoes) > 1000:
-                raise ValueError('Observações devem ter no máximo 1000 caracteres')
-
-            return observacoes
-        return v
+    def validar_observacoes_dto(cls, v):
+        try:
+            return validar_texto_opcional(v, max_chars=1000)
+        except ValidacaoError as e:
+            raise ValueError(str(e))
 
     model_config = ConfigDict(
         str_strip_whitespace=True,

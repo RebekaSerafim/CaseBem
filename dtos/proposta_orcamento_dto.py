@@ -2,6 +2,10 @@ from pydantic import BaseModel, ConfigDict, Field, field_validator
 from typing import Optional
 from decimal import Decimal
 from enum import Enum
+from util.validacoes_dto import (
+    validar_texto_obrigatorio, validar_texto_opcional, validar_valor_monetario,
+    validar_numero_inteiro, validar_enum_valor, ValidacaoError
+)
 
 
 class FormaPagamentoEnum(str, Enum):
@@ -27,94 +31,53 @@ class PropostaOrcamentoDTO(BaseModel):
 
     @field_validator('titulo')
     @classmethod
-    def validar_titulo(cls, v):
-        if not v or not v.strip():
-            raise ValueError('Título é obrigatório')
-
-        # Remover espaços extras
-        titulo = ' '.join(v.split())
-
-        if len(titulo) < 5:
-            raise ValueError('Título deve ter pelo menos 5 caracteres')
-
-        if len(titulo) > 100:
-            raise ValueError('Título deve ter no máximo 100 caracteres')
-
-        return titulo
+    def validar_titulo_dto(cls, v):
+        try:
+            return validar_texto_obrigatorio(v, "Título", min_chars=5, max_chars=100)
+        except ValidacaoError as e:
+            raise ValueError(str(e))
 
     @field_validator('descricao')
     @classmethod
-    def validar_descricao(cls, v):
-        if not v or not v.strip():
-            raise ValueError('Descrição é obrigatória')
-
-        # Remover espaços extras
-        descricao = ' '.join(v.split())
-
-        if len(descricao) < 20:
-            raise ValueError('Descrição deve ter pelo menos 20 caracteres')
-
-        if len(descricao) > 2000:
-            raise ValueError('Descrição deve ter no máximo 2000 caracteres')
-
-        return descricao
+    def validar_descricao_dto(cls, v):
+        try:
+            return validar_texto_obrigatorio(v, "Descrição", min_chars=20, max_chars=2000)
+        except ValidacaoError as e:
+            raise ValueError(str(e))
 
     @field_validator('valor_total')
     @classmethod
-    def validar_valor_total(cls, v):
-        if v is None:
-            raise ValueError('Valor total é obrigatório')
-
-        if v <= 0:
-            raise ValueError('Valor total deve ser maior que zero')
-
-        # Verificar se tem no máximo 2 casas decimais
-        if v != round(v, 2):
-            raise ValueError('Valor deve ter no máximo 2 casas decimais')
-
-        # Verificar se não é um valor absurdamente alto
-        if v > 9999999.99:
-            raise ValueError('Valor não pode ser superior a R$ 9.999.999,99')
-
-        return v
+    def validar_valor_total_dto(cls, v):
+        try:
+            return validar_valor_monetario(v, "Valor total", obrigatorio=True, min_valor=Decimal('0.01'))
+        except ValidacaoError as e:
+            raise ValueError(str(e))
 
     @field_validator('prazo_entrega')
     @classmethod
-    def validar_prazo_entrega(cls, v):
-        if v is None:
-            raise ValueError('Prazo de entrega é obrigatório')
-
-        if v < 1:
-            raise ValueError('Prazo de entrega deve ser de pelo menos 1 dia')
-
-        if v > 365:
-            raise ValueError('Prazo de entrega não pode ser superior a 365 dias')
-
-        return v
+    def validar_prazo_entrega_dto(cls, v):
+        try:
+            return validar_numero_inteiro(v, "Prazo de entrega", obrigatorio=True, min_valor=1, max_valor=365)
+        except ValidacaoError as e:
+            raise ValueError(str(e))
 
     @field_validator('observacoes')
     @classmethod
-    def validar_observacoes(cls, v):
-        if v is not None:
-            # Remover espaços extras
-            observacoes = ' '.join(v.split()) if v.strip() else None
-
-            if observacoes and len(observacoes) > 1000:
-                raise ValueError('Observações devem ter no máximo 1000 caracteres')
-
-            return observacoes
-        return v
+    def validar_observacoes_dto(cls, v):
+        try:
+            return validar_texto_opcional(v, max_chars=1000)
+        except ValidacaoError as e:
+            raise ValueError(str(e))
 
     @field_validator('forma_pagamento')
     @classmethod
-    def validar_forma_pagamento(cls, v):
-        if v is not None and isinstance(v, str):
-            try:
-                return FormaPagamentoEnum(v.upper())
-            except ValueError:
-                formas_validas = [forma.value for forma in FormaPagamentoEnum]
-                raise ValueError(f'Forma de pagamento deve ser uma das opções: {", ".join(formas_validas)}')
-        return v
+    def validar_forma_pagamento_dto(cls, v):
+        if v is None:
+            return v
+        try:
+            return validar_enum_valor(v, FormaPagamentoEnum, "Forma de pagamento")
+        except ValidacaoError as e:
+            raise ValueError(str(e))
 
     model_config = ConfigDict(
         str_strip_whitespace=True,

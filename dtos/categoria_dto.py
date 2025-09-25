@@ -1,6 +1,11 @@
 from pydantic import BaseModel, Field, field_validator, ConfigDict
 from typing import Optional
 from enum import Enum
+from util.validacoes_dto import (
+    validar_texto_obrigatorio, validar_texto_opcional, validar_enum_valor,
+    ValidacaoError
+)
+import re
 
 
 class TipoFornecimentoEnum(str, Enum):
@@ -34,46 +39,30 @@ class CategoriaDTO(BaseModel):
 
     @field_validator('nome')
     @classmethod
-    def validar_nome(cls, v: str) -> str:
-        if not v or not v.strip():
-            raise ValueError('Nome da categoria é obrigatório')
+    def validar_nome_dto(cls, v: str) -> str:
+        try:
+            nome = validar_texto_obrigatorio(v, "Nome da categoria", min_chars=2, max_chars=50)
 
-        # Remover espaços extras
-        nome = ' '.join(v.split())
+            # Verificar se contém apenas letras, números, espaços e alguns caracteres especiais
+            if not re.match(r'^[a-zA-ZÀ-ÿ0-9\s\-&/]+$', nome):
+                raise ValidacaoError('Nome deve conter apenas letras, números, espaços, hífens e símbolos (&, /)')
 
-        if len(nome) < 2:
-            raise ValueError('Nome deve ter pelo menos 2 caracteres')
-
-        if len(nome) > 50:
-            raise ValueError('Nome deve ter no máximo 50 caracteres')
-
-        # Verificar se contém apenas letras, números, espaços e alguns caracteres especiais
-        import re
-        if not re.match(r'^[a-zA-ZÀ-ÿ0-9\s\-&/]+$', nome):
-            raise ValueError('Nome deve conter apenas letras, números, espaços, hífens e símbolos (&, /)')
-
-        return nome
+            return nome
+        except ValidacaoError as e:
+            raise ValueError(str(e))
 
     @field_validator('tipo_fornecimento')
     @classmethod
-    def validar_tipo_fornecimento(cls, v):
-        if isinstance(v, str):
-            try:
-                return TipoFornecimentoEnum(v.upper())
-            except ValueError:
-                tipos_validos = [tipo.value for tipo in TipoFornecimentoEnum]
-                raise ValueError(f'Tipo de fornecimento deve ser uma das opções: {", ".join(tipos_validos)}')
-        return v
+    def validar_tipo_fornecimento_dto(cls, v):
+        try:
+            return validar_enum_valor(v, TipoFornecimentoEnum, "Tipo de fornecimento")
+        except ValidacaoError as e:
+            raise ValueError(str(e))
 
     @field_validator('descricao')
     @classmethod
-    def validar_descricao(cls, v: Optional[str]) -> Optional[str]:
-        if v is not None:
-            # Remover espaços extras
-            descricao = ' '.join(v.split()) if v.strip() else None
-
-            if descricao and len(descricao) > 500:
-                raise ValueError('Descrição deve ter no máximo 500 caracteres')
-
-            return descricao
-        return v
+    def validar_descricao_dto(cls, v: Optional[str]) -> Optional[str]:
+        try:
+            return validar_texto_opcional(v, max_chars=500)
+        except ValidacaoError as e:
+            raise ValueError(str(e))

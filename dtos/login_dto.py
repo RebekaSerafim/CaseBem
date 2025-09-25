@@ -1,5 +1,6 @@
 from pydantic import BaseModel, EmailStr, Field, field_validator, ConfigDict
 from typing import Optional
+from util.validacoes_dto import validar_senha, ValidacaoError
 
 
 class LoginDTO(BaseModel):
@@ -23,7 +24,8 @@ class LoginDTO(BaseModel):
 
     @field_validator('senha')
     @classmethod
-    def senha_nao_vazia(cls, v: str) -> str:
-        if not v or not v.strip():
-            raise ValueError('Senha é obrigatória')
-        return v
+    def validar_senha_dto(cls, v: str) -> str:
+        try:
+            return validar_senha(v, min_chars=1, obrigatorio=True)
+        except ValidacaoError as e:
+            raise ValueError(str(e))

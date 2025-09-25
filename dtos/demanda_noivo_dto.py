@@ -1,6 +1,10 @@
 from pydantic import BaseModel, ConfigDict, Field, field_validator, ValidationInfo
 from typing import Optional
 from decimal import Decimal
+from util.validacoes_dto import (
+    validar_texto_obrigatorio, validar_texto_opcional, validar_valor_monetario,
+    ValidacaoError
+)
 
 
 class DemandaNoivoDTO(BaseModel):
@@ -15,102 +19,58 @@ class DemandaNoivoDTO(BaseModel):
 
     @field_validator('titulo')
     @classmethod
-    def validar_titulo(cls, v):
-        if not v or not v.strip():
-            raise ValueError('Título é obrigatório')
-
-        # Remover espaços extras
-        titulo = ' '.join(v.split())
-
-        if len(titulo) < 5:
-            raise ValueError('Título deve ter pelo menos 5 caracteres')
-
-        if len(titulo) > 100:
-            raise ValueError('Título deve ter no máximo 100 caracteres')
-
-        return titulo
+    def validar_titulo_dto(cls, v):
+        try:
+            return validar_texto_obrigatorio(v, "Título", min_chars=5, max_chars=100)
+        except ValidacaoError as e:
+            raise ValueError(str(e))
 
     @field_validator('descricao')
     @classmethod
-    def validar_descricao(cls, v):
-        if not v or not v.strip():
-            raise ValueError('Descrição é obrigatória')
-
-        # Remover espaços extras
-        descricao = ' '.join(v.split())
-
-        if len(descricao) < 20:
-            raise ValueError('Descrição deve ter pelo menos 20 caracteres')
-
-        if len(descricao) > 2000:
-            raise ValueError('Descrição deve ter no máximo 2000 caracteres')
-
-        return descricao
+    def validar_descricao_dto(cls, v):
+        try:
+            return validar_texto_obrigatorio(v, "Descrição", min_chars=20, max_chars=2000)
+        except ValidacaoError as e:
+            raise ValueError(str(e))
 
     @field_validator('orcamento_min')
     @classmethod
-    def validar_orcamento_min(cls, v):
-        if v is not None:
-            if v < 0:
-                raise ValueError('Orçamento mínimo não pode ser negativo')
-
-            # Verificar se tem no máximo 2 casas decimais
-            if v != round(v, 2):
-                raise ValueError('Orçamento deve ter no máximo 2 casas decimais')
-
-            # Verificar se não é um valor absurdamente alto
-            if v > 9999999.99:
-                raise ValueError('Orçamento não pode ser superior a R$ 9.999.999,99')
-
-        return v
+    def validar_orcamento_min_dto(cls, v):
+        try:
+            return validar_valor_monetario(v, "Orçamento mínimo", obrigatorio=False, min_valor=Decimal('0'))
+        except ValidacaoError as e:
+            raise ValueError(str(e))
 
     @field_validator('orcamento_max')
     @classmethod
-    def validar_orcamento_max(cls, v, info: ValidationInfo):
-        if v is not None:
-            if v < 0:
-                raise ValueError('Orçamento máximo não pode ser negativo')
-
-            # Verificar se tem no máximo 2 casas decimais
-            if v != round(v, 2):
-                raise ValueError('Orçamento deve ter no máximo 2 casas decimais')
-
-            # Verificar se não é um valor absurdamente alto
-            if v > 9999999.99:
-                raise ValueError('Orçamento não pode ser superior a R$ 9.999.999,99')
+    def validar_orcamento_max_dto(cls, v, info: ValidationInfo):
+        try:
+            valor_validado = validar_valor_monetario(v, "Orçamento máximo", obrigatorio=False, min_valor=Decimal('0'))
 
             # Verificar se o orçamento máximo é maior que o mínimo
-            if 'orcamento_min' in info.data and info.data['orcamento_min'] is not None:
-                if v < info.data['orcamento_min']:
-                    raise ValueError('Orçamento máximo deve ser maior ou igual ao mínimo')
+            if valor_validado is not None and 'orcamento_min' in info.data and info.data['orcamento_min'] is not None:
+                if valor_validado < info.data['orcamento_min']:
+                    raise ValidacaoError('Orçamento máximo deve ser maior ou igual ao mínimo')
 
-        return v
+            return valor_validado
+        except ValidacaoError as e:
+            raise ValueError(str(e))
 
     @field_validator('prazo_entrega')
     @classmethod
-    def validar_prazo_entrega(cls, v):
-        if v is not None:
-            # Remover espaços extras
-            prazo = ' '.join(v.split()) if v.strip() else None
-
-            if prazo and len(prazo) > 100:
-                raise ValueError('Prazo de entrega deve ter no máximo 100 caracteres')
-
-            return prazo
-        return v
+    def validar_prazo_entrega_dto(cls, v):
+        try:
+            return validar_texto_opcional(v, max_chars=100)
+        except ValidacaoError as e:
+            raise ValueError(str(e))
 
     @field_validator('observacoes')
     @classmethod
-    def validar_observacoes(cls, v):
-        if v is not None:
-            # Remover espaços extras
-            observacoes = ' '.join(v.split()) if v.strip() else None
-
-            if observacoes and len(observacoes) > 1000:
-                raise ValueError('Observações devem ter no máximo 1000 caracteres')
-
-            return observacoes
-        return v
+    def validar_observacoes_dto(cls, v):
+        try:
+            return validar_texto_opcional(v, max_chars=1000)
+        except ValidacaoError as e:
+            raise ValueError(str(e))
 
     model_config = ConfigDict(
         str_strip_whitespace=True,
