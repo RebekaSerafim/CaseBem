@@ -1,176 +1,186 @@
-#from model.usuario_model import Usuario
-from model.usuario_model import Usuario
+"""
+Testes do repositório de usuários usando o novo sistema de factories
+Demonstra as melhores práticas com Factory Pattern e test helpers
+"""
+
+from model.usuario_model import Usuario, TipoUsuario
 from repo import usuario_repo
+from util.exceptions import RecursoNaoEncontradoError, BancoDadosError
+from tests.test_helpers import assert_usuario_valido, AssertHelper
+import pytest
+
 
 class TestUsuarioRepo:
+    """Testes do repositório de usuários com factories"""
+
     def test_criar_tabela_usuarios(self, test_db):
-        # Arrange
-        # Act
+        """Teste de criação de tabela"""
         resultado = usuario_repo.criar_tabela_usuarios()
-        # Assert
-        assert resultado == True, "A criação da tabela deveria retornar True"        
+        assert resultado == True
 
-    def test_inserir_usuario(self, test_db, usuario_exemplo):
+    def test_inserir_usuario_com_factory(self, test_db, usuario_factory):
+        """Teste de inserção usando factory"""
         # Arrange
         usuario_repo.criar_tabela_usuarios()
+        usuario = usuario_factory.criar(nome="João Silva", email="joao@teste.com")
+
         # Act
-        id_usuario_inserido = usuario_repo.inserir_usuario(usuario_exemplo)
+        id_usuario_inserido = usuario_repo.inserir_usuario(usuario)
+
         # Assert
         usuario_db = usuario_repo.obter_usuario_por_id(id_usuario_inserido)
-        assert usuario_db is not None, "O usuário inserido não deveria ser None"
-        assert usuario_db.id == 1, "O usuário inserido deveria ter um ID igual a 1"
-        assert usuario_db.nome == "Usuário Teste", "O nome do usuário inserido não confere"
-        assert usuario_db.telefone == "(28) 99999-0000", "O telefone do usuário inserido não confere"
-        assert usuario_db.email == "usuario@email.com", "O email do usuário inserido não confere"
-        assert usuario_db.senha == "123456", "A senha do usuário inserido não confere"
-        assert usuario_db.perfil.value == "ADMIN", "O perfil do usuário inserido não confere"
+        assert usuario_db is not None
+        assert usuario_db.id == 1
+        assert usuario_db.nome == "João Silva"
+        assert usuario_db.email == "joao@teste.com"
+        assert_usuario_valido(usuario_db)
 
-    def test_inserir_noivo(self, test_db, usuario_exemplo):
+    def test_inserir_diferentes_tipos_usuario(self, test_db, usuario_factory):
+        """Demonstra uso dos shortcuts das factories"""
         # Arrange
         usuario_repo.criar_tabela_usuarios()
-        # Act
-        id_usuario_inserido = usuario_repo.inserir_usuario(usuario_exemplo)
-        # Assert
-        usuario_db = usuario_repo.obter_usuario_por_id(id_usuario_inserido)
-        assert usuario_db is not None, "O usuário inserido não deveria ser None"
-        assert usuario_db.id == 1, "O usuário inserido deveria ter um ID igual a 1"
-        assert usuario_db.nome == "Usuário Teste", "O nome do usuário inserido não confere"
-        assert usuario_db.telefone == "(28) 99999-0000", "O telefone do usuário inserido não confere"
-        assert usuario_db.email == "usuario@email.com", "O email do usuário inserido não confere"
-        assert usuario_db.senha == "123456", "A senha do usuário inserido não confere"
-        assert usuario_db.perfil.value == "ADMIN", "O perfil do usuário inserido não confere"
 
-    def test_obter_usuario_por_id_existente(self, test_db, usuario_exemplo):
-        # Arrange
-        usuario_repo.criar_tabela_usuarios()        
-        id_usuario_inserido = usuario_repo.inserir_usuario(usuario_exemplo)
-        # Act
-        usuario_db = usuario_repo.obter_usuario_por_id(id_usuario_inserido)
+        # Act - Usar shortcuts da factory
+        admin = usuario_factory.criar_admin()
+        noivo = usuario_factory.criar_noivo()
+        fornecedor = usuario_factory.criar_fornecedor_usuario()
+
+        id_admin = usuario_repo.inserir_usuario(admin)
+        id_noivo = usuario_repo.inserir_usuario(noivo)
+        id_fornecedor = usuario_repo.inserir_usuario(fornecedor)
+
         # Assert
-        assert usuario_db is not None, "O usuário retornado deveria ser diferente de None"
-        assert usuario_db.id == id_usuario_inserido, "O id do usuário buscado deveria ser igual ao id do usuário inserido"
-        assert usuario_db.nome == usuario_exemplo.nome, "O nome do usuário buscado deveria ser igual ao nome do usuário inserido"
-        assert usuario_db.telefone == usuario_exemplo.telefone, "O telefone do usuário buscado deveria ser igual ao telefone do usuário inserido"
-        assert usuario_db.email == usuario_exemplo.email, "O email do usuário buscado deveria ser igual ao email do usuário inserido"
-        assert usuario_db.senha == usuario_exemplo.senha, "A senha do usuário buscado deveria ser igual à senha do usuário inserido"
-        assert usuario_db.perfil == usuario_exemplo.perfil, "O perfil do usuário buscado deveria ser igual ao perfil do usuário inserido"
+        admin_db = usuario_repo.obter_usuario_por_id(id_admin)
+        noivo_db = usuario_repo.obter_usuario_por_id(id_noivo)
+        fornecedor_db = usuario_repo.obter_usuario_por_id(id_fornecedor)
+
+        assert admin_db.perfil == TipoUsuario.ADMIN
+        assert noivo_db.perfil == TipoUsuario.NOIVO
+        assert fornecedor_db.perfil == TipoUsuario.FORNECEDOR
+
+        # Usar helpers para validar
+        for usuario in [admin_db, noivo_db, fornecedor_db]:
+            assert_usuario_valido(usuario)
+
+    def test_inserir_lista_usuarios_variados(self, test_db, usuario_factory):
+        """Demonstra criação de lista com factory"""
+        # Arrange
+        usuario_repo.criar_tabela_usuarios()
+        usuarios = usuario_factory.criar_lista(5)  # 5 usuários variados
+
+        # Act
+        ids_inseridos = []
+        for usuario in usuarios:
+            id_inserido = usuario_repo.inserir_usuario(usuario)
+            ids_inseridos.append(id_inserido)
+
+        # Assert
+        assert len(ids_inseridos) == 5
+        usuarios_db = usuario_repo.obter_usuarios_por_pagina(1, 10)
+        assert len(usuarios_db) == 5
+
+        # Usar AssertHelper para validações complexas
+        AssertHelper.emails_unicos(usuarios_db, "usuários da lista")
+        for usuario in usuarios_db:
+            assert_usuario_valido(usuario)
 
     def test_obter_usuario_por_id_inexistente(self, test_db):
+        """Teste com novo sistema de exceptions"""
         # Arrange
         usuario_repo.criar_tabela_usuarios()
-        # Act
-        usuario_db = usuario_repo.obter_usuario_por_id(999)
-        # Assert
-        assert usuario_db is None, "O usuário buscado com ID inexistente deveria retornar None"
 
-    def test_obter_usuario_por_email_existente(self, test_db, usuario_exemplo):
+        # Act & Assert - usar nova exception
+        with pytest.raises(RecursoNaoEncontradoError) as exc_info:
+            usuario_repo.obter_usuario_por_id(999)
+
+        assert "Usuario não encontrado" in str(exc_info.value)
+        assert "999" in str(exc_info.value)
+
+    def test_email_duplicado_com_factory(self, test_db, usuario_factory):
+        """Teste de constraint de email único"""
         # Arrange
         usuario_repo.criar_tabela_usuarios()
-        id_usuario_inserido = usuario_repo.inserir_usuario(usuario_exemplo)
-        # Act
-        usuario_db = usuario_repo.obter_usuario_por_email(usuario_exemplo.email)
-        # Assert
-        assert usuario_db is not None, "O usuário buscado por email deveria ser diferente de None"
-        assert usuario_db.id == id_usuario_inserido, "O id do usuário buscado por email deveria ser igual ao id do usuário inserido"
-        assert usuario_db.email == usuario_exemplo.email, "O email do usuário buscado deveria ser igual ao email do usuário inserido"
+        email_duplicado = "duplicado@teste.com"
 
-    def test_obter_usuario_por_email_inexistente(self, test_db):
+        usuario1 = usuario_factory.criar(email=email_duplicado)
+        usuario2 = usuario_factory.criar(email=email_duplicado)
+
+        # Act
+        usuario_repo.inserir_usuario(usuario1)
+
+        # Assert - nova exception
+        with pytest.raises(BancoDadosError) as exc_info:
+            usuario_repo.inserir_usuario(usuario2)
+
+        assert "já existe" in str(exc_info.value).lower()
+
+    def test_atualizar_usuario_com_factory(self, test_db, usuario_factory):
+        """Teste de atualização usando factory"""
         # Arrange
         usuario_repo.criar_tabela_usuarios()
-        # Act
-        usuario_db = usuario_repo.obter_usuario_por_email("inexistente@email.com")
-        # Assert
-        assert usuario_db is None, "O usuário buscado por email inexistente deveria retornar None"
+        usuario = usuario_factory.criar(nome="Nome Original")
+        id_inserido = usuario_repo.inserir_usuario(usuario)
 
-    def test_atualizar_usuario_existente(self, test_db, usuario_exemplo):
+        # Act
+        usuario_para_atualizar = usuario_repo.obter_usuario_por_id(id_inserido)
+        usuario_para_atualizar.nome = "Nome Atualizado"
+        resultado = usuario_repo.atualizar_usuario(usuario_para_atualizar)
+
+        # Assert
+        assert resultado == True
+        usuario_atualizado = usuario_repo.obter_usuario_por_id(id_inserido)
+        assert usuario_atualizado.nome == "Nome Atualizado"
+        assert_usuario_valido(usuario_atualizado)
+
+    def test_paginacao_com_factory(self, test_db, usuario_factory):
+        """Teste de paginação usando factory"""
         # Arrange
         usuario_repo.criar_tabela_usuarios()
-        id_usuario_inserido = usuario_repo.inserir_usuario(usuario_exemplo)
-        usuario_inserido = usuario_repo.obter_usuario_por_id(id_usuario_inserido)
-        # Act
-        usuario_inserido.nome = "Usuário Atualizado"
-        usuario_inserido.telefone = "(28) 88888-0000"
-        usuario_inserido.email = "usuario_atualizado@email.com"
-        resultado = usuario_repo.atualizar_usuario(usuario_inserido)
-        # Assert
-        assert resultado == True, "A atualização do usuário deveria retornar True"
-        usuario_db = usuario_repo.obter_usuario_por_id(id_usuario_inserido)
-        assert usuario_db.nome == "Usuário Atualizado", "O nome do usuário atualizado não confere"
-        assert usuario_db.telefone == "(28) 88888-0000", "O telefone do usuário atualizado não confere"
-        assert usuario_db.email == "usuario_atualizado@email.com", "O email do usuário atualizado não confere"
-        assert usuario_db.senha == "123456", "A senha do usuário atualizado não confere"
-        assert usuario_db.perfil.value == "ADMIN", "O perfil do usuário atualizado não confere"
+        usuarios = usuario_factory.criar_lista(10)
 
-    def test_atualizar_usuario_inexistente(self, test_db, usuario_exemplo):
-        # Arrange
-        usuario_repo.criar_tabela_usuarios()
-        usuario_exemplo.id = 999  # ID que não existe
-        # Act
-        resultado = usuario_repo.atualizar_usuario(usuario_exemplo)
-        # Assert
-        assert resultado == False, "A atualização de um usuário inexistente deveria retornar False"
-
-    def test_excluir_usuario_existente(self, test_db, usuario_exemplo):
-        # Arrange
-        usuario_repo.criar_tabela_usuarios()        
-        id_usuario_inserido = usuario_repo.inserir_usuario(usuario_exemplo)
-        # Act
-        resultado = usuario_repo.excluir_usuario(id_usuario_inserido)
-        # Assert
-        assert resultado == True, "O resultado da exclusão deveria ser True"
-        usuario_excluido = usuario_repo.obter_usuario_por_id(id_usuario_inserido)
-        assert usuario_excluido is None, "O usuário excluído deveria ser None"
-
-    def test_excluir_usuario_inexistente(self, test_db):
-        # Arrange
-        usuario_repo.criar_tabela_usuarios()
-        # Act
-        resultado = usuario_repo.excluir_usuario(999)
-        # Assert
-        assert resultado == False, "A exclusão de um usuário inexistente deveria retornar False"
-
-    def test_atualizar_senha_usuario(self, test_db, usuario_exemplo):
-        # Arrange
-        usuario_repo.criar_tabela_usuarios()
-        id_usuario_inserido = usuario_repo.inserir_usuario(usuario_exemplo)
-        # Act
-        resultado = usuario_repo.atualizar_senha_usuario(id_usuario_inserido, "nova_senha_hash")
-        # Assert
-        assert resultado == True, "A atualização da senha do usuário deveria retornar True"
-        usuario_db = usuario_repo.obter_usuario_por_id(id_usuario_inserido)
-        assert usuario_db.senha == "nova_senha_hash", "A senha do usuário atualizado não confere"
-
-    def test_atualizar_senha_usuario_inexistente(self, test_db):
-        # Arrange
-        usuario_repo.criar_tabela_usuarios()
-        # Act
-        resultado = usuario_repo.atualizar_senha_usuario(999, "nova_senha_hash")
-        # Assert
-        assert resultado == False, "A atualização da senha de um usuário inexistente deveria retornar False"
-
-    def test_obter_usuarios_por_pagina_primeira_pagina(self, test_db, lista_usuarios_exemplo):
-        # Arrange
-        usuario_repo.criar_tabela_usuarios()
-        for usuario in lista_usuarios_exemplo:
+        for usuario in usuarios:
             usuario_repo.inserir_usuario(usuario)
+
         # Act
-        pagina_usuarios = usuario_repo.obter_usuarios_por_pagina(1, 4)
+        primeira_pagina = usuario_repo.obter_usuarios_por_pagina(1, 4)
+        segunda_pagina = usuario_repo.obter_usuarios_por_pagina(2, 4)
+        terceira_pagina = usuario_repo.obter_usuarios_por_pagina(3, 4)
+
         # Assert
-        assert len(pagina_usuarios) == 4, "Deveria retornar 4 usuários na primeira página"
-        assert all(isinstance(u, Usuario) for u in pagina_usuarios), "Todos os itens da página devem ser do tipo Usuario"
-        ids_esperados = [1, 2, 3, 4]
-        ids_retornados = [u.id for u in pagina_usuarios]
-        assert ids_esperados == ids_retornados, "Os IDs dos usuários na primeira página não estão corretos"
-    
-    def test_obter_usuarios_por_pagina_terceira_pagina(self, test_db, lista_usuarios_exemplo):
+        assert len(primeira_pagina) == 4
+        assert len(segunda_pagina) == 4
+        assert len(terceira_pagina) == 2  # Últimos 2
+
+        # Verificar que todos são válidos
+        todas_paginas = primeira_pagina + segunda_pagina + terceira_pagina
+        for usuario in todas_paginas:
+            assert_usuario_valido(usuario)
+
+        # Verificar IDs únicos em todas as páginas
+        AssertHelper.ids_unicos(todas_paginas, "todas as páginas")
+
+    def test_cenario_integrado_com_data_builder(self, test_db, test_data_builder):
+        """Teste de integração usando TestDataBuilder"""
         # Arrange
         usuario_repo.criar_tabela_usuarios()
-        for usuario in lista_usuarios_exemplo:
-            usuario_repo.inserir_usuario(usuario)
-        # Act: busca a terceira página com 4 usuários por página
-        pagina_usuarios = usuario_repo.obter_usuarios_por_pagina(3, 4)
-        # Assert: verifica se retornou a quantidade correta (2 usuários na terceira página)
-        assert len(pagina_usuarios) == 2, "Deveria retornar 2 usuários na terceira página"
-        assert (isinstance(u, Usuario) for u in pagina_usuarios), "Todos os itens da página devem ser do tipo Usuario"
+        builder = test_data_builder()
+        dados = builder.com_usuarios(8).construir()
 
-    
+        # Act - Inserir usuários do builder
+        ids_inseridos = []
+        for usuario in dados['usuarios']:
+            id_inserido = usuario_repo.inserir_usuario(usuario)
+            ids_inseridos.append(id_inserido)
+
+        # Assert
+        assert len(ids_inseridos) == 8
+        todos_usuarios = usuario_repo.obter_usuarios_por_pagina(1, 20)
+        assert len(todos_usuarios) == 8
+
+        # Verificar distribuição de tipos
+        tipos_encontrados = {usuario.perfil for usuario in todos_usuarios}
+        assert TipoUsuario.ADMIN in tipos_encontrados
+        assert TipoUsuario.NOIVO in tipos_encontrados
+        assert TipoUsuario.FORNECEDOR in tipos_encontrados
+
+        AssertHelper.emails_unicos(todos_usuarios, "todos os usuários")
