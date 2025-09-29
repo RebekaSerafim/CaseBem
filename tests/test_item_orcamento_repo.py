@@ -81,9 +81,11 @@ class TestItemOrcamentoRepo:
             item_orcamento_exemplo.id_orcamento, item_orcamento_exemplo.id_item)
         # Assert
         assert resultado == True
-        item_orcamento_db = item_orcamento_repo.obter_item_orcamento(
-            item_orcamento_exemplo.id_orcamento, item_orcamento_exemplo.id_item)
-        assert item_orcamento_db is None
+        import pytest
+        from util.exceptions import RecursoNaoEncontradoError
+        with pytest.raises(RecursoNaoEncontradoError):
+            item_orcamento_repo.obter_item_orcamento(
+                item_orcamento_exemplo.id_orcamento, item_orcamento_exemplo.id_item)
 
 @pytest.fixture
 def item_orcamento_exemplo():

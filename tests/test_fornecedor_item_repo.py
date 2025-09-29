@@ -67,9 +67,11 @@ class TestFornecedorItemRepo:
             fornecedor_item_exemplo.id_fornecedor, fornecedor_item_exemplo.id_item)
         # Assert
         assert resultado == True
-        fornecedor_item_db = fornecedor_item_repo.obter_fornecedor_item(
-            fornecedor_item_exemplo.id_fornecedor, fornecedor_item_exemplo.id_item)
-        assert fornecedor_item_db is None
+        import pytest
+        from util.exceptions import RecursoNaoEncontradoError
+        with pytest.raises(RecursoNaoEncontradoError):
+            fornecedor_item_repo.obter_fornecedor_item(
+                fornecedor_item_exemplo.id_fornecedor, fornecedor_item_exemplo.id_item)
 
 @pytest.fixture
 def fornecedor_item_exemplo():

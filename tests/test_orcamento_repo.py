@@ -1,3 +1,4 @@
+import pytest
 from datetime import datetime, timedelta
 from model.orcamento_model import Orcamento
 from model.demanda_model import Demanda
@@ -5,6 +6,7 @@ from model.casal_model import Casal
 from model.categoria_model import Categoria
 from model.tipo_fornecimento_model import TipoFornecimento
 from repo import orcamento_repo, demanda_repo, casal_repo, usuario_repo, categoria_repo
+from util.exceptions import RecursoNaoEncontradoError
 
 class TestOrcamentoRepo:
     def test_criar_tabela_orcamento(self, test_db):
@@ -322,10 +324,11 @@ class TestOrcamentoRepo:
         
         # Act
         sucesso = orcamento_repo.excluir_orcamento(id_orcamento)
-        
+
         # Assert
         assert sucesso is True
-        assert orcamento_repo.obter_orcamento_por_id(id_orcamento) is None
+        with pytest.raises(RecursoNaoEncontradoError):
+            orcamento_repo.obter_orcamento_por_id(id_orcamento)
 
     def test_obter_orcamento_por_id_inexistente(self, test_db):
         # Arrange
@@ -335,11 +338,9 @@ class TestOrcamentoRepo:
         demanda_repo.criar_tabela_demandas()
         orcamento_repo.criar_tabela_orcamento()
 
-        # Act
-        orcamento = orcamento_repo.obter_orcamento_por_id(999)
-        
-        # Assert
-        assert orcamento is None
+        # Act & Assert
+        with pytest.raises(RecursoNaoEncontradoError):
+            orcamento_repo.obter_orcamento_por_id(999)
 
     def test_obter_orcamentos_por_demanda(self, test_db, lista_noivos_exemplo, lista_fornecedores_exemplo):
         # Arrange
@@ -405,7 +406,11 @@ class TestOrcamentoRepo:
 
         for noivo in lista_noivos_exemplo[:2]:
             usuario_repo.inserir_usuario(noivo)
-        id_fornecedor = usuario_repo.inserir_usuario(fornecedor_exemplo)
+
+        # Inserir fornecedor (precisa inserir em ambas as tabelas)
+        from repo import fornecedor_repo
+        fornecedor_repo.criar_tabela_fornecedor()
+        id_fornecedor = fornecedor_repo.inserir_fornecedor(fornecedor_exemplo)
         
         casal = Casal(
             id=0,

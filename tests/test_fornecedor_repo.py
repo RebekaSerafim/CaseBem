@@ -1,6 +1,8 @@
+import pytest
 from model.fornecedor_model import Fornecedor
 from model.usuario_model import TipoUsuario
 from repo import fornecedor_repo, usuario_repo
+from util.exceptions import RecursoNaoEncontradoError
 
 class TestFornecedorRepo:
     def test_criar_tabela_fornecedor(self, test_db):
@@ -20,12 +22,12 @@ class TestFornecedorRepo:
         # Assert
         fornecedor_db = fornecedor_repo.obter_fornecedor_por_id(id_fornecedor_inserido)
         assert fornecedor_db is not None, "O fornecedor inserido não deveria ser None"
-        assert fornecedor_db.id == 1, "O fornecedor inserido deveria ter um ID igual a 1"
-        assert fornecedor_db.nome == "Fornecedor Teste", "O nome do fornecedor inserido não confere"
-        assert fornecedor_db.cpf == "111.222.333-44", "O CPF do fornecedor inserido não confere"
-        assert fornecedor_db.email == "fornecedor@email.com", "O email do fornecedor inserido não confere"
+        assert fornecedor_db.id == id_fornecedor_inserido, "O ID do fornecedor inserido deveria ser igual ao retornado"
+        assert fornecedor_db.nome == fornecedor_exemplo.nome, "O nome do fornecedor inserido não confere"
+        assert fornecedor_db.cpf == fornecedor_exemplo.cpf, "O CPF do fornecedor inserido não confere"
+        assert fornecedor_db.email == fornecedor_exemplo.email, "O email do fornecedor inserido não confere"
         assert fornecedor_db.perfil.value == "FORNECEDOR", "O perfil do fornecedor inserido não confere"
-        assert fornecedor_db.nome_empresa == "Empresa Teste", "O nome da empresa não confere"
+        assert fornecedor_db.nome_empresa == fornecedor_exemplo.nome_empresa, "O nome da empresa não confere"
 
     def test_obter_fornecedor_por_id_existente(self, test_db, fornecedor_exemplo):
         # Arrange
@@ -42,10 +44,9 @@ class TestFornecedorRepo:
         # Arrange
         usuario_repo.criar_tabela_usuarios()
         fornecedor_repo.criar_tabela_fornecedor()
-        # Act
-        fornecedor_db = fornecedor_repo.obter_fornecedor_por_id(999)
-        # Assert
-        assert fornecedor_db is None, "O fornecedor retornado deveria ser None para ID inexistente"
+        # Act & Assert
+        with pytest.raises(RecursoNaoEncontradoError):
+            fornecedor_repo.obter_fornecedor_por_id(999)
 
     def test_atualizar_fornecedor(self, test_db, fornecedor_exemplo):
         # Arrange
@@ -72,6 +73,6 @@ class TestFornecedorRepo:
         resultado = fornecedor_repo.excluir_fornecedor(id_fornecedor_inserido)
         # Assert
         assert resultado == True, "A exclusão deveria retornar True"
-        fornecedor_db = fornecedor_repo.obter_fornecedor_por_id(id_fornecedor_inserido)
-        assert fornecedor_db is None, "O fornecedor deveria ter sido excluído"
+        with pytest.raises(RecursoNaoEncontradoError):
+            fornecedor_repo.obter_fornecedor_por_id(id_fornecedor_inserido)
 

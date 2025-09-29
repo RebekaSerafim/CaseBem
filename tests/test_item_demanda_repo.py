@@ -68,9 +68,11 @@ class TestItemDemandaRepo:
             item_demanda_exemplo.id_demanda, item_demanda_exemplo.id_item)
         # Assert
         assert resultado == True
-        item_demanda_db = item_demanda_repo.obter_item_demanda(
-            item_demanda_exemplo.id_demanda, item_demanda_exemplo.id_item)
-        assert item_demanda_db is None
+        import pytest
+        from util.exceptions import RecursoNaoEncontradoError
+        with pytest.raises(RecursoNaoEncontradoError):
+            item_demanda_repo.obter_item_demanda(
+                item_demanda_exemplo.id_demanda, item_demanda_exemplo.id_item)
 
 @pytest.fixture
 def item_demanda_exemplo():

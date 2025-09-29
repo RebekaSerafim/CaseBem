@@ -4,9 +4,17 @@ Sistema de logging padronizado do CaseBem
 
 import logging
 import json
-from datetime import datetime
+from datetime import datetime, date
 from typing import Dict, Any, Optional
 from .exceptions import CaseBemError, TipoErro
+
+
+class DateTimeEncoder(json.JSONEncoder):
+    """Encoder JSON customizado para datetime"""
+    def default(self, obj):
+        if isinstance(obj, (datetime, date)):
+            return obj.isoformat()
+        return super().default(obj)
 
 
 class CaseBemLogger:
@@ -38,12 +46,12 @@ class CaseBemLogger:
     def info(self, mensagem: str, **contexto):
         """Log de informação"""
         contexto_completo = self._criar_contexto_log(**contexto)
-        self.logger.info(f"{mensagem} - {json.dumps(contexto_completo)}")
+        self.logger.info(f"{mensagem} - {json.dumps(contexto_completo, cls=DateTimeEncoder)}")
 
     def warning(self, mensagem: str, **contexto):
         """Log de aviso"""
         contexto_completo = self._criar_contexto_log(**contexto)
-        self.logger.warning(f"{mensagem} - {json.dumps(contexto_completo)}")
+        self.logger.warning(f"{mensagem} - {json.dumps(contexto_completo, cls=DateTimeEncoder)}")
 
     def error(self, mensagem: str, erro: Optional[Exception] = None, **contexto):
         """Log de erro"""
@@ -55,12 +63,12 @@ class CaseBemLogger:
             contexto_completo["erro_original"] = str(erro)
             contexto_completo["tipo_erro_original"] = type(erro).__name__
 
-        self.logger.error(f"{mensagem} - {json.dumps(contexto_completo)}")
+        self.logger.error(f"{mensagem} - {json.dumps(contexto_completo, cls=DateTimeEncoder)}")
 
     def debug(self, mensagem: str, **contexto):
         """Log de debug"""
         contexto_completo = self._criar_contexto_log(**contexto)
-        self.logger.debug(f"{mensagem} - {json.dumps(contexto_completo)}")
+        self.logger.debug(f"{mensagem} - {json.dumps(contexto_completo, cls=DateTimeEncoder)}")
 
 
 # Instância global do logger

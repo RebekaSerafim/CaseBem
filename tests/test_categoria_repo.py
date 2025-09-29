@@ -72,8 +72,8 @@ class TestCategoriaRepo:
         resultado = categoria_repo.excluir_categoria(id_categoria_inserida)
         # Assert
         assert resultado == True, "A exclusão deveria retornar True"
-        categoria_db = categoria_repo.obter_categoria_por_id(id_categoria_inserida)
-        assert categoria_db is None, "A categoria excluída não deveria ser encontrada"
+        with pytest.raises(RecursoNaoEncontradoError):
+            categoria_repo.obter_categoria_por_id(id_categoria_inserida)
 
     def test_obter_categorias_por_tipo(self, test_db):
         # Arrange

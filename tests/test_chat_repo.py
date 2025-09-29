@@ -1,6 +1,18 @@
+import pytest
 from datetime import datetime
 from model.chat_model import Chat
 from repo import chat_repo, usuario_repo
+
+@pytest.fixture
+def chat_exemplo():
+    """Fixture que cria um objeto Chat para testes"""
+    return Chat(
+        id_remetente=1,
+        id_destinatario=2,
+        data_hora_envio=datetime.now(),
+        mensagem="Mensagem de teste",
+        data_hora_leitura=None
+    )
 
 class TestChatRepo:
     def test_criar_tabela_chat(self, test_db):
