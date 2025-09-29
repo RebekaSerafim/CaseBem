@@ -1,37 +1,103 @@
 from typing import Optional, List
 from datetime import datetime
-from util.database import obter_conexao
-from sql.orcamento_sql import *
+from util.base_repo import BaseRepo
+from sql import orcamento_sql
 from model.orcamento_model import Orcamento
 
+class OrcamentoRepo(BaseRepo):
+    """Repositório para operações com orçamentos"""
+
+    def __init__(self):
+        super().__init__('orcamento', Orcamento, orcamento_sql)
+
+    def _objeto_para_tupla_insert(self, orcamento: Orcamento) -> tuple:
+        """Prepara dados do orçamento para inserção"""
+        return (
+            orcamento.id_demanda,
+            orcamento.id_fornecedor_prestador,
+            orcamento.data_hora_cadastro,
+            orcamento.data_hora_validade,
+            orcamento.status,
+            orcamento.observacoes,
+            orcamento.valor_total
+        )
+
+    def _objeto_para_tupla_update(self, orcamento: Orcamento) -> tuple:
+        """Prepara dados do orçamento para atualização"""
+        return (
+            orcamento.data_hora_validade,
+            orcamento.status,
+            orcamento.observacoes,
+            orcamento.valor_total,
+            orcamento.id
+        )
+
+    def _linha_para_objeto(self, linha: dict) -> Orcamento:
+        """Converte linha do banco em objeto Orcamento"""
+        return Orcamento(
+            id=linha["id"],
+            id_demanda=linha["id_demanda"],
+            id_fornecedor_prestador=linha["id_fornecedor_prestador"],
+            data_hora_cadastro=linha["data_hora_cadastro"],
+            data_hora_validade=linha.get("data_hora_validade"),
+            status=linha.get("status", "PENDENTE"),
+            observacoes=linha.get("observacoes"),
+            valor_total=linha.get("valor_total")
+        )
+
+    def atualizar_status_orcamento(self, id: int, status: str) -> bool:
+        """Atualiza apenas o status de um orçamento"""
+        return self.executar_comando(orcamento_sql.ATUALIZAR_STATUS_ORCAMENTO, (status, id))
+
+    def atualizar_valor_total_orcamento(self, id: int, valor_total: float) -> bool:
+        """Atualiza apenas o valor total de um orçamento"""
+        return self.executar_comando(orcamento_sql.ATUALIZAR_VALOR_TOTAL_ORCAMENTO, (valor_total, id))
+
+    def obter_orcamentos_por_demanda(self, id_demanda: int) -> List[Orcamento]:
+        """Obtém todos os orçamentos de uma demanda"""
+        resultados = self.executar_query(orcamento_sql.OBTER_ORCAMENTOS_POR_DEMANDA, (id_demanda,))
+        return [self._linha_para_objeto(row) for row in resultados]
+
+    def obter_orcamentos_por_fornecedor(self, id_fornecedor: int) -> List[Orcamento]:
+        """Obtém todos os orçamentos de um fornecedor"""
+        resultados = self.executar_query(orcamento_sql.OBTER_ORCAMENTOS_POR_FORNECEDOR, (id_fornecedor,))
+        return [self._linha_para_objeto(row) for row in resultados]
+
+# Instância global do repositório
+orcamento_repo = OrcamentoRepo()
+
+# Funções de compatibilidade (para não quebrar código existente)
 def criar_tabela_orcamento() -> bool:
-    try:
-        # Obtém conexão com o banco de dados
-        with obter_conexao() as conexao:
-            # Cria cursor para executar comandos SQL
-            cursor = conexao.cursor()
-            # Executa comando SQL para criar tabela de orçamentos
-            cursor.execute(CRIAR_TABELA_ORCAMENTO)
-            # Retorna True indicando sucesso
-            return True
-    except Exception as e:
-        # Imprime mensagem de erro caso ocorra exceção
-        print(f"Erro ao criar tabela de orçamentos: {e}")
-        # Retorna False indicando falha
-        return False
+    return orcamento_repo.criar_tabela()
 
 def inserir_orcamento(orcamento: Orcamento) -> Optional[int]:
-    # Obtém conexão com o banco de dados
-    with obter_conexao() as conexao:
-        # Cria cursor para executar comandos SQL
-        cursor = conexao.cursor()
-        # Executa comando SQL para inserir orçamento com todos os campos
-        cursor.execute(INSERIR_ORCAMENTO, 
-            (orcamento.id_demanda, orcamento.id_fornecedor_prestador,
-             orcamento.data_hora_cadastro, orcamento.data_hora_validade,
-             orcamento.status, orcamento.observacoes, orcamento.valor_total))
-        # Retorna o ID do orçamento inserido
-        return cursor.lastrowid
+    return orcamento_repo.inserir(orcamento)
+
+def atualizar_orcamento(orcamento: Orcamento) -> bool:
+    return orcamento_repo.atualizar(orcamento)
+
+def excluir_orcamento(id: int) -> bool:
+    return orcamento_repo.excluir(id)
+
+def obter_orcamento_por_id(id: int) -> Optional[Orcamento]:
+    return orcamento_repo.obter_por_id(id)
+
+def listar_orcamentos() -> List[Orcamento]:
+    return orcamento_repo.listar_todos()
+
+def atualizar_status_orcamento(id_orcamento: int, status: str) -> bool:
+    return orcamento_repo.atualizar_status_orcamento(id_orcamento, status)
+
+def atualizar_valor_total_orcamento(id_orcamento: int, valor_total: float) -> bool:
+    return orcamento_repo.atualizar_valor_total_orcamento(id_orcamento, valor_total)
+
+def obter_orcamentos_por_demanda(id_demanda: int) -> List[Orcamento]:
+    return orcamento_repo.obter_orcamentos_por_demanda(id_demanda)
+
+def obter_orcamentos_por_fornecedor_prestador(id_fornecedor: int) -> List[Orcamento]:
+    return orcamento_repo.obter_orcamentos_por_fornecedor(id_fornecedor)
+
+# Demais funções específicas permanecem com implementação original mas são raramente usadas
 
 def atualizar_orcamento(orcamento: Orcamento) -> bool:
     # Obtém conexão com o banco de dados

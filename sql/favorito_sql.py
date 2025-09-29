@@ -8,10 +8,38 @@ CREATE TABLE IF NOT EXISTS favorito (
 );
 """
 
-INSERIR_FAVORITO = """
+# Queries compatíveis com BaseRepo
+CRIAR_TABELA = CRIAR_TABELA_FAVORITO
+
+INSERIR = """
 INSERT INTO favorito (id_noivo, id_item)
 VALUES (?, ?);
 """
+
+ATUALIZAR = """
+UPDATE favorito
+SET id_noivo = ?, id_item = ?
+WHERE id = ?;
+"""
+
+EXCLUIR = """
+DELETE FROM favorito WHERE id = ?;
+"""
+
+OBTER_POR_ID = """
+SELECT id, id_noivo, id_item, data_adicao
+FROM favorito
+WHERE id = ?;
+"""
+
+LISTAR_TODOS = """
+SELECT id, id_noivo, id_item, data_adicao
+FROM favorito
+ORDER BY data_adicao DESC;
+"""
+
+# Queries específicas do domínio (mantidas para compatibilidade)
+INSERIR_FAVORITO = INSERIR
 
 EXCLUIR_FAVORITO = """
 DELETE FROM favorito

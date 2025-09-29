@@ -11,10 +11,39 @@ CREATE TABLE IF NOT EXISTS chat (
 );
 """
 
-INSERIR_CHAT = """
+# Queries compatíveis com BaseRepoChaveComposta
+CRIAR_TABELA = CRIAR_TABELA_CHAT
+
+INSERIR = """
 INSERT INTO chat (id_remetente, id_destinatario, data_hora_envio, mensagem)
 VALUES (?, ?, ?, ?);
 """
+
+ATUALIZAR = """
+UPDATE chat
+SET mensagem = ?, data_hora_leitura = ?
+WHERE id_remetente = ? AND id_destinatario = ? AND data_hora_envio = ?;
+"""
+
+EXCLUIR = """
+DELETE FROM chat
+WHERE id_remetente = ? AND id_destinatario = ? AND data_hora_envio = ?;
+"""
+
+OBTER_POR_CHAVE = """
+SELECT id_remetente, id_destinatario, data_hora_envio, mensagem, data_hora_leitura
+FROM chat
+WHERE id_remetente = ? AND id_destinatario = ? AND data_hora_envio = ?;
+"""
+
+LISTAR_TODOS = """
+SELECT id_remetente, id_destinatario, data_hora_envio, mensagem, data_hora_leitura
+FROM chat
+ORDER BY data_hora_envio DESC;
+"""
+
+# Queries específicas do domínio (mantidas para compatibilidade)
+INSERIR_CHAT = INSERIR
 
 OBTER_MENSAGENS_POR_USUARIO = """
 SELECT id_remetente, id_destinatario, data_hora_envio, mensagem, data_hora_leitura

@@ -9,16 +9,37 @@ CREATE TABLE IF NOT EXISTS fornecedor_item (
 );
 """
 
-INSERIR_FORNECEDOR_ITEM = """
+# Queries compatíveis com BaseRepoChaveComposta
+CRIAR_TABELA = CRIAR_TABELA_FORNECEDOR_ITEM
+
+INSERIR = """
 INSERT INTO fornecedor_item (id_fornecedor, id_item, observacoes, preco_personalizado, disponivel)
 VALUES (?, ?, ?, ?, ?);
 """
 
-ATUALIZAR_FORNECEDOR_ITEM = """
+ATUALIZAR = """
 UPDATE fornecedor_item
 SET observacoes = ?, preco_personalizado = ?, disponivel = ?
 WHERE id_fornecedor = ? AND id_item = ?;
 """
+
+EXCLUIR = """
+DELETE FROM fornecedor_item WHERE id_fornecedor = ? AND id_item = ?;
+"""
+
+OBTER_POR_CHAVE = """
+SELECT id_fornecedor, id_item, observacoes, preco_personalizado, disponivel
+FROM fornecedor_item WHERE id_fornecedor = ? AND id_item = ?;
+"""
+
+LISTAR_TODOS = """
+SELECT id_fornecedor, id_item, observacoes, preco_personalizado, disponivel
+FROM fornecedor_item ORDER BY id_fornecedor, id_item;
+"""
+
+# Queries específicas do domínio (mantidas para compatibilidade)
+INSERIR_FORNECEDOR_ITEM = INSERIR
+ATUALIZAR_FORNECEDOR_ITEM = ATUALIZAR
 
 EXCLUIR_FORNECEDOR_ITEM = """
 DELETE FROM fornecedor_item

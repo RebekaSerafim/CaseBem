@@ -13,17 +13,40 @@ CREATE TABLE IF NOT EXISTS orcamento (
 );
 """
 
-INSERIR_ORCAMENTO = """
-INSERT INTO orcamento (id_demanda, id_fornecedor_prestador, data_hora_cadastro, 
+# Queries compatíveis com BaseRepo
+CRIAR_TABELA = CRIAR_TABELA_ORCAMENTO
+
+INSERIR = """
+INSERT INTO orcamento (id_demanda, id_fornecedor_prestador, data_hora_cadastro,
                       data_hora_validade, status, observacoes, valor_total)
 VALUES (?, ?, ?, ?, ?, ?, ?);
 """
 
-ATUALIZAR_ORCAMENTO = """
+ATUALIZAR = """
 UPDATE orcamento
 SET data_hora_validade = ?, status = ?, observacoes = ?, valor_total = ?
 WHERE id = ?;
 """
+
+EXCLUIR = """
+DELETE FROM orcamento WHERE id = ?;
+"""
+
+OBTER_POR_ID = """
+SELECT id, id_demanda, id_fornecedor_prestador, data_hora_cadastro,
+       data_hora_validade, status, observacoes, valor_total
+FROM orcamento WHERE id = ?;
+"""
+
+LISTAR_TODOS = """
+SELECT id, id_demanda, id_fornecedor_prestador, data_hora_cadastro,
+       data_hora_validade, status, observacoes, valor_total
+FROM orcamento ORDER BY data_hora_cadastro DESC;
+"""
+
+# Queries específicas do domínio (mantidas para compatibilidade)
+INSERIR_ORCAMENTO = INSERIR
+ATUALIZAR_ORCAMENTO = ATUALIZAR
 
 ATUALIZAR_STATUS_ORCAMENTO = """
 UPDATE orcamento

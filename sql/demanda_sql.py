@@ -16,16 +16,39 @@ CREATE TABLE IF NOT EXISTS demanda (
 );
 """
 
-INSERIR_DEMANDA = """
+# Queries compatíveis com BaseRepo
+CRIAR_TABELA = CRIAR_TABELA_DEMANDA
+
+INSERIR = """
 INSERT INTO demanda (id_casal, id_categoria, titulo, descricao, orcamento_min, orcamento_max, prazo_entrega, observacoes)
 VALUES (?, ?, ?, ?, ?, ?, ?, ?);
 """
 
-ATUALIZAR_DEMANDA = """
+ATUALIZAR = """
 UPDATE demanda
 SET titulo = ?, descricao = ?, orcamento_min = ?, orcamento_max = ?, prazo_entrega = ?, observacoes = ?
 WHERE id = ?;
 """
+
+EXCLUIR = """
+DELETE FROM demanda WHERE id = ?;
+"""
+
+OBTER_POR_ID = """
+SELECT id, id_casal, id_categoria, titulo, descricao, orcamento_min, orcamento_max, prazo_entrega, status, data_criacao, observacoes
+FROM demanda
+WHERE id = ?;
+"""
+
+LISTAR_TODOS = """
+SELECT id, id_casal, id_categoria, titulo, descricao, orcamento_min, orcamento_max, prazo_entrega, status, data_criacao, observacoes
+FROM demanda
+ORDER BY data_criacao DESC;
+"""
+
+# Queries específicas do domínio (mantidas para compatibilidade)
+INSERIR_DEMANDA = INSERIR
+ATUALIZAR_DEMANDA = ATUALIZAR
 
 ATUALIZAR_STATUS_DEMANDA = """
 UPDATE demanda

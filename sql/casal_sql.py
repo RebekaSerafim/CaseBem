@@ -13,27 +13,42 @@ CREATE TABLE IF NOT EXISTS casal (
 );
 """
 
-INSERIR_CASAL = """
+# Queries compatíveis com BaseRepo
+CRIAR_TABELA = CRIAR_TABELA_CASAL
+
+INSERIR = """
 INSERT INTO casal (id_noivo1, id_noivo2, data_casamento, local_previsto, orcamento_estimado, numero_convidados)
 VALUES (?, ?, ?, ?, ?, ?);
 """
 
-ATUALIZAR_CASAL = """
+ATUALIZAR = """
 UPDATE casal
 SET data_casamento = ?, local_previsto = ?, orcamento_estimado = ?, numero_convidados = ?
 WHERE id = ?;
 """
 
-EXCLUIR_CASAL = """
+EXCLUIR = """
 DELETE FROM casal
 WHERE id = ?;
 """
 
-OBTER_CASAL_POR_ID = """
+OBTER_POR_ID = """
 SELECT id, id_noivo1, id_noivo2, data_casamento, local_previsto, orcamento_estimado, numero_convidados, data_cadastro
 FROM casal
 WHERE id = ?;
 """
+
+LISTAR_TODOS = """
+SELECT id, id_noivo1, id_noivo2, data_casamento, local_previsto, orcamento_estimado, numero_convidados, data_cadastro
+FROM casal
+ORDER BY id DESC;
+"""
+
+# Queries específicas do domínio (mantidas para compatibilidade)
+INSERIR_CASAL = INSERIR
+ATUALIZAR_CASAL = ATUALIZAR
+EXCLUIR_CASAL = EXCLUIR
+OBTER_CASAL_POR_ID = OBTER_POR_ID
 
 OBTER_CASAL_POR_NOIVO = """
 SELECT id, id_noivo1, id_noivo2, data_casamento, local_previsto, orcamento_estimado, numero_convidados, data_cadastro

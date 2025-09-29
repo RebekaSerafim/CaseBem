@@ -153,3 +153,146 @@ class BaseRepo:
     def _linha_para_objeto(self, linha: Dict) -> Any:
         """Converte linha do BD em objeto - deve ser sobrescrito"""
         raise NotImplementedError("Implemente _linha_para_objeto na classe filha")
+
+
+class BaseRepoChaveComposta:
+    """
+    Classe base para repositórios com chave primária composta.
+    Para tabelas que não têm um ID autoincrement único.
+    """
+
+    def __init__(self, nome_tabela: str, model_class: type, sql_module, campos_chave: List[str]):
+        """
+        Inicializa o repositório base para chave composta
+
+        Args:
+            nome_tabela: Nome da tabela no banco
+            model_class: Classe do modelo
+            sql_module: Módulo com as queries SQL
+            campos_chave: Lista dos campos que formam a chave primária
+        """
+        self.nome_tabela = nome_tabela
+        self.model_class = model_class
+        self.sql = sql_module
+        self.campos_chave = campos_chave
+
+    @tratar_erro_banco_dados("criação de tabela")
+    def criar_tabela(self) -> bool:
+        """Cria a tabela se não existir"""
+        with obter_conexao() as conexao:
+            cursor = conexao.cursor()
+            cursor.execute(self.sql.CRIAR_TABELA)
+            logger.info(f"Tabela {self.nome_tabela} criada/verificada com sucesso")
+            return True
+
+    @tratar_erro_banco_dados("inserção de registro")
+    def inserir(self, objeto: Any) -> bool:
+        """Insere um novo registro (chave composta não retorna ID)"""
+        with obter_conexao() as conexao:
+            cursor = conexao.cursor()
+            valores = self._objeto_para_tupla_insert(objeto)
+            cursor.execute(self.sql.INSERIR, valores)
+            sucesso = cursor.rowcount > 0
+
+            if sucesso:
+                logger.info(f"Registro inserido em {self.nome_tabela}",
+                           chave_valores=valores[:len(self.campos_chave)])
+            return sucesso
+
+    @tratar_erro_banco_dados("atualização de registro")
+    def atualizar(self, objeto: Any) -> bool:
+        """Atualiza um registro existente pela chave composta"""
+        with obter_conexao() as conexao:
+            cursor = conexao.cursor()
+            valores = self._objeto_para_tupla_update(objeto)
+            cursor.execute(self.sql.ATUALIZAR, valores)
+            atualizado = cursor.rowcount > 0
+
+            if atualizado:
+                logger.info(f"Registro atualizado em {self.nome_tabela}")
+            else:
+                logger.warning(f"Nenhum registro foi atualizado em {self.nome_tabela}")
+
+            return atualizado
+
+    @tratar_erro_banco_dados("exclusão de registro")
+    def excluir(self, *chave_valores) -> bool:
+        """Exclui um registro pela chave composta"""
+        if len(chave_valores) != len(self.campos_chave):
+            raise ValidacaoError(f"Esperado {len(self.campos_chave)} valores para chave composta, recebido {len(chave_valores)}")
+
+        with obter_conexao() as conexao:
+            cursor = conexao.cursor()
+            cursor.execute(self.sql.EXCLUIR, chave_valores)
+            excluido = cursor.rowcount > 0
+
+            if excluido:
+                logger.info(f"Registro excluído de {self.nome_tabela}", chave_valores=chave_valores)
+            else:
+                logger.warning(f"Nenhum registro foi excluído de {self.nome_tabela}", chave_valores=chave_valores)
+
+            return excluido
+
+    @tratar_erro_banco_dados("obtenção por chave")
+    def obter_por_chave(self, *chave_valores) -> Any:
+        """Obtém um registro pela chave composta"""
+        if len(chave_valores) != len(self.campos_chave):
+            raise ValidacaoError(f"Esperado {len(self.campos_chave)} valores para chave composta, recebido {len(chave_valores)}")
+
+        with obter_conexao() as conexao:
+            cursor = conexao.cursor()
+            cursor.execute(self.sql.OBTER_POR_CHAVE, chave_valores)
+            resultado = cursor.fetchone()
+
+            if not resultado:
+                raise RecursoNaoEncontradoError(
+                    recurso=self.nome_tabela.title(),
+                    identificador=str(chave_valores)
+                )
+
+            return self._linha_para_objeto(resultado)
+
+    @tratar_erro_banco_dados("listagem de registros")
+    def listar_todos(self) -> List[Any]:
+        """Lista todos os registros"""
+        with obter_conexao() as conexao:
+            cursor = conexao.cursor()
+            cursor.execute(self.sql.LISTAR_TODOS)
+            resultados = cursor.fetchall()
+            logger.info(f"Listagem realizada em {self.nome_tabela}",
+                       total_registros=len(resultados))
+            return [self._linha_para_objeto(row) for row in resultados]
+
+    @tratar_erro_banco_dados("execução de query")
+    def executar_query(self, sql: str, params: tuple = ()) -> List[Dict]:
+        """Executa uma query customizada"""
+        with obter_conexao() as conexao:
+            cursor = conexao.cursor()
+            cursor.execute(sql, params)
+            resultados = cursor.fetchall()
+            logger.info(f"Query executada em {self.nome_tabela}",
+                       total_resultados=len(resultados))
+            return resultados
+
+    @tratar_erro_banco_dados("execução de comando")
+    def executar_comando(self, sql: str, params: tuple = ()) -> bool:
+        """Executa um comando SQL (UPDATE, DELETE) e retorna se afetou linhas"""
+        with obter_conexao() as conexao:
+            cursor = conexao.cursor()
+            cursor.execute(sql, params)
+            afetado = cursor.rowcount > 0
+            logger.info(f"Comando executado em {self.nome_tabela}",
+                       linhas_afetadas=cursor.rowcount)
+            return afetado
+
+    def _objeto_para_tupla_insert(self, objeto: Any) -> tuple:
+        """Converte objeto em tupla para INSERT - deve ser sobrescrito"""
+        raise NotImplementedError("Implemente _objeto_para_tupla_insert na classe filha")
+
+    def _objeto_para_tupla_update(self, objeto: Any) -> tuple:
+        """Converte objeto em tupla para UPDATE - deve ser sobrescrito"""
+        raise NotImplementedError("Implemente _objeto_para_tupla_update na classe filha")
+
+    def _linha_para_objeto(self, linha: Dict) -> Any:
+        """Converte linha do BD em objeto - deve ser sobrescrito"""
+        raise NotImplementedError("Implemente _linha_para_objeto na classe filha")

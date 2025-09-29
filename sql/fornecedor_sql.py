@@ -59,6 +59,27 @@ FROM fornecedor
 WHERE verificado = 0;
 """
 
+# Queries compatíveis com BaseRepo
+CRIAR_TABELA = CRIAR_TABELA_FORNECEDOR
+
+INSERIR = INSERIR_FORNECEDOR
+
+ATUALIZAR = ATUALIZAR_FORNECEDOR
+
+EXCLUIR = EXCLUIR_FORNECEDOR
+
+OBTER_POR_ID = OBTER_FORNECEDOR_POR_ID
+
+LISTAR_TODOS = """
+SELECT u.id, u.nome, u.cpf, u.data_nascimento, u.email, u.telefone, u.senha, u.perfil,
+       u.token_redefinicao, u.data_token, u.data_cadastro,
+       f.nome_empresa, f.cnpj, f.descricao,
+       f.verificado, f.data_verificacao, f.newsletter
+FROM usuario u
+JOIN fornecedor f ON u.id = f.id
+ORDER BY u.nome ASC;
+"""
+
 REJEITAR_FORNECEDOR = """
 UPDATE fornecedor
 SET verificado = 0, data_verificacao = NULL

@@ -10,21 +10,41 @@ CREATE TABLE IF NOT EXISTS item_orcamento (
 );
 """
 
-INSERIR_ITEM_ORCAMENTO = """
+# Queries compatíveis com BaseRepoChaveComposta
+CRIAR_TABELA = CRIAR_TABELA_ITEM_ORCAMENTO
+
+INSERIR = """
 INSERT INTO item_orcamento (id_orcamento, id_item, quantidade, preco_unitario, observacoes, desconto)
 VALUES (?, ?, ?, ?, ?, ?);
 """
 
-ATUALIZAR_ITEM_ORCAMENTO = """
+ATUALIZAR = """
 UPDATE item_orcamento
 SET quantidade = ?, preco_unitario = ?, observacoes = ?, desconto = ?
 WHERE id_orcamento = ? AND id_item = ?;
 """
 
-EXCLUIR_ITEM_ORCAMENTO = """
+EXCLUIR = """
 DELETE FROM item_orcamento
 WHERE id_orcamento = ? AND id_item = ?;
 """
+
+OBTER_POR_CHAVE = """
+SELECT id_orcamento, id_item, quantidade, preco_unitario, observacoes, desconto
+FROM item_orcamento
+WHERE id_orcamento = ? AND id_item = ?;
+"""
+
+LISTAR_TODOS = """
+SELECT id_orcamento, id_item, quantidade, preco_unitario, observacoes, desconto
+FROM item_orcamento
+ORDER BY id_orcamento, id_item;
+"""
+
+# Queries específicas do domínio (mantidas para compatibilidade)
+INSERIR_ITEM_ORCAMENTO = INSERIR
+ATUALIZAR_ITEM_ORCAMENTO = ATUALIZAR
+EXCLUIR_ITEM_ORCAMENTO = EXCLUIR
 
 OBTER_ITEM_ORCAMENTO = """
 SELECT id_orcamento, id_item, quantidade, preco_unitario, observacoes, desconto
