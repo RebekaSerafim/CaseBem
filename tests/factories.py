@@ -16,6 +16,8 @@ from model.categoria_model import Categoria
 from model.item_model import Item
 from model.tipo_fornecimento_model import TipoFornecimento
 from model.casal_model import Casal
+from model.demanda_model import Demanda, StatusDemanda
+from model.orcamento_model import Orcamento
 
 # Configurar Faker para português brasileiro
 fake = Faker('pt_BR')
@@ -308,3 +310,74 @@ class TestDataBuilder:
             'itens': self.itens,
             'casais': self.casais
         }
+
+
+class DemandaFactory(BaseFactory[Demanda]):
+    """Factory para criar demandas de teste"""
+
+    @classmethod
+    def _dados_padrao(cls) -> Dict[str, Any]:
+        return {
+            'id': 0,
+            'id_casal': 1,
+            'id_categoria': 1,
+            'titulo': fake.sentence(nb_words=4).replace('.', ''),
+            'descricao': fake.text(max_nb_chars=200),
+            'orcamento_min': round(random.uniform(500, 2000), 2),
+            'orcamento_max': round(random.uniform(2000, 5000), 2),
+            'prazo_entrega': fake.future_date(end_date='+30d').strftime('%Y-%m-%d'),
+            'status': StatusDemanda.ATIVA,
+            'data_criacao': datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
+            'observacoes': fake.text(max_nb_chars=100) if random.choice([True, False]) else None
+        }
+
+    @classmethod
+    def _variar_dados(cls, indice: int) -> Dict[str, Any]:
+        """Cria variações nos dados para listas"""
+        status_list = list(StatusDemanda)
+        return {
+            'id': indice + 1,
+            'id_casal': (indice % 5) + 1,
+            'id_categoria': (indice % 10) + 1,
+            'titulo': fake.sentence(nb_words=4).replace('.', ''),
+            'status': status_list[indice % len(status_list)]
+        }
+
+    @classmethod
+    def _construir_objeto(cls, dados: Dict[str, Any]) -> Demanda:
+        return Demanda(**dados)
+
+
+class OrcamentoFactory(BaseFactory[Orcamento]):
+    """Factory para criar orçamentos de teste"""
+
+    @classmethod
+    def _dados_padrao(cls) -> Dict[str, Any]:
+        return {
+            'id': 0,
+            'id_demanda': 1,
+            'id_fornecedor_prestador': 2,  # Assumindo que fornecedor tem ID > 1
+            'data_hora_cadastro': datetime.now(),
+            'data_hora_validade': fake.future_datetime(end_date='+15d'),
+            'status': 'PENDENTE',
+            'observacoes': fake.text(max_nb_chars=100) if random.choice([True, False]) else None,
+            'valor_total': round(random.uniform(1000, 8000), 2),
+            'demanda': None,  # Será preenchido conforme necessário
+            'fornecedor_prestador': None  # Será preenchido conforme necessário
+        }
+
+    @classmethod
+    def _variar_dados(cls, indice: int) -> Dict[str, Any]:
+        """Cria variações nos dados para listas"""
+        status_list = ['PENDENTE', 'ACEITO', 'REJEITADO']
+        return {
+            'id': indice + 1,
+            'id_demanda': (indice % 5) + 1,
+            'id_fornecedor_prestador': (indice % 3) + 2,  # Varia entre fornecedores
+            'status': status_list[indice % len(status_list)],
+            'valor_total': round(random.uniform(1000 + indice*100, 8000 + indice*200), 2)
+        }
+
+    @classmethod
+    def _construir_objeto(cls, dados: Dict[str, Any]) -> Orcamento:
+        return Orcamento(**dados)

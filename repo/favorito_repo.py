@@ -19,11 +19,13 @@ class FavoritoRepo(BaseRepo):
 
     def _linha_para_objeto(self, linha: dict) -> Favorito:
         """Converte linha do banco em objeto Favorito"""
+        linha_dict = dict(linha) if hasattr(linha, 'keys') else linha
+
         return Favorito(
-            id=linha["id"],
-            id_noivo=linha["id_noivo"],
-            id_item=linha["id_item"],
-            data_adicao=linha.get("data_adicao")
+            id=linha_dict["id"],
+            id_noivo=linha_dict["id_noivo"],
+            id_item=linha_dict["id_item"],
+            data_adicao=linha_dict.get("data_adicao")
         )
 
 # Instância global do repositório

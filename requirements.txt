@@ -16,4 +16,4 @@ pillow
 pytest
 pytest-asyncio
 pytest-cov
-
+faker

@@ -32,12 +32,14 @@ class ItemDemandaRepo(BaseRepoChaveComposta):
 
     def _linha_para_objeto(self, linha: dict) -> ItemDemanda:
         """Converte linha do banco em objeto ItemDemanda"""
+        linha_dict = dict(linha) if hasattr(linha, 'keys') else linha
+
         return ItemDemanda(
-            id_demanda=linha["id_demanda"],
-            id_item=linha["id_item"],
-            quantidade=linha.get("quantidade", 1),
-            observacoes=linha.get("observacoes"),
-            preco_maximo=linha.get("preco_maximo")
+            id_demanda=linha_dict["id_demanda"],
+            id_item=linha_dict["id_item"],
+            quantidade=linha_dict.get("quantidade", 1),
+            observacoes=linha_dict.get("observacoes"),
+            preco_maximo=linha_dict.get("preco_maximo")
         )
 
     def obter_itens_por_demanda(self, id_demanda: int) -> List[dict]:

@@ -32,15 +32,17 @@ class CasalRepo(BaseRepo):
 
     def _linha_para_objeto(self, linha: dict) -> Casal:
         """Converte linha do banco em objeto Casal"""
+        linha_dict = dict(linha) if hasattr(linha, 'keys') else linha
+
         return Casal(
-            id=linha["id"],
-            id_noivo1=linha["id_noivo1"],
-            id_noivo2=linha.get("id_noivo2"),
-            data_casamento=linha.get("data_casamento"),
-            local_previsto=linha.get("local_previsto"),
-            orcamento_estimado=linha.get("orcamento_estimado"),
-            numero_convidados=linha.get("numero_convidados"),
-            data_cadastro=linha.get("data_cadastro")
+            id=linha_dict["id"],
+            id_noivo1=linha_dict["id_noivo1"],
+            id_noivo2=linha_dict.get("id_noivo2"),
+            data_casamento=linha_dict.get("data_casamento"),
+            local_previsto=linha_dict.get("local_previsto"),
+            orcamento_estimado=linha_dict.get("orcamento_estimado"),
+            numero_convidados=linha_dict.get("numero_convidados"),
+            data_cadastro=linha_dict.get("data_cadastro")
         )
 
     def obter_casal_por_noivo(self, id_noivo: int) -> Optional[Casal]:

@@ -1,9 +1,11 @@
+import pytest
 from datetime import datetime
 from model.demanda_model import Demanda
 from model.casal_model import Casal
 from model.categoria_model import Categoria
 from model.tipo_fornecimento_model import TipoFornecimento
 from repo import demanda_repo, casal_repo, usuario_repo, categoria_repo
+from util.exceptions import RecursoNaoEncontradoError
 
 class TestDemandaRepo:
     def test_criar_tabela_demandas(self, test_db):
@@ -69,10 +71,9 @@ class TestDemandaRepo:
     def test_obter_demanda_por_id_inexistente(self, test_db):
         # Arrange
         demanda_repo.criar_tabela_demandas()
-        # Act
-        demanda_db = demanda_repo.obter_demanda_por_id(999)
-        # Assert
-        assert demanda_db is None, "A demanda buscada com ID inexistente deveria retornar None"
+        # Act & Assert
+        with pytest.raises(RecursoNaoEncontradoError):
+            demanda_repo.obter_demanda_por_id(999)
 
     def test_atualizar_demanda_existente(self, test_db, demanda_exemplo, lista_noivos_exemplo):
         # Arrange

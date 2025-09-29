@@ -1,9 +1,11 @@
 from typing import Optional, List
 from util.base_repo import BaseRepo
+from util.database import obter_conexao
 from sql import fornecedor_sql
 from model.fornecedor_model import Fornecedor
 from model.usuario_model import TipoUsuario
 from repo import usuario_repo
+from util.logger import logger
 
 class FornecedorRepo(BaseRepo):
     """Repositório para operações com fornecedor (herda de usuario)"""
@@ -37,26 +39,28 @@ class FornecedorRepo(BaseRepo):
 
     def _linha_para_objeto(self, linha: dict) -> Fornecedor:
         """Converte linha do banco em objeto Fornecedor"""
+        linha_dict = dict(linha) if hasattr(linha, 'keys') else linha
+
         return Fornecedor(
             # Campos de Usuario
-            id=linha["id"],
-            nome=linha["nome"],
-            cpf=linha["cpf"],
-            data_nascimento=linha["data_nascimento"],
-            email=linha["email"],
-            telefone=linha["telefone"],
-            senha=linha["senha"],
+            id=linha_dict["id"],
+            nome=linha_dict["nome"],
+            cpf=linha_dict["cpf"],
+            data_nascimento=linha_dict["data_nascimento"],
+            email=linha_dict["email"],
+            telefone=linha_dict["telefone"],
+            senha=linha_dict["senha"],
             perfil=TipoUsuario.FORNECEDOR,
-            token_redefinicao=linha.get("token_redefinicao"),
-            data_token=linha.get("data_token"),
-            data_cadastro=linha.get("data_cadastro"),
+            token_redefinicao=linha_dict.get("token_redefinicao"),
+            data_token=linha_dict.get("data_token"),
+            data_cadastro=linha_dict.get("data_cadastro"),
             # Campos específicos de Fornecedor
-            nome_empresa=linha.get("nome_empresa"),
-            cnpj=linha.get("cnpj"),
-            descricao=linha.get("descricao"),
-            verificado=bool(linha.get("verificado", False)),
-            data_verificacao=linha.get("data_verificacao"),
-            newsletter=bool(linha.get("newsletter", False))
+            nome_empresa=linha_dict.get("nome_empresa"),
+            cnpj=linha_dict.get("cnpj"),
+            descricao=linha_dict.get("descricao"),
+            verificado=bool(linha_dict.get("verificado", False)),
+            data_verificacao=linha_dict.get("data_verificacao"),
+            newsletter=bool(linha_dict.get("newsletter", False))
         )
 
     def inserir(self, fornecedor: Fornecedor) -> Optional[int]:
@@ -68,10 +72,10 @@ class FornecedorRepo(BaseRepo):
             if usuario_id:
                 # Depois inserir na tabela fornecedor
                 fornecedor.id = usuario_id
-                self.executar_comando(self.sql_module.INSERIR, self._objeto_para_tupla_insert(fornecedor))
+                self.executar_comando(self.sql.INSERIR, self._objeto_para_tupla_insert(fornecedor))
                 return usuario_id
         except Exception as e:
-            self.logger.error(f"Erro ao inserir {self.nome_tabela}: {e}")
+            logger.error(f"Erro ao inserir {self.nome_tabela}: {e}")
         return None
 
     def atualizar(self, fornecedor: Fornecedor) -> bool:
@@ -81,23 +85,23 @@ class FornecedorRepo(BaseRepo):
             usuario_repo.atualizar_usuario(fornecedor)
 
             # Atualizar dados específicos de fornecedor
-            return self.executar_comando(self.sql_module.ATUALIZAR, self._objeto_para_tupla_update(fornecedor))
+            return self.executar_comando(self.sql.ATUALIZAR, self._objeto_para_tupla_update(fornecedor))
         except Exception as e:
-            self.logger.error(f"Erro ao atualizar {self.nome_tabela}: {e}")
+            logger.error(f"Erro ao atualizar {self.nome_tabela}: {e}")
             return False
 
     def excluir(self, id: int) -> bool:
         """Exclui fornecedor das tabelas fornecedor e usuario"""
         try:
-            with self.obter_conexao() as conexao:
+            with obter_conexao() as conexao:
                 cursor = conexao.cursor()
                 # Primeiro excluir da tabela fornecedor
-                cursor.execute(self.sql_module.EXCLUIR, (id,))
+                cursor.execute(self.sql.EXCLUIR, (id,))
                 # Depois excluir da tabela usuario na mesma conexão
                 cursor.execute("DELETE FROM Usuario WHERE id = ?", (id,))
                 return cursor.rowcount > 0
         except Exception as e:
-            self.logger.error(f"Erro ao excluir {self.nome_tabela}: {e}")
+            logger.error(f"Erro ao excluir {self.nome_tabela}: {e}")
             return False
 
     def obter_fornecedores_por_pagina(self, numero_pagina: int, tamanho_pagina: int) -> List[Fornecedor]:

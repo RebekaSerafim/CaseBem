@@ -34,15 +34,17 @@ class OrcamentoRepo(BaseRepo):
 
     def _linha_para_objeto(self, linha: dict) -> Orcamento:
         """Converte linha do banco em objeto Orcamento"""
+        linha_dict = dict(linha) if hasattr(linha, 'keys') else linha
+
         return Orcamento(
-            id=linha["id"],
-            id_demanda=linha["id_demanda"],
-            id_fornecedor_prestador=linha["id_fornecedor_prestador"],
-            data_hora_cadastro=linha["data_hora_cadastro"],
-            data_hora_validade=linha.get("data_hora_validade"),
-            status=linha.get("status", "PENDENTE"),
-            observacoes=linha.get("observacoes"),
-            valor_total=linha.get("valor_total")
+            id=linha_dict["id"],
+            id_demanda=linha_dict["id_demanda"],
+            id_fornecedor_prestador=linha_dict["id_fornecedor_prestador"],
+            data_hora_cadastro=linha_dict["data_hora_cadastro"],
+            data_hora_validade=linha_dict.get("data_hora_validade"),
+            status=linha_dict.get("status", "PENDENTE"),
+            observacoes=linha_dict.get("observacoes"),
+            valor_total=linha_dict.get("valor_total")
         )
 
     def atualizar_status_orcamento(self, id: int, status: str) -> bool:

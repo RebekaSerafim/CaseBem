@@ -37,18 +37,21 @@ class DemandaRepo(BaseRepo):
 
     def _linha_para_objeto(self, linha: dict) -> Demanda:
         """Converte linha do banco em objeto Demanda"""
+        # Converter Row para dict se necessário
+        linha_dict = dict(linha) if hasattr(linha, 'keys') else linha
+
         return Demanda(
-            id=linha["id"],
-            id_casal=linha["id_casal"],
-            id_categoria=linha["id_categoria"],
-            titulo=linha["titulo"],
-            descricao=linha["descricao"],
-            orcamento_min=linha.get("orcamento_min"),
-            orcamento_max=linha.get("orcamento_max"),
-            prazo_entrega=linha.get("prazo_entrega"),
-            status=StatusDemanda(linha.get("status", "ATIVA")),
-            data_criacao=linha.get("data_criacao"),
-            observacoes=linha.get("observacoes")
+            id=linha_dict["id"],
+            id_casal=linha_dict["id_casal"],
+            id_categoria=linha_dict["id_categoria"],
+            titulo=linha_dict["titulo"],
+            descricao=linha_dict["descricao"],
+            orcamento_min=linha_dict.get("orcamento_min"),
+            orcamento_max=linha_dict.get("orcamento_max"),
+            prazo_entrega=linha_dict.get("prazo_entrega"),
+            status=StatusDemanda(linha_dict.get("status", "ATIVA")),
+            data_criacao=linha_dict.get("data_criacao"),
+            observacoes=linha_dict.get("observacoes")
         )
 
     def atualizar_status_demanda(self, id: int, status: StatusDemanda) -> bool:

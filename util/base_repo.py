@@ -154,6 +154,34 @@ class BaseRepo:
         """Converte linha do BD em objeto - deve ser sobrescrito"""
         raise NotImplementedError("Implemente _linha_para_objeto na classe filha")
 
+    @tratar_erro_banco_dados("contagem de registros")
+    def contar_registros(self, condicao: str = "", parametros: tuple = ()) -> int:
+        """Conta o total de registros na tabela, opcionalmente com condição WHERE"""
+        if condicao:
+            sql = f"SELECT COUNT(*) as total FROM {self.nome_tabela} WHERE {condicao}"
+        else:
+            sql = f"SELECT COUNT(*) as total FROM {self.nome_tabela}"
+
+        resultados = self.executar_query(sql, parametros)
+        total = resultados[0]["total"] if resultados else 0
+        logger.info(f"Contagem realizada em {self.nome_tabela}",
+                   total_registros=total, condicao=condicao or None)
+        return total
+
+    @tratar_erro_banco_dados("paginação de registros")
+    def obter_paginado(self, pagina: int, tamanho_pagina: int, ordenacao: str = "id DESC") -> tuple[List[Any], int]:
+        """Obtém registros paginados e retorna lista de objetos e total de registros"""
+        total = self.contar_registros()
+
+        offset = (pagina - 1) * tamanho_pagina
+        sql = f"SELECT * FROM {self.nome_tabela} ORDER BY {ordenacao} LIMIT ? OFFSET ?"
+        resultados = self.executar_query(sql, (tamanho_pagina, offset))
+
+        objetos = [self._linha_para_objeto(row) for row in resultados]
+        logger.info(f"Paginação realizada em {self.nome_tabela}",
+                   pagina=pagina, tamanho_pagina=tamanho_pagina, total_registros=total)
+        return objetos, total
+
 
 class BaseRepoChaveComposta:
     """

@@ -4,6 +4,7 @@ from model.item_model import Item
 from model.categoria_model import Categoria
 from model.tipo_fornecimento_model import TipoFornecimento
 from repo import item_repo, categoria_repo, usuario_repo, fornecedor_repo
+from util.exceptions import RecursoNaoEncontradoError
 
 class TestItemRepo:
     def test_criar_tabela_item(self, test_db):
@@ -114,11 +115,9 @@ class TestItemRepo:
         categoria_repo.criar_tabela_categorias()
         item_repo.criar_tabela_item()
 
-        # Act
-        item_db = item_repo.obter_item_por_id(999)
-
-        # Assert
-        assert item_db is None, "Deveria retornar None para item inexistente"
+        # Act & Assert
+        with pytest.raises(RecursoNaoEncontradoError):
+            item_repo.obter_item_por_id(999)
 
     def test_atualizar_item(self, test_db, fornecedor_exemplo):
         # Arrange
@@ -170,8 +169,8 @@ class TestItemRepo:
 
         # Assert
         assert sucesso == True, "A exclusão deveria ter sucesso"
-        item_db = item_repo.obter_item_por_id(id_item)
-        assert item_db is None, "O item excluído não deveria ser encontrado"
+        with pytest.raises(RecursoNaoEncontradoError):
+            item_repo.obter_item_por_id(id_item)
 
     def test_obter_itens_por_fornecedor(self, test_db, fornecedor_exemplo):
         # Arrange

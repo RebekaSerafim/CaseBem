@@ -15,7 +15,7 @@ sys.path.insert(0, project_root)
 
 from tests.factories import (
     UsuarioFactory, FornecedorFactory, CategoriaFactory,
-    ItemFactory, CasalFactory, TestDataBuilder
+    ItemFactory, CasalFactory, DemandaFactory, OrcamentoFactory, TestDataBuilder
 )
 
 
@@ -146,3 +146,39 @@ def casal_exemplo(casal_factory):
 def lista_casais_exemplo(casal_factory):
     """Lista de casais para compatibilidade"""
     return casal_factory.criar_lista(3)
+
+
+@pytest.fixture
+def demanda_factory():
+    """Factory para criar demandas nos testes"""
+    return DemandaFactory
+
+
+@pytest.fixture
+def orcamento_factory():
+    """Factory para criar orçamentos nos testes"""
+    return OrcamentoFactory
+
+
+@pytest.fixture
+def demanda_exemplo(demanda_factory):
+    """Demanda exemplo para compatibilidade"""
+    return demanda_factory.criar()
+
+
+@pytest.fixture
+def lista_demandas_exemplo(demanda_factory):
+    """Lista de demandas para compatibilidade"""
+    return demanda_factory.criar_lista(5)
+
+
+@pytest.fixture
+def orcamento_exemplo(orcamento_factory):
+    """Orçamento exemplo para compatibilidade"""
+    return orcamento_factory.criar()
+
+
+@pytest.fixture
+def lista_orcamentos_exemplo(orcamento_factory):
+    """Lista de orçamentos para compatibilidade"""
+    return orcamento_factory.criar_lista(5)

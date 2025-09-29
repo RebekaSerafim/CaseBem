@@ -33,12 +33,14 @@ class FornecedorItemRepo(BaseRepoChaveComposta):
 
     def _linha_para_objeto(self, linha: dict) -> FornecedorItem:
         """Converte linha do banco em objeto FornecedorItem"""
+        linha_dict = dict(linha) if hasattr(linha, 'keys') else linha
+
         return FornecedorItem(
-            id_fornecedor=linha["id_fornecedor"],
-            id_item=linha["id_item"],
-            observacoes=linha.get("observacoes"),
-            preco_personalizado=linha.get("preco_personalizado"),
-            disponivel=bool(linha.get("disponivel", True))
+            id_fornecedor=linha_dict["id_fornecedor"],
+            id_item=linha_dict["id_item"],
+            observacoes=linha_dict.get("observacoes"),
+            preco_personalizado=linha_dict.get("preco_personalizado"),
+            disponivel=bool(linha_dict.get("disponivel", True))
         )
 
     def obter_itens_por_fornecedor(self, id_fornecedor: int) -> List[dict]:

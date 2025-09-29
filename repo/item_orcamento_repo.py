@@ -34,13 +34,15 @@ class ItemOrcamentoRepo(BaseRepoChaveComposta):
 
     def _linha_para_objeto(self, linha: dict) -> ItemOrcamento:
         """Converte linha do banco em objeto ItemOrcamento"""
+        linha_dict = dict(linha) if hasattr(linha, 'keys') else linha
+
         return ItemOrcamento(
-            id_orcamento=linha["id_orcamento"],
-            id_item=linha["id_item"],
-            quantidade=linha.get("quantidade", 1),
-            preco_unitario=linha.get("preco_unitario", 0.0),
-            observacoes=linha.get("observacoes"),
-            desconto=linha.get("desconto", 0.0)
+            id_orcamento=linha_dict["id_orcamento"],
+            id_item=linha_dict["id_item"],
+            quantidade=linha_dict.get("quantidade", 1),
+            preco_unitario=linha_dict.get("preco_unitario", 0.0),
+            observacoes=linha_dict.get("observacoes"),
+            desconto=linha_dict.get("desconto", 0.0)
         )
 
     def obter_itens_por_orcamento(self, id_orcamento: int) -> List[dict]:
