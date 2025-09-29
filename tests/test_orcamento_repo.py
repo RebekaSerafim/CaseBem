@@ -2,7 +2,9 @@ from datetime import datetime, timedelta
 from model.orcamento_model import Orcamento
 from model.demanda_model import Demanda
 from model.casal_model import Casal
-from repo import orcamento_repo, demanda_repo, casal_repo, usuario_repo
+from model.categoria_model import Categoria
+from model.tipo_fornecimento_model import TipoFornecimento
+from repo import orcamento_repo, demanda_repo, casal_repo, usuario_repo, categoria_repo
 
 class TestOrcamentoRepo:
     def test_criar_tabela_orcamento(self, test_db):
@@ -17,9 +19,14 @@ class TestOrcamentoRepo:
         # Arrange
         usuario_repo.criar_tabela_usuarios()
         casal_repo.criar_tabela_casal()
+        categoria_repo.criar_tabela_categorias()
         demanda_repo.criar_tabela_demandas()
         orcamento_repo.criar_tabela_orcamento()
-        
+
+        # Inserir categoria
+        categoria = Categoria(0, "Categoria Teste", TipoFornecimento.PRODUTO, "Descrição", True)
+        categoria_repo.inserir_categoria(categoria)
+
         # Inserir dados necessários
         for noivo in lista_noivos_exemplo[:2]:
             usuario_repo.inserir_usuario(noivo)
@@ -38,7 +45,8 @@ class TestOrcamentoRepo:
         
         demanda = Demanda(
             id=0,
-            id_noivo=1,
+            id_casal=1,
+            id_categoria=1,
             titulo="Demanda de teste",
             descricao="Descrição da demanda de teste"
         )
@@ -72,9 +80,14 @@ class TestOrcamentoRepo:
         # Arrange
         usuario_repo.criar_tabela_usuarios()
         casal_repo.criar_tabela_casal()
+        categoria_repo.criar_tabela_categorias()
         demanda_repo.criar_tabela_demandas()
         orcamento_repo.criar_tabela_orcamento()
-        
+
+        # Inserir categoria
+        categoria = Categoria(0, "Categoria Teste", TipoFornecimento.PRODUTO, "Descrição", True)
+        categoria_repo.inserir_categoria(categoria)
+
         for noivo in lista_noivos_exemplo[:2]:
             usuario_repo.inserir_usuario(noivo)
         id_fornecedor = usuario_repo.inserir_usuario(fornecedor_exemplo)
@@ -91,7 +104,8 @@ class TestOrcamentoRepo:
         casal_repo.inserir_casal(casal)
         demanda = Demanda(
             id=0,
-            id_noivo=1,
+            id_casal=1,
+            id_categoria=1,
             titulo="Demanda de teste",
             descricao="Descrição da demanda de teste"
         )
@@ -120,9 +134,14 @@ class TestOrcamentoRepo:
         # Arrange
         usuario_repo.criar_tabela_usuarios()
         casal_repo.criar_tabela_casal()
+        categoria_repo.criar_tabela_categorias()
         demanda_repo.criar_tabela_demandas()
         orcamento_repo.criar_tabela_orcamento()
-        
+
+        # Inserir categoria
+        categoria = Categoria(0, "Categoria Teste", TipoFornecimento.PRODUTO, "Descrição", True)
+        categoria_repo.inserir_categoria(categoria)
+
         for noivo in lista_noivos_exemplo[:2]:
             usuario_repo.inserir_usuario(noivo)
         id_fornecedor = usuario_repo.inserir_usuario(fornecedor_exemplo)
@@ -139,7 +158,8 @@ class TestOrcamentoRepo:
         casal_repo.inserir_casal(casal)
         demanda = Demanda(
             id=0,
-            id_noivo=1,
+            id_casal=1,
+            id_categoria=1,
             titulo="Demanda de teste",
             descricao="Descrição da demanda de teste"
         )
@@ -160,9 +180,14 @@ class TestOrcamentoRepo:
         # Arrange
         usuario_repo.criar_tabela_usuarios()
         casal_repo.criar_tabela_casal()
+        categoria_repo.criar_tabela_categorias()
         demanda_repo.criar_tabela_demandas()
         orcamento_repo.criar_tabela_orcamento()
-        
+
+        # Inserir categoria
+        categoria = Categoria(0, "Categoria Teste", TipoFornecimento.PRODUTO, "Descrição", True)
+        categoria_repo.inserir_categoria(categoria)
+
         for noivo in lista_noivos_exemplo[:2]:
             usuario_repo.inserir_usuario(noivo)
         id_fornecedor = usuario_repo.inserir_usuario(fornecedor_exemplo)
@@ -179,7 +204,8 @@ class TestOrcamentoRepo:
         casal_repo.inserir_casal(casal)
         demanda = Demanda(
             id=0,
-            id_noivo=1,
+            id_casal=1,
+            id_categoria=1,
             titulo="Demanda de teste",
             descricao="Descrição da demanda de teste"
         )
@@ -200,9 +226,14 @@ class TestOrcamentoRepo:
         # Arrange
         usuario_repo.criar_tabela_usuarios()
         casal_repo.criar_tabela_casal()
+        categoria_repo.criar_tabela_categorias()
         demanda_repo.criar_tabela_demandas()
         orcamento_repo.criar_tabela_orcamento()
-        
+
+        # Inserir categoria
+        categoria = Categoria(0, "Categoria Teste", TipoFornecimento.PRODUTO, "Descrição", True)
+        categoria_repo.inserir_categoria(categoria)
+
         for noivo in lista_noivos_exemplo[:2]:
             usuario_repo.inserir_usuario(noivo)
         ids_fornecedores = []
@@ -221,7 +252,8 @@ class TestOrcamentoRepo:
         casal_repo.inserir_casal(casal)
         demanda = Demanda(
             id=0,
-            id_noivo=1,
+            id_casal=1,
+            id_categoria=1,
             titulo="Demanda de teste",
             descricao="Descrição da demanda de teste"
         )
@@ -254,9 +286,14 @@ class TestOrcamentoRepo:
         # Arrange
         usuario_repo.criar_tabela_usuarios()
         casal_repo.criar_tabela_casal()
+        categoria_repo.criar_tabela_categorias()
         demanda_repo.criar_tabela_demandas()
         orcamento_repo.criar_tabela_orcamento()
-        
+
+        # Inserir categoria
+        categoria = Categoria(0, "Categoria Teste", TipoFornecimento.PRODUTO, "Descrição", True)
+        categoria_repo.inserir_categoria(categoria)
+
         for noivo in lista_noivos_exemplo[:2]:
             usuario_repo.inserir_usuario(noivo)
         id_fornecedor = usuario_repo.inserir_usuario(fornecedor_exemplo)
@@ -273,7 +310,8 @@ class TestOrcamentoRepo:
         casal_repo.inserir_casal(casal)
         demanda = Demanda(
             id=0,
-            id_noivo=1,
+            id_casal=1,
+            id_categoria=1,
             titulo="Demanda de teste",
             descricao="Descrição da demanda de teste"
         )
@@ -293,9 +331,10 @@ class TestOrcamentoRepo:
         # Arrange
         usuario_repo.criar_tabela_usuarios()
         casal_repo.criar_tabela_casal()
+        categoria_repo.criar_tabela_categorias()
         demanda_repo.criar_tabela_demandas()
         orcamento_repo.criar_tabela_orcamento()
-        
+
         # Act
         orcamento = orcamento_repo.obter_orcamento_por_id(999)
         
@@ -306,9 +345,14 @@ class TestOrcamentoRepo:
         # Arrange
         usuario_repo.criar_tabela_usuarios()
         casal_repo.criar_tabela_casal()
+        categoria_repo.criar_tabela_categorias()
         demanda_repo.criar_tabela_demandas()
         orcamento_repo.criar_tabela_orcamento()
-        
+
+        # Inserir categoria
+        categoria = Categoria(0, "Categoria Teste", TipoFornecimento.PRODUTO, "Descrição", True)
+        categoria_repo.inserir_categoria(categoria)
+
         for noivo in lista_noivos_exemplo[:2]:
             usuario_repo.inserir_usuario(noivo)
         ids_fornecedores = []
@@ -327,7 +371,8 @@ class TestOrcamentoRepo:
         casal_repo.inserir_casal(casal)
         demanda = Demanda(
             id=0,
-            id_noivo=1,
+            id_casal=1,
+            id_categoria=1,
             titulo="Demanda de teste",
             descricao="Descrição da demanda de teste"
         )
@@ -350,9 +395,14 @@ class TestOrcamentoRepo:
         # Arrange
         usuario_repo.criar_tabela_usuarios()
         casal_repo.criar_tabela_casal()
+        categoria_repo.criar_tabela_categorias()
         demanda_repo.criar_tabela_demandas()
         orcamento_repo.criar_tabela_orcamento()
-        
+
+        # Inserir categoria
+        categoria = Categoria(0, "Categoria Teste", TipoFornecimento.PRODUTO, "Descrição", True)
+        categoria_repo.inserir_categoria(categoria)
+
         for noivo in lista_noivos_exemplo[:2]:
             usuario_repo.inserir_usuario(noivo)
         id_fornecedor = usuario_repo.inserir_usuario(fornecedor_exemplo)
@@ -373,7 +423,8 @@ class TestOrcamentoRepo:
         for i in range(3):
             demanda = Demanda(
                 id=0,
-                id_noivo=1,
+                id_casal=1,
+                id_categoria=1,
                 titulo="Demanda de teste",
                 descricao="Descrição da demanda de teste"
             )
@@ -396,9 +447,14 @@ class TestOrcamentoRepo:
         # Arrange
         usuario_repo.criar_tabela_usuarios()
         casal_repo.criar_tabela_casal()
+        categoria_repo.criar_tabela_categorias()
         demanda_repo.criar_tabela_demandas()
         orcamento_repo.criar_tabela_orcamento()
-        
+
+        # Inserir categoria
+        categoria = Categoria(0, "Categoria Teste", TipoFornecimento.PRODUTO, "Descrição", True)
+        categoria_repo.inserir_categoria(categoria)
+
         for noivo in lista_noivos_exemplo[:2]:
             usuario_repo.inserir_usuario(noivo)
         ids_fornecedores = []
@@ -417,7 +473,8 @@ class TestOrcamentoRepo:
         casal_repo.inserir_casal(casal)
         demanda = Demanda(
             id=0,
-            id_noivo=1,
+            id_casal=1,
+            id_categoria=1,
             titulo="Demanda de teste",
             descricao="Descrição da demanda de teste"
         )
@@ -444,9 +501,14 @@ class TestOrcamentoRepo:
         # Arrange
         usuario_repo.criar_tabela_usuarios()
         casal_repo.criar_tabela_casal()
+        categoria_repo.criar_tabela_categorias()
         demanda_repo.criar_tabela_demandas()
         orcamento_repo.criar_tabela_orcamento()
-        
+
+        # Inserir categoria
+        categoria = Categoria(0, "Categoria Teste", TipoFornecimento.PRODUTO, "Descrição", True)
+        categoria_repo.inserir_categoria(categoria)
+
         for noivo in lista_noivos_exemplo[:2]:
             usuario_repo.inserir_usuario(noivo)
         ids_fornecedores = []
@@ -465,7 +527,8 @@ class TestOrcamentoRepo:
         casal_repo.inserir_casal(casal)
         demanda = Demanda(
             id=0,
-            id_noivo=1,
+            id_casal=1,
+            id_categoria=1,
             titulo="Demanda de teste",
             descricao="Descrição da demanda de teste"
         )

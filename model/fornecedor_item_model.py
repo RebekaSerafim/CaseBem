@@ -1,6 +1,5 @@
 from dataclasses import dataclass
 from typing import Optional
-from model.item_model import TipoItem
 
 @dataclass
 class FornecedorItem:

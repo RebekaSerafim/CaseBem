@@ -1,10 +1,11 @@
 from typing import Optional, List, Dict, Any
 from util.database import obter_conexao
 from sql.item_sql import *
-from model.item_model import Item, TipoItem
+from model.item_model import Item
+from model.tipo_fornecimento_model import TipoFornecimento
 from repo.categoria_repo import obter_categoria_por_id
 
-def validar_categoria_para_tipo(tipo: TipoItem, id_categoria: int) -> bool:
+def validar_categoria_para_tipo(tipo: TipoFornecimento, id_categoria: int) -> bool:
     """Valida se uma categoria pertence a um tipo específico"""
     categoria = obter_categoria_por_id(id_categoria)
     if not categoria:
@@ -93,7 +94,7 @@ def obter_item_por_id(id_item: int) -> Optional[Item]:
                 return Item(
                     id=resultado["id"],
                     id_fornecedor=resultado["id_fornecedor"],
-                    tipo=TipoItem(resultado["tipo"]),
+                    tipo=TipoFornecimento(resultado["tipo"]),
                     nome=resultado["nome"],
                     descricao=resultado["descricao"],
                     preco=resultado["preco"],
@@ -118,7 +119,7 @@ def obter_itens_por_fornecedor(id_fornecedor: int) -> List[Item]:
             return [Item(
                 id=resultado["id"],
                 id_fornecedor=resultado["id_fornecedor"],
-                tipo=TipoItem(resultado["tipo"]),
+                tipo=TipoFornecimento(resultado["tipo"]),
                 nome=resultado["nome"],
                 descricao=resultado["descricao"],
                 preco=resultado["preco"],
@@ -131,7 +132,7 @@ def obter_itens_por_fornecedor(id_fornecedor: int) -> List[Item]:
         print(f"Erro ao obter itens por fornecedor: {e}")
         return []
 
-def obter_itens_por_tipo(tipo: TipoItem) -> List[Item]:
+def obter_itens_por_tipo(tipo: TipoFornecimento) -> List[Item]:
     """Obtém todos os itens ativos de um tipo específico"""
     try:
         with obter_conexao() as conexao:
@@ -142,7 +143,7 @@ def obter_itens_por_tipo(tipo: TipoItem) -> List[Item]:
             return [Item(
                 id=resultado["id"],
                 id_fornecedor=resultado["id_fornecedor"],
-                tipo=TipoItem(resultado["tipo"]),
+                tipo=TipoFornecimento(resultado["tipo"]),
                 nome=resultado["nome"],
                 descricao=resultado["descricao"],
                 preco=resultado["preco"],
@@ -168,7 +169,7 @@ def obter_itens_por_pagina(numero_pagina: int, tamanho_pagina: int) -> List[Item
             return [Item(
                 id=resultado["id"],
                 id_fornecedor=resultado["id_fornecedor"],
-                tipo=TipoItem(resultado["tipo"]),
+                tipo=TipoFornecimento(resultado["tipo"]),
                 nome=resultado["nome"],
                 descricao=resultado["descricao"],
                 preco=resultado["preco"],
@@ -195,7 +196,7 @@ def buscar_itens(termo_busca: str, numero_pagina: int = 1, tamanho_pagina: int =
             return [Item(
                 id=resultado["id"],
                 id_fornecedor=resultado["id_fornecedor"],
-                tipo=TipoItem(resultado["tipo"]),
+                tipo=TipoFornecimento(resultado["tipo"]),
                 nome=resultado["nome"],
                 descricao=resultado["descricao"],
                 preco=resultado["preco"],
@@ -210,15 +211,15 @@ def buscar_itens(termo_busca: str, numero_pagina: int = 1, tamanho_pagina: int =
 
 def obter_produtos() -> List[Item]:
     """Obtém todos os produtos ativos"""
-    return obter_itens_por_tipo(TipoItem.PRODUTO)
+    return obter_itens_por_tipo(TipoFornecimento.PRODUTO)
 
 def obter_servicos() -> List[Item]:
     """Obtém todos os serviços ativos"""
-    return obter_itens_por_tipo(TipoItem.SERVICO)
+    return obter_itens_por_tipo(TipoFornecimento.SERVICO)
 
 def obter_espacos() -> List[Item]:
     """Obtém todos os espaços ativos"""
-    return obter_itens_por_tipo(TipoItem.ESPACO)
+    return obter_itens_por_tipo(TipoFornecimento.ESPACO)
 
 def contar_itens_por_fornecedor(id_fornecedor: int) -> int:
     """Conta quantos itens ativos um fornecedor possui"""
@@ -408,7 +409,7 @@ def contar_itens() -> int:
         print(f"Erro ao contar itens: {e}")
         return 0
 
-def contar_itens_por_tipo(tipo: TipoItem) -> int:
+def contar_itens_por_tipo(tipo: TipoFornecimento) -> int:
     """Conta o total de itens de um tipo específico"""
     try:
         with obter_conexao() as conexao:
@@ -438,7 +439,7 @@ def obter_itens_paginado(pagina: int, tamanho_pagina: int) -> tuple[List[Item], 
             itens = [Item(
                 id=resultado["id"],
                 id_fornecedor=resultado["id_fornecedor"],
-                tipo=TipoItem(resultado["tipo"]),
+                tipo=TipoFornecimento(resultado["tipo"]),
                 nome=resultado["nome"],
                 descricao=resultado["descricao"],
                 preco=resultado["preco"],
@@ -508,7 +509,7 @@ def buscar_itens_paginado(busca: str = "", tipo_item: str = "", status: str = ""
             itens = [Item(
                 id=resultado["id"],
                 id_fornecedor=resultado["id_fornecedor"],
-                tipo=TipoItem(resultado["tipo"]),
+                tipo=TipoFornecimento(resultado["tipo"]),
                 nome=resultado["nome"],
                 descricao=resultado["descricao"],
                 preco=resultado["preco"],

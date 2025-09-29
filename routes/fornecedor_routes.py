@@ -5,7 +5,8 @@ from PIL import Image
 from model.demanda_model import StatusDemanda
 from util.auth_decorator import requer_autenticacao
 from model.usuario_model import TipoUsuario
-from model.item_model import Item, TipoItem
+from model.item_model import Item
+from model.tipo_fornecimento_model import TipoFornecimento
 from repo import fornecedor_repo, item_repo, orcamento_repo, demanda_repo, usuario_repo, categoria_repo, casal_repo
 from util.flash_messages import informar_sucesso, informar_erro, informar_aviso
 from util.template_helpers import template_response_with_flash, configurar_filtros_jinja
@@ -57,9 +58,9 @@ async def dashboard_fornecedor(request: Request, usuario_logado: dict = {}):
         meus_itens = item_repo.obter_itens_por_fornecedor(id_fornecedor)
 
         # Separar por tipo
-        produtos = [item for item in meus_itens if item.tipo == TipoItem.PRODUTO]
-        servicos = [item for item in meus_itens if item.tipo == TipoItem.SERVICO]
-        espacos = [item for item in meus_itens if item.tipo == TipoItem.ESPACO]
+        produtos = [item for item in meus_itens if item.tipo == TipoFornecimento.PRODUTO]
+        servicos = [item for item in meus_itens if item.tipo == TipoFornecimento.SERVICO]
+        espacos = [item for item in meus_itens if item.tipo == TipoFornecimento.ESPACO]
 
         # Buscar orçamentos do fornecedor
         try:
@@ -180,7 +181,7 @@ async def novo_item_form(request: Request, usuario_logado: dict = {}):
         "request": request,
         "usuario_logado": usuario_logado,
         "acao": "criar",
-        "tipos_item": [tipo.value for tipo in TipoItem],
+        "tipos_item": [tipo.value for tipo in TipoFornecimento],
         "categorias": categorias
     })
 
@@ -203,7 +204,7 @@ async def criar_item(
 
         # Validar tipo
         try:
-            tipo_enum = TipoItem(tipo)
+            tipo_enum = TipoFornecimento(tipo)
         except ValueError:
             categorias = categoria_repo.obter_categorias_ativas()
             return templates.TemplateResponse("fornecedor/item_form.html", {
@@ -211,7 +212,7 @@ async def criar_item(
                 "usuario_logado": usuario_logado,
                 "erro": "Tipo de item inválido",
                 "acao": "criar",
-                "tipos_item": [tipo.value for tipo in TipoItem],
+                "tipos_item": [tipo.value for tipo in TipoFornecimento],
                 "categorias": categorias
             })
 
@@ -223,7 +224,7 @@ async def criar_item(
                 "usuario_logado": usuario_logado,
                 "erro": "Categoria é obrigatória",
                 "acao": "criar",
-                "tipos_item": [tipo.value for tipo in TipoItem],
+                "tipos_item": [tipo.value for tipo in TipoFornecimento],
                 "categorias": categorias
             })
 
@@ -236,7 +237,7 @@ async def criar_item(
                 "usuario_logado": usuario_logado,
                 "erro": "Categoria inválida",
                 "acao": "criar",
-                "tipos_item": [tipo.value for tipo in TipoItem],
+                "tipos_item": [tipo.value for tipo in TipoFornecimento],
                 "categorias": categorias
             })
 
@@ -248,7 +249,7 @@ async def criar_item(
                 "usuario_logado": usuario_logado,
                 "erro": f"A categoria selecionada não pertence ao tipo {tipo_enum.value}",
                 "acao": "criar",
-                "tipos_item": [tipo.value for tipo in TipoItem],
+                "tipos_item": [tipo.value for tipo in TipoFornecimento],
                 "categorias": categorias
             })
 
@@ -326,7 +327,7 @@ async def criar_item(
                 "usuario_logado": usuario_logado,
                 "erro": "Erro ao criar item",
                 "acao": "criar",
-                "tipos_item": [tipo.value for tipo in TipoItem],
+                "tipos_item": [tipo.value for tipo in TipoFornecimento],
                 "categorias": categorias
             })
 
@@ -338,7 +339,7 @@ async def criar_item(
             "usuario_logado": usuario_logado,
             "erro": "Erro interno do servidor",
             "acao": "criar",
-            "tipos_item": [tipo.value for tipo in TipoItem],
+            "tipos_item": [tipo.value for tipo in TipoFornecimento],
             "categorias": categorias
         })
 
@@ -359,7 +360,7 @@ async def editar_item_form(request: Request, id_item: int, usuario_logado: dict 
             "usuario_logado": usuario_logado,
             "acao": "editar",
             "item": item,
-            "tipos_item": [tipo.value for tipo in TipoItem],
+            "tipos_item": [tipo.value for tipo in TipoFornecimento],
             "categorias": categorias
         })
     except Exception as e:
@@ -391,7 +392,7 @@ async def atualizar_item(
 
         # Validar tipo
         try:
-            tipo_enum = TipoItem(tipo)
+            tipo_enum = TipoFornecimento(tipo)
         except ValueError:
             categorias = categoria_repo.obter_categorias_ativas()
             return templates.TemplateResponse("fornecedor/item_form.html", {
@@ -400,7 +401,7 @@ async def atualizar_item(
                 "erro": "Tipo de item inválido",
                 "acao": "editar",
                 "item": item_existente,
-                "tipos_item": [tipo.value for tipo in TipoItem],
+                "tipos_item": [tipo.value for tipo in TipoFornecimento],
                 "categorias": categorias
             })
 
@@ -413,7 +414,7 @@ async def atualizar_item(
                 "erro": "Categoria é obrigatória",
                 "acao": "editar",
                 "item": item_existente,
-                "tipos_item": [tipo.value for tipo in TipoItem],
+                "tipos_item": [tipo.value for tipo in TipoFornecimento],
                 "categorias": categorias
             })
 
@@ -427,7 +428,7 @@ async def atualizar_item(
                 "erro": "Categoria inválida",
                 "acao": "editar",
                 "item": item_existente,
-                "tipos_item": [tipo.value for tipo in TipoItem],
+                "tipos_item": [tipo.value for tipo in TipoFornecimento],
                 "categorias": categorias
             })
 
@@ -440,7 +441,7 @@ async def atualizar_item(
                 "erro": f"A categoria selecionada não pertence ao tipo {tipo_enum.value}",
                 "acao": "editar",
                 "item": item_existente,
-                "tipos_item": [tipo.value for tipo in TipoItem],
+                "tipos_item": [tipo.value for tipo in TipoFornecimento],
                 "categorias": categorias
             })
 
@@ -471,7 +472,7 @@ async def atualizar_item(
                 "erro": "Erro ao atualizar item",
                 "acao": "editar",
                 "item": item_existente,
-                "tipos_item": [tipo.value for tipo in TipoItem],
+                "tipos_item": [tipo.value for tipo in TipoFornecimento],
                 "categorias": categorias
             })
 

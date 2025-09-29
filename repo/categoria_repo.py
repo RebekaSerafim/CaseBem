@@ -2,7 +2,7 @@ from typing import Optional, List
 from util.database import obter_conexao
 from sql.categoria_sql import *
 from model.categoria_model import Categoria
-from model.item_model import TipoItem
+from model.tipo_fornecimento_model import TipoFornecimento
 
 def criar_tabela_categorias() -> bool:
     try:
@@ -43,12 +43,12 @@ def obter_categoria_por_id(id: int) -> Optional[Categoria]:
             return Categoria(
                 id=resultado["id"],
                 nome=resultado["nome"],
-                tipo_fornecimento=TipoItem(resultado["tipo_fornecimento"]),
+                tipo_fornecimento=TipoFornecimento(resultado["tipo_fornecimento"]),
                 descricao=resultado["descricao"],
                 ativo=bool(resultado["ativo"]))
     return None
 
-def obter_categorias_por_tipo(tipo_fornecimento: TipoItem) -> List[Categoria]:
+def obter_categorias_por_tipo(tipo_fornecimento: TipoFornecimento) -> List[Categoria]:
     with obter_conexao() as conexao:
         cursor = conexao.cursor()
         cursor.execute(OBTER_CATEGORIAS_POR_TIPO, (tipo_fornecimento.value,))
@@ -56,7 +56,7 @@ def obter_categorias_por_tipo(tipo_fornecimento: TipoItem) -> List[Categoria]:
         return [Categoria(
             id=resultado["id"],
             nome=resultado["nome"],
-            tipo_fornecimento=TipoItem(resultado["tipo_fornecimento"]),
+            tipo_fornecimento=TipoFornecimento(resultado["tipo_fornecimento"]),
             descricao=resultado["descricao"],
             ativo=bool(resultado["ativo"])
         ) for resultado in resultados]
@@ -69,7 +69,7 @@ def obter_categorias() -> List[Categoria]:
         return [Categoria(
             id=resultado["id"],
             nome=resultado["nome"],
-            tipo_fornecimento=TipoItem(resultado["tipo_fornecimento"]),
+            tipo_fornecimento=TipoFornecimento(resultado["tipo_fornecimento"]),
             descricao=resultado["descricao"],
             ativo=bool(resultado["ativo"])
         ) for resultado in resultados]
@@ -82,12 +82,12 @@ def obter_categorias_ativas() -> List[Categoria]:
         return [Categoria(
             id=resultado["id"],
             nome=resultado["nome"],
-            tipo_fornecimento=TipoItem(resultado["tipo_fornecimento"]),
+            tipo_fornecimento=TipoFornecimento(resultado["tipo_fornecimento"]),
             descricao=resultado["descricao"],
             ativo=bool(resultado["ativo"])
         ) for resultado in resultados]
 
-def obter_categorias_por_tipo_ativas(tipo_fornecimento: TipoItem) -> List[Categoria]:
+def obter_categorias_por_tipo_ativas(tipo_fornecimento: TipoFornecimento) -> List[Categoria]:
     with obter_conexao() as conexao:
         cursor = conexao.cursor()
         cursor.execute(OBTER_CATEGORIAS_POR_TIPO_ATIVAS, (tipo_fornecimento.value,))
@@ -95,7 +95,7 @@ def obter_categorias_por_tipo_ativas(tipo_fornecimento: TipoItem) -> List[Catego
         return [Categoria(
             id=resultado["id"],
             nome=resultado["nome"],
-            tipo_fornecimento=TipoItem(resultado["tipo_fornecimento"]),
+            tipo_fornecimento=TipoFornecimento(resultado["tipo_fornecimento"]),
             descricao=resultado["descricao"],
             ativo=bool(resultado["ativo"])
         ) for resultado in resultados]
@@ -112,7 +112,7 @@ def contar_categorias() -> int:
         print(f"Erro ao contar categorias: {e}")
         return 0
 
-def obter_categoria_por_nome(nome: str, tipo_fornecimento: TipoItem) -> Optional[Categoria]:
+def obter_categoria_por_nome(nome: str, tipo_fornecimento: TipoFornecimento) -> Optional[Categoria]:
     """Busca uma categoria pelo nome e tipo de fornecimento"""
     with obter_conexao() as conexao:
         cursor = conexao.cursor()
@@ -122,7 +122,7 @@ def obter_categoria_por_nome(nome: str, tipo_fornecimento: TipoItem) -> Optional
             return Categoria(
                 id=resultado["id"],
                 nome=resultado["nome"],
-                tipo_fornecimento=TipoItem(resultado["tipo_fornecimento"]),
+                tipo_fornecimento=TipoFornecimento(resultado["tipo_fornecimento"]),
                 descricao=resultado["descricao"],
                 ativo=bool(resultado["ativo"]))
     return None
@@ -144,7 +144,7 @@ def buscar_categorias(busca: str = "", tipo_fornecimento: str = "", status: str 
         return [Categoria(
             id=resultado["id"],
             nome=resultado["nome"],
-            tipo_fornecimento=TipoItem(resultado["tipo_fornecimento"]),
+            tipo_fornecimento=TipoFornecimento(resultado["tipo_fornecimento"]),
             descricao=resultado["descricao"],
             ativo=bool(resultado["ativo"])
         ) for resultado in resultados]
@@ -181,7 +181,7 @@ def obter_categorias_paginado(pagina: int, tamanho_pagina: int) -> tuple[List[Ca
             categorias = [Categoria(
                 id=resultado["id"],
                 nome=resultado["nome"],
-                tipo_fornecimento=TipoItem(resultado["tipo_fornecimento"]),
+                tipo_fornecimento=TipoFornecimento(resultado["tipo_fornecimento"]),
                 descricao=resultado["descricao"],
                 ativo=bool(resultado["ativo"])
             ) for resultado in resultados]
@@ -237,7 +237,7 @@ def buscar_categorias_paginado(busca: str = "", tipo_fornecimento: str = "", sta
             categorias = [Categoria(
                 id=resultado["id"],
                 nome=resultado["nome"],
-                tipo_fornecimento=TipoItem(resultado["tipo_fornecimento"]),
+                tipo_fornecimento=TipoFornecimento(resultado["tipo_fornecimento"]),
                 descricao=resultado["descricao"],
                 ativo=bool(resultado["ativo"])
             ) for resultado in resultados]

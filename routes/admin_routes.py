@@ -4,7 +4,7 @@ from fastapi.templating import Jinja2Templates
 from util.auth_decorator import requer_autenticacao
 from model.usuario_model import TipoUsuario
 from model.categoria_model import Categoria
-from model.item_model import TipoItem
+from model.tipo_fornecimento_model import TipoFornecimento
 from repo import usuario_repo, fornecedor_repo, item_repo, categoria_repo, orcamento_repo, demanda_repo
 from util.flash_messages import informar_sucesso, informar_erro, informar_aviso
 from util.template_helpers import template_response_with_flash, configurar_filtros_jinja
@@ -155,9 +155,9 @@ async def dashboard_admin(request: Request, usuario_logado: dict = None):
             "total_orcamentos": orcamento_repo.contar_orcamentos(),
             "total_demandas": demanda_repo.contar_demandas(),
             "estatisticas_itens": {
-                "produtos": item_repo.contar_itens_por_tipo(TipoItem.PRODUTO),
-                "servicos": item_repo.contar_itens_por_tipo(TipoItem.SERVICO),
-                "espacos": item_repo.contar_itens_por_tipo(TipoItem.ESPACO)
+                "produtos": item_repo.contar_itens_por_tipo(TipoFornecimento.PRODUTO),
+                "servicos": item_repo.contar_itens_por_tipo(TipoFornecimento.SERVICO),
+                "espacos": item_repo.contar_itens_por_tipo(TipoFornecimento.ESPACO)
             }
         }
 
@@ -690,7 +690,7 @@ async def listar_itens(
             "itens": itens,
             "categorias_dados": categorias_dados,
             "categorias": categorias,
-            "tipos_item": [tipo for tipo in TipoItem],
+            "tipos_item": [tipo for tipo in TipoFornecimento],
             "total_itens": total_itens,
             "pagina_atual": pagina,
             "total_paginas": total_paginas,
@@ -801,9 +801,9 @@ async def relatorios(request: Request, usuario_logado: dict = None):
 
         # Estatísticas de itens por tipo
         stats_itens = {
-            "produtos": item_repo.contar_itens_por_tipo(TipoItem.PRODUTO),
-            "servicos": item_repo.contar_itens_por_tipo(TipoItem.SERVICO),
-            "espacos": item_repo.contar_itens_por_tipo(TipoItem.ESPACO),
+            "produtos": item_repo.contar_itens_por_tipo(TipoFornecimento.PRODUTO),
+            "servicos": item_repo.contar_itens_por_tipo(TipoFornecimento.SERVICO),
+            "espacos": item_repo.contar_itens_por_tipo(TipoFornecimento.ESPACO),
             "detalhes_por_tipo": item_repo.obter_estatisticas_itens()
         }
 
@@ -875,9 +875,9 @@ async def exportar_relatorios(request: Request, formato: str = "json", usuario_l
                 "total_demandas": demanda_repo.contar_demandas()
             },
             "itens": {
-                "produtos": item_repo.contar_itens_por_tipo(TipoItem.PRODUTO),
-                "servicos": item_repo.contar_itens_por_tipo(TipoItem.SERVICO),
-                "espacos": item_repo.contar_itens_por_tipo(TipoItem.ESPACO),
+                "produtos": item_repo.contar_itens_por_tipo(TipoFornecimento.PRODUTO),
+                "servicos": item_repo.contar_itens_por_tipo(TipoFornecimento.SERVICO),
+                "espacos": item_repo.contar_itens_por_tipo(TipoFornecimento.ESPACO),
                 "detalhes": item_repo.obter_estatisticas_itens()
             }
         }
@@ -960,7 +960,7 @@ async def listar_categorias(
             "request": request,
             "usuario_logado": usuario_logado,
             "categorias": categorias,
-            "tipos_item": [tipo for tipo in TipoItem],
+            "tipos_item": [tipo for tipo in TipoFornecimento],
             "total_categorias": total_categorias,
             "pagina_atual": pagina,
             "total_paginas": total_paginas,
@@ -987,7 +987,7 @@ async def nova_categoria(request: Request, usuario_logado: dict = None):
     return templates.TemplateResponse("admin/categoria_form.html", {
         "request": request,
         "usuario_logado": usuario_logado,
-        "tipos_item": [tipo for tipo in TipoItem],
+        "tipos_item": [tipo for tipo in TipoFornecimento],
         "acao": "criar"
     })
 
@@ -1009,18 +1009,18 @@ async def criar_categoria(
             return templates.TemplateResponse("admin/categoria_form.html", {
                 "request": request,
                 "usuario_logado": usuario_logado,
-                "tipos_item": [tipo for tipo in TipoItem],
+                "tipos_item": [tipo for tipo in TipoFornecimento],
                 "acao": "criar",
                 "erro": "Nome da categoria é obrigatório"
             })
 
         # Verificar se já existe categoria com o mesmo nome e tipo
-        categoria_existente = categoria_repo.obter_categoria_por_nome(nome, TipoItem(tipo_fornecimento))
+        categoria_existente = categoria_repo.obter_categoria_por_nome(nome, TipoFornecimento(tipo_fornecimento))
         if categoria_existente:
             return templates.TemplateResponse("admin/categoria_form.html", {
                 "request": request,
                 "usuario_logado": usuario_logado,
-                "tipos_item": [tipo for tipo in TipoItem],
+                "tipos_item": [tipo for tipo in TipoFornecimento],
                 "acao": "criar",
                 "erro": f"Já existe uma categoria '{nome}' para o tipo {tipo_fornecimento.capitalize()}"
             })
@@ -1028,7 +1028,7 @@ async def criar_categoria(
         categoria = Categoria(
             id=0,
             nome=nome,
-            tipo_fornecimento=TipoItem(tipo_fornecimento),
+            tipo_fornecimento=TipoFornecimento(tipo_fornecimento),
             descricao=descricao if descricao else None,
             ativo=ativo
         )
@@ -1040,7 +1040,7 @@ async def criar_categoria(
             return templates.TemplateResponse("admin/categoria_form.html", {
                 "request": request,
                 "usuario_logado": usuario_logado,
-                "tipos_item": [tipo for tipo in TipoItem],
+                "tipos_item": [tipo for tipo in TipoFornecimento],
                 "acao": "criar",
                 "erro": "Erro ao criar categoria"
             })
@@ -1049,7 +1049,7 @@ async def criar_categoria(
         return templates.TemplateResponse("admin/categoria_form.html", {
             "request": request,
             "usuario_logado": usuario_logado,
-            "tipos_item": [tipo for tipo in TipoItem],
+            "tipos_item": [tipo for tipo in TipoFornecimento],
             "acao": "criar",
             "erro": "Erro ao criar categoria"
         })
@@ -1067,7 +1067,7 @@ async def editar_categoria(request: Request, id_categoria: int, usuario_logado: 
             "request": request,
             "usuario_logado": usuario_logado,
             "categoria": categoria,
-            "tipos_item": [tipo for tipo in TipoItem],
+            "tipos_item": [tipo for tipo in TipoFornecimento],
             "acao": "editar"
         })
     except Exception as e:
@@ -1095,20 +1095,20 @@ async def atualizar_categoria(
                 "request": request,
                 "usuario_logado": usuario_logado,
                 "categoria": categoria_atual,
-                "tipos_item": [tipo for tipo in TipoItem],
+                "tipos_item": [tipo for tipo in TipoFornecimento],
                 "acao": "editar",
                 "erro": "Nome da categoria é obrigatório"
             })
 
         # Verificar se já existe outra categoria com o mesmo nome e tipo
-        categoria_existente = categoria_repo.obter_categoria_por_nome(nome, TipoItem(tipo_fornecimento))
+        categoria_existente = categoria_repo.obter_categoria_por_nome(nome, TipoFornecimento(tipo_fornecimento))
         if categoria_existente and categoria_existente.id != id_categoria:
             categoria_atual = categoria_repo.obter_categoria_por_id(id_categoria)
             return templates.TemplateResponse("admin/categoria_form.html", {
                 "request": request,
                 "usuario_logado": usuario_logado,
                 "categoria": categoria_atual,
-                "tipos_item": [tipo for tipo in TipoItem],
+                "tipos_item": [tipo for tipo in TipoFornecimento],
                 "acao": "editar",
                 "erro": f"Já existe outra categoria '{nome}' para o tipo {tipo_fornecimento.capitalize()}"
             })
@@ -1116,7 +1116,7 @@ async def atualizar_categoria(
         categoria = Categoria(
             id=id_categoria,
             nome=nome,
-            tipo_fornecimento=TipoItem(tipo_fornecimento),
+            tipo_fornecimento=TipoFornecimento(tipo_fornecimento),
             descricao=descricao if descricao else None,
             ativo=ativo
         )
@@ -1129,7 +1129,7 @@ async def atualizar_categoria(
                 "request": request,
                 "usuario_logado": usuario_logado,
                 "categoria": categoria_atual,
-                "tipos_item": [tipo for tipo in TipoItem],
+                "tipos_item": [tipo for tipo in TipoFornecimento],
                 "acao": "editar",
                 "erro": "Erro ao atualizar categoria"
             })
@@ -1140,7 +1140,7 @@ async def atualizar_categoria(
             "request": request,
             "usuario_logado": usuario_logado,
             "categoria": categoria_atual,
-            "tipos_item": [tipo for tipo in TipoItem],
+            "tipos_item": [tipo for tipo in TipoFornecimento],
             "acao": "editar",
             "erro": "Erro ao atualizar categoria"
         })

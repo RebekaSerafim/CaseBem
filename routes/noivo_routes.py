@@ -3,7 +3,7 @@ from fastapi.responses import RedirectResponse
 from fastapi.templating import Jinja2Templates
 from util.auth_decorator import requer_autenticacao
 from model.usuario_model import TipoUsuario
-from model.item_model import TipoItem
+from model.tipo_fornecimento_model import TipoFornecimento
 from model.demanda_model import Demanda
 from repo import usuario_repo, item_repo, demanda_repo, orcamento_repo, casal_repo, favorito_repo, fornecedor_repo
 from util.flash_messages import informar_sucesso, informar_erro, informar_aviso

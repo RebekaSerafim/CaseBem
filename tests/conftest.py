@@ -187,7 +187,13 @@ def lista_produtos_exemplo():
 def demanda_exemplo():
     # Cria um demanda de exemplo para os testes
     from model.demanda_model import Demanda
-    demanda = Demanda(0, 1, datetime.now())
+    demanda = Demanda(
+        id=0,
+        id_casal=1,
+        id_categoria=1,
+        titulo="Demanda de teste",
+        descricao="Descrição da demanda de teste"
+    )
     return demanda
 
 @pytest.fixture
@@ -196,7 +202,13 @@ def lista_demandas_exemplo():
     from model.demanda_model import Demanda
     demandas = []
     for i in range(1, 11):
-        demanda = Demanda(0, i, datetime.now())
+        demanda = Demanda(
+            id=0,
+            id_casal=i,
+            id_categoria=1,
+            titulo=f"Demanda {i:02d}",
+            descricao=f"Descrição da demanda {i:02d}"
+        )
         demandas.append(demanda)
     return demandas
 

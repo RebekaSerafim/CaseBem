@@ -1,20 +1,16 @@
 from dataclasses import dataclass
-from enum import Enum
 from typing import Optional
-
-class TipoItem(Enum):
-    PRODUTO = "PRODUTO"
-    SERVICO = "SERVIÇO"
-    ESPACO = "ESPAÇO"
+from decimal import Decimal
+from model.tipo_fornecimento_model import TipoFornecimento
 
 @dataclass
 class Item:
     id: int
     id_fornecedor: int
-    tipo: TipoItem
+    tipo: TipoFornecimento
     nome: str
     descricao: str
-    preco: float
+    preco: Decimal
     id_categoria: int
     observacoes: Optional[str] = None
     ativo: bool = True

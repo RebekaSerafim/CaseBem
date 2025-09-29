@@ -1,25 +1,18 @@
 from pydantic import BaseModel, Field, field_validator, ConfigDict
 from typing import Optional
 from decimal import Decimal
-from enum import Enum
+from model.tipo_fornecimento_model import TipoFornecimento
 from util.validacoes_dto import (
     validar_texto_obrigatorio, validar_texto_opcional, validar_valor_monetario,
     validar_numero_inteiro, validar_enum_valor, ValidacaoError
 )
 
 
-class TipoItemEnum(str, Enum):
-    """Enum para tipos de item"""
-    PRODUTO = "PRODUTO"
-    SERVICO = "SERVICO"
-    ESPACO = "ESPACO"
-
-
 class ItemFornecedorDTO(BaseModel):
     """DTO para dados do formulário de item do fornecedor"""
 
     nome: str = Field(..., min_length=2, max_length=100, description="Nome do item")
-    tipo: TipoItemEnum = Field(..., description="Tipo do item (PRODUTO, SERVICO, ESPACO)")
+    tipo: TipoFornecimento = Field(..., description="Tipo do item (PRODUTO, SERVIÇO, ESPAÇO)")
     descricao: str = Field(..., min_length=10, max_length=1000, description="Descrição detalhada do item")
     preco: Decimal = Field(..., ge=0, description="Preço do item (deve ser >= 0)")
     categoria_id: Optional[int] = Field(None, description="ID da categoria do item")
@@ -70,9 +63,9 @@ class ItemFornecedorDTO(BaseModel):
 
     @field_validator('tipo')
     @classmethod
-    def validar_tipo_dto(cls, v):
+    def validar_tipo(cls, v):
         try:
-            return validar_enum_valor(v, TipoItemEnum, "Tipo do item")
+            return validar_enum_valor(v, TipoFornecimento, "Tipo do item")
         except ValidacaoError as e:
             raise ValueError(str(e))
 
@@ -83,7 +76,7 @@ class ItemFornecedorDTO(BaseModel):
         json_schema_extra = {
             "example": {
                 "nome": "Fotografia de Casamento",
-                "tipo": "SERVICO",
+                "tipo": "SERVIÇO",
                 "descricao": "Cobertura fotográfica completa do casamento, incluindo cerimônia e festa",
                 "preco": 2500.00,
                 "categoria_id": 1,

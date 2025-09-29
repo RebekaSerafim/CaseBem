@@ -1,18 +1,11 @@
 from pydantic import BaseModel, Field, field_validator, ConfigDict
 from typing import Optional
-from enum import Enum
+from model.tipo_fornecimento_model import TipoFornecimento
 from util.validacoes_dto import (
     validar_texto_obrigatorio, validar_texto_opcional, validar_enum_valor,
     ValidacaoError
 )
 import re
-
-
-class TipoFornecimentoEnum(str, Enum):
-    """Enum para tipos de fornecimento"""
-    PRESTADOR = "PRESTADOR"
-    VENDEDOR = "VENDEDOR"
-    LOCADOR = "LOCADOR"
 
 
 class CategoriaDTO(BaseModel):
@@ -25,7 +18,7 @@ class CategoriaDTO(BaseModel):
         json_schema_extra={
             "example": {
                 "nome": "Fotografia",
-                "tipo_fornecimento": "PRESTADOR",
+                "tipo_fornecimento": "SERVIÇO",
                 "descricao": "Serviços de fotografia para eventos e casamentos",
                 "ativo": True
             }
@@ -33,7 +26,7 @@ class CategoriaDTO(BaseModel):
     )
 
     nome: str = Field(..., min_length=2, max_length=50, description="Nome da categoria")
-    tipo_fornecimento: TipoFornecimentoEnum = Field(..., description="Tipo de fornecimento (PRESTADOR, VENDEDOR, LOCADOR)")
+    tipo_fornecimento: TipoFornecimento = Field(..., description="Tipo de fornecimento (PRODUTO, SERVIÇO, ESPAÇO)")
     descricao: Optional[str] = Field(None, max_length=500, description="Descrição da categoria")
     ativo: bool = Field(True, description="Categoria está ativa")
 
@@ -53,9 +46,9 @@ class CategoriaDTO(BaseModel):
 
     @field_validator('tipo_fornecimento')
     @classmethod
-    def validar_tipo_fornecimento_dto(cls, v):
+    def validar_tipo_fornecimento(cls, v):
         try:
-            return validar_enum_valor(v, TipoFornecimentoEnum, "Tipo de fornecimento")
+            return validar_enum_valor(v, TipoFornecimento, "Tipo de fornecimento")
         except ValidacaoError as e:
             raise ValueError(str(e))
 

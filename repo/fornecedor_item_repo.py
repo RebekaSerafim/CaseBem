@@ -2,7 +2,7 @@ from typing import Optional, List
 from util.database import obter_conexao
 from sql.fornecedor_item_sql import *
 from model.fornecedor_item_model import FornecedorItem
-from model.item_model import TipoItem
+from model.tipo_fornecimento_model import TipoFornecimento
 
 def criar_tabela_fornecedor_item() -> bool:
     try:
@@ -90,7 +90,7 @@ def obter_fornecedores_por_item(id_item: int) -> List[dict]:
         print(f"Erro ao obter fornecedores por item: {e}")
         return []
 
-def obter_itens_por_fornecedor_e_tipo(id_fornecedor: int, tipo: TipoItem) -> List[dict]:
+def obter_itens_por_fornecedor_e_tipo(id_fornecedor: int, tipo: TipoFornecimento) -> List[dict]:
     try:
         with obter_conexao() as conexao:
             cursor = conexao.cursor()

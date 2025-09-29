@@ -1,7 +1,9 @@
 from datetime import datetime
 from model.demanda_model import Demanda
 from model.casal_model import Casal
-from repo import demanda_repo, casal_repo, usuario_repo
+from model.categoria_model import Categoria
+from model.tipo_fornecimento_model import TipoFornecimento
+from repo import demanda_repo, casal_repo, usuario_repo, categoria_repo
 
 class TestDemandaRepo:
     def test_criar_tabela_demandas(self, test_db):
@@ -15,8 +17,13 @@ class TestDemandaRepo:
         # Arrange
         usuario_repo.criar_tabela_usuarios()
         casal_repo.criar_tabela_casal()
+        categoria_repo.criar_tabela_categorias()
         demanda_repo.criar_tabela_demandas()
-        
+
+        # Inserir categoria
+        categoria = Categoria(0, "Categoria Teste", TipoFornecimento.PRODUTO, "Descrição", True)
+        categoria_repo.inserir_categoria(categoria)
+
         # Inserir usuários e casal
         for noivo in lista_noivos_exemplo[:2]:
             usuario_repo.inserir_usuario(noivo)
@@ -31,14 +38,19 @@ class TestDemandaRepo:
         assert demanda_db is not None, "A demanda inserida não deveria ser None"
         assert demanda_db.id == id_demanda_inserida, "A demanda inserida deveria ter um ID igual ao retornado pela inserção"
         assert demanda_db.id_casal == 1, "O id_casal da demanda inserida não confere"
-        assert demanda_db.data_hora_cadastro is not None, "A data_hora_cadastro não deveria ser None"
+        assert demanda_db.data_criacao is not None, "A data_criacao não deveria ser None"
 
     def test_obter_demanda_por_id_existente(self, test_db, demanda_exemplo, lista_noivos_exemplo):
         # Arrange
         usuario_repo.criar_tabela_usuarios()
         casal_repo.criar_tabela_casal()
+        categoria_repo.criar_tabela_categorias()
         demanda_repo.criar_tabela_demandas()
-        
+
+        # Inserir categoria
+        categoria = Categoria(0, "Categoria Teste", TipoFornecimento.PRODUTO, "Descrição", True)
+        categoria_repo.inserir_categoria(categoria)
+
         for noivo in lista_noivos_exemplo[:2]:
             usuario_repo.inserir_usuario(noivo)
         casal = Casal(0, 1, 2, 10000.0)
@@ -66,8 +78,13 @@ class TestDemandaRepo:
         # Arrange
         usuario_repo.criar_tabela_usuarios()
         casal_repo.criar_tabela_casal()
+        categoria_repo.criar_tabela_categorias()
         demanda_repo.criar_tabela_demandas()
-        
+
+        # Inserir categoria
+        categoria = Categoria(0, "Categoria Teste", TipoFornecimento.PRODUTO, "Descrição", True)
+        categoria_repo.inserir_categoria(categoria)
+
         for noivo in lista_noivos_exemplo[:2]:
             usuario_repo.inserir_usuario(noivo)
         casal = Casal(0, 1, 2, 10000.0)
@@ -87,15 +104,26 @@ class TestDemandaRepo:
         # Arrange
         usuario_repo.criar_tabela_usuarios()
         casal_repo.criar_tabela_casal()
+        categoria_repo.criar_tabela_categorias()
         demanda_repo.criar_tabela_demandas()
-        
+
+        # Inserir categoria
+        categoria = Categoria(0, "Categoria Teste", TipoFornecimento.PRODUTO, "Descrição", True)
+        categoria_repo.inserir_categoria(categoria)
+
         # Criar usuários e casal necessários para satisfazer foreign key
         for noivo in lista_noivos_exemplo[:2]:
             usuario_repo.inserir_usuario(noivo)
         casal = Casal(0, 1, 2, 10000.0)
         casal_repo.inserir_casal(casal)
         
-        demanda = Demanda(999, 1, datetime.now())
+        demanda = Demanda(
+            id=999,
+            id_casal=1,
+            id_categoria=1,
+            titulo="Demanda inexistente",
+            descricao="Teste de demanda inexistente"
+        )
         # Act
         resultado = demanda_repo.atualizar_demanda(demanda)
         # Assert
@@ -105,8 +133,13 @@ class TestDemandaRepo:
         # Arrange
         usuario_repo.criar_tabela_usuarios()
         casal_repo.criar_tabela_casal()
+        categoria_repo.criar_tabela_categorias()
         demanda_repo.criar_tabela_demandas()
-        
+
+        # Inserir categoria
+        categoria = Categoria(0, "Categoria Teste", TipoFornecimento.PRODUTO, "Descrição", True)
+        categoria_repo.inserir_categoria(categoria)
+
         for noivo in lista_noivos_exemplo[:2]:
             usuario_repo.inserir_usuario(noivo)
         casal = Casal(0, 1, 2, 10000.0)
@@ -143,8 +176,13 @@ class TestDemandaRepo:
         # Arrange
         usuario_repo.criar_tabela_usuarios()
         casal_repo.criar_tabela_casal()
+        categoria_repo.criar_tabela_categorias()
         demanda_repo.criar_tabela_demandas()
-        
+
+        # Inserir categoria
+        categoria = Categoria(0, "Categoria Teste", TipoFornecimento.PRODUTO, "Descrição", True)
+        categoria_repo.inserir_categoria(categoria)
+
         # Inserir usuários e casais
         for usuario in lista_usuarios_exemplo:
             usuario_repo.inserir_usuario(usuario)
@@ -169,8 +207,13 @@ class TestDemandaRepo:
         # Arrange
         usuario_repo.criar_tabela_usuarios()
         casal_repo.criar_tabela_casal()
+        categoria_repo.criar_tabela_categorias()
         demanda_repo.criar_tabela_demandas()
-        
+
+        # Inserir categoria
+        categoria = Categoria(0, "Categoria Teste", TipoFornecimento.PRODUTO, "Descrição", True)
+        categoria_repo.inserir_categoria(categoria)
+
         # Inserir usuários e casal
         for noivo in lista_noivos_exemplo[:4]:
             usuario_repo.inserir_usuario(noivo)
@@ -182,9 +225,27 @@ class TestDemandaRepo:
         id_casal2 = casal_repo.inserir_casal(casal2)
         
         # Inserir demandas para casal1
-        demanda1 = Demanda(0, id_casal1, datetime.now())
-        demanda2 = Demanda(0, id_casal1, datetime.now())
-        demanda3 = Demanda(0, id_casal2, datetime.now())
+        demanda1 = Demanda(
+            id=0,
+            id_casal=id_casal1,
+            id_categoria=1,
+            titulo="Demanda 1",
+            descricao="Descrição da demanda 1"
+        )
+        demanda2 = Demanda(
+            id=0,
+            id_casal=id_casal1,
+            id_categoria=1,
+            titulo="Demanda 2",
+            descricao="Descrição da demanda 2"
+        )
+        demanda3 = Demanda(
+            id=0,
+            id_casal=id_casal2,
+            id_categoria=1,
+            titulo="Demanda 3",
+            descricao="Descrição da demanda 3"
+        )
         
         demanda_repo.inserir_demanda(demanda1)
         demanda_repo.inserir_demanda(demanda2)

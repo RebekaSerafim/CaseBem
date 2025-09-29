@@ -1,20 +1,20 @@
 import pytest
 from model.categoria_model import Categoria
-from model.item_model import TipoItem
+from model.tipo_fornecimento_model import TipoFornecimento
 
 class TestCategoriaModel:
     def test_criar_categoria_com_dados_validos(self):
         categoria = Categoria(
             id=1,
             nome="Categoria Teste",
-            tipo_fornecimento=TipoItem.PRODUTO,
+            tipo_fornecimento=TipoFornecimento.PRODUTO,
             descricao="Descrição da categoria",
             ativo=True
         )
 
         assert categoria.id == 1
         assert categoria.nome == "Categoria Teste"
-        assert categoria.tipo_fornecimento == TipoItem.PRODUTO
+        assert categoria.tipo_fornecimento == TipoFornecimento.PRODUTO
         assert categoria.descricao == "Descrição da categoria"
         assert categoria.ativo == True
 
@@ -22,13 +22,13 @@ class TestCategoriaModel:
         categoria = Categoria(
             id=1,
             nome="Categoria Teste",
-            tipo_fornecimento=TipoItem.SERVICO,
+            tipo_fornecimento=TipoFornecimento.SERVICO,
             ativo=True
         )
 
         assert categoria.id == 1
         assert categoria.nome == "Categoria Teste"
-        assert categoria.tipo_fornecimento == TipoItem.SERVICO
+        assert categoria.tipo_fornecimento == TipoFornecimento.SERVICO
         assert categoria.descricao is None
         assert categoria.ativo == True
 
@@ -36,13 +36,13 @@ class TestCategoriaModel:
         categoria = Categoria(
             id=1,
             nome="Categoria Teste",
-            tipo_fornecimento=TipoItem.ESPACO
+            tipo_fornecimento=TipoFornecimento.ESPACO
         )
 
         assert categoria.ativo == True
 
     def test_criar_categoria_com_todos_tipos_item(self):
-        tipos = [TipoItem.PRODUTO, TipoItem.SERVICO, TipoItem.ESPACO]
+        tipos = [TipoFornecimento.PRODUTO, TipoFornecimento.SERVICO, TipoFornecimento.ESPACO]
 
         for tipo in tipos:
             categoria = Categoria(
@@ -57,7 +57,7 @@ class TestCategoriaModel:
         categoria = Categoria(
             id=1,
             nome="Categoria Teste",
-            tipo_fornecimento=TipoItem.PRODUTO,
+            tipo_fornecimento=TipoFornecimento.PRODUTO,
             descricao=None,
             ativo=True
         )
@@ -68,7 +68,7 @@ class TestCategoriaModel:
         categoria = Categoria(
             id=1,
             nome="Categoria Teste",
-            tipo_fornecimento=TipoItem.PRODUTO,
+            tipo_fornecimento=TipoFornecimento.PRODUTO,
             descricao="",
             ativo=True
         )
@@ -79,7 +79,7 @@ class TestCategoriaModel:
         categoria = Categoria(
             id=1,
             nome="Categoria Teste",
-            tipo_fornecimento=TipoItem.PRODUTO,
+            tipo_fornecimento=TipoFornecimento.PRODUTO,
             descricao="Descrição da categoria",
             ativo=True
         )
@@ -93,7 +93,7 @@ class TestCategoriaModel:
         categoria1 = Categoria(
             id=1,
             nome="Categoria Teste",
-            tipo_fornecimento=TipoItem.PRODUTO,
+            tipo_fornecimento=TipoFornecimento.PRODUTO,
             descricao="Descrição",
             ativo=True
         )
@@ -101,7 +101,7 @@ class TestCategoriaModel:
         categoria2 = Categoria(
             id=1,
             nome="Categoria Teste",
-            tipo_fornecimento=TipoItem.PRODUTO,
+            tipo_fornecimento=TipoFornecimento.PRODUTO,
             descricao="Descrição",
             ativo=True
         )
@@ -113,14 +113,14 @@ class TestCategoriaModel:
         categoria1 = Categoria(
             id=1,
             nome="Categoria 1",
-            tipo_fornecimento=TipoItem.PRODUTO,
+            tipo_fornecimento=TipoFornecimento.PRODUTO,
             ativo=True
         )
 
         categoria2 = Categoria(
             id=2,
             nome="Categoria 2",
-            tipo_fornecimento=TipoItem.SERVICO,
+            tipo_fornecimento=TipoFornecimento.SERVICO,
             ativo=True
         )
 
@@ -130,17 +130,17 @@ class TestCategoriaModel:
         categoria = Categoria(
             id=1,
             nome="Categoria Original",
-            tipo_fornecimento=TipoItem.PRODUTO,
+            tipo_fornecimento=TipoFornecimento.PRODUTO,
             ativo=True
         )
 
         # Modificar campos
         categoria.nome = "Categoria Modificada"
-        categoria.tipo_fornecimento = TipoItem.SERVICO
+        categoria.tipo_fornecimento = TipoFornecimento.SERVICO
         categoria.ativo = False
         categoria.descricao = "Nova descrição"
 
         assert categoria.nome == "Categoria Modificada"
-        assert categoria.tipo_fornecimento == TipoItem.SERVICO
+        assert categoria.tipo_fornecimento == TipoFornecimento.SERVICO
         assert categoria.ativo == False
         assert categoria.descricao == "Nova descrição"

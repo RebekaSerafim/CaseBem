@@ -1,6 +1,6 @@
 import pytest
 from model.categoria_model import Categoria
-from model.item_model import TipoItem
+from model.tipo_fornecimento_model import TipoFornecimento
 from repo import categoria_repo
 
 class TestCategoriaRepo:
@@ -21,7 +21,7 @@ class TestCategoriaRepo:
         assert categoria_db is not None, "A categoria inserida não deveria ser None"
         assert categoria_db.id == 1, "A categoria inserida deveria ter um ID igual a 1"
         assert categoria_db.nome == "Categoria Teste", "O nome da categoria inserida não confere"
-        assert categoria_db.tipo_fornecimento == TipoItem.PRODUTO, "O tipo de fornecimento não confere"
+        assert categoria_db.tipo_fornecimento == TipoFornecimento.PRODUTO, "O tipo de fornecimento não confere"
         assert categoria_db.descricao == "Descrição da categoria teste", "A descrição não confere"
         assert categoria_db.ativo == True, "A categoria deveria estar ativa"
 
@@ -50,7 +50,7 @@ class TestCategoriaRepo:
         id_categoria_inserida = categoria_repo.inserir_categoria(categoria_exemplo)
         categoria_exemplo.id = id_categoria_inserida
         categoria_exemplo.nome = "Categoria Atualizada"
-        categoria_exemplo.tipo_fornecimento = TipoItem.SERVICO
+        categoria_exemplo.tipo_fornecimento = TipoFornecimento.SERVICO
         categoria_exemplo.ativo = False
         # Act
         resultado = categoria_repo.atualizar_categoria(categoria_exemplo)
@@ -58,7 +58,7 @@ class TestCategoriaRepo:
         assert resultado == True, "A atualização deveria retornar True"
         categoria_db = categoria_repo.obter_categoria_por_id(id_categoria_inserida)
         assert categoria_db.nome == "Categoria Atualizada", "O nome não foi atualizado corretamente"
-        assert categoria_db.tipo_fornecimento == TipoItem.SERVICO, "O tipo não foi atualizado corretamente"
+        assert categoria_db.tipo_fornecimento == TipoFornecimento.SERVICO, "O tipo não foi atualizado corretamente"
         assert categoria_db.ativo == False, "O status ativo não foi atualizado corretamente"
 
     def test_excluir_categoria(self, test_db, categoria_exemplo):
@@ -75,36 +75,36 @@ class TestCategoriaRepo:
     def test_obter_categorias_por_tipo(self, test_db):
         # Arrange
         categoria_repo.criar_tabela_categorias()
-        categoria_produto = Categoria(0, "Categoria Produto", TipoItem.PRODUTO, "Descrição produto", True)
-        categoria_servico = Categoria(0, "Categoria Serviço", TipoItem.SERVICO, "Descrição serviço", True)
+        categoria_produto = Categoria(0, "Categoria Produto", TipoFornecimento.PRODUTO, "Descrição produto", True)
+        categoria_servico = Categoria(0, "Categoria Serviço", TipoFornecimento.SERVICO, "Descrição serviço", True)
         categoria_repo.inserir_categoria(categoria_produto)
         categoria_repo.inserir_categoria(categoria_servico)
         # Act
-        categorias_produto = categoria_repo.obter_categorias_por_tipo(TipoItem.PRODUTO)
-        categorias_servico = categoria_repo.obter_categorias_por_tipo(TipoItem.SERVICO)
+        categorias_produto = categoria_repo.obter_categorias_por_tipo(TipoFornecimento.PRODUTO)
+        categorias_servico = categoria_repo.obter_categorias_por_tipo(TipoFornecimento.SERVICO)
         # Assert
         assert len(categorias_produto) == 1, "Deveria ter 1 categoria de produto"
         assert len(categorias_servico) == 1, "Deveria ter 1 categoria de serviço"
-        assert categorias_produto[0].tipo_fornecimento == TipoItem.PRODUTO
-        assert categorias_servico[0].tipo_fornecimento == TipoItem.SERVICO
+        assert categorias_produto[0].tipo_fornecimento == TipoFornecimento.PRODUTO
+        assert categorias_servico[0].tipo_fornecimento == TipoFornecimento.SERVICO
 
     def test_obter_todas_categorias(self, test_db):
         # Arrange
         categoria_repo.criar_tabela_categorias()
-        categoria1 = Categoria(0, "Categoria 1", TipoItem.PRODUTO, "Descrição 1", True)
-        categoria2 = Categoria(0, "Categoria 2", TipoItem.SERVICO, "Descrição 2", False)
+        categoria1 = Categoria(0, "Categoria 1", TipoFornecimento.PRODUTO, "Descrição 1", True)
+        categoria2 = Categoria(0, "Categoria 2", TipoFornecimento.SERVICO, "Descrição 2", False)
         categoria_repo.inserir_categoria(categoria1)
         categoria_repo.inserir_categoria(categoria2)
         # Act
-        todas_categorias = categoria_repo.obter_todas_categorias()
+        todas_categorias = categoria_repo.obter_categorias()
         # Assert
         assert len(todas_categorias) == 2, "Deveria ter 2 categorias no total"
 
     def test_obter_categorias_ativas(self, test_db):
         # Arrange
         categoria_repo.criar_tabela_categorias()
-        categoria_ativa = Categoria(0, "Categoria Ativa", TipoItem.PRODUTO, "Descrição ativa", True)
-        categoria_inativa = Categoria(0, "Categoria Inativa", TipoItem.SERVICO, "Descrição inativa", False)
+        categoria_ativa = Categoria(0, "Categoria Ativa", TipoFornecimento.PRODUTO, "Descrição ativa", True)
+        categoria_inativa = Categoria(0, "Categoria Inativa", TipoFornecimento.SERVICO, "Descrição inativa", False)
         categoria_repo.inserir_categoria(categoria_ativa)
         categoria_repo.inserir_categoria(categoria_inativa)
         # Act
@@ -116,15 +116,15 @@ class TestCategoriaRepo:
     def test_obter_categorias_por_tipo_ativas(self, test_db):
         # Arrange
         categoria_repo.criar_tabela_categorias()
-        categoria_produto_ativa = Categoria(0, "Produto Ativo", TipoItem.PRODUTO, "Descrição", True)
-        categoria_produto_inativa = Categoria(0, "Produto Inativo", TipoItem.PRODUTO, "Descrição", False)
-        categoria_servico_ativa = Categoria(0, "Serviço Ativo", TipoItem.SERVICO, "Descrição", True)
+        categoria_produto_ativa = Categoria(0, "Produto Ativo", TipoFornecimento.PRODUTO, "Descrição", True)
+        categoria_produto_inativa = Categoria(0, "Produto Inativo", TipoFornecimento.PRODUTO, "Descrição", False)
+        categoria_servico_ativa = Categoria(0, "Serviço Ativo", TipoFornecimento.SERVICO, "Descrição", True)
         categoria_repo.inserir_categoria(categoria_produto_ativa)
         categoria_repo.inserir_categoria(categoria_produto_inativa)
         categoria_repo.inserir_categoria(categoria_servico_ativa)
         # Act
-        categorias_produto_ativas = categoria_repo.obter_categorias_por_tipo_ativas(TipoItem.PRODUTO)
-        categorias_servico_ativas = categoria_repo.obter_categorias_por_tipo_ativas(TipoItem.SERVICO)
+        categorias_produto_ativas = categoria_repo.obter_categorias_por_tipo_ativas(TipoFornecimento.PRODUTO)
+        categorias_servico_ativas = categoria_repo.obter_categorias_por_tipo_ativas(TipoFornecimento.SERVICO)
         # Assert
         assert len(categorias_produto_ativas) == 1, "Deveria ter 1 categoria de produto ativa"
         assert len(categorias_servico_ativas) == 1, "Deveria ter 1 categoria de serviço ativa"
@@ -134,38 +134,38 @@ class TestCategoriaRepo:
     def test_obter_categoria_por_nome_existente(self, test_db):
         # Arrange
         categoria_repo.criar_tabela_categorias()
-        categoria = Categoria(0, "Categoria Teste", TipoItem.PRODUTO, "Descrição", True)
+        categoria = Categoria(0, "Categoria Teste", TipoFornecimento.PRODUTO, "Descrição", True)
         categoria_repo.inserir_categoria(categoria)
         # Act
-        categoria_encontrada = categoria_repo.obter_categoria_por_nome("Categoria Teste", TipoItem.PRODUTO)
+        categoria_encontrada = categoria_repo.obter_categoria_por_nome("Categoria Teste", TipoFornecimento.PRODUTO)
         # Assert
         assert categoria_encontrada is not None, "Categoria deveria ser encontrada"
         assert categoria_encontrada.nome == "Categoria Teste"
-        assert categoria_encontrada.tipo_fornecimento == TipoItem.PRODUTO
+        assert categoria_encontrada.tipo_fornecimento == TipoFornecimento.PRODUTO
 
     def test_obter_categoria_por_nome_inexistente(self, test_db):
         # Arrange
         categoria_repo.criar_tabela_categorias()
         # Act
-        categoria_encontrada = categoria_repo.obter_categoria_por_nome("Categoria Inexistente", TipoItem.PRODUTO)
+        categoria_encontrada = categoria_repo.obter_categoria_por_nome("Categoria Inexistente", TipoFornecimento.PRODUTO)
         # Assert
         assert categoria_encontrada is None, "Categoria não deveria ser encontrada"
 
     def test_obter_categoria_por_nome_tipo_diferente(self, test_db):
         # Arrange
         categoria_repo.criar_tabela_categorias()
-        categoria = Categoria(0, "Categoria Teste", TipoItem.PRODUTO, "Descrição", True)
+        categoria = Categoria(0, "Categoria Teste", TipoFornecimento.PRODUTO, "Descrição", True)
         categoria_repo.inserir_categoria(categoria)
         # Act
-        categoria_encontrada = categoria_repo.obter_categoria_por_nome("Categoria Teste", TipoItem.SERVICO)
+        categoria_encontrada = categoria_repo.obter_categoria_por_nome("Categoria Teste", TipoFornecimento.SERVICO)
         # Assert
         assert categoria_encontrada is None, "Categoria não deveria ser encontrada para tipo diferente"
 
     def test_buscar_categorias_sem_filtros(self, test_db):
         # Arrange
         categoria_repo.criar_tabela_categorias()
-        categoria1 = Categoria(0, "Categoria 1", TipoItem.PRODUTO, "Descrição 1", True)
-        categoria2 = Categoria(0, "Categoria 2", TipoItem.SERVICO, "Descrição 2", False)
+        categoria1 = Categoria(0, "Categoria 1", TipoFornecimento.PRODUTO, "Descrição 1", True)
+        categoria2 = Categoria(0, "Categoria 2", TipoFornecimento.SERVICO, "Descrição 2", False)
         categoria_repo.inserir_categoria(categoria1)
         categoria_repo.inserir_categoria(categoria2)
         # Act
@@ -176,8 +176,8 @@ class TestCategoriaRepo:
     def test_buscar_categorias_por_nome(self, test_db):
         # Arrange
         categoria_repo.criar_tabela_categorias()
-        categoria1 = Categoria(0, "Festa de Casamento", TipoItem.PRODUTO, "Descrição 1", True)
-        categoria2 = Categoria(0, "Decoração", TipoItem.SERVICO, "Descrição 2", True)
+        categoria1 = Categoria(0, "Festa de Casamento", TipoFornecimento.PRODUTO, "Descrição 1", True)
+        categoria2 = Categoria(0, "Decoração", TipoFornecimento.SERVICO, "Descrição 2", True)
         categoria_repo.inserir_categoria(categoria1)
         categoria_repo.inserir_categoria(categoria2)
         # Act
@@ -189,21 +189,21 @@ class TestCategoriaRepo:
     def test_buscar_categorias_por_tipo(self, test_db):
         # Arrange
         categoria_repo.criar_tabela_categorias()
-        categoria1 = Categoria(0, "Categoria Produto", TipoItem.PRODUTO, "Descrição 1", True)
-        categoria2 = Categoria(0, "Categoria Serviço", TipoItem.SERVICO, "Descrição 2", True)
+        categoria1 = Categoria(0, "Categoria Produto", TipoFornecimento.PRODUTO, "Descrição 1", True)
+        categoria2 = Categoria(0, "Categoria Serviço", TipoFornecimento.SERVICO, "Descrição 2", True)
         categoria_repo.inserir_categoria(categoria1)
         categoria_repo.inserir_categoria(categoria2)
         # Act
         categorias = categoria_repo.buscar_categorias(tipo_fornecimento="PRODUTO")
         # Assert
         assert len(categorias) == 1, "Deveria encontrar 1 categoria de produto"
-        assert categorias[0].tipo_fornecimento == TipoItem.PRODUTO
+        assert categorias[0].tipo_fornecimento == TipoFornecimento.PRODUTO
 
     def test_buscar_categorias_por_status(self, test_db):
         # Arrange
         categoria_repo.criar_tabela_categorias()
-        categoria_ativa = Categoria(0, "Categoria Ativa", TipoItem.PRODUTO, "Descrição", True)
-        categoria_inativa = Categoria(0, "Categoria Inativa", TipoItem.SERVICO, "Descrição", False)
+        categoria_ativa = Categoria(0, "Categoria Ativa", TipoFornecimento.PRODUTO, "Descrição", True)
+        categoria_inativa = Categoria(0, "Categoria Inativa", TipoFornecimento.SERVICO, "Descrição", False)
         categoria_repo.inserir_categoria(categoria_ativa)
         categoria_repo.inserir_categoria(categoria_inativa)
         # Act
@@ -218,7 +218,7 @@ class TestCategoriaRepo:
     def test_ativar_categoria(self, test_db):
         # Arrange
         categoria_repo.criar_tabela_categorias()
-        categoria = Categoria(0, "Categoria Teste", TipoItem.PRODUTO, "Descrição", False)
+        categoria = Categoria(0, "Categoria Teste", TipoFornecimento.PRODUTO, "Descrição", False)
         id_categoria = categoria_repo.inserir_categoria(categoria)
         # Act
         resultado = categoria_repo.ativar_categoria(id_categoria)
@@ -230,7 +230,7 @@ class TestCategoriaRepo:
     def test_desativar_categoria(self, test_db):
         # Arrange
         categoria_repo.criar_tabela_categorias()
-        categoria = Categoria(0, "Categoria Teste", TipoItem.PRODUTO, "Descrição", True)
+        categoria = Categoria(0, "Categoria Teste", TipoFornecimento.PRODUTO, "Descrição", True)
         id_categoria = categoria_repo.inserir_categoria(categoria)
         # Act
         resultado = categoria_repo.desativar_categoria(id_categoria)
@@ -260,7 +260,7 @@ def categoria_exemplo():
     return Categoria(
         id=0,
         nome="Categoria Teste",
-        tipo_fornecimento=TipoItem.PRODUTO,
+        tipo_fornecimento=TipoFornecimento.PRODUTO,
         descricao="Descrição da categoria teste",
         ativo=True
     )

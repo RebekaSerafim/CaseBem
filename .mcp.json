@@ -9,6 +9,12 @@
             "env": {
                 "RUNWARE_API_KEY": "DWgRvTjSkUNjVHoIxuPYg75vwc5mnS9e"
             }
+        },
+        "chrome-devtools": {
+            "command": "npx",
+            "args": [
+                "chrome-devtools-mcp@latest"
+            ]
         }
     }
 }

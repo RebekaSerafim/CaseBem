@@ -489,7 +489,7 @@ async def listar_itens_publicos(
     """Lista itens públicos com filtros e paginação"""
     try:
         from repo import item_repo, categoria_repo
-        from model.item_model import TipoItem
+        from model.tipo_fornecimento_model import TipoFornecimento
         import math
 
         # Converter categoria para int se não estiver vazia
@@ -504,9 +504,9 @@ async def listar_itens_publicos(
         categorias = []
         if tipo:
             tipo_map = {
-                'produto': TipoItem.PRODUTO,
-                'servico': TipoItem.SERVICO,
-                'espaco': TipoItem.ESPACO
+                'produto': TipoFornecimento.PRODUTO,
+                'servico': TipoFornecimento.SERVICO,
+                'espaco': TipoFornecimento.ESPACO
             }
             tipo_enum = tipo_map.get(tipo)
             if tipo_enum:

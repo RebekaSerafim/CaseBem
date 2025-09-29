@@ -3,7 +3,8 @@ import json
 import os
 from model.usuario_model import Usuario, TipoUsuario
 from model.categoria_model import Categoria
-from model.item_model import TipoItem, Item
+from model.item_model import Item
+from model.tipo_fornecimento_model import TipoFornecimento
 from model.fornecedor_model import Fornecedor
 from model.casal_model import Casal
 from repo import usuario_repo, fornecedor_repo, casal_repo, item_repo, categoria_repo, fornecedor_item_repo, item_demanda_repo, item_orcamento_repo, demanda_repo, orcamento_repo, favorito_repo, chat_repo
@@ -117,7 +118,7 @@ def criar_categorias():
         for tipo_categoria, lista_categorias in dados_categorias.items():
             for cat_data in lista_categorias:
                 # Mapear string do tipo para enum
-                tipo_item = getattr(TipoItem, cat_data['tipo'])
+                tipo_item = getattr(TipoFornecimento, cat_data['tipo'])
                 categoria = Categoria(
                     id=0,
                     nome=cat_data['nome'],
