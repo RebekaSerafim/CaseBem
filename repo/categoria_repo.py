@@ -1,5 +1,7 @@
 from typing import Optional, List
 from util.base_repo import BaseRepo
+from util.error_handlers import tratar_erro_banco_dados
+from util.logger import logger
 from sql import categoria_sql
 from model.categoria_model import Categoria
 from model.tipo_fornecimento_model import TipoFornecimento
@@ -55,14 +57,13 @@ class CategoriaRepo(BaseRepo):
         )
         return [self._linha_para_objeto(row) for row in resultados]
 
+    @tratar_erro_banco_dados("contagem de categorias")
     def contar_categorias(self) -> int:
         """Conta o total de categorias no sistema"""
-        try:
-            resultados = self.executar_query("SELECT COUNT(*) as total FROM categoria")
-            return resultados[0]["total"] if resultados else 0
-        except Exception as e:
-            print(f"Erro ao contar categorias: {e}")
-            return 0
+        resultados = self.executar_query("SELECT COUNT(*) as total FROM categoria")
+        total = resultados[0]["total"] if resultados else 0
+        logger.info("Contagem de categorias realizada", total_categorias=total)
+        return total
 
     def obter_por_nome(self, nome: str, tipo_fornecimento: TipoFornecimento) -> Optional[Categoria]:
         """Busca uma categoria pelo nome e tipo de fornecimento"""

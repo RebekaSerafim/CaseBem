@@ -475,3 +475,81 @@ def validar_enum_valor(valor: Any, enum_class, campo: str = "Campo") -> Any:
         raise ValidacaoError(f'{campo} deve ser uma das opções: {", ".join(valores_validos)}')
 
     return valor
+
+
+# =====================================================
+# WRAPPER PARA SIMPLIFICAR USO EM FIELD_VALIDATORS
+# =====================================================
+
+class ValidadorWrapper:
+    """
+    Classe para facilitar o uso de validadores em field_validators.
+    Reduz código repetitivo e padroniza tratamento de erros.
+    """
+
+    @staticmethod
+    def criar_validador(funcao_validacao, campo_nome: str = None, **kwargs):
+        """
+        Cria um validador pronto para usar com @field_validator.
+
+        Args:
+            funcao_validacao: Função de validação a ser chamada
+            campo_nome: Nome do campo para mensagens de erro
+            **kwargs: Argumentos adicionais para a função
+
+        Returns:
+            Função validador pronta para usar
+
+        Exemplo:
+            validar_nome = ValidadorWrapper.criar_validador(
+                validar_nome_pessoa, "Nome", min_chars=2, max_chars=100
+            )
+        """
+        def validador(valor):
+            try:
+                if campo_nome:
+                    return funcao_validacao(valor, campo_nome, **kwargs)
+                else:
+                    return funcao_validacao(valor, **kwargs)
+            except ValidacaoError as e:
+                raise ValueError(str(e))
+        return validador
+
+    @staticmethod
+    def criar_validador_opcional(funcao_validacao, campo_nome: str = None, **kwargs):
+        """
+        Cria validador para campos opcionais.
+        Retorna None se o valor for vazio, senão valida normalmente.
+
+        Args:
+            funcao_validacao: Função de validação a ser chamada
+            campo_nome: Nome do campo para mensagens de erro
+            **kwargs: Argumentos adicionais para a função
+
+        Returns:
+            Função validador para campos opcionais
+        """
+        def validador(valor):
+            if valor is None or (isinstance(valor, str) and not valor.strip()):
+                return None
+            try:
+                if campo_nome:
+                    return funcao_validacao(valor, campo_nome, **kwargs)
+                else:
+                    return funcao_validacao(valor, **kwargs)
+            except ValidacaoError as e:
+                raise ValueError(str(e))
+        return validador
+
+
+# =====================================================
+# VALIDADORES PRÉ-CONFIGURADOS COMUNS
+# =====================================================
+
+# Validadores mais usados, pré-configurados para facilitar uso
+VALIDADOR_NOME = ValidadorWrapper.criar_validador(validar_nome_pessoa, "Nome")
+VALIDADOR_CPF = ValidadorWrapper.criar_validador_opcional(validar_cpf, "CPF")
+VALIDADOR_TELEFONE = ValidadorWrapper.criar_validador(validar_telefone, "Telefone")
+VALIDADOR_SENHA = ValidadorWrapper.criar_validador(validar_senha, "Senha")
+VALIDADOR_EMAIL = ValidadorWrapper.criar_validador_opcional(lambda v, c: v, "Email")  # Pydantic já valida
+VALIDADOR_DATA_NASCIMENTO = ValidadorWrapper.criar_validador_opcional(validar_data_nascimento, "Data de nascimento", idade_minima=16)

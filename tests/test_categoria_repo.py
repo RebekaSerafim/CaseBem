@@ -2,6 +2,7 @@ import pytest
 from model.categoria_model import Categoria
 from model.tipo_fornecimento_model import TipoFornecimento
 from repo import categoria_repo
+from util.exceptions import RecursoNaoEncontradoError
 
 class TestCategoriaRepo:
     def test_criar_tabela_categorias(self, test_db):
@@ -39,10 +40,12 @@ class TestCategoriaRepo:
     def test_obter_categoria_por_id_inexistente(self, test_db):
         # Arrange
         categoria_repo.criar_tabela_categorias()
-        # Act
-        categoria_db = categoria_repo.obter_categoria_por_id(999)
-        # Assert
-        assert categoria_db is None, "A categoria retornada deveria ser None para ID inexistente"
+        # Act & Assert
+        with pytest.raises(RecursoNaoEncontradoError) as exc_info:
+            categoria_repo.obter_categoria_por_id(999)
+
+        assert "Categoria não encontrado" in str(exc_info.value)
+        assert "999" in str(exc_info.value)
 
     def test_atualizar_categoria(self, test_db, categoria_exemplo):
         # Arrange

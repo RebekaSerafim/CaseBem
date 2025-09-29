@@ -2,6 +2,9 @@ from fastapi import APIRouter, Request, Form, status
 from fastapi.responses import RedirectResponse
 from fastapi.templating import Jinja2Templates
 from util.auth_decorator import requer_autenticacao
+from util.error_handlers import tratar_erro_rota
+from util.exceptions import RecursoNaoEncontradoError, ValidacaoError
+from util.logger import logger
 from model.usuario_model import TipoUsuario
 from model.categoria_model import Categoria
 from model.tipo_fornecimento_model import TipoFornecimento
@@ -55,23 +58,18 @@ async def admin_root(request: Request, usuario_logado: dict = None):
 
 @router.get("/admin/perfil")
 @requer_autenticacao([TipoUsuario.ADMIN.value])
+@tratar_erro_rota(template_erro="admin/perfil.html")
 async def perfil_admin(request: Request, usuario_logado: dict = None):
     """Página de perfil do administrador"""
-    try:
-        admin = usuario_repo.obter_usuario_por_id(usuario_logado['id'])
-        return templates.TemplateResponse("admin/perfil.html", {
-            "request": request,
-            "usuario_logado": usuario_logado,
-            "admin": admin,
-            "active_page": get_admin_active_page(request)
-        })
-    except Exception as e:
-        print(f"Erro ao carregar perfil admin: {e}")
-        return templates.TemplateResponse("admin/perfil.html", {
-            "request": request,
-            "usuario_logado": usuario_logado,
-            "erro": "Erro ao carregar perfil"
-        })
+    admin = usuario_repo.obter_usuario_por_id(usuario_logado['id'])
+    logger.info("Perfil do admin carregado com sucesso", admin_id=usuario_logado['id'])
+
+    return templates.TemplateResponse("admin/perfil.html", {
+        "request": request,
+        "usuario_logado": usuario_logado,
+        "admin": admin,
+        "active_page": get_admin_active_page(request)
+    })
 
 @router.post("/admin/perfil")
 @requer_autenticacao([TipoUsuario.ADMIN.value])
@@ -501,19 +499,21 @@ async def visualizar_usuario(request: Request, id_usuario: int, usuario_logado: 
 
 @router.post("/admin/usuarios/{id_usuario}/bloquear")
 @requer_autenticacao([TipoUsuario.ADMIN.value])
+@tratar_erro_rota(redirect_erro="/admin/usuarios")
 async def bloquear_usuario(request: Request, id_usuario: int, usuario_logado: dict = None):
     """Bloqueia um usuário"""
-    try:
-        sucesso = usuario_repo.bloquear_usuario(id_usuario)
-        if sucesso:
-            informar_sucesso(request, "Usuário bloqueado com sucesso!")
-        else:
-            informar_erro(request, "Erro ao bloquear usuário!")
-        return RedirectResponse("/admin/usuarios", status_code=status.HTTP_303_SEE_OTHER)
-    except Exception as e:
-        print(f"Erro ao bloquear usuário: {e}")
+    if id_usuario <= 0:
+        raise ValidacaoError("ID do usuário deve ser um número positivo", "id_usuario", id_usuario)
+
+    sucesso = usuario_repo.bloquear_usuario(id_usuario)
+    if sucesso:
+        logger.info("Usuário bloqueado com sucesso", id_usuario=id_usuario, admin_id=usuario_logado['id'])
+        informar_sucesso(request, "Usuário bloqueado com sucesso!")
+    else:
+        logger.warning("Falha ao bloquear usuário", id_usuario=id_usuario)
         informar_erro(request, "Erro ao bloquear usuário!")
-        return RedirectResponse("/admin/usuarios", status_code=status.HTTP_303_SEE_OTHER)
+
+    return RedirectResponse("/admin/usuarios", status_code=status.HTTP_303_SEE_OTHER)
 
 @router.post("/admin/usuarios/{id_usuario}/ativar")
 @requer_autenticacao([TipoUsuario.ADMIN.value])
