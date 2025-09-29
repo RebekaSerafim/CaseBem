@@ -1,307 +1,155 @@
 from typing import Optional, List
-from util.database import obter_conexao
-from sql.usuario_sql import *
+from util.base_repo import BaseRepo
+from sql import usuario_sql
 from model.usuario_model import TipoUsuario, Usuario
 
-def criar_tabela_usuarios() -> bool:
-    try:
-        # Obtém conexão com o banco de dados
-        with obter_conexao() as conexao:
-            # Cria cursor para executar comandos SQL
-            cursor = conexao.cursor()
-            # Executa comando SQL para criar tabela de usuários
-            cursor.execute(CRIAR_TABELA_USUARIO)
+class UsuarioRepo(BaseRepo):
+    """Repositório para operações com usuários"""
 
-            # Tenta adicionar a coluna 'ativo' se ainda não existir
+    def __init__(self):
+        super().__init__('usuario', Usuario, usuario_sql)
+
+    def criar_tabela(self) -> bool:
+        """Cria a tabela de usuários (com lógica específica para adicionar coluna ativo)"""
+        try:
+            result = super().criar_tabela()
+            if result:
+                # Tenta adicionar a coluna 'ativo' se ainda não existir
+                try:
+                    self.executar_comando(usuario_sql.ADICIONAR_COLUNA_ATIVO)
+                except Exception:
+                    # Coluna já existe, ignorar erro
+                    pass
+            return result
+        except Exception as e:
+            print(f"Erro ao criar tabela de usuários: {e}")
+            return False
+
+    def _objeto_para_tupla_insert(self, usuario: Usuario) -> tuple:
+        """Prepara dados do usuário para inserção"""
+        return (
+            usuario.nome,
+            usuario.cpf,
+            usuario.data_nascimento,
+            usuario.email,
+            usuario.telefone,
+            usuario.senha,
+            usuario.perfil.value
+        )
+
+    def _objeto_para_tupla_update(self, usuario: Usuario) -> tuple:
+        """Prepara dados do usuário para atualização"""
+        return (
+            usuario.nome,
+            usuario.cpf,
+            usuario.data_nascimento,
+            usuario.telefone,
+            usuario.email,
+            usuario.id
+        )
+
+    def _linha_para_objeto(self, linha: dict) -> Usuario:
+        """Converte linha do banco em objeto Usuario"""
+        # Converte sqlite3.Row para dict-like access com tratamento de campos opcionais
+        def safe_get(row, key, default=None):
             try:
-                cursor.execute(ADICIONAR_COLUNA_ATIVO)
-            except Exception:
-                # Coluna já existe, ignorar erro
-                pass
+                return row[key] if row[key] is not None else default
+            except (KeyError, IndexError):
+                return default
 
-            # Retorna True indicando sucesso
-            return True
-    except Exception as e:
-        # Imprime mensagem de erro caso ocorra exceção
-        print(f"Erro ao criar tabela de usuários: {e}")
-        # Retorna False indicando falha
-        return False
-   
+        return Usuario(
+            id=linha["id"],
+            nome=linha["nome"],
+            cpf=linha["cpf"],
+            data_nascimento=linha["data_nascimento"],
+            email=linha["email"],
+            telefone=linha["telefone"],
+            senha=linha["senha"],
+            perfil=TipoUsuario(linha["perfil"]),
+            token_redefinicao=safe_get(linha, "token_redefinicao"),
+            data_token=safe_get(linha, "data_token"),
+            data_cadastro=safe_get(linha, "data_cadastro"),
+            ativo=bool(safe_get(linha, "ativo", True))
+        )
 
-def inserir_usuario(usuario: Usuario) -> Optional[int]:
-    # Obtém conexão com o banco de dados
-    with obter_conexao() as conexao:
-        # Cria cursor para executar comandos SQL
-        cursor = conexao.cursor()
-        # Executa comando SQL para inserir usuário com todos os campos
-        cursor.execute(INSERIR_USUARIO,
-            (usuario.nome, usuario.cpf, usuario.data_nascimento, usuario.email, usuario.telefone, usuario.senha, usuario.perfil.value))
-        # Retorna o ID do usuário inserido
-        return cursor.lastrowid        
+    def atualizar_senha_usuario(self, id: int, senha_hash: str) -> bool:
+        """Atualiza apenas a senha de um usuário"""
+        return self.executar_comando(usuario_sql.ATUALIZAR_SENHA_USUARIO, (senha_hash, id))
 
-def atualizar_usuario(usuario: Usuario) -> bool:
-    # Obtém conexão com o banco de dados
-    with obter_conexao() as conexao:
-        # Cria cursor para executar comandos SQL
-        cursor = conexao.cursor()
-        # Executa comando SQL para atualizar dados do usuário pelo ID
-        cursor.execute(ATUALIZAR_USUARIO,
-            (usuario.nome, usuario.cpf, usuario.data_nascimento, usuario.telefone, usuario.email, usuario.id))    
-        # Retorna True se alguma linha foi afetada
-        return (cursor.rowcount > 0)
-    
-def atualizar_senha_usuario(id: int, senha_hash: str) -> bool:
-    # Obtém conexão com o banco de dados
-    with obter_conexao() as conexao:
-        # Cria cursor para executar comandos SQL
-        cursor = conexao.cursor()
-        # Executa comando SQL para atualizar senha do usuário
-        cursor.execute(ATUALIZAR_SENHA_USUARIO, (senha_hash, id))
-        # Retorna True se alguma linha foi afetada
-        return (cursor.rowcount > 0)
+    def obter_usuario_por_email(self, email: str) -> Optional[Usuario]:
+        """Busca um usuário pelo email"""
+        resultados = self.executar_query(usuario_sql.OBTER_USUARIO_POR_EMAIL, (email,))
+        return self._linha_para_objeto(resultados[0]) if resultados else None
 
-def excluir_usuario(id: int) -> bool:
-    # Obtém conexão com o banco de dados
-    with obter_conexao() as conexao:
-        # Cria cursor para executar comandos SQL
-        cursor = conexao.cursor()
-        # Executa comando SQL para deletar usuário pelo ID
-        cursor.execute(EXCLUIR_USUARIO, (id,))
-        # Retorna True se alguma linha foi afetada
-        return (cursor.rowcount > 0)    
-
-def obter_usuario_por_id(id: int) -> Optional[Usuario]:
-    # Obtém conexão com o banco de dados
-    with obter_conexao() as conexao:
-        # Cria cursor para executar comandos SQL
-        cursor = conexao.cursor()
-        # Executa comando SQL para buscar usuário pelo ID
-        cursor.execute(OBTER_USUARIO_POR_ID, (id,))
-        # Obtém primeiro resultado da consulta
-        resultado = cursor.fetchone()
-        # Verifica se encontrou resultado
-        if resultado:
-            # Cria e retorna objeto Usuario com dados do banco
-            return Usuario(
-                id=resultado["id"],
-                nome=resultado["nome"],
-                cpf=resultado["cpf"],
-                data_nascimento=resultado["data_nascimento"],
-                email=resultado["email"],
-                telefone=resultado["telefone"],
-                senha=resultado["senha"],
-                perfil=TipoUsuario(resultado["perfil"]),
-                token_redefinicao=resultado["token_redefinicao"],
-                data_token=resultado["data_token"],
-                data_cadastro=resultado["data_cadastro"],
-                ativo=bool(resultado["ativo"]))
-    # Retorna None se não encontrou usuário
-    return None
-
-def obter_usuario_por_email(email: str) -> Optional[Usuario]:
-    # Obtém conexão com o banco de dados
-    with obter_conexao() as conexao:
-        # Cria cursor para executar comandos SQL
-        cursor = conexao.cursor()
-        # Executa comando SQL para buscar usuário pelo email
-        cursor.execute(OBTER_USUARIO_POR_EMAIL, (email,))
-        # Obtém primeiro resultado da consulta
-        resultado = cursor.fetchone()
-        # Verifica se encontrou resultado
-        if resultado:
-            # Cria e retorna objeto Usuario com dados do banco
-            return Usuario(
-                id=resultado["id"],
-                nome=resultado["nome"],
-                cpf=resultado["cpf"],
-                data_nascimento=resultado["data_nascimento"],
-                email=resultado["email"],
-                telefone=resultado["telefone"],
-                senha=resultado["senha"],
-                perfil=TipoUsuario(resultado["perfil"]),
-                token_redefinicao=resultado["token_redefinicao"],
-                data_token=resultado["data_token"],
-                data_cadastro=resultado["data_cadastro"],
-                ativo=bool(resultado["ativo"]))
-    # Retorna None se não encontrou usuário
-    return None
-
-def obter_usuarios_por_pagina(numero_pagina: int, tamanho_pagina: int) -> list[Usuario]:
-    # Obtém conexão com o banco de dados
-    with obter_conexao() as conexao:
-        # Define limite de registros por página
+    def obter_usuarios_por_pagina(self, numero_pagina: int, tamanho_pagina: int) -> List[Usuario]:
+        """Lista usuários com paginação"""
         limite = tamanho_pagina
-        # Calcula offset baseado no número da página
         offset = (numero_pagina - 1) * tamanho_pagina
-        # Cria cursor para executar comandos SQL
-        cursor = conexao.cursor()
-        # Executa comando SQL para buscar usuários com paginação
-        cursor.execute(OBTER_USUARIOS_POR_PAGINA, (limite, offset))
-        # Obtém todos os resultados da consulta
-        resultados = cursor.fetchall()
-        # Cria lista de objetos Usuario a partir dos resultados
-        return [Usuario(
-            id=resultado["id"],
-            nome=resultado["nome"],
-            cpf=resultado["cpf"],
-            data_nascimento=resultado["data_nascimento"],
-            email=resultado["email"],
-            telefone=resultado["telefone"],
-            senha=resultado["senha"],
-            perfil=TipoUsuario(resultado["perfil"]),
-            token_redefinicao=resultado["token_redefinicao"],
-            data_token=resultado["data_token"],
-            data_cadastro=resultado["data_cadastro"]
-        ) for resultado in resultados]
-    # Retorna lista vazia se não encontrou usuários
-    return []
+        resultados = self.executar_query(usuario_sql.OBTER_USUARIOS_POR_PAGINA, (limite, offset))
+        return [self._linha_para_objeto(row) for row in resultados]
 
-
-def obter_usuarios_por_tipo_por_pagina(tipo: TipoUsuario, numero_pagina: int, tamanho_pagina: int) -> list[Usuario]:
-    # Obtém conexão com o banco de dados
-    with obter_conexao() as conexao:
-        # Define limite de registros por página
+    def obter_usuarios_por_tipo_por_pagina(self, tipo: TipoUsuario, numero_pagina: int, tamanho_pagina: int) -> List[Usuario]:
+        """Lista usuários de um tipo específico com paginação"""
         limite = tamanho_pagina
-        # Calcula offset baseado no número da página
         offset = (numero_pagina - 1) * tamanho_pagina
-        # Cria cursor para executar comandos SQL
-        cursor = conexao.cursor()
-        # Executa comando SQL para buscar usuários por tipo com paginação
-        cursor.execute(OBTER_USUARIOS_POR_TIPO_POR_PAGINA, (tipo.value, limite, offset))
-        # Obtém todos os resultados da consulta
-        resultados = cursor.fetchall()
-        # Cria lista de objetos Usuario a partir dos resultados
-        return [Usuario(
-            id=resultado["id"],
-            nome=resultado["nome"],
-            cpf=resultado["cpf"],
-            data_nascimento=resultado["data_nascimento"],
-            email=resultado["email"],
-            telefone=resultado["telefone"],
-            senha=resultado["senha"],
-            perfil=TipoUsuario(resultado["perfil"]),
-            token_redefinicao=resultado["token_redefinicao"],
-            data_token=resultado["data_token"],
-            data_cadastro=resultado["data_cadastro"]
-        ) for resultado in resultados]
-    # Retorna lista vazia se não encontrou usuários
-    return []
+        resultados = self.executar_query(usuario_sql.OBTER_USUARIOS_POR_TIPO_POR_PAGINA, (tipo.value, limite, offset))
+        return [self._linha_para_objeto(row) for row in resultados]
 
-def contar_usuarios() -> int:
-    """Conta o total de usuários no sistema"""
-    try:
-        with obter_conexao() as conexao:
-            cursor = conexao.cursor()
-            cursor.execute(CONTAR_USUARIOS)
-            resultado = cursor.fetchone()
-            return resultado["total"] if resultado else 0
-    except Exception as e:
-        print(f"Erro ao contar usuários: {e}")
-        return 0
+    def contar_usuarios(self) -> int:
+        """Conta o total de usuários no sistema"""
+        try:
+            resultados = self.executar_query(usuario_sql.CONTAR_USUARIOS)
+            return resultados[0]["total"] if resultados else 0
+        except Exception as e:
+            print(f"Erro ao contar usuários: {e}")
+            return 0
 
-def contar_usuarios_por_tipo(tipo: TipoUsuario) -> int:
-    """Conta o total de usuários de um tipo específico"""
-    try:
-        with obter_conexao() as conexao:
-            cursor = conexao.cursor()
-            cursor.execute(CONTAR_USUARIOS_POR_TIPO, (tipo.value,))
-            resultado = cursor.fetchone()
-            return resultado["total"] if resultado else 0
-    except Exception as e:
-        print(f"Erro ao contar usuários por tipo: {e}")
-        return 0
+    def contar_usuarios_por_tipo(self, tipo: TipoUsuario) -> int:
+        """Conta o total de usuários de um tipo específico"""
+        try:
+            resultados = self.executar_query(usuario_sql.CONTAR_USUARIOS_POR_TIPO, (tipo.value,))
+            return resultados[0]["total"] if resultados else 0
+        except Exception as e:
+            print(f"Erro ao contar usuários por tipo: {e}")
+            return 0
 
-def buscar_usuarios(busca: str = "", tipo_usuario: str = "", status: str = "", numero_pagina: int = 1, tamanho_pagina: int = 100) -> List[Usuario]:
-    """Busca usuários com filtros de nome/email, tipo e status"""
-    try:
-        with obter_conexao() as conexao:
+    def buscar_usuarios(self, busca: str = "", tipo_usuario: str = "", status: str = "", numero_pagina: int = 1, tamanho_pagina: int = 100) -> List[Usuario]:
+        """Busca usuários com filtros de nome/email, tipo e status"""
+        try:
             limite = tamanho_pagina
             offset = (numero_pagina - 1) * tamanho_pagina
-            cursor = conexao.cursor()
-            cursor.execute(BUSCAR_USUARIOS, (busca, busca, busca, tipo_usuario, tipo_usuario, status, status, status, limite, offset))
-            resultados = cursor.fetchall()
-            return [Usuario(
-                id=resultado["id"],
-                nome=resultado["nome"],
-                cpf=resultado["cpf"],
-                data_nascimento=resultado["data_nascimento"],
-                email=resultado["email"],
-                telefone=resultado["telefone"],
-                senha=resultado["senha"],
-                perfil=TipoUsuario(resultado["perfil"]),
-                token_redefinicao=resultado["token_redefinicao"],
-                data_token=resultado["data_token"],
-                data_cadastro=resultado["data_cadastro"],
-                ativo=bool(resultado["ativo"])
-            ) for resultado in resultados]
-    except Exception as e:
-        print(f"Erro ao buscar usuários: {e}")
-        return []
+            resultados = self.executar_query(usuario_sql.BUSCAR_USUARIOS, (busca, busca, busca, tipo_usuario, tipo_usuario, status, status, status, limite, offset))
+            return [self._linha_para_objeto(row) for row in resultados]
+        except Exception as e:
+            print(f"Erro ao buscar usuários: {e}")
+            return []
 
-def bloquear_usuario(id_usuario: int) -> bool:
-    """Bloqueia (desativa) um usuário"""
-    try:
-        with obter_conexao() as conexao:
-            cursor = conexao.cursor()
-            cursor.execute(BLOQUEAR_USUARIO, (id_usuario,))
-            return cursor.rowcount > 0
-    except Exception as e:
-        print(f"Erro ao bloquear usuário: {e}")
-        return False
+    def bloquear_usuario(self, id_usuario: int) -> bool:
+        """Bloqueia (desativa) um usuário"""
+        return self.executar_comando(usuario_sql.BLOQUEAR_USUARIO, (id_usuario,))
 
-def ativar_usuario(id_usuario: int) -> bool:
-    """Ativa um usuário"""
-    try:
-        with obter_conexao() as conexao:
-            cursor = conexao.cursor()
-            cursor.execute(ATIVAR_USUARIO, (id_usuario,))
-            return cursor.rowcount > 0
-    except Exception as e:
-        print(f"Erro ao ativar usuário: {e}")
-        return False
+    def ativar_usuario(self, id_usuario: int) -> bool:
+        """Ativa um usuário"""
+        return self.executar_comando(usuario_sql.ATIVAR_USUARIO, (id_usuario,))
 
-def obter_usuarios_paginado(pagina: int, tamanho_pagina: int) -> tuple[list[Usuario], int]:
-    """Obtém usuários paginados e retorna lista de usuários e total"""
-    try:
-        with obter_conexao() as conexao:
-            cursor = conexao.cursor()
+    def obter_usuarios_paginado(self, pagina: int, tamanho_pagina: int) -> tuple[List[Usuario], int]:
+        """Obtém usuários paginados e retorna lista de usuários e total"""
+        try:
+            total_resultado = self.executar_query("SELECT COUNT(*) as total FROM usuario")
+            total = total_resultado[0]["total"] if total_resultado else 0
 
-            # Contar total de usuários
-            cursor.execute("SELECT COUNT(*) as total FROM usuario")
-            total = cursor.fetchone()["total"]
-
-            # Buscar usuários da página
             offset = (pagina - 1) * tamanho_pagina
-            cursor.execute(OBTER_USUARIOS_POR_PAGINA, (tamanho_pagina, offset))
-            resultados = cursor.fetchall()
+            resultados = self.executar_query(usuario_sql.OBTER_USUARIOS_POR_PAGINA, (tamanho_pagina, offset))
 
-            usuarios = [Usuario(
-                id=resultado["id"],
-                nome=resultado["nome"],
-                cpf=resultado["cpf"],
-                data_nascimento=resultado["data_nascimento"],
-                email=resultado["email"],
-                telefone=resultado["telefone"],
-                senha=resultado["senha"],
-                perfil=TipoUsuario(resultado["perfil"]),
-                token_redefinicao=resultado["token_redefinicao"],
-                data_token=resultado["data_token"],
-                data_cadastro=resultado["data_cadastro"],
-                ativo=bool(resultado["ativo"])
-            ) for resultado in resultados]
-
+            usuarios = [self._linha_para_objeto(row) for row in resultados]
             return usuarios, total
-    except Exception as e:
-        print(f"Erro ao obter usuários paginados: {e}")
-        return [], 0
+        except Exception as e:
+            print(f"Erro ao obter usuários paginados: {e}")
+            return [], 0
 
-def buscar_usuarios_paginado(busca: str = "", tipo_usuario: str = "", status: str = "", pagina: int = 1, tamanho_pagina: int = 10) -> tuple[list[Usuario], int]:
-    """Busca usuários paginados com filtros e retorna lista de usuários e total"""
-    try:
-        with obter_conexao() as conexao:
-            cursor = conexao.cursor()
-
-            # Construir consulta baseada nos filtros
+    def buscar_usuarios_paginado(self, busca: str = "", tipo_usuario: str = "", status: str = "", pagina: int = 1, tamanho_pagina: int = 10) -> tuple[List[Usuario], int]:
+        """Busca usuários paginados com filtros e retorna lista de usuários e total"""
+        try:
             condicoes = []
             parametros = []
             parametros_count = []
@@ -326,34 +174,75 @@ def buscar_usuarios_paginado(busca: str = "", tipo_usuario: str = "", status: st
             if condicoes:
                 where_clause = "WHERE " + " AND ".join(condicoes)
 
-            # Contar total
             sql_count = f"SELECT COUNT(*) as total FROM usuario {where_clause}"
-            cursor.execute(sql_count, parametros_count)
-            total = cursor.fetchone()["total"]
+            total_resultado = self.executar_query(sql_count, parametros_count)
+            total = total_resultado[0]["total"] if total_resultado else 0
 
-            # Buscar usuários da página
             offset = (pagina - 1) * tamanho_pagina
             sql_select = f"SELECT * FROM usuario {where_clause} ORDER BY id DESC LIMIT ? OFFSET ?"
             parametros.extend([tamanho_pagina, offset])
-            cursor.execute(sql_select, parametros)
-            resultados = cursor.fetchall()
+            resultados = self.executar_query(sql_select, parametros)
 
-            usuarios = [Usuario(
-                id=resultado["id"],
-                nome=resultado["nome"],
-                cpf=resultado["cpf"],
-                data_nascimento=resultado["data_nascimento"],
-                email=resultado["email"],
-                telefone=resultado["telefone"],
-                senha=resultado["senha"],
-                perfil=TipoUsuario(resultado["perfil"]),
-                token_redefinicao=resultado["token_redefinicao"],
-                data_token=resultado["data_token"],
-                data_cadastro=resultado["data_cadastro"],
-                ativo=bool(resultado["ativo"])
-            ) for resultado in resultados]
-
+            usuarios = [self._linha_para_objeto(row) for row in resultados]
             return usuarios, total
-    except Exception as e:
-        print(f"Erro ao buscar usuários paginados: {e}")
-        return [], 0
+        except Exception as e:
+            print(f"Erro ao buscar usuários paginados: {e}")
+            return [], 0
+
+usuario_repo = UsuarioRepo()
+
+def criar_tabela_usuarios() -> bool:
+    return usuario_repo.criar_tabela()
+
+def inserir_usuario(usuario: Usuario) -> Optional[int]:
+    return usuario_repo.inserir(usuario)
+
+def atualizar_usuario(usuario: Usuario) -> bool:
+    return usuario_repo.atualizar(usuario)
+    
+def atualizar_senha_usuario(id: int, senha_hash: str) -> bool:
+    return usuario_repo.atualizar_senha_usuario(id, senha_hash)
+
+def excluir_usuario(id: int) -> bool:
+    return usuario_repo.excluir(id)    
+
+def obter_usuario_por_id(id: int) -> Optional[Usuario]:
+    return usuario_repo.obter_por_id(id)
+
+def obter_usuario_por_email(email: str) -> Optional[Usuario]:
+    return usuario_repo.obter_usuario_por_email(email)
+
+def obter_usuarios_por_pagina(numero_pagina: int, tamanho_pagina: int) -> list[Usuario]:
+    return usuario_repo.obter_usuarios_por_pagina(numero_pagina, tamanho_pagina)
+
+
+def obter_usuarios_por_tipo_por_pagina(tipo: TipoUsuario, numero_pagina: int, tamanho_pagina: int) -> list[Usuario]:
+    return usuario_repo.obter_usuarios_por_tipo_por_pagina(tipo, numero_pagina, tamanho_pagina)
+
+def contar_usuarios() -> int:
+    """Conta o total de usuários no sistema"""
+    return usuario_repo.contar_usuarios()
+
+def contar_usuarios_por_tipo(tipo: TipoUsuario) -> int:
+    """Conta o total de usuários de um tipo específico"""
+    return usuario_repo.contar_usuarios_por_tipo(tipo)
+
+def buscar_usuarios(busca: str = "", tipo_usuario: str = "", status: str = "", numero_pagina: int = 1, tamanho_pagina: int = 100) -> List[Usuario]:
+    """Busca usuários com filtros de nome/email, tipo e status"""
+    return usuario_repo.buscar_usuarios(busca, tipo_usuario, status, numero_pagina, tamanho_pagina)
+
+def bloquear_usuario(id_usuario: int) -> bool:
+    """Bloqueia (desativa) um usuário"""
+    return usuario_repo.bloquear_usuario(id_usuario)
+
+def ativar_usuario(id_usuario: int) -> bool:
+    """Ativa um usuário"""
+    return usuario_repo.ativar_usuario(id_usuario)
+
+def obter_usuarios_paginado(pagina: int, tamanho_pagina: int) -> tuple[list[Usuario], int]:
+    """Obtém usuários paginados e retorna lista de usuários e total"""
+    return usuario_repo.obter_usuarios_paginado(pagina, tamanho_pagina)
+
+def buscar_usuarios_paginado(busca: str = "", tipo_usuario: str = "", status: str = "", pagina: int = 1, tamanho_pagina: int = 10) -> tuple[list[Usuario], int]:
+    """Busca usuários paginados com filtros e retorna lista de usuários e total"""
+    return usuario_repo.buscar_usuarios_paginado(busca, tipo_usuario, status, pagina, tamanho_pagina)

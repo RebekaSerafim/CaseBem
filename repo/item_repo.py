@@ -1,6 +1,6 @@
 from typing import Optional, List, Dict, Any
-from util.database import obter_conexao
-from sql.item_sql import *
+from util.base_repo import BaseRepo
+from sql import item_sql
 from model.item_model import Item
 from model.tipo_fornecimento_model import TipoFornecimento
 from repo.categoria_repo import obter_categoria_por_id
@@ -12,149 +12,222 @@ def validar_categoria_para_tipo(tipo: TipoFornecimento, id_categoria: int) -> bo
         return False
     return categoria.tipo_fornecimento == tipo
 
+class ItemRepo(BaseRepo):
+    """Repositório para operações com itens"""
+
+    def __init__(self):
+        super().__init__('item', Item, item_sql)
+
+    def inserir(self, item: Item) -> Optional[int]:
+        """Insere um novo item com validação de categoria (override do BaseRepo)"""
+        try:
+            # Validar se a categoria pertence ao tipo do item
+            if not validar_categoria_para_tipo(item.tipo, item.id_categoria):
+                raise ValueError(f"Categoria {item.id_categoria} não pertence ao tipo {item.tipo.value}")
+
+            # Chama o método base
+            return super().inserir(item)
+        except Exception as e:
+            print(f"Erro ao inserir item: {e}")
+            return None
+
+    def atualizar(self, item: Item) -> bool:
+        """Atualiza um item com validação de categoria (override do BaseRepo)"""
+        try:
+            # Validar se a categoria pertence ao tipo do item
+            if not validar_categoria_para_tipo(item.tipo, item.id_categoria):
+                raise ValueError(f"Categoria {item.id_categoria} não pertence ao tipo {item.tipo.value}")
+
+            # Chama o método base
+            return super().atualizar(item)
+        except Exception as e:
+            print(f"Erro ao atualizar item: {e}")
+            return False
+
+    def excluir_item_fornecedor(self, id_item: int, id_fornecedor: int) -> bool:
+        """Exclui um item (apenas o próprio fornecedor pode excluir)"""
+        try:
+            return self.executar_comando(item_sql.EXCLUIR_ITEM, (id_item, id_fornecedor))
+        except Exception as e:
+            print(f"Erro ao excluir item: {e}")
+            return False
+
+    def _objeto_para_tupla_insert(self, item: Item) -> tuple:
+        """Prepara dados do item para inserção"""
+        return (
+            item.id_fornecedor,
+            item.tipo.value,
+            item.nome,
+            item.descricao,
+            item.preco,
+            item.id_categoria,
+            item.observacoes,
+            item.ativo
+        )
+
+    def _objeto_para_tupla_update(self, item: Item) -> tuple:
+        """Prepara dados do item para atualização (inclui id_fornecedor para validação)"""
+        return (
+            item.tipo.value,
+            item.nome,
+            item.descricao,
+            item.preco,
+            item.id_categoria,
+            item.observacoes,
+            item.ativo,
+            item.id,
+            item.id_fornecedor
+        )
+
+    def _linha_para_objeto(self, linha: dict) -> Item:
+        """Converte linha do banco em objeto Item"""
+        # Função helper para acessar dados de sqlite3.Row
+        def safe_get(row, key, default=None):
+            try:
+                return row[key] if row[key] is not None else default
+            except (KeyError, IndexError):
+                return default
+
+        return Item(
+            id=linha["id"],
+            id_fornecedor=linha["id_fornecedor"],
+            tipo=TipoFornecimento(linha["tipo"]),
+            nome=linha["nome"],
+            descricao=linha["descricao"],
+            preco=linha["preco"],
+            id_categoria=linha["id_categoria"],
+            observacoes=safe_get(linha, "observacoes"),
+            ativo=bool(safe_get(linha, "ativo", True)),
+            data_cadastro=safe_get(linha, "data_cadastro")
+        )
+
+    def obter_itens_por_fornecedor(self, id_fornecedor: int) -> List[Item]:
+        """Obtém todos os itens ativos de um fornecedor"""
+        try:
+            resultados = self.executar_query(item_sql.OBTER_ITENS_POR_FORNECEDOR, (id_fornecedor,))
+            return [self._linha_para_objeto(row) for row in resultados]
+        except Exception as e:
+            print(f"Erro ao obter itens por fornecedor: {e}")
+            return []
+
+    def obter_itens_por_tipo(self, tipo: TipoFornecimento) -> List[Item]:
+        """Obtém todos os itens ativos de um tipo específico"""
+        try:
+            resultados = self.executar_query(item_sql.OBTER_ITENS_POR_TIPO, (tipo.value,))
+            return [self._linha_para_objeto(row) for row in resultados]
+        except Exception as e:
+            print(f"Erro ao obter itens por tipo: {e}")
+            return []
+
+    def obter_itens_por_pagina(self, numero_pagina: int, tamanho_pagina: int) -> List[Item]:
+        """Obtém itens com paginação"""
+        try:
+            offset = (numero_pagina - 1) * tamanho_pagina
+            resultados = self.executar_query(item_sql.OBTER_ITENS_POR_PAGINA, (tamanho_pagina, offset))
+            return [self._linha_para_objeto(row) for row in resultados]
+        except Exception as e:
+            print(f"Erro ao obter itens por página: {e}")
+            return []
+
+    def buscar_itens(self, termo_busca: str, numero_pagina: int = 1, tamanho_pagina: int = 20) -> List[Item]:
+        """Busca itens por termo"""
+        try:
+            busca_param = f"%{termo_busca}%"
+            offset = (numero_pagina - 1) * tamanho_pagina
+            resultados = self.executar_query(
+                item_sql.BUSCAR_ITENS,
+                (busca_param, busca_param, busca_param, tamanho_pagina, offset)
+            )
+            return [self._linha_para_objeto(row) for row in resultados]
+        except Exception as e:
+            print(f"Erro ao buscar itens: {e}")
+            return []
+
+    def obter_produtos(self) -> List[Item]:
+        """Obtém todos os produtos ativos"""
+        try:
+            resultados = self.executar_query(item_sql.OBTER_PRODUTOS)
+            return [self._linha_para_objeto(row) for row in resultados]
+        except Exception as e:
+            print(f"Erro ao obter produtos: {e}")
+            return []
+
+    def obter_servicos(self) -> List[Item]:
+        """Obtém todos os serviços ativos"""
+        try:
+            resultados = self.executar_query(item_sql.OBTER_SERVICOS)
+            return [self._linha_para_objeto(row) for row in resultados]
+        except Exception as e:
+            print(f"Erro ao obter serviços: {e}")
+            return []
+
+    def obter_espacos(self) -> List[Item]:
+        """Obtém todos os espaços ativos"""
+        try:
+            resultados = self.executar_query(item_sql.OBTER_ESPACOS)
+            return [self._linha_para_objeto(row) for row in resultados]
+        except Exception as e:
+            print(f"Erro ao obter espaços: {e}")
+            return []
+
+    def contar_itens_por_fornecedor(self, id_fornecedor: int) -> int:
+        """Conta itens ativos de um fornecedor"""
+        try:
+            resultados = self.executar_query(item_sql.CONTAR_ITENS_POR_FORNECEDOR, (id_fornecedor,))
+            return resultados[0]["total"] if resultados else 0
+        except Exception as e:
+            print(f"Erro ao contar itens por fornecedor: {e}")
+            return 0
+
+    def obter_estatisticas_itens(self) -> List[Dict[str, Any]]:
+        """Obtém estatísticas de itens por tipo"""
+        try:
+            resultados = self.executar_query(item_sql.OBTER_ESTATISTICAS_ITENS)
+            return resultados
+        except Exception as e:
+            print(f"Erro ao obter estatísticas de itens: {e}")
+            return []
+
+    def contar_itens(self) -> int:
+        """Conta total de itens"""
+        try:
+            resultados = self.executar_query(item_sql.CONTAR_ITENS)
+            return resultados[0]["total"] if resultados else 0
+        except Exception as e:
+            print(f"Erro ao contar itens: {e}")
+            return 0
+
+    def contar_itens_por_tipo(self, tipo: TipoFornecimento) -> int:
+        """Conta itens de um tipo específico"""
+        try:
+            resultados = self.executar_query(item_sql.CONTAR_ITENS_POR_TIPO, (tipo.value,))
+            return resultados[0]["total"] if resultados else 0
+        except Exception as e:
+            print(f"Erro ao contar itens por tipo: {e}")
+            return 0
+
+item_repo = ItemRepo()
+
 def criar_tabela_item() -> bool:
-    """Cria a tabela de itens se não existir"""
-    try:
-        with obter_conexao() as conexao:
-            conexao.execute(CRIAR_TABELA_ITEM)
-        return True
-    except Exception as e:
-        print(f"Erro ao criar tabela item: {e}")
-        return False
+    return item_repo.criar_tabela()
 
 def inserir_item(item: Item) -> Optional[int]:
-    """Insere um novo item e retorna seu ID"""
-    try:
-        # Validar se a categoria pertence ao tipo do item
-        if not validar_categoria_para_tipo(item.tipo, item.id_categoria):
-            raise ValueError(f"Categoria {item.id_categoria} não pertence ao tipo {item.tipo.value}")
-
-        with obter_conexao() as conexao:
-            cursor = conexao.cursor()
-            cursor.execute(INSERIR_ITEM, (
-                item.id_fornecedor,
-                item.tipo.value,
-                item.nome,
-                item.descricao,
-                item.preco,
-                item.id_categoria,
-                item.observacoes,
-                item.ativo
-            ))
-            return cursor.lastrowid
-    except Exception as e:
-        print(f"Erro ao inserir item: {e}")
-        return None
+    return item_repo.inserir(item)
 
 def atualizar_item(item: Item) -> bool:
-    """Atualiza um item existente"""
-    try:
-        # Validar se a categoria pertence ao tipo do item
-        if not validar_categoria_para_tipo(item.tipo, item.id_categoria):
-            raise ValueError(f"Categoria {item.id_categoria} não pertence ao tipo {item.tipo.value}")
-
-        with obter_conexao() as conexao:
-            cursor = conexao.cursor()
-            cursor.execute(ATUALIZAR_ITEM, (
-                item.tipo.value,
-                item.nome,
-                item.descricao,
-                item.preco,
-                item.id_categoria,
-                item.observacoes,
-                item.ativo,
-                item.id,
-                item.id_fornecedor
-            ))
-            return cursor.rowcount > 0
-    except Exception as e:
-        print(f"Erro ao atualizar item: {e}")
-        return False
+    return item_repo.atualizar(item)
 
 def excluir_item(id_item: int, id_fornecedor: int) -> bool:
-    """Exclui um item (apenas o próprio fornecedor pode excluir)"""
-    try:
-        with obter_conexao() as conexao:
-            cursor = conexao.cursor()
-            cursor.execute(EXCLUIR_ITEM, (id_item, id_fornecedor))
-            return cursor.rowcount > 0
-    except Exception as e:
-        print(f"Erro ao excluir item: {e}")
-        return False
+    return item_repo.excluir_item_fornecedor(id_item, id_fornecedor)
 
 def obter_item_por_id(id_item: int) -> Optional[Item]:
-    """Obtém um item pelo ID"""
-    try:
-        with obter_conexao() as conexao:
-            cursor = conexao.cursor()
-            cursor.execute(OBTER_ITEM_POR_ID, (id_item,))
-            resultado = cursor.fetchone()
-
-            if resultado:
-                return Item(
-                    id=resultado["id"],
-                    id_fornecedor=resultado["id_fornecedor"],
-                    tipo=TipoFornecimento(resultado["tipo"]),
-                    nome=resultado["nome"],
-                    descricao=resultado["descricao"],
-                    preco=resultado["preco"],
-                    observacoes=resultado["observacoes"],
-                    ativo=bool(resultado["ativo"]),
-                    data_cadastro=resultado["data_cadastro"],
-                    id_categoria=resultado["id_categoria"]
-                )
-            return None
-    except Exception as e:
-        print(f"Erro ao obter item por ID: {e}")
-        return None
+    return item_repo.obter_por_id(id_item)
 
 def obter_itens_por_fornecedor(id_fornecedor: int) -> List[Item]:
-    """Obtém todos os itens ativos de um fornecedor"""
-    try:
-        with obter_conexao() as conexao:
-            cursor = conexao.cursor()
-            cursor.execute(OBTER_ITENS_POR_FORNECEDOR, (id_fornecedor,))
-            resultados = cursor.fetchall()
-
-            return [Item(
-                id=resultado["id"],
-                id_fornecedor=resultado["id_fornecedor"],
-                tipo=TipoFornecimento(resultado["tipo"]),
-                nome=resultado["nome"],
-                descricao=resultado["descricao"],
-                preco=resultado["preco"],
-                observacoes=resultado["observacoes"],
-                ativo=bool(resultado["ativo"]),
-                data_cadastro=resultado["data_cadastro"],
-                id_categoria=resultado["id_categoria"]
-            ) for resultado in resultados]
-    except Exception as e:
-        print(f"Erro ao obter itens por fornecedor: {e}")
-        return []
+    return item_repo.obter_itens_por_fornecedor(id_fornecedor)
 
 def obter_itens_por_tipo(tipo: TipoFornecimento) -> List[Item]:
-    """Obtém todos os itens ativos de um tipo específico"""
-    try:
-        with obter_conexao() as conexao:
-            cursor = conexao.cursor()
-            cursor.execute(OBTER_ITENS_POR_TIPO, (tipo.value,))
-            resultados = cursor.fetchall()
-
-            return [Item(
-                id=resultado["id"],
-                id_fornecedor=resultado["id_fornecedor"],
-                tipo=TipoFornecimento(resultado["tipo"]),
-                nome=resultado["nome"],
-                descricao=resultado["descricao"],
-                preco=resultado["preco"],
-                observacoes=resultado["observacoes"],
-                ativo=bool(resultado["ativo"]),
-                data_cadastro=resultado["data_cadastro"],
-                id_categoria=resultado["id_categoria"]
-            ) for resultado in resultados]
-    except Exception as e:
-        print(f"Erro ao obter itens por tipo: {e}")
-        return []
+    return item_repo.obter_itens_por_tipo(tipo)
 
 def obter_itens_por_pagina(numero_pagina: int, tamanho_pagina: int) -> List[Item]:
     """Obtém itens com paginação"""
@@ -398,28 +471,10 @@ def desativar_item(id_item: int, id_fornecedor: int) -> bool:
         print(f"Erro ao desativar item: {e}")
         return False
 def contar_itens() -> int:
-    """Conta o total de itens no sistema"""
-    try:
-        with obter_conexao() as conexao:
-            cursor = conexao.cursor()
-            cursor.execute(CONTAR_ITENS)
-            resultado = cursor.fetchone()
-            return resultado["total"] if resultado else 0
-    except Exception as e:
-        print(f"Erro ao contar itens: {e}")
-        return 0
+    return item_repo.contar_itens()
 
 def contar_itens_por_tipo(tipo: TipoFornecimento) -> int:
-    """Conta o total de itens de um tipo específico"""
-    try:
-        with obter_conexao() as conexao:
-            cursor = conexao.cursor()
-            cursor.execute(CONTAR_ITENS_POR_TIPO, (tipo.value,))
-            resultado = cursor.fetchone()
-            return resultado["total"] if resultado else 0
-    except Exception as e:
-        print(f"Erro ao contar itens por tipo: {e}")
-        return 0
+    return item_repo.contar_itens_por_tipo(tipo)
 
 def obter_itens_paginado(pagina: int, tamanho_pagina: int) -> tuple[List[Item], int]:
     """Obtém itens paginados e retorna lista de itens e total"""

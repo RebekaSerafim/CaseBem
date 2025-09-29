@@ -1,4 +1,4 @@
-CRIAR_TABELA_ITEM = """
+CRIAR_TABELA = """
 CREATE TABLE IF NOT EXISTS item (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     id_fornecedor INTEGER NOT NULL,
@@ -15,27 +15,37 @@ CREATE TABLE IF NOT EXISTS item (
 );
 """
 
-INSERIR_ITEM = """
+CRIAR_TABELA_ITEM = CRIAR_TABELA
+
+INSERIR = """
 INSERT INTO item (id_fornecedor, tipo, nome, descricao, preco, id_categoria, observacoes, ativo)
 VALUES (?, ?, ?, ?, ?, ?, ?, ?);
 """
 
-ATUALIZAR_ITEM = """
+INSERIR_ITEM = INSERIR
+
+ATUALIZAR = """
 UPDATE item
 SET tipo = ?, nome = ?, descricao = ?, preco = ?, id_categoria = ?, observacoes = ?, ativo = ?
 WHERE id = ? AND id_fornecedor = ?;
 """
 
-EXCLUIR_ITEM = """
+ATUALIZAR_ITEM = ATUALIZAR
+
+EXCLUIR = """
 DELETE FROM item
 WHERE id = ? AND id_fornecedor = ?;
 """
 
-OBTER_ITEM_POR_ID = """
+EXCLUIR_ITEM = EXCLUIR
+
+OBTER_POR_ID = """
 SELECT id, id_fornecedor, tipo, nome, descricao, preco, observacoes, ativo, data_cadastro, id_categoria
 FROM item
 WHERE id = ?;
 """
+
+OBTER_ITEM_POR_ID = OBTER_POR_ID
 
 OBTER_ITENS_POR_FORNECEDOR = """
 SELECT id, id_fornecedor, tipo, nome, descricao, preco, observacoes, ativo, data_cadastro, id_categoria
