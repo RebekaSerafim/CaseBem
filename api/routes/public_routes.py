@@ -7,8 +7,7 @@ import os
 from model.usuario_model import TipoUsuario, Usuario
 from model.fornecedor_model import Fornecedor
 from model.casal_model import Casal
-from dtos.cadastro_noivos_dto import CadastroNoivosDTO
-from dtos import CadastroFornecedorDTO
+from dtos import CadastroNoivosDTO, CadastroFornecedorDTO
 from repo import usuario_repo, fornecedor_repo, casal_repo
 from util.auth_decorator import criar_sessao
 from util.security import criar_hash_senha, verificar_senha, validar_forca_senha, validar_cpf, validar_cnpj, validar_telefone

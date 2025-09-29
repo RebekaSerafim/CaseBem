@@ -6,6 +6,8 @@ Este módulo centraliza todos os DTOs (Data Transfer Objects) organizados por fu
 - categoria_dtos: DTOs relacionados a categorias
 - usuario_dtos: DTOs relacionados a usuários e autenticação
 - item_dtos: DTOs relacionados a itens e fornecedores
+- noivos_dtos: DTOs relacionados a noivos e casais
+- orcamento_dtos: DTOs relacionados a demandas e orçamentos
 
 Imports facilitados para os DTOs mais comuns:
 """
@@ -28,11 +30,17 @@ from .item_dtos import (
     PerfilFornecedorDTO
 )
 
-# Outros DTOs que ainda não foram migrados
-from .cadastro_noivos_dto import CadastroNoivosDTO
-from .perfil_noivo_dto import PerfilNoivoDTO
-from .demanda_noivo_dto import DemandaNoivoDTO
-from .proposta_orcamento_dto import PropostaOrcamentoDTO
+# Noivos e Casais
+from .noivos_dtos import (
+    CadastroNoivosDTO, PerfilNoivoDTO,
+    GeneroEnum
+)
+
+# Demandas e Orçamentos
+from .orcamento_dtos import (
+    DemandaNoivoDTO, PropostaOrcamentoDTO,
+    FormaPagamentoEnum
+)
 
 __all__ = [
     # Base
@@ -47,6 +55,9 @@ __all__ = [
     # Item e Fornecedor
     'ItemFornecedorDTO', 'CadastroFornecedorDTO', 'PerfilFornecedorDTO',
 
-    # Outros (não migrados ainda)
-    'CadastroNoivosDTO', 'PerfilNoivoDTO', 'DemandaNoivoDTO', 'PropostaOrcamentoDTO'
+    # Noivos
+    'CadastroNoivosDTO', 'PerfilNoivoDTO', 'GeneroEnum',
+
+    # Orçamentos
+    'DemandaNoivoDTO', 'PropostaOrcamentoDTO', 'FormaPagamentoEnum'
 ]
