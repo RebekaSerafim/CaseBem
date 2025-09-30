@@ -91,10 +91,12 @@ async def dashboard_noivo(request: Request, usuario_logado: dict = None):
 
     # Estatísticas para o noivo
     stats = {
+        "total_demandas": len(demandas_casal),
         "demandas_ativas": len(demandas_ativas),
         "orcamentos_recebidos": len(orcamentos_recebidos),
         "orcamentos_pendentes": len(orcamentos_pendentes),
-        "favoritos": favorito_repo.contar_favoritos_por_noivo(id_noivo)
+        "favoritos": favorito_repo.contar_favoritos_por_noivo(id_noivo),
+        "total_fornecedores": fornecedor_repo.contar()
     }
 
     return templates.TemplateResponse("noivo/dashboard.html", {
@@ -177,7 +179,7 @@ async def visualizar_item(request: Request, id_item: int, usuario_logado: dict =
     """Visualiza detalhes de um item"""
     logger.info("Visualizando item", noivo_id=usuario_logado["id"], item_id=id_item)
 
-    item = item_repo.obter_item_por_id(id_item)
+    item = item_repo.obter_por_id(id_item)
 
     if not item or not item.ativo:
         logger.warning("Item não encontrado ou inativo", item_id=id_item, ativo=item.ativo if item else None)
@@ -189,7 +191,7 @@ async def visualizar_item(request: Request, id_item: int, usuario_logado: dict =
     # Buscar dados do fornecedor
     fornecedor = None
     try:
-        fornecedor = fornecedor_repo.obter_fornecedor_por_id(item.id_fornecedor)
+        fornecedor = fornecedor_repo.obter_por_id(item.id_fornecedor)
     except Exception as e:
         logger.error("Erro ao buscar fornecedor do item", item_id=id_item, fornecedor_id=item.id_fornecedor, erro=e)
 
@@ -330,7 +332,7 @@ async def listar_orcamentos(request: Request, status: str = "", demanda: str = "
         orcamentos_filtrados = []
         for orcamento in orcamentos:
             try:
-                fornecedor = fornecedor_repo.obter_fornecedor_por_id(orcamento.id_fornecedor)
+                fornecedor = fornecedor_repo.obter_por_id(orcamento.id_fornecedor)
                 if fornecedor and search.lower() in fornecedor.nome.lower():
                     orcamentos_filtrados.append(orcamento)
             except Exception as e:
@@ -349,9 +351,9 @@ async def listar_orcamentos(request: Request, status: str = "", demanda: str = "
     for orcamento in orcamentos:
         try:
             # Buscar dados da demanda
-            demanda_data = demanda_repo.obter_demanda_por_id(orcamento.id_demanda)
+            demanda_data = demanda_repo.obter_por_id(orcamento.id_demanda)
             # Buscar dados do fornecedor
-            fornecedor_data = fornecedor_repo.obter_fornecedor_por_id(orcamento.id_fornecedor)
+            fornecedor_data = fornecedor_repo.obter_por_id(orcamento.id_fornecedor)
             # Buscar itens do orçamento
             itens_orcamento = item_orcamento_repo.obter_itens_por_orcamento(orcamento.id)
 
@@ -389,13 +391,13 @@ async def visualizar_orcamento(request: Request, id_orcamento: int, usuario_loga
     logger.info("Visualizando orçamento", noivo_id=id_noivo, orcamento_id=id_orcamento)
 
     # Buscar orçamento
-    orcamento = orcamento_repo.obter_orcamento_por_id(id_orcamento)
+    orcamento = orcamento_repo.obter_por_id(id_orcamento)
     if not orcamento:
         logger.warning("Orçamento não encontrado", orcamento_id=id_orcamento)
         return RedirectResponse("/noivo/orcamentos", status_code=status.HTTP_303_SEE_OTHER)
 
     # Buscar demanda relacionada
-    demanda = demanda_repo.obter_demanda_por_id(orcamento.id_demanda)
+    demanda = demanda_repo.obter_por_id(orcamento.id_demanda)
 
     # Buscar casal do noivo
     casal = casal_repo.obter_casal_por_noivo(id_noivo)
@@ -406,7 +408,7 @@ async def visualizar_orcamento(request: Request, id_orcamento: int, usuario_loga
         return RedirectResponse("/noivo/orcamentos", status_code=status.HTTP_303_SEE_OTHER)
 
     # Buscar fornecedor
-    fornecedor = fornecedor_repo.obter_fornecedor_por_id(orcamento.id_fornecedor)
+    fornecedor = fornecedor_repo.obter_por_id(orcamento.id_fornecedor)
 
     # Buscar itens do orçamento
     itens_orcamento = item_orcamento_repo.obter_itens_por_orcamento(orcamento.id)
@@ -415,7 +417,7 @@ async def visualizar_orcamento(request: Request, id_orcamento: int, usuario_loga
     itens_enriched = []
     for item_orc in itens_orcamento:
         try:
-            item_data = item_repo.obter_item_por_id(item_orc.id_item)
+            item_data = item_repo.obter_por_id(item_orc.id_item)
             item_dict = {
                 "id_item": item_orc.id_item,
                 "nome_item": item_data.nome if item_data else "Item não encontrado",
@@ -463,7 +465,7 @@ async def aceitar_orcamento(request: Request, id_orcamento: int, usuario_logado:
     logger.info("Aceitando orçamento", noivo_id=usuario_logado["id"], orcamento_id=id_orcamento)
 
     # Buscar o orçamento para obter o id_demanda
-    orcamento = orcamento_repo.obter_orcamento_por_id(id_orcamento)
+    orcamento = orcamento_repo.obter_por_id(id_orcamento)
     if not orcamento:
         logger.warning("Orçamento não encontrado ao aceitar", orcamento_id=id_orcamento)
         informar_erro(request, "Orçamento não encontrado!")
@@ -578,6 +580,60 @@ async def atualizar_perfil_noivo(
             "erro": "Erro ao atualizar perfil"
         })
 
+# ==================== FORNECEDORES ====================
+
+@router.get("/noivo/fornecedores")
+@requer_autenticacao([TipoUsuario.NOIVO.value])
+async def listar_fornecedores(request: Request, usuario_logado: dict = None):
+    """Lista fornecedores verificados para os noivos"""
+    try:
+        # Parâmetros de filtro
+        search = request.query_params.get('search', '').strip()
+        tipo = request.query_params.get('tipo', '').strip()
+        page = int(request.query_params.get('page', 1))
+        per_page = 12
+
+        # Buscar todos os fornecedores verificados
+        todos_fornecedores = fornecedor_repo.obter_fornecedores_verificados()
+
+        # Aplicar filtros
+        fornecedores = todos_fornecedores
+        if search:
+            fornecedores = [f for f in fornecedores if search.lower() in f.nome.lower() or
+                           (f.nome_empresa and search.lower() in f.nome_empresa.lower()) or
+                           (f.descricao and search.lower() in f.descricao.lower())]
+
+        # Adicionar contagem de itens para cada fornecedor
+        for fornecedor in fornecedores:
+            fornecedor.total_itens = item_repo.contar_itens_por_fornecedor(fornecedor.id)
+
+        # Paginação manual
+        total = len(fornecedores)
+        total_pages = (total + per_page - 1) // per_page if total > 0 else 1
+        start = (page - 1) * per_page
+        end = start + per_page
+        fornecedores_paginados = fornecedores[start:end]
+
+        return templates.TemplateResponse("noivo/fornecedores.html", {
+            "request": request,
+            "usuario_logado": usuario_logado,
+            "fornecedores": fornecedores_paginados,
+            "pagina_atual": page,
+            "total_pages": total_pages,
+            "total": total
+        })
+    except Exception as e:
+        logger.error("Erro ao listar fornecedores", erro=e)
+        return templates.TemplateResponse("noivo/fornecedores.html", {
+            "request": request,
+            "usuario_logado": usuario_logado,
+            "fornecedores": [],
+            "erro": "Erro ao carregar fornecedores",
+            "pagina_atual": 1,
+            "total_pages": 1,
+            "total": 0
+        })
+
 # ==================== FAVORITOS ====================
 
 @router.get("/noivo/favoritos")
@@ -635,3 +691,43 @@ async def remover_favorito(request: Request, id_item: int, usuario_logado: dict 
     except Exception as e:
         logger.error("Erro ao remover favorito", noivo_id=id_noivo, item_id=id_item, erro=e)
         return {"success": False, "message": "Erro interno"}
+
+# ==================== CHECKLIST ====================
+
+@router.get("/noivo/checklist")
+@requer_autenticacao([TipoUsuario.NOIVO.value])
+async def checklist(request: Request, usuario_logado: dict = None):
+    """Exibe o checklist do casamento"""
+    try:
+        id_noivo = usuario_logado["id"]
+        logger.info("Carregando checklist do noivo", noivo_id=id_noivo)
+
+        # Por enquanto, retornamos um checklist vazio
+        # TODO: Implementar modelo de checklist no banco de dados
+        categorias = []
+        total_tarefas = 0
+        tarefas_concluidas = 0
+        tarefas_pendentes = 0
+        progresso = 0
+
+        return templates.TemplateResponse("noivo/checklist.html", {
+            "request": request,
+            "usuario_logado": usuario_logado,
+            "categorias": categorias,
+            "total_tarefas": total_tarefas,
+            "tarefas_concluidas": tarefas_concluidas,
+            "tarefas_pendentes": tarefas_pendentes,
+            "progresso": progresso
+        })
+    except Exception as e:
+        logger.error("Erro ao carregar checklist", noivo_id=usuario_logado["id"], erro=e)
+        return templates.TemplateResponse("noivo/checklist.html", {
+            "request": request,
+            "usuario_logado": usuario_logado,
+            "erro": "Erro ao carregar checklist",
+            "categorias": [],
+            "total_tarefas": 0,
+            "tarefas_concluidas": 0,
+            "tarefas_pendentes": 0,
+            "progresso": 0
+        })
