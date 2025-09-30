@@ -533,7 +533,7 @@ async def listar_itens_publicos(
         }
         tipo_enum = tipo_map.get(tipo)
         if tipo_enum:
-            categorias = categoria_repo.obter_categorias_por_tipo_ativas(tipo_enum)
+            categorias = categoria_repo.obter_ativas_por_tipo(tipo_enum)
 
     # Obter itens e total
     itens, total_itens = item_repo.obter_itens_publicos(
