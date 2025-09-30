@@ -57,21 +57,7 @@ class UsuarioRepo(BaseRepo):
         )
 
     def _linha_para_objeto(self, linha: dict) -> Usuario:
-        """
-        Converte linha do banco de dados em objeto Usuario.
-
-        Args:
-            linha: Linha retornada pelo SQLite (sqlite3.Row ou dict)
-
-        Returns:
-            Usuario: Objeto Usuario populado com dados da linha
-        """
-        def safe_get(row, key, default=None):
-            try:
-                return row[key] if row[key] is not None else default
-            except (KeyError, IndexError):
-                return default
-
+        """Converte linha do banco de dados em objeto Usuario"""
         return Usuario(
             id=linha["id"],
             nome=linha["nome"],
@@ -81,10 +67,10 @@ class UsuarioRepo(BaseRepo):
             telefone=linha["telefone"],
             senha=linha["senha"],
             perfil=TipoUsuario(linha["perfil"]),
-            token_redefinicao=safe_get(linha, "token_redefinicao"),
-            data_token=safe_get(linha, "data_token"),
-            data_cadastro=safe_get(linha, "data_cadastro"),
-            ativo=bool(safe_get(linha, "ativo", True))
+            token_redefinicao=self._safe_get(linha, "token_redefinicao"),
+            data_token=self._safe_get(linha, "data_token"),
+            data_cadastro=self._safe_get(linha, "data_cadastro"),
+            ativo=bool(self._safe_get(linha, "ativo", True))
         )
 
     def atualizar_senha_usuario(self, id: int, senha_hash: str) -> bool:
@@ -98,16 +84,14 @@ class UsuarioRepo(BaseRepo):
 
     def obter_usuarios_por_pagina(self, numero_pagina: int, tamanho_pagina: int) -> List[Usuario]:
         """Lista usuários com paginação"""
-        limite = tamanho_pagina
         offset = (numero_pagina - 1) * tamanho_pagina
-        resultados = self.executar_query(usuario_sql.OBTER_USUARIOS_POR_PAGINA, (limite, offset))
+        resultados = self.executar_query(usuario_sql.OBTER_USUARIOS_POR_PAGINA, (tamanho_pagina, offset))
         return [self._linha_para_objeto(row) for row in resultados]
 
     def obter_usuarios_por_tipo_por_pagina(self, tipo: TipoUsuario, numero_pagina: int, tamanho_pagina: int) -> List[Usuario]:
         """Lista usuários de um tipo específico com paginação"""
-        limite = tamanho_pagina
         offset = (numero_pagina - 1) * tamanho_pagina
-        resultados = self.executar_query(usuario_sql.OBTER_USUARIOS_POR_TIPO_POR_PAGINA, (tipo.value, limite, offset))
+        resultados = self.executar_query(usuario_sql.OBTER_USUARIOS_POR_TIPO_POR_PAGINA, (tipo.value, tamanho_pagina, offset))
         return [self._linha_para_objeto(row) for row in resultados]
 
     def contar_usuarios(self) -> int:
@@ -121,9 +105,8 @@ class UsuarioRepo(BaseRepo):
 
     def buscar_usuarios(self, busca: str = "", tipo_usuario: str = "", status: str = "", numero_pagina: int = 1, tamanho_pagina: int = 100) -> List[Usuario]:
         """Busca usuários com filtros de nome/email, tipo e status"""
-        limite = tamanho_pagina
         offset = (numero_pagina - 1) * tamanho_pagina
-        resultados = self.executar_query(usuario_sql.BUSCAR_USUARIOS, (busca, busca, busca, tipo_usuario, tipo_usuario, status, status, status, limite, offset))
+        resultados = self.executar_query(usuario_sql.BUSCAR_USUARIOS, (busca, busca, busca, tipo_usuario, tipo_usuario, status, status, status, tamanho_pagina, offset))
         return [self._linha_para_objeto(row) for row in resultados]
 
     def bloquear_usuario(self, id_usuario: int) -> bool:

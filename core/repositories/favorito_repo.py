@@ -35,7 +35,7 @@ class FavoritoRepo(BaseRepo):
             id=linha["id"],
             id_noivo=linha["id_noivo"],
             id_item=linha["id_item"],
-            data_adicao=linha.get("data_adicao")
+            data_adicao=self._safe_get(linha, "data_adicao")
         )
 
     def adicionar(self, id_noivo: int, id_item: int) -> bool:

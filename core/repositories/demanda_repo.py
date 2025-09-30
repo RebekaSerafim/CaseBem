@@ -93,10 +93,8 @@ class DemandaRepo(BaseRepo):
 
     def obter_por_pagina(self, numero_pagina: int, tamanho_pagina: int) -> List[Demanda]:
         """Obtém demandas com paginação"""
-        limite = tamanho_pagina
-        offset = (numero_pagina - 1) * tamanho_pagina
-        resultados = self.executar_query(demanda_sql.OBTER_DEMANDAS_POR_PAGINA, (limite, offset))
-        return [self._linha_para_objeto(row) for row in resultados]
+        demandas, _ = self.obter_paginado(numero_pagina, tamanho_pagina)
+        return demandas
 
 # Instância singleton do repositório
 demanda_repo = DemandaRepo()

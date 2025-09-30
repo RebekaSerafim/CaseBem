@@ -37,18 +37,12 @@ class ChatRepo(BaseRepoChaveComposta):
 
     def _linha_para_objeto(self, linha: dict) -> Chat:
         """Converte linha do banco em objeto Chat"""
-        def safe_get(row, key, default=None):
-            try:
-                return row[key] if row[key] is not None else default
-            except (KeyError, IndexError):
-                return default
-
         return Chat(
             id_remetente=linha["id_remetente"],
             id_destinatario=linha["id_destinatario"],
             mensagem=linha["mensagem"],
             data_hora_envio=linha["data_hora_envio"],
-            data_hora_leitura=safe_get(linha, "data_hora_leitura")
+            data_hora_leitura=self._safe_get(linha, "data_hora_leitura")
         )
 
     def obter_mensagens_por_usuario(self, id_usuario: int, pagina: int, tamanho: int) -> List[Chat]:

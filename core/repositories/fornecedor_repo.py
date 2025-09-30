@@ -16,12 +16,6 @@ class FornecedorRepo(BaseRepo):
 
     def _linha_para_objeto(self, linha: dict) -> Fornecedor:
         """Converte linha do banco em objeto Fornecedor"""
-        def safe_get(row, key, default=None):
-            try:
-                return row[key] if row[key] is not None else default
-            except (KeyError, IndexError):
-                return default
-
         return Fornecedor(
             # Campos de Usuario
             id=linha["id"],
@@ -32,15 +26,15 @@ class FornecedorRepo(BaseRepo):
             telefone=linha["telefone"],
             senha=linha["senha"],
             perfil=TipoUsuario.FORNECEDOR,
-            token_redefinicao=safe_get(linha, "token_redefinicao"),
-            data_token=safe_get(linha, "data_token"),
-            data_cadastro=safe_get(linha, "data_cadastro"),
+            token_redefinicao=self._safe_get(linha, "token_redefinicao"),
+            data_token=self._safe_get(linha, "data_token"),
+            data_cadastro=self._safe_get(linha, "data_cadastro"),
             # Campos específicos de Fornecedor
             nome_empresa=linha["nome_empresa"],
             cnpj=linha["cnpj"],
-            descricao=safe_get(linha, "descricao"),
+            descricao=self._safe_get(linha, "descricao"),
             verificado=bool(linha["verificado"]),
-            data_verificacao=safe_get(linha, "data_verificacao"),
+            data_verificacao=self._safe_get(linha, "data_verificacao"),
             newsletter=bool(linha["newsletter"])
         )
 

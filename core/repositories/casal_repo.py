@@ -61,10 +61,8 @@ class CasalRepo(BaseRepo):
 
     def obter_por_pagina(self, numero_pagina: int, tamanho_pagina: int) -> List[Casal]:
         """Obtém casais com paginação"""
-        limite = tamanho_pagina
-        offset = (numero_pagina - 1) * tamanho_pagina
-        resultados = self.executar_query(casal_sql.OBTER_CASAL_POR_PAGINA, (limite, offset))
-        return [self._linha_para_objeto(row) for row in resultados]
+        casais, _ = self.obter_paginado(numero_pagina, tamanho_pagina)
+        return casais
 
     def obter_por_noivo(self, id_noivo: int) -> Optional[Casal]:
         """Obtém casal pelo ID de um dos noivos"""

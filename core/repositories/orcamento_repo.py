@@ -85,10 +85,8 @@ class OrcamentoRepo(BaseRepo):
 
     def obter_por_pagina(self, numero_pagina: int, tamanho_pagina: int) -> List[Orcamento]:
         """Obtém orçamentos com paginação"""
-        limite = tamanho_pagina
-        offset = (numero_pagina - 1) * tamanho_pagina
-        resultados = self.executar_query(orcamento_sql.OBTER_ORCAMENTOS_POR_PAGINA, (limite, offset))
-        return [self._linha_para_objeto(row) for row in resultados]
+        orcamentos, _ = self.obter_paginado(numero_pagina, tamanho_pagina)
+        return orcamentos
 
 # Instância singleton do repositório
 orcamento_repo = OrcamentoRepo()

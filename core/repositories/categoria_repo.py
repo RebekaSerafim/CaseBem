@@ -1,6 +1,5 @@
 from typing import Optional, List
 from util.base_repo import BaseRepo
-from util.error_handlers import tratar_erro_banco_dados
 from util.logger import logger
 from core.sql import categoria_sql
 from core.models.categoria_model import Categoria

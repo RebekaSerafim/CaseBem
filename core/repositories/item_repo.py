@@ -71,24 +71,17 @@ class ItemRepo(BaseRepo):
 
     def _linha_para_objeto(self, linha: Dict[str, Any]) -> Item:
         """Converte linha do banco em objeto Item"""
-        # Função helper para acessar dados de sqlite3.Row
-        def safe_get(row: Dict[str, Any], key: str, default: Any = None) -> Any:
-            try:
-                return row[key] if row[key] is not None else default
-            except (KeyError, IndexError):
-                return default
-
         return Item(
-            id=int(safe_get(linha, "id", 0)),
-            id_fornecedor=int(safe_get(linha, "id_fornecedor", 0)),
-            tipo=TipoFornecimento(safe_get(linha, "tipo", "")),
-            nome=str(safe_get(linha, "nome", "")),
-            descricao=str(safe_get(linha, "descricao", "")),
-            preco=safe_get(linha, "preco", 0),
-            id_categoria=int(safe_get(linha, "id_categoria", 0)),
-            observacoes=safe_get(linha, "observacoes"),
-            ativo=bool(safe_get(linha, "ativo", True)),
-            data_cadastro=safe_get(linha, "data_cadastro")
+            id=int(self._safe_get(linha, "id", 0)),
+            id_fornecedor=int(self._safe_get(linha, "id_fornecedor", 0)),
+            tipo=TipoFornecimento(self._safe_get(linha, "tipo", "")),
+            nome=str(self._safe_get(linha, "nome", "")),
+            descricao=str(self._safe_get(linha, "descricao", "")),
+            preco=self._safe_get(linha, "preco", 0),
+            id_categoria=int(self._safe_get(linha, "id_categoria", 0)),
+            observacoes=self._safe_get(linha, "observacoes"),
+            ativo=bool(self._safe_get(linha, "ativo", True)),
+            data_cadastro=self._safe_get(linha, "data_cadastro")
         )
 
     def obter_itens_por_fornecedor(self, id_fornecedor: int) -> List[Item]:
@@ -128,8 +121,7 @@ class ItemRepo(BaseRepo):
 
     def contar_itens_por_fornecedor(self, id_fornecedor: int) -> int:
         """Conta itens ativos de um fornecedor"""
-        resultados = self.executar_query(item_sql.CONTAR_ITENS_POR_FORNECEDOR, (id_fornecedor,))
-        return resultados[0]["total"] if resultados else 0
+        return self.contar_registros("id_fornecedor = ? AND ativo = 1", (id_fornecedor,))
 
     def obter_estatisticas_itens(self) -> List[Dict[str, Any]]:
         """Obtém estatísticas de itens por tipo"""

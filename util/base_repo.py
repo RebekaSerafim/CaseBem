@@ -23,6 +23,25 @@ class BaseRepo:
         self.model_class = model_class
         self.sql = sql_module
 
+    @staticmethod
+    def _safe_get(row: Dict[str, Any], key: str, default: Any = None) -> Any:
+        """
+        Obtém valor de uma linha do banco de forma segura.
+        Funciona com sqlite3.Row e dict.
+
+        Args:
+            row: Linha retornada do banco (sqlite3.Row ou dict)
+            key: Chave a buscar
+            default: Valor padrão se chave não existir ou for None
+
+        Returns:
+            Valor da chave ou default
+        """
+        try:
+            return row[key] if row[key] is not None else default
+        except (KeyError, IndexError):
+            return default
+
     @tratar_erro_banco_dados("criação de tabela")
     def criar_tabela(self) -> bool:
         """Cria a tabela se não existir"""
@@ -248,6 +267,25 @@ class BaseRepoChaveComposta:
         self.model_class = model_class
         self.sql = sql_module
         self.campos_chave = campos_chave
+
+    @staticmethod
+    def _safe_get(row: Dict[str, Any], key: str, default: Any = None) -> Any:
+        """
+        Obtém valor de uma linha do banco de forma segura.
+        Funciona com sqlite3.Row e dict.
+
+        Args:
+            row: Linha retornada do banco (sqlite3.Row ou dict)
+            key: Chave a buscar
+            default: Valor padrão se chave não existir ou for None
+
+        Returns:
+            Valor da chave ou default
+        """
+        try:
+            return row[key] if row[key] is not None else default
+        except (KeyError, IndexError):
+            return default
 
     @tratar_erro_banco_dados("criação de tabela")
     def criar_tabela(self) -> bool:
