@@ -59,7 +59,7 @@ async def dashboard_noivo(request: Request, usuario_logado: dict = None):
 
     # Buscar dados do casal
     try:
-        casal = casal_repo.obter_casal_por_noivo(id_noivo)
+        casal = casal_repo.obter_por_noivo(id_noivo)
     except Exception as e:
         logger.warning("Casal não encontrado para noivo", noivo_id=id_noivo, erro=e)
         casal = None
@@ -67,7 +67,7 @@ async def dashboard_noivo(request: Request, usuario_logado: dict = None):
     # Buscar demandas do casal
     try:
         if casal:
-            demandas_casal = demanda_repo.obter_demandas_por_casal(casal.id)
+            demandas_casal = demanda_repo.obter_por_casal(casal.id)
             demandas_ativas = [d for d in demandas_casal if d.status.value == 'ATIVA']
             demandas_recentes = demandas_casal[:5]
         else:
@@ -82,7 +82,7 @@ async def dashboard_noivo(request: Request, usuario_logado: dict = None):
 
     # Buscar orçamentos do noivo
     try:
-        orcamentos_recebidos = orcamento_repo.obter_orcamentos_por_noivo(id_noivo)
+        orcamentos_recebidos = orcamento_repo.obter_por_noivo(id_noivo)
         orcamentos_pendentes = [o for o in orcamentos_recebidos if o.status == 'PENDENTE']
     except Exception as e:
         logger.error("Erro ao buscar orçamentos do noivo", noivo_id=id_noivo, erro=e)
@@ -95,7 +95,7 @@ async def dashboard_noivo(request: Request, usuario_logado: dict = None):
         "demandas_ativas": len(demandas_ativas),
         "orcamentos_recebidos": len(orcamentos_recebidos),
         "orcamentos_pendentes": len(orcamentos_pendentes),
-        "favoritos": favorito_repo.contar_favoritos_por_noivo(id_noivo),
+        "favoritos": favorito_repo.contar_por_noivo(id_noivo),
         "total_fornecedores": fornecedor_repo.contar()
     }
 
@@ -213,7 +213,7 @@ async def listar_demandas(request: Request, status: str = "", search: str = "", 
     logger.info("Listando demandas do noivo", noivo_id=id_noivo, filtro_status=status, filtro_search=search)
 
     # Buscar casal do noivo
-    casal = casal_repo.obter_casal_por_noivo(id_noivo)
+    casal = casal_repo.obter_por_noivo(id_noivo)
     if not casal:
         logger.warning("Casal não encontrado para noivo", noivo_id=id_noivo)
         return templates.TemplateResponse("noivo/demandas.html", {
@@ -223,7 +223,7 @@ async def listar_demandas(request: Request, status: str = "", search: str = "", 
         })
 
     # Buscar demandas do casal
-    demandas = demanda_repo.obter_demandas_por_casal(casal.id)
+    demandas = demanda_repo.obter_por_casal(casal.id)
 
     # Aplicar filtros
     if status:
@@ -269,7 +269,7 @@ async def criar_demanda(
     logger.info("Criando nova demanda", noivo_id=id_noivo, titulo=titulo)
 
     # Buscar casal do noivo
-    casal = casal_repo.obter_casal_por_noivo(id_noivo)
+    casal = casal_repo.obter_por_noivo(id_noivo)
     if not casal:
         logger.warning("Casal não encontrado ao criar demanda", noivo_id=id_noivo)
         return templates.TemplateResponse("noivo/demanda_form.html", {
@@ -318,7 +318,7 @@ async def listar_orcamentos(request: Request, status: str = "", demanda: str = "
     logger.info("Listando orçamentos do noivo", noivo_id=id_noivo, filtro_status=status, filtro_demanda=demanda)
 
     # Buscar orçamentos do noivo
-    orcamentos = orcamento_repo.obter_orcamentos_por_noivo(id_noivo)
+    orcamentos = orcamento_repo.obter_por_noivo(id_noivo)
 
     # Aplicar filtros
     if status:
@@ -341,10 +341,10 @@ async def listar_orcamentos(request: Request, status: str = "", demanda: str = "
         orcamentos = orcamentos_filtrados
 
     # Buscar casal do noivo
-    casal = casal_repo.obter_casal_por_noivo(id_noivo)
+    casal = casal_repo.obter_por_noivo(id_noivo)
 
     # Buscar demandas do casal para o filtro
-    minhas_demandas = demanda_repo.obter_demandas_por_casal(casal.id) if casal else []
+    minhas_demandas = demanda_repo.obter_por_casal(casal.id) if casal else []
 
     # Enriquecer orçamentos com dados adicionais
     orcamentos_enriched = []
@@ -355,7 +355,7 @@ async def listar_orcamentos(request: Request, status: str = "", demanda: str = "
             # Buscar dados do fornecedor
             fornecedor_data = fornecedor_repo.obter_por_id(orcamento.id_fornecedor)
             # Buscar itens do orçamento
-            itens_orcamento = item_orcamento_repo.obter_itens_por_orcamento(orcamento.id)
+            itens_orcamento = item_orcamento_repo.obter_por_orcamento(orcamento.id)
 
             orcamento_dict = {
                 "id": orcamento.id,
@@ -400,7 +400,7 @@ async def visualizar_orcamento(request: Request, id_orcamento: int, usuario_loga
     demanda = demanda_repo.obter_por_id(orcamento.id_demanda)
 
     # Buscar casal do noivo
-    casal = casal_repo.obter_casal_por_noivo(id_noivo)
+    casal = casal_repo.obter_por_noivo(id_noivo)
 
     if not demanda or not casal or demanda.id_casal != casal.id:
         # Verificar se o orçamento pertence ao casal do noivo logado
@@ -411,7 +411,7 @@ async def visualizar_orcamento(request: Request, id_orcamento: int, usuario_loga
     fornecedor = fornecedor_repo.obter_por_id(orcamento.id_fornecedor)
 
     # Buscar itens do orçamento
-    itens_orcamento = item_orcamento_repo.obter_itens_por_orcamento(orcamento.id)
+    itens_orcamento = item_orcamento_repo.obter_por_orcamento(orcamento.id)
 
     # Enriquecer itens com dados do item
     itens_enriched = []
@@ -472,7 +472,7 @@ async def aceitar_orcamento(request: Request, id_orcamento: int, usuario_logado:
         return RedirectResponse("/noivo/orcamentos", status_code=status.HTTP_303_SEE_OTHER)
 
     # Aceitar este orçamento e rejeitar os outros da mesma demanda
-    sucesso = orcamento_repo.aceitar_orcamento_e_rejeitar_outros(id_orcamento, orcamento.id_demanda)
+    sucesso = orcamento_repo.aceitar_e_rejeitar_outros(id_orcamento, orcamento.id_demanda)
 
     if sucesso:
         logger.info("Orçamento aceito com sucesso", orcamento_id=id_orcamento, demanda_id=orcamento.id_demanda)
@@ -491,7 +491,7 @@ async def rejeitar_orcamento(request: Request, id_orcamento: int, usuario_logado
     logger.info("Rejeitando orçamento", noivo_id=usuario_logado["id"], orcamento_id=id_orcamento)
 
     # Rejeitar o orçamento
-    sucesso = orcamento_repo.rejeitar_orcamento(id_orcamento)
+    sucesso = orcamento_repo.rejeitar(id_orcamento)
 
     if sucesso:
         logger.info("Orçamento rejeitado com sucesso", orcamento_id=id_orcamento)
@@ -517,7 +517,7 @@ async def perfil_noivo(request: Request, usuario_logado: dict = None):
     # Buscar dados do casal
     casal = None
     try:
-        casal = casal_repo.obter_casal_por_noivo(id_noivo)
+        casal = casal_repo.obter_por_noivo(id_noivo)
     except Exception as e:
         logger.warning("Casal não encontrado para noivo no perfil", noivo_id=id_noivo, erro=e)
 
@@ -644,7 +644,7 @@ async def listar_favoritos(request: Request, usuario_logado: dict = None):
     id_noivo = usuario_logado["id"]
     logger.info("Listando favoritos do noivo", noivo_id=id_noivo)
 
-    favoritos = favorito_repo.obter_favoritos_por_noivo(id_noivo)
+    favoritos = favorito_repo.obter_por_noivo(id_noivo)
 
     return templates.TemplateResponse("noivo/favoritos.html", {
         "request": request,
@@ -660,7 +660,7 @@ async def adicionar_favorito(request: Request, id_item: int, usuario_logado: dic
     logger.info("Adicionando item aos favoritos", noivo_id=id_noivo, item_id=id_item)
 
     try:
-        sucesso = favorito_repo.adicionar_favorito(id_noivo, id_item)
+        sucesso = favorito_repo.adicionar(id_noivo, id_item)
 
         if sucesso:
             logger.info("Favorito adicionado com sucesso", noivo_id=id_noivo, item_id=id_item)
@@ -680,7 +680,7 @@ async def remover_favorito(request: Request, id_item: int, usuario_logado: dict 
     logger.info("Removendo item dos favoritos", noivo_id=id_noivo, item_id=id_item)
 
     try:
-        sucesso = favorito_repo.remover_favorito(id_noivo, id_item)
+        sucesso = favorito_repo.remover(id_noivo, id_item)
 
         if sucesso:
             logger.info("Favorito removido com sucesso", noivo_id=id_noivo, item_id=id_item)
