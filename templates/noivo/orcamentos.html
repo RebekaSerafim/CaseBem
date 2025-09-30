@@ -24,9 +24,9 @@
                         <label for="status" class="form-label">Status</label>
                         <select class="form-select" id="status" name="status">
                             <option value="">Todos os status</option>
-                            <option value="PENDENTE" {% if request.args.get('status') == 'PENDENTE' %}selected{% endif %}>Pendente</option>
-                            <option value="ACEITO" {% if request.args.get('status') == 'ACEITO' %}selected{% endif %}>Aceito</option>
-                            <option value="REJEITADO" {% if request.args.get('status') == 'REJEITADO' %}selected{% endif %}>Rejeitado</option>
+                            <option value="PENDENTE" {% if request.query_params.get('status') == 'PENDENTE' %}selected{% endif %}>Pendente</option>
+                            <option value="ACEITO" {% if request.query_params.get('status') == 'ACEITO' %}selected{% endif %}>Aceito</option>
+                            <option value="REJEITADO" {% if request.query_params.get('status') == 'REJEITADO' %}selected{% endif %}>Rejeitado</option>
                         </select>
                     </div>
                     <div class="col-md-3">
@@ -34,7 +34,7 @@
                         <select class="form-select" id="demanda" name="demanda">
                             <option value="">Todas as demandas</option>
                             {% for demanda in minhas_demandas %}
-                            <option value="{{ demanda.id }}" {% if request.args.get('demanda') == demanda.id|string %}selected{% endif %}>
+                            <option value="{{ demanda.id }}" {% if request.query_params.get('demanda') == demanda.id|string %}selected{% endif %}>
                                 {{ demanda.titulo }}
                             </option>
                             {% endfor %}
@@ -43,7 +43,7 @@
                     <div class="col-md-3">
                         <label for="search" class="form-label">Buscar Fornecedor</label>
                         <input type="text" class="form-control" id="search" name="search"
-                               value="{{ request.args.get('search', '') }}" placeholder="Nome do fornecedor">
+                               value="{{ request.query_params.get('search', '') }}" placeholder="Nome do fornecedor">
                     </div>
                     <div class="col-md-3 d-flex align-items-end">
                         <button type="submit" class="btn btn-primary me-2">Filtrar</button>
@@ -132,46 +132,8 @@
     {% endfor %}
 </div>
 
-<!-- Paginação -->
-{% if pagination %}
-<div class="row">
-    <div class="col-12">
-        <nav aria-label="Navegação dos orçamentos">
-            <ul class="pagination justify-content-center">
-                {% if pagination.has_prev %}
-                <li class="page-item">
-                    <a class="page-link" href="{{ url_for('noivo_orcamentos', page=pagination.prev_num, **request.args) }}">Anterior</a>
-                </li>
-                {% endif %}
+<!-- Paginação - TODO: Implementar paginação -->
 
-                {% for page_num in pagination.iter_pages() %}
-                    {% if page_num %}
-                        {% if page_num != pagination.page %}
-                        <li class="page-item">
-                            <a class="page-link" href="{{ url_for('noivo_orcamentos', page=page_num, **request.args) }}">{{ page_num }}</a>
-                        </li>
-                        {% else %}
-                        <li class="page-item active">
-                            <span class="page-link">{{ page_num }}</span>
-                        </li>
-                        {% endif %}
-                    {% else %}
-                    <li class="page-item disabled">
-                        <span class="page-link">…</span>
-                    </li>
-                    {% endif %}
-                {% endfor %}
-
-                {% if pagination.has_next %}
-                <li class="page-item">
-                    <a class="page-link" href="{{ url_for('noivo_orcamentos', page=pagination.next_num, **request.args) }}">Próxima</a>
-                </li>
-                {% endif %}
-            </ul>
-        </nav>
-    </div>
-</div>
-{% endif %}
 
 {% else %}
 <div class="row">
@@ -180,7 +142,7 @@
             <div class="card-body text-center py-5">
                 <i class="fas fa-file-invoice-dollar fa-4x text-gray-300 mb-4"></i>
                 <h4>Nenhum orçamento encontrado</h4>
-                {% if request.args.get('search') or request.args.get('status') or request.args.get('demanda') %}
+                {% if request.query_params.get('search') or request.query_params.get('status') or request.query_params.get('demanda') %}
                 <p class="text-muted">Nenhum orçamento corresponde aos filtros aplicados.</p>
                 <a href="/noivo/orcamentos" class="btn btn-outline-secondary me-2">Limpar Filtros</a>
                 {% else %}

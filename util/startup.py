@@ -285,7 +285,7 @@ def criar_casais():
 
         for casal_data in casais_dados:
             # Criar usuário noivo1
-            senha_hash = criar_hash_senha("123456")
+            senha_hash = criar_hash_senha("1234aA@#")
 
             noivo1 = Usuario(
                 id=0,

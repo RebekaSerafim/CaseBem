@@ -24,15 +24,15 @@
                         <label for="status" class="form-label">Status</label>
                         <select class="form-select" id="status" name="status">
                             <option value="">Todos os status</option>
-                            <option value="ATIVA" {% if request.args.get('status') == 'ATIVA' %}selected{% endif %}>Ativa</option>
-                            <option value="FINALIZADA" {% if request.args.get('status') == 'FINALIZADA' %}selected{% endif %}>Finalizada</option>
-                            <option value="CANCELADA" {% if request.args.get('status') == 'CANCELADA' %}selected{% endif %}>Cancelada</option>
+                            <option value="ATIVA" {% if request.query_params.get('status') == 'ATIVA' %}selected{% endif %}>Ativa</option>
+                            <option value="FINALIZADA" {% if request.query_params.get('status') == 'FINALIZADA' %}selected{% endif %}>Finalizada</option>
+                            <option value="CANCELADA" {% if request.query_params.get('status') == 'CANCELADA' %}selected{% endif %}>Cancelada</option>
                         </select>
                     </div>
                     <div class="col-md-4">
                         <label for="search" class="form-label">Buscar</label>
                         <input type="text" class="form-control" id="search" name="search"
-                               value="{{ request.args.get('search', '') }}" placeholder="Título ou descrição">
+                               value="{{ request.query_params.get('search', '') }}" placeholder="Título ou descrição">
                     </div>
                     <div class="col-md-4 d-flex align-items-end">
                         <button type="submit" class="btn btn-primary me-2">Filtrar</button>
@@ -126,46 +126,8 @@
     {% endfor %}
 </div>
 
-<!-- Paginação -->
-{% if pagination %}
-<div class="row">
-    <div class="col-12">
-        <nav aria-label="Navegação das demandas">
-            <ul class="pagination justify-content-center">
-                {% if pagination.has_prev %}
-                <li class="page-item">
-                    <a class="page-link" href="{{ url_for('noivo_demandas', page=pagination.prev_num, **request.args) }}">Anterior</a>
-                </li>
-                {% endif %}
+<!-- Paginação - TODO: Implementar paginação -->
 
-                {% for page_num in pagination.iter_pages() %}
-                    {% if page_num %}
-                        {% if page_num != pagination.page %}
-                        <li class="page-item">
-                            <a class="page-link" href="{{ url_for('noivo_demandas', page=page_num, **request.args) }}">{{ page_num }}</a>
-                        </li>
-                        {% else %}
-                        <li class="page-item active">
-                            <span class="page-link">{{ page_num }}</span>
-                        </li>
-                        {% endif %}
-                    {% else %}
-                    <li class="page-item disabled">
-                        <span class="page-link">…</span>
-                    </li>
-                    {% endif %}
-                {% endfor %}
-
-                {% if pagination.has_next %}
-                <li class="page-item">
-                    <a class="page-link" href="{{ url_for('noivo_demandas', page=pagination.next_num, **request.args) }}">Próxima</a>
-                </li>
-                {% endif %}
-            </ul>
-        </nav>
-    </div>
-</div>
-{% endif %}
 
 {% else %}
 <div class="row">
@@ -174,7 +136,7 @@
             <div class="card-body text-center py-5">
                 <i class="fas fa-list-alt fa-4x text-gray-300 mb-4"></i>
                 <h4>Nenhuma demanda encontrada</h4>
-                {% if request.args.get('search') or request.args.get('status') %}
+                {% if request.query_params.get('search') or request.query_params.get('status') %}
                 <p class="text-muted">Nenhuma demanda corresponde aos filtros aplicados.</p>
                 <a href="/noivo/demandas" class="btn btn-outline-secondary me-2">Limpar Filtros</a>
                 {% else %}

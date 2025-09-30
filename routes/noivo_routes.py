@@ -5,7 +5,7 @@ from util.auth_decorator import requer_autenticacao
 from model.usuario_model import TipoUsuario
 from model.tipo_fornecimento_model import TipoFornecimento
 from model.demanda_model import Demanda
-from repo import usuario_repo, item_repo, demanda_repo, orcamento_repo, casal_repo, favorito_repo, fornecedor_repo
+from repo import usuario_repo, item_repo, demanda_repo, orcamento_repo, casal_repo, favorito_repo, fornecedor_repo, item_orcamento_repo
 from util.flash_messages import informar_sucesso, informar_erro, informar_aviso
 from util.template_helpers import template_response_with_flash, configurar_filtros_jinja
 
@@ -85,10 +85,12 @@ async def dashboard_noivo(request: Request, usuario_logado: dict = None):
 
         # Estatísticas para o noivo
         stats = {
+            "total_demandas": len(demandas_casal),
             "demandas_ativas": len(demandas_ativas),
             "orcamentos_recebidos": len(orcamentos_recebidos),
             "orcamentos_pendentes": len(orcamentos_pendentes),
-            "favoritos": favorito_repo.contar_favoritos_por_noivo(id_noivo)
+            "favoritos": favorito_repo.contar_favoritos_por_noivo(id_noivo),
+            "total_fornecedores": fornecedor_repo.contar_fornecedores()
         }
 
         return templates.TemplateResponse("noivo/dashboard.html", {
@@ -417,10 +419,14 @@ async def listar_orcamentos(request: Request, status: str = "", demanda: str = "
         })
     except Exception as e:
         print(f"Erro ao listar orçamentos: {e}")
+        import traceback
+        traceback.print_exc()
         return templates.TemplateResponse("noivo/orcamentos.html", {
             "request": request,
             "usuario_logado": usuario_logado,
-            "erro": "Erro ao carregar orçamentos"
+            "erro": "Erro ao carregar orçamentos",
+            "orcamentos": [],
+            "minhas_demandas": []
         })
 
 @router.get("/noivo/orcamentos/{id_orcamento}")
@@ -627,6 +633,70 @@ async def atualizar_perfil_noivo(
             "erro": "Erro interno do servidor"
         })
 
+# ==================== FORNECEDORES ====================
+
+@router.get("/noivo/fornecedores")
+@requer_autenticacao([TipoUsuario.NOIVO.value])
+async def listar_fornecedores(request: Request, usuario_logado: dict = None):
+    """Lista fornecedores verificados para os noivos"""
+    try:
+        # Parâmetros de filtro
+        search = request.query_params.get('search', '').strip()
+        tipo = request.query_params.get('tipo', '').strip()
+        page = int(request.query_params.get('page', 1))
+        per_page = 12
+
+        # Buscar todos os fornecedores e filtrar os verificados
+        todos_fornecedores = fornecedor_repo.obter_fornecedores_por_pagina(1, 1000)  # Pega todos
+        fornecedores = [f for f in todos_fornecedores if f.verificado]
+
+        # Aplicar filtros
+        if search:
+            fornecedores = [f for f in fornecedores if search.lower() in f.nome.lower() or
+                           (f.nome_empresa and search.lower() in f.nome_empresa.lower()) or
+                           (f.descricao and search.lower() in f.descricao.lower())]
+
+        if tipo:
+            if tipo == 'produto':
+                fornecedores = [f for f in fornecedores if f.vendedor]
+            elif tipo == 'servico':
+                fornecedores = [f for f in fornecedores if f.prestador]
+            elif tipo == 'espaco':
+                fornecedores = [f for f in fornecedores if f.locador]
+
+        # Adicionar contagem de itens para cada fornecedor
+        for fornecedor in fornecedores:
+            fornecedor.total_itens = item_repo.contar_itens_por_fornecedor(fornecedor.id)
+
+        # Paginação manual
+        total = len(fornecedores)
+        total_pages = (total + per_page - 1) // per_page if total > 0 else 1
+        start = (page - 1) * per_page
+        end = start + per_page
+        fornecedores_paginados = fornecedores[start:end]
+
+        return templates.TemplateResponse("noivo/fornecedores.html", {
+            "request": request,
+            "usuario_logado": usuario_logado,
+            "fornecedores": fornecedores_paginados,
+            "pagina_atual": page,
+            "total_pages": total_pages,
+            "total": total
+        })
+    except Exception as e:
+        print(f"Erro ao listar fornecedores: {e}")
+        import traceback
+        traceback.print_exc()
+        return templates.TemplateResponse("noivo/fornecedores.html", {
+            "request": request,
+            "usuario_logado": usuario_logado,
+            "fornecedores": [],
+            "erro": "Erro ao carregar fornecedores",
+            "pagina_atual": 1,
+            "total_pages": 1,
+            "total": 0
+        })
+
 # ==================== FAVORITOS ====================
 
 @router.get("/noivo/favoritos")
@@ -681,3 +751,42 @@ async def remover_favorito(request: Request, id_item: int, usuario_logado: dict 
     except Exception as e:
         print(f"Erro ao remover favorito: {e}")
         return {"success": False, "message": "Erro interno"}
+
+# ==================== CHECKLIST ====================
+
+@router.get("/noivo/checklist")
+@requer_autenticacao([TipoUsuario.NOIVO.value])
+async def checklist(request: Request, usuario_logado: dict = None):
+    """Exibe o checklist do casamento"""
+    try:
+        id_noivo = usuario_logado["id"]
+
+        # Por enquanto, retornamos um checklist vazio
+        # TODO: Implementar modelo de checklist no banco de dados
+        categorias = []
+        total_tarefas = 0
+        tarefas_concluidas = 0
+        tarefas_pendentes = 0
+        progresso = 0
+
+        return templates.TemplateResponse("noivo/checklist.html", {
+            "request": request,
+            "usuario_logado": usuario_logado,
+            "categorias": categorias,
+            "total_tarefas": total_tarefas,
+            "tarefas_concluidas": tarefas_concluidas,
+            "tarefas_pendentes": tarefas_pendentes,
+            "progresso": progresso
+        })
+    except Exception as e:
+        print(f"Erro ao carregar checklist: {e}")
+        return templates.TemplateResponse("noivo/checklist.html", {
+            "request": request,
+            "usuario_logado": usuario_logado,
+            "erro": "Erro ao carregar checklist",
+            "categorias": [],
+            "total_tarefas": 0,
+            "tarefas_concluidas": 0,
+            "tarefas_pendentes": 0,
+            "progresso": 0
+        })

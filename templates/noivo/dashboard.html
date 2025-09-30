@@ -61,7 +61,6 @@
                             Demandas Ativas
                         </div>
                         <div class="h3 mb-0 font-weight-bold text-gray-800 text-center">
-                        <div class="h3 mb-0 font-weight-bold text-gray-800 text-center">
                             {{ stats.demandas_ativas or 0 }}
                         </div>
                     </div>
@@ -77,12 +76,10 @@
         <div class="card border-left-info shadow h-100 py-2">
             <div class="card-body">
                 <div class="row g-0 align-items-center">
-                <div class="row g-0 align-items-center">
                     <div class="col mr-2">
                         <div class="text-xs font-weight-bold text-info text-uppercase mb-1 text-center">
                             Orçamentos Recebidos
                         </div>
-                        <div class="h3 mb-0 font-weight-bold text-gray-800 text-center">
                         <div class="h3 mb-0 font-weight-bold text-gray-800 text-center">
                             {{ stats.orcamentos_recebidos or 0 }}
                         </div>
@@ -99,13 +96,10 @@
         <div class="card border-left-warning shadow h-100 py-2">
             <div class="card-body">
                 <div class="row g-0 align-items-center">
-                <div class="row g-0 align-items-center">
                     <div class="col mr-2">
-                        <div class="text-xs font-weight-bold text-warning text-uppercase mb-1 text-center">
                         <div class="text-xs font-weight-bold text-warning text-uppercase mb-1 text-center">
                             Orçamentos Pendentes
                         </div>
-                        <div class="h3 mb-0 font-weight-bold text-gray-800 text-center">
                         <div class="h3 mb-0 font-weight-bold text-gray-800 text-center">
                             {{ stats.orcamentos_pendentes or 0 }}
                         </div>
@@ -122,12 +116,10 @@
         <div class="card border-left-danger shadow h-100 py-2">
             <div class="card-body">
                 <div class="row g-0 align-items-center">
-                <div class="row g-0 align-items-center">
                     <div class="col mr-2">
                         <div class="text-xs font-weight-bold text-danger text-uppercase mb-1 text-center">
                             Favoritos
                         </div>
-                        <div class="h3 mb-0 font-weight-bold text-gray-800 text-center">
                         <div class="h3 mb-0 font-weight-bold text-gray-800 text-center">
                             {{ stats.favoritos or 0 }}
                         </div>
@@ -205,20 +197,88 @@
         </div>
     </div>
 
-    <!-- Informações do Casal -->
+    <!-- Estatísticas de Orçamentos -->
     <div class="col-lg-6 mb-4">
+        <div class="row gap-4">
+            <div class="col-12">
+                <div class="card shadow">
+                    <div class="card-header py-3">
+                        <h6 class="m-0 font-weight-bold text-primary">Estatísticas de Orçamentos</h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-4 text-center">
+                                <div class="border-end pe-3">
+                                    <h3 class="text-info mb-1">{{ stats.orcamentos_recebidos or 0 }}</h3>
+                                    <small class="text-muted">Recebidos</small>
+                                </div>
+                            </div>
+                            <div class="col-4 text-center">
+                                <div class="border-end pe-3">
+                                    <h3 class="text-warning mb-1">{{ stats.orcamentos_pendentes or 0 }}</h3>
+                                    <small class="text-muted">Pendentes</small>
+                                </div>
+                            </div>
+                            <div class="col-4 text-center">
+                                <div>
+                                    <h3 class="text-success mb-1">{{ (stats.orcamentos_recebidos - stats.orcamentos_pendentes) or 0 }}</h3>
+                                    <small class="text-muted">Analisados</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-12">
+                <div class="card shadow">
+                    <div class="card-header py-3">
+                        <h6 class="m-0 font-weight-bold text-primary">Resumo Geral</h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-4 text-center">
+                                <div class="border-end pe-3">
+                                    <h3 class="text-primary mb-1">{{ stats.total_demandas or 0 }}</h3>
+                                    <small class="text-muted">Demandas</small>
+                                </div>
+                            </div>
+                            <div class="col-4 text-center">
+                                <div class="border-end pe-3">
+                                    <h3 class="text-danger mb-1">{{ stats.favoritos or 0 }}</h3>
+                                    <small class="text-muted">Favoritos</small>
+                                </div>
+                            </div>
+                            <div class="col-4 text-center">
+                                <div>
+                                    <h3 class="text-dark mb-1">{{ stats.total_fornecedores or 0 }}</h3>
+                                    <small class="text-muted">Fornecedores</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Informações do Casal -->
+{% if casal %}
+<div class="row">
+    <div class="col-12 mb-4">
         <div class="card shadow">
             <div class="card-header py-3">
                 <h6 class="m-0 font-weight-bold text-primary">Informações do Casal</h6>
             </div>
             <div class="card-body">
-                {% if casal %}
                 <div class="row">
-                    <div class="col-12">
+                    <div class="col-md-6">
                         <p><strong>Data do Casamento:</strong> {{ casal.data_casamento | formatar_data }}</p>
                         <p><strong>Local Previsto:</strong> {{ casal.local_previsto or 'Não definido' }}</p>
+                    </div>
+                    <div class="col-md-6">
                         <p><strong>Orçamento Estimado:</strong> {{ casal.orcamento_estimado or 'Não definido' }}</p>
-                        <p><strong>Número de Convidados:</strong> {{ casal.numero_convidados or 'Não definido' }}</p>
+                        <p class="mb-0"><strong>Número de Convidados:</strong> {{ casal.numero_convidados or 'Não definido' }}</p>
                     </div>
                 </div>
 
@@ -227,18 +287,11 @@
                     <small>Complete suas informações de casamento para melhor experiência!</small>
                 </div>
                 {% endif %}
-                {% else %}
-                <div class="text-center py-4">
-                    <i class="fas fa-heart fa-3x text-gray-300 mb-3"></i>
-                    <h6>Defina as informações do seu casamento</h6>
-                    <p class="text-muted small">Complete seu perfil para começar a usar o sistema</p>
-                    <a href="/noivo/perfil" class="btn btn-sm btn-primary">Completar Perfil</a>
-                </div>
-                {% endif %}
             </div>
         </div>
     </div>
 </div>
+{% endif %}
 
 <!-- Demandas Recentes -->
 {% if demandas_recentes %}

@@ -352,17 +352,36 @@ body {
 
 /* Estilos para nav-links ativos nas áreas restritas */
 .navbar-light.bg-danger .nav-link.text-white.active,
-.navbar-light.bg-primary .nav-link.text-white.active,
 .navbar-light.bg-success .nav-link.text-white.active {
-    color: var(--bs-warning) !important;
+    color: #ffffff !important;
+    font-weight: 700 !important;
+    background-color: rgba(0, 0, 0, 0.2) !important;
+    border-radius: 4px !important;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3) !important;
+}
+
+/* Estilo específico para navbar com fundo escuro (fornecedor - bg-primary) */
+.navbar-light.bg-primary .nav-link.text-white.active {
+    color: #ffffff !important;
+    font-weight: 700 !important;
+    background-color: rgba(255, 255, 255, 0.15) !important;
+    border-radius: 4px !important;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5) !important;
 }
 
 /* Hover nos nav-links das áreas restritas */
 .navbar-light.bg-danger .nav-link.text-white:hover,
-.navbar-light.bg-primary .nav-link.text-white:hover,
 .navbar-light.bg-success .nav-link.text-white:hover {
-    color: var(--bs-warning) !important;
-    transition: color 0.3s ease;
+    background-color: rgba(0, 0, 0, 0.15) !important;
+    border-radius: 4px !important;
+    transition: all 0.3s ease;
+}
+
+/* Hover para navbar com fundo escuro (fornecedor - bg-primary) */
+.navbar-light.bg-primary .nav-link.text-white:hover {
+    background-color: rgba(255, 255, 255, 0.1) !important;
+    border-radius: 4px !important;
+    transition: all 0.3s ease;
 }
 
 /* Animações suaves */
