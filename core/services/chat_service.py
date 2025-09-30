@@ -13,10 +13,11 @@ class ChatService:
     """Serviço para operações de negócio com chat"""
 
     def __init__(self):
-        from core.repositories import chat_repo, usuario_repo
+        from core.repositories.chat_repo import ChatRepo, chat_repo
+        from core.repositories.usuario_repo import UsuarioRepo, usuario_repo
 
-        self.repo = chat_repo
-        self.usuario_repo = usuario_repo
+        self.repo: ChatRepo = chat_repo
+        self.usuario_repo: UsuarioRepo = usuario_repo
 
     def enviar_mensagem(self, dados: dict) -> bool:
         """Envia uma mensagem"""

@@ -32,7 +32,7 @@ class TestDemandaRepo:
         # Inserir usuários e casal
         for noivo in lista_noivos_exemplo[:2]:
             usuario_repo.inserir(noivo)
-        casal = Casal(0, 1, 2, 10000.0)
+        casal = Casal(0, 1, 2)
         casal_repo.inserir(casal)
         
         # Act
@@ -58,7 +58,7 @@ class TestDemandaRepo:
 
         for noivo in lista_noivos_exemplo[:2]:
             usuario_repo.inserir(noivo)
-        casal = Casal(0, 1, 2, 10000.0)
+        casal = Casal(0, 1, 2)
         casal_repo.inserir(casal)
         
         id_demanda_inserida = demanda_repo.inserir(demanda_exemplo)
@@ -91,7 +91,7 @@ class TestDemandaRepo:
 
         for noivo in lista_noivos_exemplo[:2]:
             usuario_repo.inserir(noivo)
-        casal = Casal(0, 1, 2, 10000.0)
+        casal = Casal(0, 1, 2)
         casal_repo.inserir(casal)
         
         id_demanda_inserida = demanda_repo.inserir(demanda_exemplo)
@@ -118,7 +118,7 @@ class TestDemandaRepo:
         # Criar usuários e casal necessários para satisfazer foreign key
         for noivo in lista_noivos_exemplo[:2]:
             usuario_repo.inserir(noivo)
-        casal = Casal(0, 1, 2, 10000.0)
+        casal = Casal(0, 1, 2)
         casal_repo.inserir(casal)
         
         demanda = Demanda(
@@ -146,7 +146,7 @@ class TestDemandaRepo:
 
         for noivo in lista_noivos_exemplo[:2]:
             usuario_repo.inserir(noivo)
-        casal = Casal(0, 1, 2, 10000.0)
+        casal = Casal(0, 1, 2)
         casal_repo.inserir(casal)
         
         id_demanda_inserida = demanda_repo.inserir(demanda_exemplo)
@@ -169,7 +169,7 @@ class TestDemandaRepo:
         # Criar usuários e casal necessários para satisfazer foreign key
         for noivo in lista_noivos_exemplo[:2]:
             usuario_repo.inserir(noivo)
-        casal = Casal(0, 1, 2, 10000.0)
+        casal = Casal(0, 1, 2)
         casal_repo.inserir(casal)
 
         # Act
@@ -194,7 +194,7 @@ class TestDemandaRepo:
 
         from core.models.casal_model import Casal
         for i in range(1, 11, 2):
-            casal = Casal(0, i, i+1, 10000.0)
+            casal = Casal(0, i, i+1)
             casal_repo.inserir(casal)
 
         # Inserir 5 demandas com categoria válida
@@ -233,8 +233,8 @@ class TestDemandaRepo:
             usuario_repo.inserir(noivo)
         
         from core.models.casal_model import Casal
-        casal1 = Casal(0, 1, 2, 10000.0)
-        casal2 = Casal(0, 3, 4, 15000.0)
+        casal1 = Casal(0, 1, 2)
+        casal2 = Casal(0, 3, 4)
         id_casal1 = casal_repo.inserir(casal1)
         id_casal2 = casal_repo.inserir(casal2)
         

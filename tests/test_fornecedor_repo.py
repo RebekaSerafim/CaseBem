@@ -71,6 +71,7 @@ class TestFornecedorRepo:
         fornecedor_repo.criar_tabela()
         id_fornecedor_inserido = fornecedor_repo.inserir(fornecedor_exemplo)
         # Act
+        assert id_fornecedor_inserido is not None
         resultado = fornecedor_repo.excluir(id_fornecedor_inserido)
         # Assert
         assert resultado == True, "A exclusão deveria retornar True"

@@ -12,11 +12,13 @@ class DemandaService:
     """Serviço para operações de negócio com demandas"""
 
     def __init__(self):
-        from core.repositories import demanda_repo, casal_repo, categoria_repo
+        from core.repositories.demanda_repo import DemandaRepo, demanda_repo
+        from core.repositories.casal_repo import CasalRepo, casal_repo
+        from core.repositories.categoria_repo import CategoriaRepo, categoria_repo
 
-        self.repo = demanda_repo
-        self.casal_repo = casal_repo
-        self.categoria_repo = categoria_repo
+        self.repo: DemandaRepo = demanda_repo
+        self.casal_repo: CasalRepo = casal_repo
+        self.categoria_repo: CategoriaRepo = categoria_repo
 
     def criar_demanda(self, dados: dict) -> int:
         """Cria uma nova demanda"""
@@ -53,7 +55,7 @@ class DemandaService:
 
     def atualizar_status(self, id_demanda: int, status: StatusDemanda) -> bool:
         """Atualiza o status de uma demanda"""
-        sucesso = self.repo.atualizar_status_demanda(id_demanda, status)
+        sucesso = self.repo.atualizar_status(id_demanda, status)
         if sucesso:
             logger.info(f"Status da demanda {id_demanda} atualizado para {status.value}")
         return sucesso
@@ -67,14 +69,14 @@ class DemandaService:
                        status: Optional[StatusDemanda] = None) -> List[Demanda]:
         """Lista demandas com filtros"""
         if id_casal:
-            return self.repo.obter_demandas_por_casal(id_casal)
+            return self.repo.obter_por_casal(id_casal)
         if status:
-            return self.repo.obter_demandas_por_status(status)
-        return self.repo.obter_demandas_por_pagina(pagina, tamanho)
+            return self.repo.obter_por_status(status)
+        return self.repo.obter_por_pagina(pagina, tamanho)
 
     def buscar_demandas(self, termo: str) -> List[Demanda]:
         """Busca demandas por termo"""
-        return self.repo.buscar_demandas(termo)
+        return self.repo.buscar(termo)
 
     def excluir_demanda(self, id_demanda: int) -> bool:
         """Exclui uma demanda"""

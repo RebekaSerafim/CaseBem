@@ -29,6 +29,7 @@ class TestItemRepo:
 
         # Inserir fornecedor e categoria
         id_fornecedor = fornecedor_repo.inserir(fornecedor_exemplo)
+        assert id_fornecedor is not None
         categoria = Categoria(0, "Categoria Teste", TipoFornecimento.PRODUTO, "Descrição", True)
         id_categoria = categoria_repo.inserir(categoria)
 
@@ -38,7 +39,7 @@ class TestItemRepo:
             tipo=TipoFornecimento.PRODUTO,
             nome="Item Teste",
             descricao="Descrição do item teste",
-            preco=99.99,
+            preco=Decimal(99.99),
             id_categoria=id_categoria,
             observacoes="Observações teste",
             ativo=True,
@@ -64,6 +65,7 @@ class TestItemRepo:
         item_repo.criar_tabela()
 
         id_fornecedor = fornecedor_repo.inserir(fornecedor_exemplo)
+        assert id_fornecedor is not None
         # Criar categoria de PRODUTO
         categoria = Categoria(0, "Categoria Produto", TipoFornecimento.PRODUTO, "Descrição", True)
         id_categoria = categoria_repo.inserir(categoria)
@@ -75,7 +77,7 @@ class TestItemRepo:
             tipo=TipoFornecimento.SERVICO,  # Tipo diferente da categoria
             nome="Item Teste",
             descricao="Descrição do item teste",
-            preco=99.99,
+            preco=Decimal(99.9),
             id_categoria=id_categoria,
             observacoes=None,
             ativo=True,
@@ -94,11 +96,12 @@ class TestItemRepo:
         item_repo.criar_tabela()
 
         id_fornecedor = fornecedor_repo.inserir(fornecedor_exemplo)
+        assert id_fornecedor is not None
         categoria = Categoria(0, "Categoria Teste", TipoFornecimento.PRODUTO, "Descrição", True)
         id_categoria = categoria_repo.inserir(categoria)
 
         item = Item(0, id_fornecedor, TipoFornecimento.PRODUTO, "Item Teste",
-                   "Descrição", 50.00, id_categoria, None, True, None)
+                   "Descrição", Decimal(50.00), id_categoria, None, True, None)
         id_item = item_repo.inserir(item)
 
         # Act
@@ -128,16 +131,18 @@ class TestItemRepo:
         item_repo.criar_tabela()
 
         id_fornecedor = fornecedor_repo.inserir(fornecedor_exemplo)
+        assert id_fornecedor is not None
         categoria = Categoria(0, "Categoria Teste", TipoFornecimento.PRODUTO, "Descrição", True)
         id_categoria = categoria_repo.inserir(categoria)
 
         item = Item(0, id_fornecedor, TipoFornecimento.PRODUTO, "Item Original",
-                   "Descrição Original", 50.00, id_categoria, None, True, None)
+                   "Descrição Original", Decimal(50.00), id_categoria, None, True, None)
         id_item = item_repo.inserir(item)
 
         # Atualizar item
+        assert id_item is not None
         item_atualizado = Item(id_item, id_fornecedor, TipoFornecimento.PRODUTO,
-                              "Item Atualizado", "Nova Descrição", 75.00,
+                              "Item Atualizado", "Nova Descrição", Decimal(75.00),
                               id_categoria, "Novas observações", True, None)
 
         # Act
@@ -158,14 +163,16 @@ class TestItemRepo:
         item_repo.criar_tabela()
 
         id_fornecedor = fornecedor_repo.inserir(fornecedor_exemplo)
+        assert id_fornecedor is not None
         categoria = Categoria(0, "Categoria Teste", TipoFornecimento.PRODUTO, "Descrição", True)
         id_categoria = categoria_repo.inserir(categoria)
 
         item = Item(0, id_fornecedor, TipoFornecimento.PRODUTO, "Item Teste",
-                   "Descrição", 50.00, id_categoria, None, True, None)
+                   "Descrição", Decimal(50.00), id_categoria, None, True, None)
         id_item = item_repo.inserir(item)
 
         # Act
+        assert id_item is not None
         sucesso = item_repo.excluir_item_fornecedor(id_item, id_fornecedor)
 
         # Assert
@@ -181,13 +188,14 @@ class TestItemRepo:
         item_repo.criar_tabela()
 
         id_fornecedor = fornecedor_repo.inserir(fornecedor_exemplo)
+        assert id_fornecedor is not None
         categoria = Categoria(0, "Categoria Teste", TipoFornecimento.PRODUTO, "Descrição", True)
         id_categoria = categoria_repo.inserir(categoria)
 
         # Inserir 3 itens para o fornecedor
         for i in range(1, 4):
             item = Item(0, id_fornecedor, TipoFornecimento.PRODUTO, f"Item {i}",
-                       f"Descrição {i}", float(10*i), id_categoria, None, True, None)
+                       f"Descrição {i}", Decimal(10*i), id_categoria, None, True, None)
             item_repo.inserir(item)
 
         # Act
@@ -206,6 +214,7 @@ class TestItemRepo:
         item_repo.criar_tabela()
 
         id_fornecedor = fornecedor_repo.inserir(fornecedor_exemplo)
+        assert id_fornecedor is not None
         categoria_produto = Categoria(0, "Categoria Produto", TipoFornecimento.PRODUTO, "Descrição", True)
         categoria_servico = Categoria(0, "Categoria Serviço", TipoFornecimento.SERVICO, "Descrição", True)
         id_categoria_produto = categoria_repo.inserir(categoria_produto)
@@ -213,9 +222,9 @@ class TestItemRepo:
 
         # Inserir produtos e serviços
         item_produto = Item(0, id_fornecedor, TipoFornecimento.PRODUTO, "Produto Teste",
-                           "Descrição", 50.00, id_categoria_produto, None, True, None)
+                           "Descrição", Decimal(50.00), id_categoria_produto, None, True, None)
         item_servico = Item(0, id_fornecedor, TipoFornecimento.SERVICO, "Serviço Teste",
-                           "Descrição", 100.00, id_categoria_servico, None, True, None)
+                           "Descrição", Decimal(100.00), id_categoria_servico, None, True, None)
         item_repo.inserir(item_produto)
         item_repo.inserir(item_servico)
 
@@ -237,14 +246,15 @@ class TestItemRepo:
         item_repo.criar_tabela()
 
         id_fornecedor = fornecedor_repo.inserir(fornecedor_exemplo)
+        assert id_fornecedor is not None
         categoria = Categoria(0, "Categoria Teste", TipoFornecimento.PRODUTO, "Descrição", True)
         id_categoria = categoria_repo.inserir(categoria)
 
         # Inserir itens com nomes diferentes
         item1 = Item(0, id_fornecedor, TipoFornecimento.PRODUTO, "Bolo de Chocolate",
-                    "Delicioso bolo", 50.00, id_categoria, None, True, None)
+                    "Delicioso bolo", Decimal(50.00), id_categoria, None, True, None)
         item2 = Item(0, id_fornecedor, TipoFornecimento.PRODUTO, "Torta de Morango",
-                    "Torta saborosa", 60.00, id_categoria, None, True, None)
+                    "Torta saborosa", Decimal(60.00), id_categoria, None, True, None)
         item_repo.inserir(item1)
         item_repo.inserir(item2)
 
@@ -266,13 +276,14 @@ class TestItemRepo:
         item_repo.criar_tabela()
 
         id_fornecedor = fornecedor_repo.inserir(fornecedor_exemplo)
+        assert id_fornecedor is not None
         categoria = Categoria(0, "Categoria Teste", TipoFornecimento.PRODUTO, "Descrição", True)
         id_categoria = categoria_repo.inserir(categoria)
 
         # Inserir 5 itens ativos
         for i in range(5):
             item = Item(0, id_fornecedor, TipoFornecimento.PRODUTO, f"Item {i}",
-                       "Descrição", 50.00, id_categoria, None, True, None)
+                       "Descrição", Decimal(50.00), id_categoria, None, True, None)
             item_repo.inserir(item)
 
         # Act
@@ -289,14 +300,16 @@ class TestItemRepo:
         item_repo.criar_tabela()
 
         id_fornecedor = fornecedor_repo.inserir(fornecedor_exemplo)
+        assert id_fornecedor is not None
         categoria = Categoria(0, "Categoria Teste", TipoFornecimento.PRODUTO, "Descrição", True)
         id_categoria = categoria_repo.inserir(categoria)
 
         item = Item(0, id_fornecedor, TipoFornecimento.PRODUTO, "Item Teste",
-                   "Descrição", 50.00, id_categoria, None, True, None)
+                   "Descrição", Decimal(50.00), id_categoria, None, True, None)
         id_item = item_repo.inserir(item)
 
         # Act - Desativar
+        assert id_item is not None
         sucesso_desativar = item_repo.desativar_item(id_item, id_fornecedor)
         item_desativado = item_repo.obter_por_id(id_item)
 
@@ -318,13 +331,14 @@ class TestItemRepo:
         item_repo.criar_tabela()
 
         id_fornecedor = fornecedor_repo.inserir(fornecedor_exemplo)
+        assert id_fornecedor is not None
         categoria = Categoria(0, "Categoria Teste", TipoFornecimento.PRODUTO, "Descrição", True)
         id_categoria = categoria_repo.inserir(categoria)
 
         # Inserir 3 itens
         for i in range(3):
             item = Item(0, id_fornecedor, TipoFornecimento.PRODUTO, f"Item {i}",
-                       "Descrição", 50.00, id_categoria, None, True, None)
+                       "Descrição", Decimal(50.00), id_categoria, None, True, None)
             item_repo.inserir(item)
 
         # Act
@@ -341,6 +355,7 @@ class TestItemRepo:
         item_repo.criar_tabela()
 
         id_fornecedor = fornecedor_repo.inserir(fornecedor_exemplo)
+        assert id_fornecedor is not None
         categoria_produto = Categoria(0, "Categoria Produto", TipoFornecimento.PRODUTO, "Descrição", True)
         categoria_servico = Categoria(0, "Categoria Serviço", TipoFornecimento.SERVICO, "Descrição", True)
         id_categoria_produto = categoria_repo.inserir(categoria_produto)
@@ -349,11 +364,11 @@ class TestItemRepo:
         # Inserir 2 produtos e 1 serviço
         for i in range(2):
             item_produto = Item(0, id_fornecedor, TipoFornecimento.PRODUTO, f"Produto {i}",
-                               "Descrição", 50.00, id_categoria_produto, None, True, None)
+                               "Descrição", Decimal(50.00), id_categoria_produto, None, True, None)
             item_repo.inserir(item_produto)
 
         item_servico = Item(0, id_fornecedor, TipoFornecimento.SERVICO, "Serviço",
-                           "Descrição", 100.00, id_categoria_servico, None, True, None)
+                           "Descrição", Decimal(100.00), id_categoria_servico, None, True, None)
         item_repo.inserir(item_servico)
 
         # Act

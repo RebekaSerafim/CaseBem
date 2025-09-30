@@ -153,15 +153,15 @@ class BaseRepo:
             )
             return [self._linha_para_objeto(row) for row in resultados]
 
-    @tratar_erro_banco_dados("execução de query")
-    def executar_query(self, sql: str, params: tuple = ()) -> List[Dict]:
-        """Executa uma query customizada"""
+    @tratar_erro_banco_dados("execução de consulta")
+    def executar_consulta(self, sql: str, params: tuple = ()) -> List[Dict]:
+        """Executa uma consulta customizada"""
         with obter_conexao() as conexao:
             cursor = conexao.cursor()
             cursor.execute(sql, params)
             resultados = cursor.fetchall()
             logger.info(
-                f"Query executada em {self.nome_tabela}",
+                f"Consulta executada em {self.nome_tabela}",
                 total_resultados=len(resultados),
             )
             return resultados
@@ -203,7 +203,7 @@ class BaseRepo:
         else:
             sql = f"SELECT COUNT(*) as total FROM {self.nome_tabela}"
 
-        resultados = self.executar_query(sql, parametros)
+        resultados = self.executar_consulta(sql, parametros)
         total = resultados[0]["total"] if resultados else 0
         logger.info(
             f"Contagem realizada em {self.nome_tabela}",
@@ -221,7 +221,7 @@ class BaseRepo:
 
         offset = (pagina - 1) * tamanho_pagina
         sql = f"SELECT * FROM {self.nome_tabela} ORDER BY {ordenacao} LIMIT ? OFFSET ?"
-        resultados = self.executar_query(sql, (tamanho_pagina, offset))
+        resultados = self.executar_consulta(sql, (tamanho_pagina, offset))
 
         objetos = [self._linha_para_objeto(row) for row in resultados]
         logger.info(
@@ -280,10 +280,12 @@ class BaseRepo:
         return sucesso
 
 
-class BaseRepoChaveComposta:
+class BaseRepoChaveComposta(BaseRepo):
     """
     Classe base para repositórios com chave primária composta.
     Para tabelas que não têm um ID autoincrement único.
+
+    Herda de BaseRepo e sobrescreve métodos específicos para trabalhar com chaves compostas.
     """
 
     def __init__(
@@ -298,38 +300,8 @@ class BaseRepoChaveComposta:
             sql_module: Módulo com as queries SQL
             campos_chave: Lista dos campos que formam a chave primária
         """
-        self.nome_tabela = nome_tabela
-        self.model_class = model_class
-        self.sql = sql_module
+        super().__init__(nome_tabela, model_class, sql_module)
         self.campos_chave = campos_chave
-
-    @staticmethod
-    def _safe_get(row: Dict[str, Any], key: str, default: Any = None) -> Any:
-        """
-        Obtém valor de uma linha do banco de forma segura.
-        Funciona com sqlite3.Row e dict.
-
-        Args:
-            row: Linha retornada do banco (sqlite3.Row ou dict)
-            key: Chave a buscar
-            default: Valor padrão se chave não existir ou for None
-
-        Returns:
-            Valor da chave ou default
-        """
-        try:
-            return row[key] if row[key] is not None else default
-        except (KeyError, IndexError):
-            return default
-
-    @tratar_erro_banco_dados("criação de tabela")
-    def criar_tabela(self) -> bool:
-        """Cria a tabela se não existir"""
-        with obter_conexao() as conexao:
-            cursor = conexao.cursor()
-            cursor.execute(self.sql.CRIAR_TABELA)
-            logger.info(f"Tabela {self.nome_tabela} criada/verificada com sucesso")
-            return True
 
     @tratar_erro_banco_dados("inserção de registro")
     def inserir(self, objeto: Any) -> bool:
@@ -346,22 +318,6 @@ class BaseRepoChaveComposta:
                     chave_valores=valores[: len(self.campos_chave)],
                 )
             return sucesso
-
-    @tratar_erro_banco_dados("atualização de registro")
-    def atualizar(self, objeto: Any) -> bool:
-        """Atualiza um registro existente pela chave composta"""
-        with obter_conexao() as conexao:
-            cursor = conexao.cursor()
-            valores = self._objeto_para_tupla_update(objeto)
-            cursor.execute(self.sql.ATUALIZAR, valores)
-            atualizado = cursor.rowcount > 0
-
-            if atualizado:
-                logger.info(f"Registro atualizado em {self.nome_tabela}")
-            else:
-                logger.warning(f"Nenhum registro foi atualizado em {self.nome_tabela}")
-
-            return atualizado
 
     @tratar_erro_banco_dados("exclusão de registro")
     def excluir(self, *chave_valores) -> bool:
@@ -409,57 +365,6 @@ class BaseRepoChaveComposta:
 
             return self._linha_para_objeto(resultado)
 
-    @tratar_erro_banco_dados("listagem de registros")
     def listar_todos(self) -> List[Any]:
-        """Lista todos os registros"""
-        with obter_conexao() as conexao:
-            cursor = conexao.cursor()
-            cursor.execute(self.sql.LISTAR_TODOS)
-            resultados = cursor.fetchall()
-            logger.info(
-                f"Listagem realizada em {self.nome_tabela}",
-                total_registros=len(resultados),
-            )
-            return [self._linha_para_objeto(row) for row in resultados]
-
-    @tratar_erro_banco_dados("execução de query")
-    def executar_consulta(self, sql: str, params: tuple = ()) -> List[Dict]:
-        """Executa uma query customizada"""
-        with obter_conexao() as conexao:
-            cursor = conexao.cursor()
-            cursor.execute(sql, params)
-            resultados = cursor.fetchall()
-            logger.info(
-                f"Query executada em {self.nome_tabela}",
-                total_resultados=len(resultados),
-            )
-            return resultados
-
-    @tratar_erro_banco_dados("execução de comando")
-    def executar_comando(self, sql: str, params: tuple = ()) -> bool:
-        """Executa um comando SQL (UPDATE, DELETE) e retorna se afetou linhas"""
-        with obter_conexao() as conexao:
-            cursor = conexao.cursor()
-            cursor.execute(sql, params)
-            afetado = cursor.rowcount > 0
-            logger.info(
-                f"Comando executado em {self.nome_tabela}",
-                linhas_afetadas=cursor.rowcount,
-            )
-            return afetado
-
-    def _objeto_para_tupla_insert(self, objeto: Any) -> tuple:
-        """Converte objeto em tupla para INSERT - deve ser sobrescrito"""
-        raise NotImplementedError(
-            "Implemente _objeto_para_tupla_insert na classe filha"
-        )
-
-    def _objeto_para_tupla_update(self, objeto: Any) -> tuple:
-        """Converte objeto em tupla para UPDATE - deve ser sobrescrito"""
-        raise NotImplementedError(
-            "Implemente _objeto_para_tupla_update na classe filha"
-        )
-
-    def _linha_para_objeto(self, linha: Dict) -> Any:
-        """Converte linha do BD em objeto - deve ser sobrescrito"""
-        raise NotImplementedError("Implemente _linha_para_objeto na classe filha")
+        """Lista todos os registros (override para remover parâmetro ativo)"""
+        return super().listar_todos(ativo=None)

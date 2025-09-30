@@ -21,11 +21,13 @@ class ItemService:
     """
 
     def __init__(self):
-        from core.repositories import item_repo, categoria_repo, fornecedor_repo
+        from core.repositories.item_repo import ItemRepo, item_repo
+        from core.repositories.categoria_repo import CategoriaRepo, categoria_repo
+        from core.repositories.fornecedor_repo import FornecedorRepo, fornecedor_repo
 
-        self.repo = item_repo
-        self.categoria_repo = categoria_repo
-        self.fornecedor_repo = fornecedor_repo
+        self.repo: ItemRepo = item_repo
+        self.categoria_repo: CategoriaRepo = categoria_repo
+        self.fornecedor_repo: FornecedorRepo = fornecedor_repo
 
     def criar_item(self, dados: dict) -> int:
         """
@@ -61,6 +63,9 @@ class ItemService:
         # Criar item
         item = Item(**dados)
         id_item = self.repo.inserir(item)
+
+        if not id_item:
+            raise RegraDeNegocioError("Falha ao criar item")
 
         logger.info(f"Item criado: {id_item}", extra={
             'nome': dados['nome'],
@@ -123,8 +128,7 @@ class ItemService:
 
     def listar_itens(self, pagina: int = 1, tamanho: int = 10,
                      id_fornecedor: Optional[int] = None,
-                     tipo: Optional[TipoFornecimento] = None,
-                     ativo: Optional[bool] = None) -> List[Item]:
+                     tipo: Optional[TipoFornecimento] = None) -> List[Item]:
         """
         Lista itens com paginação e filtros
 
@@ -133,60 +137,62 @@ class ItemService:
             tamanho: Tamanho da página
             id_fornecedor: Filtrar por fornecedor
             tipo: Filtrar por tipo
-            ativo: Filtrar por status ativo
 
         Returns:
             Lista de itens
         """
         if id_fornecedor:
-            return self.repo.obter_itens_por_fornecedor(id_fornecedor, pagina, tamanho)
+            return self.repo.obter_itens_por_fornecedor(id_fornecedor)
 
         if tipo:
-            return self.repo.obter_itens_por_tipo(tipo, pagina, tamanho)
+            return self.repo.obter_itens_por_tipo(tipo)
 
         return self.repo.obter_itens_por_pagina(pagina, tamanho)
 
-    def buscar_itens(self, termo: str, tipo: Optional[TipoFornecimento] = None) -> List[Item]:
+    def buscar_itens(self, termo: str, pagina: int = 1, tamanho: int = 20) -> List[Item]:
         """
         Busca itens por termo
 
         Args:
             termo: Termo de busca
-            tipo: Filtrar por tipo (opcional)
+            pagina: Número da página
+            tamanho: Tamanho da página
 
         Returns:
             Lista de itens encontrados
         """
-        return self.repo.buscar_itens(termo, tipo)
+        return self.repo.buscar_itens(termo, pagina, tamanho)
 
-    def ativar_item(self, id_item: int) -> bool:
+    def ativar_item(self, id_item: int, id_fornecedor: int) -> bool:
         """
         Ativa um item
 
         Args:
             id_item: ID do item
+            id_fornecedor: ID do fornecedor (validação de propriedade)
 
         Returns:
             True se ativado com sucesso
         """
-        sucesso = self.repo.ativar_item(id_item)
+        sucesso = self.repo.ativar_item(id_item, id_fornecedor)
 
         if sucesso:
             logger.info(f"Item ativado: {id_item}")
 
         return sucesso
 
-    def desativar_item(self, id_item: int) -> bool:
+    def desativar_item(self, id_item: int, id_fornecedor: int) -> bool:
         """
         Desativa um item
 
         Args:
             id_item: ID do item
+            id_fornecedor: ID do fornecedor (validação de propriedade)
 
         Returns:
             True se desativado com sucesso
         """
-        sucesso = self.repo.desativar_item(id_item)
+        sucesso = self.repo.desativar_item(id_item, id_fornecedor)
 
         if sucesso:
             logger.info(f"Item desativado: {id_item}")

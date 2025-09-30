@@ -440,11 +440,12 @@ class TestOrcamentoRepo:
             ids_demandas.append(demanda_repo.inserir(demanda))
         
         # Inserir orçamentos do mesmo fornecedor
+        assert id_fornecedor is not None
         for id_demanda in ids_demandas:
-            orcamento = Orcamento(0, id_demanda, id_fornecedor, datetime.now(), None, 
+            orcamento = Orcamento(0, id_demanda, id_fornecedor, datetime.now(), None,
                                 "PENDENTE", None, 100.00)
             orcamento_repo.inserir(orcamento)
-        
+
         # Act
         orcamentos = orcamento_repo.obter_por_fornecedor_prestador(id_fornecedor)
         

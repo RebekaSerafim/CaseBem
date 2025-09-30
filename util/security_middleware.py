@@ -112,7 +112,7 @@ def manage_user_sessions(request: Request, user_id: str, action: str = "add"):
             if not active_sessions[user_id]:
                 del active_sessions[user_id]
 
-def log_security_event(event_type: str, request: Request, usuario: dict = None, details: str = ""):
+def log_security_event(event_type: str, request: Request, usuario: dict = {}, details: str = ""):
     """Registra eventos de segurança"""
     client_ip = get_client_ip(request)
     user_agent = request.headers.get("User-Agent", "")

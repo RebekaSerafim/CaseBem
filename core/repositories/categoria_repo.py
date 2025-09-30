@@ -43,14 +43,14 @@ class CategoriaRepo(BaseRepo):
 
     def obter_por_tipo(self, tipo: TipoFornecimento) -> List[Categoria]:
         """Método específico: obter categorias por tipo"""
-        resultados = self.executar_query(
+        resultados = self.executar_consulta(
             categoria_sql.OBTER_CATEGORIAS_POR_TIPO, (tipo.value,)
         )
         return [self._linha_para_objeto(row) for row in resultados]
 
     def obter_ativas_por_tipo(self, tipo: TipoFornecimento) -> List[Categoria]:
         """Método específico: obter categorias ativas por tipo"""
-        resultados = self.executar_query(
+        resultados = self.executar_consulta(
             categoria_sql.OBTER_CATEGORIAS_ATIVAS_POR_TIPO, (tipo.value,)
         )
         return [self._linha_para_objeto(row) for row in resultados]
@@ -63,7 +63,7 @@ class CategoriaRepo(BaseRepo):
         self, nome: str, tipo_fornecimento: TipoFornecimento
     ) -> Optional[Categoria]:
         """Busca uma categoria pelo nome e tipo de fornecimento"""
-        resultados = self.executar_query(
+        resultados = self.executar_consulta(
             categoria_sql.OBTER_CATEGORIA_POR_NOME, (nome, tipo_fornecimento.value)
         )
         return self._linha_para_objeto(resultados[0]) if resultados else None
@@ -73,7 +73,7 @@ class CategoriaRepo(BaseRepo):
     ) -> List[Categoria]:
         """Busca categorias com filtros"""
         busca_like = f"%{busca}%" if busca else ""
-        resultados = self.executar_query(
+        resultados = self.executar_consulta(
             categoria_sql.BUSCAR_CATEGORIAS,
             (
                 busca,
@@ -128,13 +128,13 @@ class CategoriaRepo(BaseRepo):
         parametros_select = parametros_count + [tamanho_pagina, offset]
 
         # Contar total usando query parametrizada
-        total_resultado = self.executar_query(
+        total_resultado = self.executar_consulta(
             categoria_sql.CONTAR_CATEGORIAS_FILTRADAS, parametros_count
         )
         total = total_resultado[0]["total"] if total_resultado else 0
 
         # Buscar categorias usando query parametrizada
-        resultados = self.executar_query(
+        resultados = self.executar_consulta(
             categoria_sql.BUSCAR_CATEGORIAS, parametros_select
         )
         categorias = [self._linha_para_objeto(row) for row in resultados]

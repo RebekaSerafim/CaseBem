@@ -13,15 +13,3 @@ Uso:
     from util.logger import logger
     from util.error_handlers import tratar_erro_banco_dados
 """
-
-# Não fazemos imports automáticos para evitar problemas com análise estática
-# Cada módulo deve importar diretamente o que precisa
-
-__all__ = [
-    'exceptions',
-    'logger',
-    'error_handlers',
-    'validacoes_dto',
-    'security',
-    'database',
-]

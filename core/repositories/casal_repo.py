@@ -6,11 +6,12 @@ from util.logger import logger
 from core.sql import casal_sql
 from core.models.casal_model import Casal
 
+
 class CasalRepo(BaseRepo):
     """Repositório para operações com casais"""
 
     def __init__(self):
-        super().__init__('casal', Casal, casal_sql)
+        super().__init__("casal", Casal, casal_sql)
 
     def _objeto_para_tupla_insert(self, casal: Casal) -> tuple:
         """Prepara dados do casal para inserção"""
@@ -20,7 +21,7 @@ class CasalRepo(BaseRepo):
             casal.data_casamento,
             casal.local_previsto,
             casal.orcamento_estimado,
-            casal.numero_convidados
+            casal.numero_convidados,
         )
 
     def _objeto_para_tupla_update(self, casal: Casal) -> tuple:
@@ -30,7 +31,7 @@ class CasalRepo(BaseRepo):
             casal.local_previsto,
             casal.orcamento_estimado,
             casal.numero_convidados,
-            casal.id
+            casal.id,
         )
 
     def _linha_para_objeto(self, linha: dict) -> Casal:
@@ -43,19 +44,23 @@ class CasalRepo(BaseRepo):
             local_previsto=linha["local_previsto"],
             orcamento_estimado=linha["orcamento_estimado"],
             numero_convidados=linha["numero_convidados"],
-            data_cadastro=linha["data_cadastro"]
+            data_cadastro=linha["data_cadastro"],
         )
 
     def obter_por_id_completo(self, id: int) -> Casal:
         """Obtém casal por ID com dados dos noivos"""
-        resultados = self.executar_query(casal_sql.OBTER_CASAL_POR_ID, (id,))
+        resultados = self.executar_consulta(casal_sql.OBTER_CASAL_POR_ID, (id,))
         if resultados:
             resultado = resultados[0]
             # Usa _linha_para_objeto para criar o objeto base
             casal = self._linha_para_objeto(resultado)
             # Adiciona os objetos Usuario dos noivos
-            casal.noivo1 = usuario_repo.usuario_repo.obter_por_id(resultado["id_noivo1"])
-            casal.noivo2 = usuario_repo.usuario_repo.obter_por_id(resultado["id_noivo2"])
+            casal.noivo1 = usuario_repo.obter_por_id(
+                resultado["id_noivo1"]
+            )
+            casal.noivo2 = usuario_repo.obter_por_id(
+                resultado["id_noivo2"]
+            )
             return casal
         raise RecursoNaoEncontradoError(recurso="Casal", identificador=id)
 
@@ -66,10 +71,13 @@ class CasalRepo(BaseRepo):
 
     def obter_por_noivo(self, id_noivo: int) -> Optional[Casal]:
         """Obtém casal pelo ID de um dos noivos"""
-        resultados = self.executar_query(casal_sql.OBTER_CASAL_POR_NOIVO, (id_noivo, id_noivo))
+        resultados = self.executar_consulta(
+            casal_sql.OBTER_CASAL_POR_NOIVO, (id_noivo, id_noivo)
+        )
         if resultados:
             return self._linha_para_objeto(resultados[0])
         return None
+
 
 # Instância singleton do repositório
 casal_repo = CasalRepo()

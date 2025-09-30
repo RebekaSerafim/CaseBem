@@ -21,12 +21,13 @@ class FornecedorService:
     """
 
     def __init__(self):
-        from core.repositories import fornecedor_repo, usuario_repo
-        from util.security import hash_password
+        from core.repositories.fornecedor_repo import FornecedorRepo, fornecedor_repo
+        from core.repositories.usuario_repo import UsuarioRepo, usuario_repo
+        from util.security import criar_hash_senha
 
-        self.repo = fornecedor_repo
-        self.usuario_repo = usuario_repo
-        self.hash_password = hash_password
+        self.repo: FornecedorRepo = fornecedor_repo
+        self.usuario_repo: UsuarioRepo = usuario_repo
+        self.hash_password = criar_hash_senha
 
     def criar_fornecedor(self, dados: dict) -> int:
         """
@@ -71,6 +72,9 @@ class FornecedorService:
         # Criar fornecedor
         fornecedor = Fornecedor(**dados)
         id_fornecedor = self.repo.inserir(fornecedor)
+
+        if not id_fornecedor:
+            raise RegraDeNegocioError("Falha ao criar fornecedor")
 
         logger.info(f"Fornecedor criado: {id_fornecedor}", extra={
             'nome_empresa': dados['nome_empresa'],

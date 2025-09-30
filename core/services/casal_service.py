@@ -21,10 +21,11 @@ class CasalService:
     """
 
     def __init__(self):
-        from core.repositories import casal_repo, usuario_repo
+        from core.repositories.casal_repo import CasalRepo, casal_repo
+        from core.repositories.usuario_repo import UsuarioRepo, usuario_repo
 
-        self.repo = casal_repo
-        self.usuario_repo = usuario_repo
+        self.repo: CasalRepo = casal_repo
+        self.usuario_repo: UsuarioRepo = usuario_repo
 
     def criar_casal(self, dados: dict) -> int:
         """
@@ -63,12 +64,12 @@ class CasalService:
                 raise RegraDeNegocioError(f"Noivo {id_noivo2} não encontrado")
 
         # Validar que os noivos não estão em outro casal
-        casal_existente = self.repo.obter_casal_por_noivo(id_noivo1)
+        casal_existente = self.repo.obter_por_noivo(id_noivo1)
         if casal_existente:
             raise RegraDeNegocioError(f"Noivo {id_noivo1} já está em um casal")
 
         if id_noivo2:
-            casal_existente = self.repo.obter_casal_por_noivo(id_noivo2)
+            casal_existente = self.repo.obter_por_noivo(id_noivo2)
             if casal_existente:
                 raise RegraDeNegocioError(f"Noivo {id_noivo2} já está em um casal")
 
@@ -145,7 +146,7 @@ class CasalService:
         Returns:
             Casal do noivo ou None
         """
-        return self.repo.obter_casal_por_noivo(id_noivo)
+        return self.repo.obter_por_noivo(id_noivo)
 
     def listar_casais(self, pagina: int = 1, tamanho: int = 10) -> List[Casal]:
         """
@@ -158,7 +159,7 @@ class CasalService:
         Returns:
             Lista de casais
         """
-        return self.repo.obter_casais_por_pagina(pagina, tamanho)
+        return self.repo.obter_por_pagina(pagina, tamanho)
 
     def excluir_casal(self, id_casal: int) -> bool:
         """

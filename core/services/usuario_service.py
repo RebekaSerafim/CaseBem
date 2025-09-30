@@ -21,12 +21,12 @@ class UsuarioService:
     """
 
     def __init__(self):
-        from core.repositories import usuario_repo
-        from util.security import hash_password, verify_password
+        from core.repositories.usuario_repo import UsuarioRepo, usuario_repo
+        from util.security import criar_hash_senha, verificar_senha
 
-        self.repo = usuario_repo
-        self.hash_password = hash_password
-        self.verify_password = verify_password
+        self.repo: UsuarioRepo = usuario_repo
+        self.hash_password = criar_hash_senha
+        self.verify_password = verificar_senha
 
     def criar_usuario(self, dados: dict) -> int:
         """
@@ -71,11 +71,11 @@ class UsuarioService:
         # Inserir no banco
         id_usuario = self.repo.inserir(usuario)
 
-        logger.log_info("Usuário criado com sucesso", extra={
-            'id_usuario': id_usuario,
-            'email': dados['email'],
-            'perfil': dados.get('perfil', TipoUsuario.NOIVO).value if isinstance(dados.get('perfil'), TipoUsuario) else str(dados.get('perfil'))
-        })
+        logger.info("Usuário criado com sucesso",
+            id_usuario=id_usuario,
+            email=dados['email'],
+            perfil=dados.get('perfil', TipoUsuario.NOIVO).value if isinstance(dados.get('perfil'), TipoUsuario) else str(dados.get('perfil'))
+        )
 
         return id_usuario
 
@@ -103,16 +103,16 @@ class UsuarioService:
                         regra="USUARIO_ATIVO"
                     )
 
-                logger.log_info("Usuário autenticado com sucesso", extra={
-                    'usuario_id': usuario.id,
-                    'email': email
-                })
+                logger.info("Usuário autenticado com sucesso",
+                    usuario_id=usuario.id,
+                    email=email
+                )
                 return usuario
 
         except RecursoNaoEncontradoError:
             pass  # Email não encontrado
 
-        logger.log_warning("Tentativa de autenticação falhada", extra={'email': email})
+        logger.warning("Tentativa de autenticação falhada", email=email)
         return None
 
     def obter_usuario_por_id(self, user_id: int) -> Usuario:
@@ -196,10 +196,10 @@ class UsuarioService:
         resultado = self.repo.atualizar(usuario)
 
         if resultado:
-            logger.log_info("Usuário desativado", extra={
-                'usuario_id': user_id,
-                'admin_id': admin_id
-            })
+            logger.info("Usuário desativado",
+                usuario_id=user_id,
+                admin_id=admin_id
+            )
 
         return resultado
 
@@ -246,10 +246,10 @@ class UsuarioService:
         resultado = self.repo.atualizar(usuario)
 
         if resultado:
-            logger.log_info("Perfil de usuário atualizado", extra={
-                'usuario_id': user_id,
-                'campos_atualizados': list(dados.keys())
-            })
+            logger.info("Perfil de usuário atualizado",
+                usuario_id=user_id,
+                campos_atualizados=list(dados.keys())
+            )
 
         return resultado
 

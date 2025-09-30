@@ -6,7 +6,7 @@ de serviços e produtos do sistema.
 """
 
 from typing import List, Optional
-from util.exceptions import RegraDeNegocioError, RecursoNaoEncontradoError, ValidacaoError
+from util.exceptions import RegraDeNegocioError, ValidacaoError
 from core.models.categoria_model import Categoria
 from core.models.tipo_fornecimento_model import TipoFornecimento
 from util.logger import logger
@@ -21,8 +21,8 @@ class CategoriaService:
     """
 
     def __init__(self):
-        from core.repositories import categoria_repo
-        self.repo = categoria_repo
+        from core.repositories.categoria_repo import CategoriaRepo, categoria_repo
+        self.repo: CategoriaRepo = categoria_repo
 
     def criar_categoria(self, dados: dict) -> int:
         """
@@ -56,11 +56,11 @@ class CategoriaService:
 
         id_categoria = self.repo.inserir(categoria)
 
-        logger.log_info("Categoria criada", extra={
-            'id_categoria': id_categoria,
-            'nome': categoria.nome,
-            'tipo': categoria.tipo_fornecimento.value
-        })
+        logger.info("Categoria criada",
+            id_categoria=id_categoria,
+            nome=categoria.nome,
+            tipo=categoria.tipo_fornecimento.value
+        )
 
         return id_categoria
 
@@ -75,9 +75,9 @@ class CategoriaService:
             Lista de categorias ativas
         """
         if tipo_fornecimento:
-            categorias = self.repo.obter_categorias_por_tipo_ativas(tipo_fornecimento)
+            categorias = self.repo.obter_ativas_por_tipo(tipo_fornecimento)
         else:
-            categorias = self.repo.obter_categorias_ativas()
+            categorias = self.repo.listar_todos(ativo=True)
 
         return sorted(categorias, key=lambda c: c.nome)
 
@@ -141,10 +141,10 @@ class CategoriaService:
         resultado = self.repo.atualizar(categoria)
 
         if resultado:
-            logger.log_info("Categoria atualizada", extra={
-                'categoria_id': categoria_id,
-                'nome': categoria.nome
-            })
+            logger.info("Categoria atualizada",
+                categoria_id=categoria_id,
+                nome=categoria.nome
+            )
 
         return resultado
 
@@ -175,14 +175,14 @@ class CategoriaService:
         resultado = self.repo.atualizar(categoria)
 
         if resultado:
-            logger.log_info("Categoria desativada", extra={
-                'categoria_id': categoria_id,
-                'admin_id': admin_id
-            })
+            logger.info("Categoria desativada",
+                categoria_id=categoria_id,
+                admin_id=admin_id
+            )
 
         return resultado
 
-    def _categoria_nome_tipo_existe(self, nome: str, tipo: TipoFornecimento, exceto_id: int = None) -> bool:
+    def _categoria_nome_tipo_existe(self, nome: str, tipo: TipoFornecimento, exceto_id: Optional[int] = None) -> bool:
         """
         Verifica se já existe categoria com mesmo nome e tipo
 
@@ -194,12 +194,11 @@ class CategoriaService:
         Returns:
             True se existe, False caso contrário
         """
-        try:
-            categoria_existente = self.repo.obter_categoria_por_nome_e_tipo(nome.strip().title(), tipo)
+        categoria_existente = self.repo.obter_por_nome(nome.strip().title(), tipo)
+        if categoria_existente:
             # Se está fazendo update, ignorar a própria categoria
             return categoria_existente.id != exceto_id if exceto_id else True
-        except RecursoNaoEncontradoError:
-            return False
+        return False
 
     def _categoria_tem_itens_ativos(self, categoria_id: int) -> bool:
         """
@@ -213,9 +212,9 @@ class CategoriaService:
         """
         # Verificar se categoria tem itens ativos
         try:
-            from core.repositories import item_repo
-            itens = item_repo.obter_itens_por_categoria(categoria_id)
-            return any(item.ativo for item in itens)
+            from core.repositories.item_repo import item_repo
+            count = item_repo.contar_registros("id_categoria = ? AND ativo = 1", (categoria_id,))
+            return count > 0
         except:
             # Se erro, assumir que tem itens por segurança
             return True

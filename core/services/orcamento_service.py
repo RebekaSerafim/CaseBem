@@ -12,11 +12,13 @@ class OrcamentoService:
     """Serviço para operações de negócio com orçamentos"""
 
     def __init__(self):
-        from core.repositories import orcamento_repo, demanda_repo, fornecedor_repo
+        from core.repositories.orcamento_repo import OrcamentoRepo, orcamento_repo
+        from core.repositories.demanda_repo import DemandaRepo, demanda_repo
+        from core.repositories.fornecedor_repo import FornecedorRepo, fornecedor_repo
 
-        self.repo = orcamento_repo
-        self.demanda_repo = demanda_repo
-        self.fornecedor_repo = fornecedor_repo
+        self.repo: OrcamentoRepo = orcamento_repo
+        self.demanda_repo: DemandaRepo = demanda_repo
+        self.fornecedor_repo: FornecedorRepo = fornecedor_repo
 
     def criar_orcamento(self, dados: dict) -> int:
         """Cria um novo orçamento"""
@@ -62,10 +64,10 @@ class OrcamentoService:
                          pagina: int = 1, tamanho: int = 10) -> List[Orcamento]:
         """Lista orçamentos com filtros"""
         if id_demanda:
-            return self.repo.obter_orcamentos_por_demanda(id_demanda)
+            return self.repo.obter_por_demanda(id_demanda)
         if id_fornecedor:
-            return self.repo.obter_orcamentos_por_fornecedor(id_fornecedor)
-        return self.repo.obter_orcamentos_por_pagina(pagina, tamanho)
+            return self.repo.obter_por_fornecedor_prestador(id_fornecedor)
+        return self.repo.obter_por_pagina(pagina, tamanho)
 
     def excluir_orcamento(self, id_orcamento: int) -> bool:
         """Exclui um orçamento"""

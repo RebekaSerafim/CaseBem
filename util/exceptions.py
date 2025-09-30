@@ -103,7 +103,7 @@ class RecursoNaoEncontradoError(CaseBemError):
 class BancoDadosError(CaseBemError):
     """Erro relacionado ao banco de dados"""
 
-    def __init__(self, mensagem: str, operacao: str = "desconhecida", erro_original: Exception = None):
+    def __init__(self, mensagem: str, operacao: str = "desconhecida", erro_original: Optional[Exception] = None):
         super().__init__(
             mensagem=f"Erro de banco de dados: {mensagem}",
             tipo_erro=TipoErro.BANCO_DADOS,

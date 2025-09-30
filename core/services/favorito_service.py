@@ -4,7 +4,6 @@ Serviço de favoritos - Lógica de negócio centralizada
 
 from typing import List
 from util.exceptions import RegraDeNegocioError
-from core.models.favorito_model import Favorito
 from util.logger import logger
 
 
@@ -12,11 +11,13 @@ class FavoritoService:
     """Serviço para operações de negócio com favoritos"""
 
     def __init__(self):
-        from core.repositories import favorito_repo, usuario_repo, item_repo
+        from core.repositories.favorito_repo import FavoritoRepo, favorito_repo
+        from core.repositories.usuario_repo import UsuarioRepo, usuario_repo
+        from core.repositories.item_repo import ItemRepo, item_repo
 
-        self.repo = favorito_repo
-        self.usuario_repo = usuario_repo
-        self.item_repo = item_repo
+        self.repo: FavoritoRepo = favorito_repo
+        self.usuario_repo: UsuarioRepo = usuario_repo
+        self.item_repo: ItemRepo = item_repo
 
     def adicionar_favorito(self, id_usuario: int, id_item: int) -> bool:
         """Adiciona um item aos favoritos"""
@@ -25,15 +26,10 @@ class FavoritoService:
         self.item_repo.obter_por_id(id_item)
 
         # Verificar se já está nos favoritos
-        try:
-            favorito_existente = self.repo.obter_favorito(id_usuario, id_item)
-            if favorito_existente:
-                raise RegraDeNegocioError("Item já está nos favoritos")
-        except:
-            pass  # Não existe, pode adicionar
+        if self.repo.verificar(id_usuario, id_item):
+            raise RegraDeNegocioError("Item já está nos favoritos")
 
-        favorito = Favorito(id_usuario=id_usuario, id_item=id_item)
-        sucesso = self.repo.inserir(favorito)
+        sucesso = self.repo.adicionar(id_usuario, id_item)
 
         if sucesso:
             logger.info(f"Favorito adicionado: usuário={id_usuario}, item={id_item}")
@@ -42,7 +38,7 @@ class FavoritoService:
 
     def remover_favorito(self, id_usuario: int, id_item: int) -> bool:
         """Remove um item dos favoritos"""
-        sucesso = self.repo.excluir(id_usuario, id_item)
+        sucesso = self.repo.remover(id_usuario, id_item)
 
         if sucesso:
             logger.info(f"Favorito removido: usuário={id_usuario}, item={id_item}")
@@ -51,15 +47,11 @@ class FavoritoService:
 
     def listar_favoritos(self, id_usuario: int) -> List[dict]:
         """Lista os favoritos de um usuário"""
-        return self.repo.obter_favoritos_por_usuario(id_usuario)
+        return self.repo.obter_por_noivo(id_usuario)
 
     def verificar_favorito(self, id_usuario: int, id_item: int) -> bool:
         """Verifica se um item está nos favoritos"""
-        try:
-            favorito = self.repo.obter_favorito(id_usuario, id_item)
-            return favorito is not None
-        except:
-            return False
+        return self.repo.verificar(id_usuario, id_item)
 
 
 favorito_service = FavoritoService()
