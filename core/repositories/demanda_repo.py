@@ -1,8 +1,8 @@
 from typing import Optional, List, Union
 from datetime import datetime
 from util.base_repo import BaseRepo
-from util.database import obter_conexao
 from util.exceptions import RecursoNaoEncontradoError
+from util.logger import logger
 from core.sql import demanda_sql
 from core.models.demanda_model import Demanda, StatusDemanda
 
@@ -55,81 +55,48 @@ class DemandaRepo(BaseRepo):
 
     def atualizar_status(self, id_demanda: int, status: StatusDemanda) -> bool:
         """Atualiza o status de uma demanda"""
-        try:
-            return self.executar_comando(demanda_sql.ATUALIZAR_STATUS_DEMANDA, (status.value, id_demanda))
-        except Exception as e:
-            print(f"Erro ao atualizar status da demanda: {e}")
-            return False
+        return self.executar_comando(demanda_sql.ATUALIZAR_STATUS_DEMANDA, (status.value, id_demanda))
 
     def obter_por_casal(self, id_casal: int) -> List[Demanda]:
         """Obtém todas as demandas de um casal"""
-        try:
-            resultados = self.executar_query(demanda_sql.OBTER_DEMANDAS_POR_CASAL, (id_casal,))
-            return [self._linha_para_objeto(row) for row in resultados]
-        except Exception as e:
-            print(f"Erro ao obter demandas por casal: {e}")
-            return []
+        resultados = self.executar_query(demanda_sql.OBTER_DEMANDAS_POR_CASAL, (id_casal,))
+        return [self._linha_para_objeto(row) for row in resultados]
 
     def obter_ativas(self) -> List[Demanda]:
         """Obtém todas as demandas ativas"""
-        try:
-            resultados = self.executar_query(demanda_sql.OBTER_DEMANDAS_ATIVAS)
-            return [self._linha_para_objeto(row) for row in resultados]
-        except Exception as e:
-            print(f"Erro ao obter demandas ativas: {e}")
-            return []
+        resultados = self.executar_query(demanda_sql.OBTER_DEMANDAS_ATIVAS)
+        return [self._linha_para_objeto(row) for row in resultados]
 
     def buscar(self, termo: str) -> List[Demanda]:
         """Busca demandas por termo no título ou descrição"""
-        try:
-            termo_like = f"%{termo}%"
-            resultados = self.executar_query(demanda_sql.BUSCAR_DEMANDAS, (termo_like, termo_like))
-            return [self._linha_para_objeto(row) for row in resultados]
-        except Exception as e:
-            print(f"Erro ao buscar demandas: {e}")
-            return []
+        termo_like = f"%{termo}%"
+        resultados = self.executar_query(demanda_sql.BUSCAR_DEMANDAS, (termo_like, termo_like))
+        return [self._linha_para_objeto(row) for row in resultados]
 
     def obter_por_status(self, status: Union[str, StatusDemanda]) -> List[Demanda]:
         """Obtém todas as demandas com um status específico"""
-        try:
-            # Converter para string se for enum
-            if isinstance(status, StatusDemanda):
-                status_str = status.value
-            else:
-                status_str = status.upper()
+        # Converter para string se for enum
+        if isinstance(status, StatusDemanda):
+            status_str = status.value
+        else:
+            status_str = status.upper()
 
-            # Validar status usando o enum StatusDemanda
-            valid_statuses = [s.value for s in StatusDemanda]
+        # Validar status usando o enum StatusDemanda
+        valid_statuses = [s.value for s in StatusDemanda]
 
-            if status_str not in valid_statuses:
-                print(f"Status inválido: {status}. Status válidos: {valid_statuses}")
-                return []
-
-            resultados = self.executar_query(demanda_sql.OBTER_DEMANDAS_POR_STATUS, (status_str,))
-            return [self._linha_para_objeto(row) for row in resultados]
-        except Exception as e:
-            print(f"Erro ao obter demandas por status {status}: {e}")
+        if status_str not in valid_statuses:
+            logger.warning(f"Status inválido: {status}. Status válidos: {valid_statuses}")
             return []
+
+        resultados = self.executar_query(demanda_sql.OBTER_DEMANDAS_POR_STATUS, (status_str,))
+        return [self._linha_para_objeto(row) for row in resultados]
 
     def obter_por_pagina(self, numero_pagina: int, tamanho_pagina: int) -> List[Demanda]:
         """Obtém demandas com paginação"""
-        try:
-            limite = tamanho_pagina
-            offset = (numero_pagina - 1) * tamanho_pagina
-            resultados = self.executar_query(demanda_sql.OBTER_DEMANDAS_POR_PAGINA, (limite, offset))
-            return [self._linha_para_objeto(row) for row in resultados]
-        except Exception as e:
-            print(f"Erro ao obter demandas por página: {e}")
-            return []
-
-    def contar(self) -> int:
-        """Conta o total de demandas no sistema"""
-        try:
-            resultados = self.executar_query("SELECT COUNT(*) as total FROM demanda")
-            return resultados[0]["total"] if resultados else 0
-        except Exception as e:
-            print(f"Erro ao contar demandas: {e}")
-            return 0
+        limite = tamanho_pagina
+        offset = (numero_pagina - 1) * tamanho_pagina
+        resultados = self.executar_query(demanda_sql.OBTER_DEMANDAS_POR_PAGINA, (limite, offset))
+        return [self._linha_para_objeto(row) for row in resultados]
 
 # Instância singleton do repositório
 demanda_repo = DemandaRepo()

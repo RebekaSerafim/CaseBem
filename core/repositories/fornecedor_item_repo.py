@@ -1,5 +1,6 @@
 from typing import Optional, List
 from util.base_repo import BaseRepoChaveComposta
+from util.logger import logger
 from core.sql import fornecedor_item_sql
 from core.models.fornecedor_item_model import FornecedorItem
 from core.models.tipo_fornecimento_model import TipoFornecimento
@@ -51,39 +52,27 @@ class FornecedorItemRepo(BaseRepoChaveComposta):
 
     def obter_itens_por_fornecedor(self, id_fornecedor: int) -> List[dict]:
         """Obtém todos os itens de um fornecedor"""
-        try:
-            resultados = self.executar_query(
-                fornecedor_item_sql.OBTER_ITENS_POR_FORNECEDOR,
-                (id_fornecedor,)
-            )
-            return [dict(resultado) for resultado in resultados]
-        except Exception as e:
-            print(f"Erro ao obter itens por fornecedor: {e}")
-            return []
+        resultados = self.executar_query(
+            fornecedor_item_sql.OBTER_ITENS_POR_FORNECEDOR,
+            (id_fornecedor,)
+        )
+        return [dict(resultado) for resultado in resultados]
 
     def obter_fornecedores_por_item(self, id_item: int) -> List[dict]:
         """Obtém todos os fornecedores de um item"""
-        try:
-            resultados = self.executar_query(
-                fornecedor_item_sql.OBTER_FORNECEDORES_POR_ITEM,
-                (id_item,)
-            )
-            return [dict(resultado) for resultado in resultados]
-        except Exception as e:
-            print(f"Erro ao obter fornecedores por item: {e}")
-            return []
+        resultados = self.executar_query(
+            fornecedor_item_sql.OBTER_FORNECEDORES_POR_ITEM,
+            (id_item,)
+        )
+        return [dict(resultado) for resultado in resultados]
 
     def obter_itens_por_fornecedor_e_tipo(self, id_fornecedor: int, tipo: TipoFornecimento) -> List[dict]:
         """Obtém itens de um fornecedor filtrados por tipo"""
-        try:
-            resultados = self.executar_query(
-                fornecedor_item_sql.OBTER_ITENS_POR_FORNECEDOR_E_TIPO,
-                (id_fornecedor, tipo.value)
-            )
-            return [dict(resultado) for resultado in resultados]
-        except Exception as e:
-            print(f"Erro ao obter itens por fornecedor e tipo: {e}")
-            return []
+        resultados = self.executar_query(
+            fornecedor_item_sql.OBTER_ITENS_POR_FORNECEDOR_E_TIPO,
+            (id_fornecedor, tipo.value)
+        )
+        return [dict(resultado) for resultado in resultados]
 
 # Instância singleton do repositório
 fornecedor_item_repo = FornecedorItemRepo()

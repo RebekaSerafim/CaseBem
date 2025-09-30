@@ -1,16 +1,18 @@
 from typing import Optional, List
+from util.base_repo import BaseRepo
 from util.exceptions import RecursoNaoEncontradoError
 from util.database import obter_conexao
-from core.sql.fornecedor_sql import *
+from util.logger import logger
+from core.sql import fornecedor_sql
 from core.models.fornecedor_model import Fornecedor
 from core.models.usuario_model import TipoUsuario
 from core.repositories import usuario_repo
 
-class FornecedorRepo:
+class FornecedorRepo(BaseRepo):
     """Repositório para operações com fornecedores"""
 
     def __init__(self):
-        self.nome_tabela = 'fornecedor'
+        super().__init__('fornecedor', Fornecedor, fornecedor_sql)
 
     def _linha_para_objeto(self, linha: dict) -> Fornecedor:
         """Converte linha do banco em objeto Fornecedor"""
@@ -42,130 +44,111 @@ class FornecedorRepo:
             newsletter=bool(linha["newsletter"])
         )
 
-    def criar_tabela(self) -> bool:
-        """Cria a tabela fornecedor"""
-        try:
-            with obter_conexao() as conexao:
-                conexao.execute(CRIAR_TABELA_FORNECEDOR)
-            return True
-        except Exception as e:
-            print(f"Erro ao criar tabela fornecedor: {e}")
-            return False
+    def _objeto_para_tupla_insert(self, fornecedor: Fornecedor) -> tuple:
+        """Prepara dados do fornecedor para inserção (apenas dados da tabela fornecedor)"""
+        return (
+            fornecedor.id,  # ID vem do usuário já inserido
+            fornecedor.nome_empresa,
+            fornecedor.cnpj,
+            fornecedor.descricao,
+            fornecedor.verificado,
+            fornecedor.data_verificacao,
+            fornecedor.newsletter
+        )
+
+    def _objeto_para_tupla_update(self, fornecedor: Fornecedor) -> tuple:
+        """Prepara dados do fornecedor para atualização"""
+        return (
+            fornecedor.nome_empresa,
+            fornecedor.cnpj,
+            fornecedor.descricao,
+            fornecedor.verificado,
+            fornecedor.data_verificacao,
+            fornecedor.newsletter,
+            fornecedor.id
+        )
 
     def inserir(self, fornecedor: Fornecedor) -> Optional[int]:
-        """Insere um novo fornecedor"""
-        try:
-            # Primeiro inserir na tabela usuario
-            usuario_id = usuario_repo.usuario_repo.inserir(fornecedor)
+        """
+        Insere um novo fornecedor (override de BaseRepo).
 
-            if usuario_id:
-                # Depois inserir na tabela fornecedor
-                with obter_conexao() as conexao:
-                    cursor = conexao.cursor()
-                    cursor.execute(INSERIR_FORNECEDOR,
-                        (usuario_id, fornecedor.nome_empresa, fornecedor.cnpj,
-                         fornecedor.descricao,
-                         fornecedor.verificado, fornecedor.data_verificacao,
-                         fornecedor.newsletter))
-                    return usuario_id
-        except Exception as e:
-            print(f"Erro ao inserir fornecedor: {e}")
+        Lógica especial: insere primeiro em Usuario, depois em Fornecedor.
+        """
+        # Primeiro inserir na tabela usuario
+        usuario_id = usuario_repo.usuario_repo.inserir(fornecedor)
+
+        if usuario_id:
+            # Atualizar ID do fornecedor com o ID do usuário
+            fornecedor.id = usuario_id
+
+            # Inserir na tabela fornecedor usando BaseRepo
+            with obter_conexao() as conexao:
+                cursor = conexao.cursor()
+                valores = self._objeto_para_tupla_insert(fornecedor)
+                cursor.execute(self.sql.INSERIR, valores)
+                logger.info(f"Fornecedor inserido", fornecedor_id=usuario_id)
+                return usuario_id
         return None
 
     def atualizar(self, fornecedor: Fornecedor) -> bool:
-        """Atualiza dados do fornecedor"""
-        try:
-            # Atualizar dados de usuario
-            usuario_repo.usuario_repo.atualizar(fornecedor)
+        """
+        Atualiza dados do fornecedor (override de BaseRepo).
 
-            # Atualizar dados específicos de fornecedor
-            with obter_conexao() as conexao:
-                cursor = conexao.cursor()
-                cursor.execute(ATUALIZAR_FORNECEDOR,
-                    (fornecedor.nome_empresa, fornecedor.cnpj, fornecedor.descricao,
-                     fornecedor.verificado, fornecedor.data_verificacao,
-                     fornecedor.newsletter, fornecedor.id))
-                return cursor.rowcount > 0
-        except Exception as e:
-            print(f"Erro ao atualizar fornecedor: {e}")
-            return False
+        Lógica especial: atualiza Usuario E Fornecedor.
+        """
+        # Atualizar dados de usuario
+        usuario_repo.usuario_repo.atualizar(fornecedor)
+
+        # Atualizar dados específicos de fornecedor
+        with obter_conexao() as conexao:
+            cursor = conexao.cursor()
+            valores = self._objeto_para_tupla_update(fornecedor)
+            cursor.execute(self.sql.ATUALIZAR, valores)
+            atualizado = cursor.rowcount > 0
+
+            if atualizado:
+                logger.info(f"Fornecedor atualizado", fornecedor_id=fornecedor.id)
+            else:
+                logger.warning(f"Nenhum fornecedor foi atualizado", fornecedor_id=fornecedor.id)
+
+            return atualizado
 
     def excluir(self, id: int) -> bool:
-        """Exclui um fornecedor"""
-        try:
-            with obter_conexao() as conexao:
-                cursor = conexao.cursor()
-                # Primeiro excluir da tabela fornecedor
-                cursor.execute(EXCLUIR_FORNECEDOR, (id,))
-                # Depois excluir da tabela usuario na mesma conexão
-                cursor.execute("DELETE FROM Usuario WHERE id = ?", (id,))
-                return cursor.rowcount > 0
-        except Exception as e:
-            print(f"Erro ao excluir fornecedor: {e}")
-            return False
+        """
+        Exclui um fornecedor (override de BaseRepo).
 
-    def obter_por_id(self, id: int) -> Fornecedor:
-        """Obtém fornecedor por ID"""
-        try:
-            with obter_conexao() as conexao:
-                cursor = conexao.cursor()
-                cursor.execute(OBTER_FORNECEDOR_POR_ID, (id,))
-                resultado = cursor.fetchone()
-                if resultado:
-                    return self._linha_para_objeto(resultado)
-        except Exception as e:
-            print(f"Erro ao obter fornecedor por ID: {e}")
-            raise
-        raise RecursoNaoEncontradoError(recurso="Fornecedor", identificador=id)
+        Lógica especial: exclui de Fornecedor E Usuario.
+        """
+        with obter_conexao() as conexao:
+            cursor = conexao.cursor()
+            # Primeiro excluir da tabela fornecedor
+            cursor.execute(self.sql.EXCLUIR, (id,))
+            # Depois excluir da tabela usuario na mesma conexão
+            cursor.execute(fornecedor_sql.EXCLUIR_USUARIO_FORNECEDOR, (id,))
+            excluido = cursor.rowcount > 0
 
-    def obter_por_pagina(self, numero_pagina: int, tamanho_pagina: int) -> List[Fornecedor]:
-        """Obtém fornecedores com paginação"""
-        try:
-            with obter_conexao() as conexao:
-                limite = tamanho_pagina
-                offset = (numero_pagina - 1) * tamanho_pagina
-                cursor = conexao.cursor()
-                cursor.execute(OBTER_FORNECEDORES_POR_PAGINA, (limite, offset))
-                resultados = cursor.fetchall()
-                return [self._linha_para_objeto(resultado) for resultado in resultados]
-        except Exception as e:
-            print(f"Erro ao obter fornecedores por página: {e}")
-            return []
+            if excluido:
+                logger.info(f"Fornecedor excluído", fornecedor_id=id)
+            else:
+                logger.warning(f"Nenhum fornecedor foi excluído", fornecedor_id=id)
 
-    def contar(self) -> int:
-        """Conta o total de fornecedores no sistema"""
-        try:
-            with obter_conexao() as conexao:
-                cursor = conexao.cursor()
-                cursor.execute(CONTAR_FORNECEDORES)
-                resultado = cursor.fetchone()
-                return resultado["total"] if resultado else 0
-        except Exception as e:
-            print(f"Erro ao contar fornecedores: {e}")
-            return 0
+            return excluido
 
     def contar_nao_verificados(self) -> int:
         """Conta o total de fornecedores não verificados"""
-        try:
-            with obter_conexao() as conexao:
-                cursor = conexao.cursor()
-                cursor.execute(CONTAR_FORNECEDORES_NAO_VERIFICADOS)
-                resultado = cursor.fetchone()
-                return resultado["total"] if resultado else 0
-        except Exception as e:
-            print(f"Erro ao contar fornecedores não verificados: {e}")
-            return 0
+        resultados = self.executar_query(fornecedor_sql.CONTAR_FORNECEDORES_NAO_VERIFICADOS)
+        total = resultados[0]["total"] if resultados else 0
+        logger.info(f"Contagem de fornecedores não verificados realizada", total=total)
+        return total
 
     def rejeitar(self, id_fornecedor: int) -> bool:
         """Rejeita um fornecedor, removendo a verificação"""
-        try:
-            with obter_conexao() as conexao:
-                cursor = conexao.cursor()
-                cursor.execute(REJEITAR_FORNECEDOR, (id_fornecedor,))
-                return cursor.rowcount > 0
-        except Exception as e:
-            print(f"Erro ao rejeitar fornecedor: {e}")
-            return False
+        sucesso = self.executar_comando(fornecedor_sql.REJEITAR_FORNECEDOR, (id_fornecedor,))
+        if sucesso:
+            logger.info(f"Fornecedor rejeitado", fornecedor_id=id_fornecedor)
+        else:
+            logger.warning(f"Nenhum fornecedor foi rejeitado", fornecedor_id=id_fornecedor)
+        return sucesso
 
 # Instância singleton do repositório
 fornecedor_repo = FornecedorRepo()

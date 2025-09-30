@@ -112,40 +112,27 @@ class UsuarioRepo(BaseRepo):
 
     def contar_usuarios(self) -> int:
         """Conta o total de usuários no sistema"""
-        try:
-            resultados = self.executar_query(usuario_sql.CONTAR_USUARIOS)
-            return resultados[0]["total"] if resultados else 0
-        except Exception as e:
-            print(f"Erro ao contar usuários: {e}")
-            return 0
+        return self.contar_registros()
 
     def contar_usuarios_por_tipo(self, tipo: TipoUsuario) -> int:
         """Conta o total de usuários de um tipo específico"""
-        try:
-            resultados = self.executar_query(usuario_sql.CONTAR_USUARIOS_POR_TIPO, (tipo.value,))
-            return resultados[0]["total"] if resultados else 0
-        except Exception as e:
-            print(f"Erro ao contar usuários por tipo: {e}")
-            return 0
+        resultados = self.executar_query(usuario_sql.CONTAR_USUARIOS_POR_TIPO, (tipo.value,))
+        return resultados[0]["total"] if resultados else 0
 
     def buscar_usuarios(self, busca: str = "", tipo_usuario: str = "", status: str = "", numero_pagina: int = 1, tamanho_pagina: int = 100) -> List[Usuario]:
         """Busca usuários com filtros de nome/email, tipo e status"""
-        try:
-            limite = tamanho_pagina
-            offset = (numero_pagina - 1) * tamanho_pagina
-            resultados = self.executar_query(usuario_sql.BUSCAR_USUARIOS, (busca, busca, busca, tipo_usuario, tipo_usuario, status, status, status, limite, offset))
-            return [self._linha_para_objeto(row) for row in resultados]
-        except Exception as e:
-            print(f"Erro ao buscar usuários: {e}")
-            return []
+        limite = tamanho_pagina
+        offset = (numero_pagina - 1) * tamanho_pagina
+        resultados = self.executar_query(usuario_sql.BUSCAR_USUARIOS, (busca, busca, busca, tipo_usuario, tipo_usuario, status, status, status, limite, offset))
+        return [self._linha_para_objeto(row) for row in resultados]
 
     def bloquear_usuario(self, id_usuario: int) -> bool:
         """Bloqueia (desativa) um usuário"""
-        return self.executar_comando(usuario_sql.BLOQUEAR_USUARIO, (id_usuario,))
+        return self.desativar(id_usuario)
 
     def ativar_usuario(self, id_usuario: int) -> bool:
         """Ativa um usuário"""
-        return self.executar_comando(usuario_sql.ATIVAR_USUARIO, (id_usuario,))
+        return self.ativar(id_usuario)
 
     def obter_usuarios_paginado(self, pagina: int, tamanho_pagina: int) -> tuple[List[Usuario], int]:
         """Obtém usuários paginados e retorna lista de usuários e total"""
@@ -153,41 +140,21 @@ class UsuarioRepo(BaseRepo):
 
     def buscar_usuarios_paginado(self, busca: str = "", tipo_usuario: str = "", status: str = "", pagina: int = 1, tamanho_pagina: int = 10) -> tuple[List[Usuario], int]:
         """Busca usuários paginados com filtros e retorna lista de usuários e total"""
-        try:
-            condicoes = []
-            parametros = []
+        offset = (pagina - 1) * tamanho_pagina
 
-            if busca:
-                condicoes.append("(nome LIKE ? OR email LIKE ?)")
-                busca_param = f"%{busca}%"
-                parametros.extend([busca_param, busca_param])
+        # Parâmetros seguem a ordem da query: busca, busca, busca, tipo, tipo, status, status, status
+        parametros_count = [busca, busca, busca, tipo_usuario, tipo_usuario, status, status, status]
+        parametros_select = parametros_count + [tamanho_pagina, offset]
 
-            if tipo_usuario:
-                condicoes.append("perfil = ?")
-                parametros.append(tipo_usuario)
+        # Contar total usando query parametrizada
+        total_resultado = self.executar_query(usuario_sql.CONTAR_USUARIOS_FILTRADOS, parametros_count)
+        total = total_resultado[0]["total"] if total_resultado else 0
 
-            if status == "ativo":
-                condicoes.append("ativo = 1")
-            elif status == "inativo":
-                condicoes.append("ativo = 0")
+        # Buscar usuários usando query parametrizada
+        resultados = self.executar_query(usuario_sql.BUSCAR_USUARIOS, parametros_select)
+        usuarios = [self._linha_para_objeto(row) for row in resultados]
 
-            where_clause = "WHERE " + " AND ".join(condicoes) if condicoes else ""
-
-            # Contar total
-            sql_count = f"SELECT COUNT(*) as total FROM usuario {where_clause}"
-            total_resultado = self.executar_query(sql_count, parametros[:])
-            total = total_resultado[0]["total"] if total_resultado else 0
-
-            # Buscar usuários da página
-            offset = (pagina - 1) * tamanho_pagina
-            sql_select = f"SELECT * FROM usuario {where_clause} ORDER BY id DESC LIMIT ? OFFSET ?"
-            resultados = self.executar_query(sql_select, parametros + [tamanho_pagina, offset])
-
-            usuarios = [self._linha_para_objeto(row) for row in resultados]
-            return usuarios, total
-        except Exception as e:
-            print(f"Erro ao buscar usuários paginados: {e}")
-            return [], 0
+        return usuarios, total
 
 # Instância singleton do repositório
 usuario_repo = UsuarioRepo()

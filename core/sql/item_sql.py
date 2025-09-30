@@ -154,3 +154,39 @@ WHERE i.ativo = 1
   AND (? IS NULL OR i.nome LIKE ? OR i.descricao LIKE ? OR i.observacoes LIKE ?)
   AND (? IS NULL OR i.id_categoria = ?);
 """
+
+OBTER_ITEM_PUBLICO_POR_ID = """
+SELECT i.id, i.id_fornecedor, i.tipo, i.nome, i.descricao, i.preco, i.observacoes, i.ativo, i.data_cadastro,
+       u.nome as fornecedor_nome, u.email as fornecedor_email, u.telefone as fornecedor_telefone,
+       f.nome_empresa as fornecedor_empresa, f.descricao as fornecedor_descricao,
+       c.nome as categoria_nome, c.descricao as categoria_descricao
+FROM item i
+JOIN usuario u ON i.id_fornecedor = u.id
+LEFT JOIN fornecedor f ON i.id_fornecedor = f.id
+LEFT JOIN categoria c ON i.id_categoria = c.id
+WHERE i.id = ? AND i.ativo = 1;
+"""
+
+ATIVAR_ITEM = "UPDATE item SET ativo = 1 WHERE id = ? AND id_fornecedor = ?"
+
+DESATIVAR_ITEM = "UPDATE item SET ativo = 0 WHERE id = ? AND id_fornecedor = ?"
+
+BUSCAR_ITENS_FILTRADOS = """
+SELECT id, id_fornecedor, tipo, nome, descricao, preco, id_categoria, observacoes, ativo, data_cadastro
+FROM item
+WHERE (? = '' OR nome LIKE ? OR descricao LIKE ? OR observacoes LIKE ?)
+  AND (? = '' OR tipo = ?)
+  AND (? = '' OR (? = 'ativo' AND ativo = 1) OR (? = 'inativo' AND ativo = 0))
+  AND (? = '' OR id_categoria = ?)
+ORDER BY id DESC
+LIMIT ? OFFSET ?;
+"""
+
+CONTAR_ITENS_FILTRADOS = """
+SELECT COUNT(*) as total
+FROM item
+WHERE (? = '' OR nome LIKE ? OR descricao LIKE ? OR observacoes LIKE ?)
+  AND (? = '' OR tipo = ?)
+  AND (? = '' OR (? = 'ativo' AND ativo = 1) OR (? = 'inativo' AND ativo = 0))
+  AND (? = '' OR id_categoria = ?);
+"""

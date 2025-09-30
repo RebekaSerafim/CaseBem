@@ -57,13 +57,9 @@ class CategoriaRepo(BaseRepo):
         )
         return [self._linha_para_objeto(row) for row in resultados]
 
-    @tratar_erro_banco_dados("contagem de categorias")
     def contar_categorias(self) -> int:
         """Conta o total de categorias no sistema"""
-        resultados = self.executar_query("SELECT COUNT(*) as total FROM categoria")
-        total = resultados[0]["total"] if resultados else 0
-        logger.info("Contagem de categorias realizada", total_categorias=total)
-        return total
+        return self.contar_registros()
 
     def obter_por_nome(self, nome: str, tipo_fornecimento: TipoFornecimento) -> Optional[Categoria]:
         """Busca uma categoria pelo nome e tipo de fornecimento"""
@@ -84,11 +80,11 @@ class CategoriaRepo(BaseRepo):
 
     def ativar_categoria(self, id: int) -> bool:
         """Ativa uma categoria"""
-        return self.executar_comando(categoria_sql.ATIVAR_CATEGORIA, (id,))
+        return self.ativar(id)
 
     def desativar_categoria(self, id: int) -> bool:
         """Desativa uma categoria"""
-        return self.executar_comando(categoria_sql.DESATIVAR_CATEGORIA, (id,))
+        return self.desativar(id)
 
     def obter_categorias_paginado(self, pagina: int, tamanho_pagina: int) -> tuple[List[Categoria], int]:
         """Obtém categorias paginadas e retorna lista de categorias e total"""
@@ -96,41 +92,22 @@ class CategoriaRepo(BaseRepo):
 
     def buscar_categorias_paginado(self, busca: str = "", tipo_fornecimento: str = "", status: str = "", pagina: int = 1, tamanho_pagina: int = 10) -> tuple[List[Categoria], int]:
         """Busca categorias paginadas com filtros e retorna lista de categorias e total"""
-        try:
-            condicoes = []
-            parametros = []
+        offset = (pagina - 1) * tamanho_pagina
+        busca_param = f"%{busca}%" if busca else ""
 
-            if busca:
-                condicoes.append("(nome LIKE ? OR descricao LIKE ?)")
-                busca_param = f"%{busca}%"
-                parametros.extend([busca_param, busca_param])
+        # Parâmetros seguem a ordem da query: busca, busca_like, busca_like, tipo, tipo, status, status, status
+        parametros_count = [busca, busca_param, busca_param, tipo_fornecimento, tipo_fornecimento, status, status, status]
+        parametros_select = parametros_count + [tamanho_pagina, offset]
 
-            if tipo_fornecimento:
-                condicoes.append("tipo_fornecimento = ?")
-                parametros.append(tipo_fornecimento)
+        # Contar total usando query parametrizada
+        total_resultado = self.executar_query(categoria_sql.CONTAR_CATEGORIAS_FILTRADAS, parametros_count)
+        total = total_resultado[0]["total"] if total_resultado else 0
 
-            if status == "ativo":
-                condicoes.append("ativo = 1")
-            elif status == "inativo":
-                condicoes.append("ativo = 0")
+        # Buscar categorias usando query parametrizada
+        resultados = self.executar_query(categoria_sql.BUSCAR_CATEGORIAS, parametros_select)
+        categorias = [self._linha_para_objeto(row) for row in resultados]
 
-            where_clause = "WHERE " + " AND ".join(condicoes) if condicoes else ""
-
-            # Contar total
-            sql_count = f"SELECT COUNT(*) as total FROM categoria {where_clause}"
-            total_resultado = self.executar_query(sql_count, parametros[:])
-            total = total_resultado[0]["total"] if total_resultado else 0
-
-            # Buscar categorias da página
-            offset = (pagina - 1) * tamanho_pagina
-            sql_select = f"SELECT * FROM categoria {where_clause} ORDER BY id DESC LIMIT ? OFFSET ?"
-            resultados = self.executar_query(sql_select, parametros + [tamanho_pagina, offset])
-
-            categorias = [self._linha_para_objeto(row) for row in resultados]
-            return categorias, total
-        except Exception as e:
-            print(f"Erro ao buscar categorias paginadas: {e}")
-            return [], 0
+        return categorias, total
 
 # Instância singleton do repositório
 categoria_repo = CategoriaRepo()

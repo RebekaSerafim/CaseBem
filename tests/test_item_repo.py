@@ -82,11 +82,9 @@ class TestItemRepo:
             data_cadastro=None
         )
 
-        # Act
-        id_item = item_repo.inserir(item)
-
-        # Assert
-        assert id_item is None, "Não deveria inserir item com categoria incompatível"
+        # Act & Assert
+        with pytest.raises(ValueError, match="Categoria .* não pertence ao tipo"):
+            item_repo.inserir(item)
 
     def test_obter_item_por_id_existente(self, test_db, fornecedor_exemplo):
         # Arrange

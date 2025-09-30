@@ -1,5 +1,6 @@
 from typing import Optional, List
 from util.base_repo import BaseRepoChaveComposta
+from util.logger import logger
 from core.sql import item_orcamento_sql
 from core.models.item_orcamento_model import ItemOrcamento
 
@@ -53,40 +54,28 @@ class ItemOrcamentoRepo(BaseRepoChaveComposta):
 
     def obter_por_orcamento(self, id_orcamento: int) -> List[dict]:
         """Obtém todos os itens de um orçamento"""
-        try:
-            resultados = self.executar_query(
-                item_orcamento_sql.OBTER_ITENS_POR_ORCAMENTO,
-                (id_orcamento,)
-            )
-            return [dict(resultado) for resultado in resultados]
-        except Exception as e:
-            print(f"Erro ao obter itens por orçamento: {e}")
-            return []
+        resultados = self.executar_query(
+            item_orcamento_sql.OBTER_ITENS_POR_ORCAMENTO,
+            (id_orcamento,)
+        )
+        return [dict(resultado) for resultado in resultados]
 
     def obter_total_orcamento(self, id_orcamento: int) -> float:
         """Calcula o total de um orçamento"""
-        try:
-            resultados = self.executar_query(
-                item_orcamento_sql.OBTER_TOTAL_ORCAMENTO,
-                (id_orcamento,)
-            )
-            if resultados and resultados[0]["total"]:
-                return resultados[0]["total"]
-            return 0.0
-        except Exception as e:
-            print(f"Erro ao obter total do orçamento: {e}")
-            return 0.0
+        resultados = self.executar_query(
+            item_orcamento_sql.OBTER_TOTAL_ORCAMENTO,
+            (id_orcamento,)
+        )
+        if resultados and resultados[0]["total"]:
+            return resultados[0]["total"]
+        return 0.0
 
     def excluir_por_orcamento(self, id_orcamento: int) -> bool:
         """Exclui todos os itens de um orçamento"""
-        try:
-            return self.executar_comando(
-                item_orcamento_sql.EXCLUIR_ITENS_POR_ORCAMENTO,
-                (id_orcamento,)
-            )
-        except Exception as e:
-            print(f"Erro ao excluir itens por orçamento: {e}")
-            return False
+        return self.executar_comando(
+            item_orcamento_sql.EXCLUIR_ITENS_POR_ORCAMENTO,
+            (id_orcamento,)
+        )
 
 # Instância singleton do repositório
 item_orcamento_repo = ItemOrcamentoRepo()

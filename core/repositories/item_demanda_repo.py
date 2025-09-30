@@ -1,5 +1,6 @@
 from typing import Optional, List
 from util.base_repo import BaseRepoChaveComposta
+from util.logger import logger
 from core.sql import item_demanda_sql
 from core.models.item_demanda_model import ItemDemanda
 
@@ -50,26 +51,18 @@ class ItemDemandaRepo(BaseRepoChaveComposta):
 
     def obter_por_demanda(self, id_demanda: int) -> List[dict]:
         """Obtém todos os itens de uma demanda"""
-        try:
-            resultados = self.executar_query(
-                item_demanda_sql.OBTER_ITENS_POR_DEMANDA,
-                (id_demanda,)
-            )
-            return [dict(resultado) for resultado in resultados]
-        except Exception as e:
-            print(f"Erro ao obter itens por demanda: {e}")
-            return []
+        resultados = self.executar_query(
+            item_demanda_sql.OBTER_ITENS_POR_DEMANDA,
+            (id_demanda,)
+        )
+        return [dict(resultado) for resultado in resultados]
 
     def excluir_por_demanda(self, id_demanda: int) -> bool:
         """Exclui todos os itens de uma demanda"""
-        try:
-            return self.executar_comando(
-                item_demanda_sql.EXCLUIR_ITENS_POR_DEMANDA,
-                (id_demanda,)
-            )
-        except Exception as e:
-            print(f"Erro ao excluir itens por demanda: {e}")
-            return False
+        return self.executar_comando(
+            item_demanda_sql.EXCLUIR_ITENS_POR_DEMANDA,
+            (id_demanda,)
+        )
 
 # Instância singleton do repositório
 item_demanda_repo = ItemDemandaRepo()

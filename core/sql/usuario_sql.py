@@ -105,6 +105,14 @@ ORDER BY nome ASC
 LIMIT ? OFFSET ?;
 """
 
+CONTAR_USUARIOS_FILTRADOS = """
+SELECT COUNT(*) as total
+FROM usuario
+WHERE (? = '' OR nome LIKE '%' || ? || '%' OR email LIKE '%' || ? || '%')
+  AND (? = '' OR perfil = ?)
+  AND (? = '' OR (? = 'ativo' AND ativo = 1) OR (? = 'inativo' AND ativo = 0));
+"""
+
 BLOQUEAR_USUARIO = """
 UPDATE usuario
 SET ativo = 0

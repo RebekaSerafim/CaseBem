@@ -182,6 +182,51 @@ class BaseRepo:
                    pagina=pagina, tamanho_pagina=tamanho_pagina, total_registros=total)
         return objetos, total
 
+    def contar(self) -> int:
+        """
+        Alias para contar_registros() - mantém compatibilidade com API existente
+
+        Returns:
+            int: Total de registros na tabela
+        """
+        return self.contar_registros()
+
+    @tratar_erro_banco_dados("ativação de registro")
+    def ativar(self, id: int, campo: str = "ativo") -> bool:
+        """
+        Ativa um registro (soft delete pattern)
+
+        Args:
+            id: ID do registro
+            campo: Nome do campo booleano (padrão: 'ativo')
+
+        Returns:
+            bool: True se ativado com sucesso
+        """
+        sql = f"UPDATE {self.nome_tabela} SET {campo} = 1 WHERE id = ?"
+        sucesso = self.executar_comando(sql, (id,))
+        if sucesso:
+            logger.info(f"Registro ativado em {self.nome_tabela}", id=id, campo=campo)
+        return sucesso
+
+    @tratar_erro_banco_dados("desativação de registro")
+    def desativar(self, id: int, campo: str = "ativo") -> bool:
+        """
+        Desativa um registro (soft delete pattern)
+
+        Args:
+            id: ID do registro
+            campo: Nome do campo booleano (padrão: 'ativo')
+
+        Returns:
+            bool: True se desativado com sucesso
+        """
+        sql = f"UPDATE {self.nome_tabela} SET {campo} = 0 WHERE id = ?"
+        sucesso = self.executar_comando(sql, (id,))
+        if sucesso:
+            logger.info(f"Registro desativado em {self.nome_tabela}", id=id, campo=campo)
+        return sucesso
+
 
 class BaseRepoChaveComposta:
     """

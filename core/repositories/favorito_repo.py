@@ -1,5 +1,6 @@
 from typing import Optional, List
 from util.base_repo import BaseRepo
+from util.logger import logger
 from core.sql import favorito_sql
 from core.models.favorito_model import Favorito
 
@@ -39,65 +40,45 @@ class FavoritoRepo(BaseRepo):
 
     def adicionar(self, id_noivo: int, id_item: int) -> bool:
         """Adiciona um item aos favoritos do noivo"""
-        try:
-            favorito = Favorito(
-                id=0,
-                id_noivo=id_noivo,
-                id_item=id_item,
-                data_adicao=None
-            )
-            id_inserido = self.inserir(favorito)
-            return id_inserido is not None and id_inserido > 0
-        except Exception as e:
-            print(f"Erro ao adicionar favorito: {e}")
-            return False
+        favorito = Favorito(
+            id=0,
+            id_noivo=id_noivo,
+            id_item=id_item,
+            data_adicao=None
+        )
+        id_inserido = self.inserir(favorito)
+        return id_inserido is not None and id_inserido > 0
 
     def remover(self, id_noivo: int, id_item: int) -> bool:
         """Remove um item dos favoritos do noivo"""
-        try:
-            return self.executar_comando(
-                favorito_sql.EXCLUIR_FAVORITO,
-                (id_noivo, id_item)
-            )
-        except Exception as e:
-            print(f"Erro ao remover favorito: {e}")
-            return False
+        return self.executar_comando(
+            favorito_sql.EXCLUIR_FAVORITO,
+            (id_noivo, id_item)
+        )
 
     def obter_por_noivo(self, id_noivo: int) -> List[dict]:
         """Obtém todos os favoritos de um noivo com dados dos itens"""
-        try:
-            resultados = self.executar_query(
-                favorito_sql.OBTER_FAVORITOS_POR_NOIVO,
-                (id_noivo,)
-            )
-            return [dict(resultado) for resultado in resultados]
-        except Exception as e:
-            print(f"Erro ao obter favoritos: {e}")
-            return []
+        resultados = self.executar_query(
+            favorito_sql.OBTER_FAVORITOS_POR_NOIVO,
+            (id_noivo,)
+        )
+        return [dict(resultado) for resultado in resultados]
 
     def verificar(self, id_noivo: int, id_item: int) -> bool:
         """Verifica se um item está nos favoritos do noivo"""
-        try:
-            resultados = self.executar_query(
-                favorito_sql.VERIFICAR_FAVORITO,
-                (id_noivo, id_item)
-            )
-            return resultados[0]["count"] > 0 if resultados else False
-        except Exception as e:
-            print(f"Erro ao verificar favorito: {e}")
-            return False
+        resultados = self.executar_query(
+            favorito_sql.VERIFICAR_FAVORITO,
+            (id_noivo, id_item)
+        )
+        return resultados[0]["count"] > 0 if resultados else False
 
     def contar_por_noivo(self, id_noivo: int) -> int:
         """Conta o total de favoritos de um noivo"""
-        try:
-            resultados = self.executar_query(
-                favorito_sql.CONTAR_FAVORITOS_POR_NOIVO,
-                (id_noivo,)
-            )
-            return resultados[0]["total"] if resultados else 0
-        except Exception as e:
-            print(f"Erro ao contar favoritos: {e}")
-            return 0
+        resultados = self.executar_query(
+            favorito_sql.CONTAR_FAVORITOS_POR_NOIVO,
+            (id_noivo,)
+        )
+        return resultados[0]["total"] if resultados else 0
 
 # Instância singleton do repositório
 favorito_repo = FavoritoRepo()

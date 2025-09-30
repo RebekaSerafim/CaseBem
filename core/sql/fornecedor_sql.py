@@ -85,3 +85,5 @@ UPDATE fornecedor
 SET verificado = 0, data_verificacao = NULL
 WHERE id = ?;
 """
+
+EXCLUIR_USUARIO_FORNECEDOR = "DELETE FROM usuario WHERE id = ?"

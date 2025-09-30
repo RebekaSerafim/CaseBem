@@ -86,6 +86,14 @@ WHERE (? = '' OR nome LIKE ? OR descricao LIKE ?)
 ORDER BY tipo_fornecimento ASC, nome ASC;
 """
 
+CONTAR_CATEGORIAS_FILTRADAS = """
+SELECT COUNT(*) as total
+FROM categoria
+WHERE (? = '' OR nome LIKE ? OR descricao LIKE ?)
+  AND (? = '' OR tipo_fornecimento = ?)
+  AND (? = '' OR (? = 'ativo' AND ativo = 1) OR (? = 'inativo' AND ativo = 0));
+"""
+
 ATIVAR_CATEGORIA = """
 UPDATE categoria
 SET ativo = 1

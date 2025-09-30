@@ -1,8 +1,8 @@
 from typing import Optional, List
 from util.base_repo import BaseRepo
 from core.repositories import usuario_repo
-from util.database import obter_conexao
 from util.exceptions import RecursoNaoEncontradoError
+from util.logger import logger
 from core.sql import casal_sql
 from core.models.casal_model import Casal
 
@@ -48,42 +48,30 @@ class CasalRepo(BaseRepo):
 
     def obter_por_id_completo(self, id: int) -> Casal:
         """Obtém casal por ID com dados dos noivos"""
-        try:
-            resultados = self.executar_query(casal_sql.OBTER_CASAL_POR_ID, (id,))
-            if resultados:
-                resultado = resultados[0]
-                # Usa _linha_para_objeto para criar o objeto base
-                casal = self._linha_para_objeto(resultado)
-                # Adiciona os objetos Usuario dos noivos
-                casal.noivo1 = usuario_repo.usuario_repo.obter_por_id(resultado["id_noivo1"])
-                casal.noivo2 = usuario_repo.usuario_repo.obter_por_id(resultado["id_noivo2"])
-                return casal
-        except Exception as e:
-            print(f"Erro ao obter casal por ID: {e}")
-            raise
+        resultados = self.executar_query(casal_sql.OBTER_CASAL_POR_ID, (id,))
+        if resultados:
+            resultado = resultados[0]
+            # Usa _linha_para_objeto para criar o objeto base
+            casal = self._linha_para_objeto(resultado)
+            # Adiciona os objetos Usuario dos noivos
+            casal.noivo1 = usuario_repo.usuario_repo.obter_por_id(resultado["id_noivo1"])
+            casal.noivo2 = usuario_repo.usuario_repo.obter_por_id(resultado["id_noivo2"])
+            return casal
         raise RecursoNaoEncontradoError(recurso="Casal", identificador=id)
 
     def obter_por_pagina(self, numero_pagina: int, tamanho_pagina: int) -> List[Casal]:
         """Obtém casais com paginação"""
-        try:
-            limite = tamanho_pagina
-            offset = (numero_pagina - 1) * tamanho_pagina
-            resultados = self.executar_query(casal_sql.OBTER_CASAL_POR_PAGINA, (limite, offset))
-            return [self._linha_para_objeto(row) for row in resultados]
-        except Exception as e:
-            print(f"Erro ao obter casais por página: {e}")
-            return []
+        limite = tamanho_pagina
+        offset = (numero_pagina - 1) * tamanho_pagina
+        resultados = self.executar_query(casal_sql.OBTER_CASAL_POR_PAGINA, (limite, offset))
+        return [self._linha_para_objeto(row) for row in resultados]
 
     def obter_por_noivo(self, id_noivo: int) -> Optional[Casal]:
         """Obtém casal pelo ID de um dos noivos"""
-        try:
-            resultados = self.executar_query(casal_sql.OBTER_CASAL_POR_NOIVO, (id_noivo, id_noivo))
-            if resultados:
-                return self._linha_para_objeto(resultados[0])
-            return None
-        except Exception as e:
-            print(f"Erro ao obter casal por noivo: {e}")
-            return None
+        resultados = self.executar_query(casal_sql.OBTER_CASAL_POR_NOIVO, (id_noivo, id_noivo))
+        if resultados:
+            return self._linha_para_objeto(resultados[0])
+        return None
 
 # Instância singleton do repositório
 casal_repo = CasalRepo()
