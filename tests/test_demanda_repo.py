@@ -1,10 +1,10 @@
 import pytest
 from datetime import datetime
-from model.demanda_model import Demanda
-from model.casal_model import Casal
-from model.categoria_model import Categoria
-from model.tipo_fornecimento_model import TipoFornecimento
-from repo import demanda_repo, casal_repo, usuario_repo, categoria_repo
+from core.models.demanda_model import Demanda
+from core.models.casal_model import Casal
+from core.models.categoria_model import Categoria
+from core.models.tipo_fornecimento_model import TipoFornecimento
+from core.repositories import demanda_repo, casal_repo, usuario_repo, categoria_repo
 from util.exceptions import RecursoNaoEncontradoError
 
 class TestDemandaRepo:
@@ -189,7 +189,7 @@ class TestDemandaRepo:
         for usuario in lista_usuarios_exemplo[:10]:
             usuario_repo.inserir_usuario(usuario)
 
-        from model.casal_model import Casal
+        from core.models.casal_model import Casal
         for i in range(1, 11, 2):
             casal = Casal(0, i, i+1, 10000.0)
             casal_repo.inserir_casal(casal)
@@ -229,7 +229,7 @@ class TestDemandaRepo:
         for noivo in lista_noivos_exemplo[:4]:
             usuario_repo.inserir_usuario(noivo)
         
-        from model.casal_model import Casal
+        from core.models.casal_model import Casal
         casal1 = Casal(0, 1, 2, 10000.0)
         casal2 = Casal(0, 3, 4, 15000.0)
         id_casal1 = casal_repo.inserir_casal(casal1)

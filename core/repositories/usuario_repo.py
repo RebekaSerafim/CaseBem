@@ -1,7 +1,7 @@
 from typing import Optional, List
 from util.base_repo import BaseRepo
-from sql import usuario_sql
-from model.usuario_model import TipoUsuario, Usuario
+from core.sql import usuario_sql
+from core.models.usuario_model import TipoUsuario, Usuario
 
 class UsuarioRepo(BaseRepo):
     """Repositório para operações com usuários"""

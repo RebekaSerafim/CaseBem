@@ -1,13 +1,13 @@
 from typing import Optional
 import json
 import os
-from model.usuario_model import Usuario, TipoUsuario
-from model.categoria_model import Categoria
-from model.item_model import Item
-from model.tipo_fornecimento_model import TipoFornecimento
-from model.fornecedor_model import Fornecedor
-from model.casal_model import Casal
-from repo import usuario_repo, fornecedor_repo, casal_repo, item_repo, categoria_repo, fornecedor_item_repo, item_demanda_repo, item_orcamento_repo, demanda_repo, orcamento_repo, favorito_repo, chat_repo
+from core.models.usuario_model import Usuario, TipoUsuario
+from core.models.categoria_model import Categoria
+from core.models.item_model import Item
+from core.models.tipo_fornecimento_model import TipoFornecimento
+from core.models.fornecedor_model import Fornecedor
+from core.models.casal_model import Casal
+from core.repositories import usuario_repo, fornecedor_repo, casal_repo, item_repo, categoria_repo, fornecedor_item_repo, item_demanda_repo, item_orcamento_repo, demanda_repo, orcamento_repo, favorito_repo, chat_repo
 from util.security import criar_hash_senha
 from util.migracoes_avatar import migrar_sistema_avatar
 import random

@@ -2,8 +2,10 @@ from fastapi import APIRouter, Request, Form, status, UploadFile, File
 from fastapi.responses import RedirectResponse
 from fastapi.templating import Jinja2Templates
 from util.auth_decorator import requer_autenticacao
-from model.usuario_model import TipoUsuario
-from repo import usuario_repo
+from util.error_handlers import tratar_erro_rota
+from util.logger import logger
+from core.models.usuario_model import TipoUsuario
+from core.repositories import usuario_repo
 from util.security import criar_hash_senha, verificar_senha, validar_forca_senha
 from util.template_helpers import configurar_filtros_jinja
 from util.avatar_util import (
@@ -33,6 +35,7 @@ async def get_alterar_senha(request: Request, usuario_logado: dict = None):
 
 @router.post("/alterar-senha")
 @requer_autenticacao([TipoUsuario.ADMIN.value, TipoUsuario.FORNECEDOR.value, TipoUsuario.NOIVO.value])
+@tratar_erro_rota(template_erro="usuario/alterar_senha.html")
 async def post_alterar_senha(
     request: Request,
     senha_atual: str = Form(...),
@@ -43,6 +46,7 @@ async def post_alterar_senha(
     """Processa alteração de senha (todos os perfis)"""
     # Validar confirmação de senha
     if nova_senha != confirmar_senha:
+        logger.warning(f"Tentativa de alteração de senha com senhas não coincidentes - usuario_id: {usuario_logado['id']}")
         return templates.TemplateResponse("usuario/alterar_senha.html", {
             "request": request,
             "usuario_logado": usuario_logado,
@@ -52,55 +56,51 @@ async def post_alterar_senha(
     # Validar força da nova senha
     senha_valida, erro_senha = validar_forca_senha(nova_senha)
     if not senha_valida:
+        logger.warning(f"Tentativa de alteração de senha com senha fraca - usuario_id: {usuario_logado['id']}, erro: {erro_senha}")
         return templates.TemplateResponse("usuario/alterar_senha.html", {
             "request": request,
             "usuario_logado": usuario_logado,
             "erro": erro_senha
         })
 
-    try:
-        # Buscar usuário atual
-        usuario = usuario_repo.obter_usuario_por_id(usuario_logado['id'])
-        if not usuario:
-            return templates.TemplateResponse("usuario/alterar_senha.html", {
-                "request": request,
-                "usuario_logado": usuario_logado,
-                "erro": "Usuário não encontrado"
-            })
-
-        # Verificar senha atual
-        if not verificar_senha(senha_atual, usuario.senha):
-            return templates.TemplateResponse("usuario/alterar_senha.html", {
-                "request": request,
-                "usuario_logado": usuario_logado,
-                "erro": "Senha atual incorreta"
-            })
-
-        # Gerar hash da nova senha
-        nova_senha_hash = criar_hash_senha(nova_senha)
-
-        # Atualizar senha no banco
-        sucesso = usuario_repo.atualizar_senha_usuario(usuario.id, nova_senha_hash)
-
-        if sucesso:
-            return templates.TemplateResponse("usuario/alterar_senha.html", {
-                "request": request,
-                "usuario_logado": usuario_logado,
-                "sucesso": "Senha alterada com sucesso!"
-            })
-        else:
-            return templates.TemplateResponse("usuario/alterar_senha.html", {
-                "request": request,
-                "usuario_logado": usuario_logado,
-                "erro": "Erro ao atualizar senha no banco de dados"
-            })
-
-    except Exception as e:
-        print(f"Erro ao alterar senha: {e}")
+    # Buscar usuário atual
+    usuario = usuario_repo.obter_usuario_por_id(usuario_logado['id'])
+    if not usuario:
+        logger.error(f"Usuário não encontrado ao alterar senha - usuario_id: {usuario_logado['id']}")
         return templates.TemplateResponse("usuario/alterar_senha.html", {
             "request": request,
             "usuario_logado": usuario_logado,
-            "erro": "Erro interno do servidor"
+            "erro": "Usuário não encontrado"
+        })
+
+    # Verificar senha atual
+    if not verificar_senha(senha_atual, usuario.senha):
+        logger.warning(f"Senha atual incorreta ao alterar senha - usuario_id: {usuario_logado['id']}")
+        return templates.TemplateResponse("usuario/alterar_senha.html", {
+            "request": request,
+            "usuario_logado": usuario_logado,
+            "erro": "Senha atual incorreta"
+        })
+
+    # Gerar hash da nova senha
+    nova_senha_hash = criar_hash_senha(nova_senha)
+
+    # Atualizar senha no banco
+    sucesso = usuario_repo.atualizar_senha_usuario(usuario.id, nova_senha_hash)
+
+    if sucesso:
+        logger.info(f"Senha alterada com sucesso - usuario_id: {usuario_logado['id']}")
+        return templates.TemplateResponse("usuario/alterar_senha.html", {
+            "request": request,
+            "usuario_logado": usuario_logado,
+            "sucesso": "Senha alterada com sucesso!"
+        })
+    else:
+        logger.error(f"Erro ao atualizar senha no banco de dados - usuario_id: {usuario_logado['id']}")
+        return templates.TemplateResponse("usuario/alterar_senha.html", {
+            "request": request,
+            "usuario_logado": usuario_logado,
+            "erro": "Erro ao atualizar senha no banco de dados"
         })
 
 # ==================== UPLOAD DE AVATAR ====================
@@ -113,18 +113,18 @@ async def alterar_foto(
     usuario_logado: dict = None
 ):
     """Processa o upload de avatar do usuário"""
+    perfil = usuario_logado['perfil'].lower()
 
     # Validar tipo de arquivo
     tipos_permitidos = ["image/jpeg", "image/png", "image/jpg", "image/webp"]
     if foto.content_type not in tipos_permitidos:
-        # Redirecionar de volta com erro baseado no perfil
-        perfil = usuario_logado['perfil'].lower()
+        logger.warning(f"Tentativa de upload com tipo de arquivo inválido - usuario_id: {usuario_logado['id']}, tipo: {foto.content_type}")
         return RedirectResponse(f"/{perfil}/perfil?erro=tipo_invalido", status.HTTP_303_SEE_OTHER)
 
     # Validar tamanho do arquivo (máximo 5MB)
     conteudo = await foto.read()
     if len(conteudo) > 5 * 1024 * 1024:  # 5MB
-        perfil = usuario_logado['perfil'].lower()
+        logger.warning(f"Tentativa de upload com arquivo muito grande - usuario_id: {usuario_logado['id']}, tamanho: {len(conteudo)} bytes")
         return RedirectResponse(f"/{perfil}/perfil?erro=arquivo_muito_grande", status.HTTP_303_SEE_OTHER)
 
     try:
@@ -160,19 +160,17 @@ async def alterar_foto(
 
             # Salvar como JPG
             imagem_quadrada.save(caminho_arquivo, "JPEG", quality=85)
+            logger.info(f"Avatar atualizado com sucesso - usuario_id: {usuario_logado['id']}")
 
         except Exception as e:
-            print(f"Erro ao processar imagem: {e}")
-            perfil = usuario_logado['perfil'].lower()
+            logger.error(f"Erro ao processar imagem - usuario_id: {usuario_logado['id']}, erro: {e}")
             return RedirectResponse(f"/{perfil}/perfil?erro=processamento_falhou", status.HTTP_303_SEE_OTHER)
 
         # Redirecionar com sucesso
-        perfil = usuario_logado['perfil'].lower()
         return RedirectResponse(f"/{perfil}/perfil?foto_sucesso=1", status.HTTP_303_SEE_OTHER)
 
     except Exception as e:
-        print(f"Erro ao salvar avatar: {e}")
-        perfil = usuario_logado['perfil'].lower()
+        logger.error(f"Erro ao salvar avatar - usuario_id: {usuario_logado['id']}, erro: {e}")
         return RedirectResponse(f"/{perfil}/perfil?erro=upload_falhou", status.HTTP_303_SEE_OTHER)
 
 @router.post("/perfil/remover-foto")
@@ -182,16 +180,16 @@ async def remover_foto(
     usuario_logado: dict = None
 ):
     """Remove o avatar do usuário"""
+    perfil = usuario_logado['perfil'].lower()
 
     try:
         # Excluir avatar do sistema de arquivos
         excluir_avatar(usuario_logado['id'])
+        logger.info(f"Avatar removido com sucesso - usuario_id: {usuario_logado['id']}")
 
         # Redirecionar com sucesso
-        perfil = usuario_logado['perfil'].lower()
         return RedirectResponse(f"/{perfil}/perfil?foto_removida=1", status.HTTP_303_SEE_OTHER)
 
     except Exception as e:
-        print(f"Erro ao remover avatar: {e}")
-        perfil = usuario_logado['perfil'].lower()
+        logger.error(f"Erro ao remover avatar - usuario_id: {usuario_logado['id']}, erro: {e}")
         return RedirectResponse(f"/{perfil}/perfil?erro=remocao_falhou", status.HTTP_303_SEE_OTHER)

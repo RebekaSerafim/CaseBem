@@ -2,7 +2,7 @@ from dataclasses import dataclass
 from typing import Optional
 from datetime import datetime
 
-from model.usuario_model import Usuario
+from core.models.usuario_model import Usuario
 
 @dataclass
 class Chat:    

@@ -7,7 +7,7 @@ from pydantic import EmailStr, Field, field_validator, ValidationInfo, model_val
 from typing import Optional, Any
 from decimal import Decimal
 from .base_dto import BaseDTO
-from model.tipo_fornecimento_model import TipoFornecimento
+from core.models.tipo_fornecimento_model import TipoFornecimento
 from util.validacoes_dto import (
     validar_texto_obrigatorio, validar_texto_opcional, validar_valor_monetario,
     validar_numero_inteiro, validar_enum_valor, validar_cpf, validar_cnpj,

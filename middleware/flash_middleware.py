@@ -1,13 +1,7 @@
-"""
-Middleware para injetar mensagens flash nos templates
-"""
-
 from fastapi import Request
 from fastapi.templating import Jinja2Templates
 from starlette.middleware.base import BaseHTTPMiddleware
-from starlette.responses import Response
 from util.flash_messages import get_flashed_messages
-import json
 
 
 class FlashMessageMiddleware(BaseHTTPMiddleware):

@@ -1,8 +1,8 @@
 from typing import List
 from datetime import datetime
 from util.database import obter_conexao
-from sql.chat_sql import *
-from model.chat_model import Chat
+from core.sql.chat_sql import *
+from core.models.chat_model import Chat
 
 def criar_tabela_chat() -> bool:
     try:

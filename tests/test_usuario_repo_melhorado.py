@@ -3,8 +3,8 @@ Exemplo de teste usando factories - muito mais limpo e flexível
 """
 
 import pytest
-from repo import usuario_repo
-from model.usuario_model import TipoUsuario
+from core.repositories import usuario_repo
+from core.models.usuario_model import TipoUsuario
 from util.exceptions import RecursoNaoEncontradoError, BancoDadosError
 from pydantic import ValidationError
 from tests.test_helpers import assert_usuario_valido, AssertHelper

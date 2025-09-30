@@ -1,8 +1,8 @@
 from dataclasses import dataclass
 from datetime import datetime
 from typing import Optional
-from model.demanda_model import Demanda
-from model.usuario_model import Usuario
+from core.models.demanda_model import Demanda
+from core.models.usuario_model import Usuario
 
 @dataclass
 class Orcamento:

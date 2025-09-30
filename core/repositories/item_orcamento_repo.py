@@ -1,7 +1,8 @@
 from typing import Optional, List
+from util.exceptions import RecursoNaoEncontradoError
 from util.database import obter_conexao
-from sql.item_orcamento_sql import *
-from model.item_orcamento_model import ItemOrcamento
+from core.sql.item_orcamento_sql import *
+from core.models.item_orcamento_model import ItemOrcamento
 
 def criar_tabela_item_orcamento() -> bool:
     try:
@@ -49,7 +50,7 @@ def excluir_item_orcamento(id_orcamento: int, id_item: int) -> bool:
         print(f"Erro ao excluir item_orcamento: {e}")
         return False
 
-def obter_item_orcamento(id_orcamento: int, id_item: int) -> Optional[ItemOrcamento]:
+def obter_item_orcamento(id_orcamento: int, id_item: int) -> ItemOrcamento:
     try:
         with obter_conexao() as conexao:
             cursor = conexao.cursor()
@@ -66,7 +67,8 @@ def obter_item_orcamento(id_orcamento: int, id_item: int) -> Optional[ItemOrcame
                 )
     except Exception as e:
         print(f"Erro ao obter item_orcamento: {e}")
-    return None
+        raise
+    raise RecursoNaoEncontradoError(recurso="ItemOrcamento", identificador=f"{id_orcamento}/{id_item}")
 
 def obter_itens_por_orcamento(id_orcamento: int) -> List[dict]:
     try:

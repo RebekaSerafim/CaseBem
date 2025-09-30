@@ -6,7 +6,7 @@ Agrupa todas as validações e estruturas de dados para operações com categori
 from pydantic import Field, field_validator
 from typing import Optional
 from .base_dto import BaseDTO
-from model.tipo_fornecimento_model import TipoFornecimento
+from core.models.tipo_fornecimento_model import TipoFornecimento
 from util.validacoes_dto import (
     validar_texto_obrigatorio, validar_texto_opcional, validar_enum_valor,
     ValidadorWrapper

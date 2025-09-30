@@ -1,9 +1,9 @@
 import pytest
 from decimal import Decimal
-from model.item_model import Item
-from model.categoria_model import Categoria
-from model.tipo_fornecimento_model import TipoFornecimento
-from repo import item_repo, categoria_repo, usuario_repo, fornecedor_repo
+from core.models.item_model import Item
+from core.models.categoria_model import Categoria
+from core.models.tipo_fornecimento_model import TipoFornecimento
+from core.repositories import item_repo, categoria_repo, usuario_repo, fornecedor_repo
 from util.exceptions import RecursoNaoEncontradoError
 
 class TestItemRepo:

@@ -1,7 +1,7 @@
 import pytest
-from model.fornecedor_model import Fornecedor
-from model.usuario_model import TipoUsuario
-from repo import fornecedor_repo, usuario_repo
+from core.models.fornecedor_model import Fornecedor
+from core.models.usuario_model import TipoUsuario
+from core.repositories import fornecedor_repo, usuario_repo
 from util.exceptions import RecursoNaoEncontradoError
 
 class TestFornecedorRepo:

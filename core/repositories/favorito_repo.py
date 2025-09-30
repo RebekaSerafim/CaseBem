@@ -1,7 +1,7 @@
 from typing import Optional, List
 from util.database import obter_conexao
-from sql.favorito_sql import *
-from model.favorito_model import Favorito
+from core.sql.favorito_sql import *
+from core.models.favorito_model import Favorito
 
 def criar_tabela_favoritos() -> bool:
     try:

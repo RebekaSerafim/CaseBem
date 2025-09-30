@@ -6,16 +6,9 @@ incluindo criação, autenticação, validações e operações complexas.
 """
 
 from typing import Optional, List
-from core.exceptions import RegraDeNegocioError, RecursoNaoEncontradoError, ValidacaoError
+from util.exceptions import RegraDeNegocioError, RecursoNaoEncontradoError, ValidacaoError
 from core.models.usuario_model import Usuario, TipoUsuario
-from infrastructure.logging.logger import CaseBemLogger
-
-# Imports serão ajustados quando reorganizarmos os repositórios
-# from core.repositories.usuario_repository import usuario_repo
-# from api.dtos.usuario_dtos import CriarUsuarioDTO, AtualizarUsuarioDTO
-# from infrastructure.security.password_manager import hash_password, verify_password
-
-logger = CaseBemLogger()
+from util.logger import logger
 
 
 class UsuarioService:
@@ -28,8 +21,7 @@ class UsuarioService:
     """
 
     def __init__(self):
-        # Temporariamente usando imports antigos para manter funcionamento
-        from repo.usuario_repo import usuario_repo
+        from core.repositories import usuario_repo
         from util.security import hash_password, verify_password
 
         self.repo = usuario_repo

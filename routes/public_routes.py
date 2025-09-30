@@ -4,16 +4,18 @@ from fastapi.templating import Jinja2Templates
 from pydantic import ValidationError
 import os
 
-from model.usuario_model import TipoUsuario, Usuario
-from model.fornecedor_model import Fornecedor
-from model.casal_model import Casal
+from core.models.usuario_model import TipoUsuario, Usuario
+from core.models.fornecedor_model import Fornecedor
+from core.models.casal_model import Casal
 from dtos import CadastroNoivosDTO, CadastroFornecedorDTO
-from repo import usuario_repo, fornecedor_repo, casal_repo
+from core.repositories import usuario_repo, fornecedor_repo, casal_repo
 from util.auth_decorator import criar_sessao
 from util.security import criar_hash_senha, verificar_senha, validar_forca_senha, validar_cpf, validar_cnpj, validar_telefone
 from util.usuario_util import usuario_para_sessao
 from util.flash_messages import informar_sucesso, informar_erro, informar_aviso
 from util.template_helpers import template_response_with_flash, configurar_filtros_jinja
+from util.error_handlers import tratar_erro_rota
+from util.logger import logger
 
 router = APIRouter()
 templates = Jinja2Templates(directory="templates")
@@ -63,6 +65,7 @@ def render_template_with_user(request: Request, template_name: str, context: dic
 
 
 @router.get("/")
+@tratar_erro_rota(template_erro="publico/home.html")
 async def get_home(request: Request, stay: str = None):
     from util.auth_decorator import obter_usuario_logado
 
@@ -84,16 +87,19 @@ async def get_home(request: Request, stay: str = None):
 
 
 @router.get("/cadastro")
+@tratar_erro_rota(template_erro="publico/cadastro.html")
 async def get_cadastro(request: Request):
     return render_template_with_user(request, "publico/cadastro.html")
 
 
 @router.get("/cadastro-noivos")
+@tratar_erro_rota(template_erro="publico/cadastro_noivos.html")
 async def get_cadastro_noivos(request: Request):
     return render_template_with_user(request, "publico/cadastro_noivos.html")
 
 
 @router.post("/cadastro-noivos")
+@tratar_erro_rota(template_erro="publico/cadastro_noivos.html")
 async def post_cadastro_noivos(request: Request,
     # Dados do primeiro noivo
     nome1: str = Form(...),
@@ -150,6 +156,7 @@ async def post_cadastro_noivos(request: Request,
     except ValidationError as e:
         # Extrair primeira mensagem de erro
         error_msg = e.errors()[0]['msg']
+        logger.warning(f"Erro de validação no cadastro de noivos: {error_msg}", email1=email1, email2=email2)
         return templates.TemplateResponse(
             "publico/cadastro_noivos.html",
             {"request": request, "erro": error_msg, "dados": None}
@@ -216,12 +223,13 @@ async def post_cadastro_noivos(request: Request,
         telefone=dados.telefone1,
         senha=senha_hash,
         perfil=TipoUsuario.NOIVO,
-        
+
         token_redefinicao=None,
         data_token=None,
         data_cadastro=None
     )
     usuario1_id = usuario_repo.inserir_usuario(usuario1)
+    logger.info(f"Primeiro noivo cadastrado com sucesso", usuario_id=usuario1_id, email=dados.email1)
 
     # Criar segundo usuário
     usuario2 = Usuario(
@@ -233,12 +241,13 @@ async def post_cadastro_noivos(request: Request,
         telefone=dados.telefone2,
         senha=senha_hash,
         perfil=TipoUsuario.NOIVO,
-        
+
         token_redefinicao=None,
         data_token=None,
         data_cadastro=None
     )
     usuario2_id = usuario_repo.inserir_usuario(usuario2)
+    logger.info(f"Segundo noivo cadastrado com sucesso", usuario_id=usuario2_id, email=dados.email2)
 
     # Criar registro do casal se ambos usuários foram criados com sucesso
     if usuario1_id and usuario2_id:
@@ -251,19 +260,22 @@ async def post_cadastro_noivos(request: Request,
             orcamento_estimado=dados.orcamento_estimado if dados.orcamento_estimado else None,
             numero_convidados=int(dados.numero_convidados) if dados.numero_convidados else None
         )
-        casal_repo.inserir_casal(casal)
+        casal_id = casal_repo.inserir_casal(casal)
+        logger.info(f"Casal cadastrado com sucesso", casal_id=casal_id, noivo1_id=usuario1_id, noivo2_id=usuario2_id)
 
     informar_sucesso(request, "Cadastro realizado com sucesso! Faça login para continuar.")
     return RedirectResponse("/login", status.HTTP_303_SEE_OTHER)
 
 
 @router.get("/cadastro-fornecedor")
+@tratar_erro_rota(template_erro="publico/cadastro_fornecedor.html")
 async def get_cadastro_fornecedor(request: Request):
     response = templates.TemplateResponse("publico/cadastro_fornecedor.html", {"request": request})
     return response
 
 
 @router.post("/cadastro-fornecedor")
+@tratar_erro_rota(template_erro="publico/cadastro_fornecedor.html")
 async def post_cadastro_fornecedor(request: Request,
     nome: str = Form(...),
     data_nascimento: str = Form(None),
@@ -297,6 +309,7 @@ async def post_cadastro_fornecedor(request: Request,
     except ValidationError as e:
         # Extrair primeira mensagem de erro
         error_msg = e.errors()[0]['msg']
+        logger.warning(f"Erro de validação no cadastro de fornecedor: {error_msg}", email=email, nome_empresa=nome_empresa)
         return templates.TemplateResponse(
             "publico/cadastro_fornecedor.html",
             {"request": request, "erro": error_msg, "dados": None}
@@ -364,17 +377,20 @@ async def post_cadastro_fornecedor(request: Request,
         newsletter=dados.newsletter == "on"
     )
     fornecedor_id = fornecedor_repo.inserir_fornecedor(fornecedor)
+    logger.info(f"Fornecedor cadastrado com sucesso", fornecedor_id=fornecedor_id, email=dados.email, nome_empresa=dados.nome_empresa)
     informar_sucesso(request, "Cadastro realizado com sucesso! Faça login para continuar.")
     return RedirectResponse("/login", status.HTTP_303_SEE_OTHER)
 
 
 @router.get("/cadastro_geral")
+@tratar_erro_rota(template_erro="publico/cadastro_fornecedor.html")
 async def get_cadastro_geral(request: Request):
     response = templates.TemplateResponse("publico/cadastro_fornecedor.html", {"request": request})
     return response
 
 
 @router.post("/cadastro_geral")
+@tratar_erro_rota(redirect_erro="/login")
 async def post_cadastro_geral(request: Request,
     nome: str = Form(...),
     telefone: str = Form(None),
@@ -384,6 +400,7 @@ async def post_cadastro_geral(request: Request,
 ):
     # Verificar se email já existe
     if usuario_repo.obter_usuario_por_email(email):
+        logger.warning(f"Tentativa de cadastro com email já existente", email=email)
         return templates.TemplateResponse(
             "publico/cadastro_fornecedor.html",
             {"request": request, "erro": "E-mail já cadastrado"}
@@ -413,6 +430,7 @@ async def post_cadastro_geral(request: Request,
         descricao=None
     )
     fornecedor_id = fornecedor_repo.inserir_fornecedor(fornecedor)
+    logger.info(f"Cadastro geral realizado com sucesso", fornecedor_id=fornecedor_id, email=email, tipo=tipo)
     return RedirectResponse("/login", status.HTTP_303_SEE_OTHER)
 
 
@@ -422,11 +440,13 @@ async def get_root():
     return response
 
 @router.get("/login")
+@tratar_erro_rota(template_erro="publico/login.html")
 async def get_login(request: Request):
     return render_template_with_user(request, "publico/login.html")
 
 
 @router.post("/login")
+@tratar_erro_rota(template_erro="publico/login.html")
 async def post_login(
     request: Request,
     email: str = Form(...),
@@ -434,18 +454,19 @@ async def post_login(
     redirect: str = Form(None)
 ):
     usuario = usuario_repo.obter_usuario_por_email(email)
-    
+
     if not usuario or not verificar_senha(senha, usuario.senha):
-       return template_response_with_flash(templates,
-    "publico/login.html",
-    {"request": request, "erro": "Email ou senha inválidos"}
-)
+        logger.warning(f"Tentativa de login falhou", email=email)
+        return template_response_with_flash(templates,
+            "publico/login.html",
+            {"request": request, "erro": "Email ou senha inválidos"}
+        )
 
-
-    
     # Criar sessão
     usuario_dict = usuario_para_sessao(usuario)
     criar_sessao(request, usuario_dict)
+
+    logger.info(f"Login realizado com sucesso", usuario_id=usuario.id, email=usuario.email, perfil=usuario.perfil.value)
 
     # Adicionar mensagem de boas-vindas
     informar_sucesso(request, f"Bem-vindo, {usuario.nome}!")
@@ -470,14 +491,17 @@ async def logout(request: Request):
     return RedirectResponse("/", status.HTTP_303_SEE_OTHER)
 
 @router.get("/contato")
+@tratar_erro_rota(template_erro="publico/contato.html")
 async def get_contato(request: Request):
     return render_template_with_user(request, "publico/contato.html")
 
 @router.get("/sobre")
+@tratar_erro_rota(template_erro="publico/sobre.html")
 async def get_sobre(request: Request):
     return render_template_with_user(request, "publico/sobre.html")
 
 @router.get("/itens")
+@tratar_erro_rota(template_erro="publico/itens.html")
 async def listar_itens_publicos(
     request: Request,
     tipo: str = None,
@@ -486,67 +510,56 @@ async def listar_itens_publicos(
     pagina: int = 1
 ):
     """Lista itens públicos com filtros e paginação"""
-    try:
-        from repo import item_repo, categoria_repo
-        from model.tipo_fornecimento_model import TipoFornecimento
-        import math
+    from core.repositories import item_repo, categoria_repo
+    from core.models.tipo_fornecimento_model import TipoFornecimento
+    import math
 
-        # Converter categoria para int se não estiver vazia
-        categoria_int = None
-        if categoria and categoria.strip():
-            try:
-                categoria_int = int(categoria)
-            except ValueError:
-                categoria_int = None
+    # Converter categoria para int se não estiver vazia
+    categoria_int = None
+    if categoria and categoria.strip():
+        try:
+            categoria_int = int(categoria)
+        except ValueError:
+            logger.warning(f"Categoria inválida fornecida", categoria=categoria)
+            categoria_int = None
 
-        # Obter categorias para o filtro
-        categorias = []
-        if tipo:
-            tipo_map = {
-                'produto': TipoFornecimento.PRODUTO,
-                'servico': TipoFornecimento.SERVICO,
-                'espaco': TipoFornecimento.ESPACO
-            }
-            tipo_enum = tipo_map.get(tipo)
-            if tipo_enum:
-                categorias = categoria_repo.obter_categorias_por_tipo_ativas(tipo_enum)
+    # Obter categorias para o filtro
+    categorias = []
+    if tipo:
+        tipo_map = {
+            'produto': TipoFornecimento.PRODUTO,
+            'servico': TipoFornecimento.SERVICO,
+            'espaco': TipoFornecimento.ESPACO
+        }
+        tipo_enum = tipo_map.get(tipo)
+        if tipo_enum:
+            categorias = categoria_repo.obter_categorias_por_tipo_ativas(tipo_enum)
 
-        # Obter itens e total
-        itens, total_itens = item_repo.obter_itens_publicos(
-            tipo=tipo,
-            busca=busca,
-            categoria=categoria_int,
-            pagina=pagina,
-            tamanho_pagina=12
-        )
+    # Obter itens e total
+    itens, total_itens = item_repo.obter_itens_publicos(
+        tipo=tipo,
+        busca=busca,
+        categoria=categoria_int,
+        pagina=pagina,
+        tamanho_pagina=12
+    )
 
-        # Calcular total de páginas
-        total_paginas = math.ceil(total_itens / 12) if total_itens > 0 else 1
+    # Calcular total de páginas
+    total_paginas = math.ceil(total_itens / 12) if total_itens > 0 else 1
 
-        return template_response_with_flash(templates, "publico/itens.html", {
-            "request": request,
-            "itens": itens,
-            "total_itens": total_itens,
-            "pagina_atual": pagina,
-            "total_paginas": total_paginas,
-            "tipo": tipo,
-            "busca": busca,
-            "categoria": categoria_int,
-            "categorias": categorias
-        })
+    logger.info(f"Itens públicos listados", tipo=tipo, busca=busca, categoria=categoria_int, pagina=pagina, total_itens=total_itens)
 
-    except Exception as e:
-        print(f"Erro ao listar itens públicos: {e}")
-        return template_response_with_flash(templates, "publico/itens.html", {
-            "request": request,
-            "itens": [],
-            "total_itens": 0,
-            "pagina_atual": 1,
-            "total_paginas": 1,
-            "tipo": tipo,
-            "busca": busca,
-            "erro": "Erro ao carregar itens"
-        })
+    return template_response_with_flash(templates, "publico/itens.html", {
+        "request": request,
+        "itens": itens,
+        "total_itens": total_itens,
+        "pagina_atual": pagina,
+        "total_paginas": total_paginas,
+        "tipo": tipo,
+        "busca": busca,
+        "categoria": categoria_int,
+        "categorias": categorias
+    })
 
 @router.get("/produtos")
 async def produtos_redirect(request: Request):
@@ -594,30 +607,26 @@ async def get_root(id: int):
     return response
 
 @router.get("/item/{id}")
+@tratar_erro_rota(template_erro="publico/item_detalhes.html")
 async def detalhes_item_publico(request: Request, id: int):
     """Exibe detalhes de um item específico"""
-    try:
-        from repo import item_repo
+    from core.repositories import item_repo
 
-        item = item_repo.obter_item_publico_por_id(id)
+    item = item_repo.obter_item_publico_por_id(id)
 
-        if not item:
-            return template_response_with_flash(templates, "publico/item_detalhes.html", {
-                "request": request,
-                "erro": "Item não encontrado"
-            })
-
+    if not item:
+        logger.warning(f"Item público não encontrado", item_id=id)
         return template_response_with_flash(templates, "publico/item_detalhes.html", {
             "request": request,
-            "item": item
+            "erro": "Item não encontrado"
         })
 
-    except Exception as e:
-        print(f"Erro ao obter detalhes do item: {e}")
-        return template_response_with_flash(templates, "publico/item_detalhes.html", {
-            "request": request,
-            "erro": "Erro ao carregar detalhes do item"
-        })
+    logger.info(f"Detalhes do item público exibidos", item_id=id, item_nome=item.nome)
+
+    return template_response_with_flash(templates, "publico/item_detalhes.html", {
+        "request": request,
+        "item": item
+    })
 
 @router.get("/produtos/{id}")
 async def produto_detalhes_redirect(id: int):

@@ -5,10 +5,10 @@ from util.auth_decorator import requer_autenticacao
 from util.error_handlers import tratar_erro_rota
 from util.exceptions import RecursoNaoEncontradoError, ValidacaoError
 from util.logger import logger
-from model.usuario_model import TipoUsuario
-from model.categoria_model import Categoria
-from model.tipo_fornecimento_model import TipoFornecimento
-from repo import usuario_repo, fornecedor_repo, item_repo, categoria_repo, orcamento_repo, demanda_repo
+from core.models.usuario_model import TipoUsuario
+from core.models.categoria_model import Categoria
+from core.models.tipo_fornecimento_model import TipoFornecimento
+from core.repositories import usuario_repo, fornecedor_repo, item_repo, categoria_repo, orcamento_repo, demanda_repo
 from util.flash_messages import informar_sucesso, informar_erro, informar_aviso
 from util.template_helpers import template_response_with_flash, configurar_filtros_jinja
 
@@ -322,7 +322,7 @@ async def criar_admin(
         senha_hash = criar_hash_senha(senha)
 
         # Criar objeto Usuario
-        from model.usuario_model import Usuario
+        from core.models.usuario_model import Usuario
         novo_admin = Usuario(
             id=0,
             nome=nome,

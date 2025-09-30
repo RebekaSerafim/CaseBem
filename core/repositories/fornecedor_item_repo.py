@@ -1,8 +1,9 @@
 from typing import Optional, List
+from util.exceptions import RecursoNaoEncontradoError
 from util.database import obter_conexao
-from sql.fornecedor_item_sql import *
-from model.fornecedor_item_model import FornecedorItem
-from model.tipo_fornecimento_model import TipoFornecimento
+from core.sql.fornecedor_item_sql import *
+from core.models.fornecedor_item_model import FornecedorItem
+from core.models.tipo_fornecimento_model import TipoFornecimento
 
 def criar_tabela_fornecedor_item() -> bool:
     try:
@@ -50,7 +51,7 @@ def excluir_fornecedor_item(id_fornecedor: int, id_item: int) -> bool:
         print(f"Erro ao excluir fornecedor_item: {e}")
         return False
 
-def obter_fornecedor_item(id_fornecedor: int, id_item: int) -> Optional[FornecedorItem]:
+def obter_fornecedor_item(id_fornecedor: int, id_item: int) -> FornecedorItem:
     try:
         with obter_conexao() as conexao:
             cursor = conexao.cursor()
@@ -66,7 +67,8 @@ def obter_fornecedor_item(id_fornecedor: int, id_item: int) -> Optional[Forneced
                 )
     except Exception as e:
         print(f"Erro ao obter fornecedor_item: {e}")
-    return None
+        raise
+    raise RecursoNaoEncontradoError(recurso="FornecedorItem", identificador=f"{id_fornecedor}/{id_item}")
 
 def obter_itens_por_fornecedor(id_fornecedor: int) -> List[dict]:
     try:

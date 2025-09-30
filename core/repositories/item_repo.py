@@ -1,10 +1,10 @@
 from typing import Optional, List, Dict, Any
 from util.base_repo import BaseRepo
-from sql import item_sql
-from sql.item_sql import CONTAR_ITENS_PUBLICOS_FILTRADOS, OBTER_ITENS_PUBLICOS_FILTRADOS
-from model.item_model import Item
-from model.tipo_fornecimento_model import TipoFornecimento
-from repo.categoria_repo import obter_categoria_por_id
+from core.sql import item_sql
+from core.sql.item_sql import CONTAR_ITENS_PUBLICOS_FILTRADOS, OBTER_ITENS_PUBLICOS_FILTRADOS
+from core.models.item_model import Item
+from core.models.tipo_fornecimento_model import TipoFornecimento
+from core.repositories.categoria_repo import obter_categoria_por_id
 
 def validar_categoria_para_tipo(tipo: TipoFornecimento, id_categoria: int) -> bool:
     """Valida se uma categoria pertence a um tipo específico"""

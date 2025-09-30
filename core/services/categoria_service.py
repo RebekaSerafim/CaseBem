@@ -6,12 +6,10 @@ de serviços e produtos do sistema.
 """
 
 from typing import List, Optional
-from core.exceptions import RegraDeNegocioError, RecursoNaoEncontradoError, ValidacaoError
+from util.exceptions import RegraDeNegocioError, RecursoNaoEncontradoError, ValidacaoError
 from core.models.categoria_model import Categoria
 from core.models.tipo_fornecimento_model import TipoFornecimento
-from infrastructure.logging.logger import CaseBemLogger
-
-logger = CaseBemLogger()
+from util.logger import logger
 
 
 class CategoriaService:
@@ -23,8 +21,7 @@ class CategoriaService:
     """
 
     def __init__(self):
-        # Temporariamente usando imports antigos
-        from repo.categoria_repo import categoria_repo
+        from core.repositories import categoria_repo
         self.repo = categoria_repo
 
     def criar_categoria(self, dados: dict) -> int:

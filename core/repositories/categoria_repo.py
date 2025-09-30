@@ -2,9 +2,9 @@ from typing import Optional, List
 from util.base_repo import BaseRepo
 from util.error_handlers import tratar_erro_banco_dados
 from util.logger import logger
-from sql import categoria_sql
-from model.categoria_model import Categoria
-from model.tipo_fornecimento_model import TipoFornecimento
+from core.sql import categoria_sql
+from core.models.categoria_model import Categoria
+from core.models.tipo_fornecimento_model import TipoFornecimento
 
 class CategoriaRepo(BaseRepo):
     """Repositório para operações com categorias"""

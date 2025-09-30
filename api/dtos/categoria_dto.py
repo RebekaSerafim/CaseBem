@@ -1,6 +1,6 @@
 from pydantic import BaseModel, Field, field_validator, ConfigDict
 from typing import Optional
-from model.tipo_fornecimento_model import TipoFornecimento
+from core.models.tipo_fornecimento_model import TipoFornecimento
 from util.validacoes_dto import (
     validar_texto_obrigatorio, validar_texto_opcional, validar_enum_valor,
     ValidacaoError

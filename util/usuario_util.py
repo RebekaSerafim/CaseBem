@@ -2,7 +2,7 @@
 Utilitários para manipulação de dados de usuário
 """
 from typing import Dict, Any
-from model.usuario_model import TipoUsuario, Usuario
+from core.models.usuario_model import TipoUsuario, Usuario
 
 
 def usuario_para_sessao(usuario: Usuario) -> Dict[str, Any]:

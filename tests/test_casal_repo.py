@@ -1,5 +1,5 @@
-from model.casal_model import Casal
-from repo import casal_repo, usuario_repo
+from core.models.casal_model import Casal
+from core.repositories import casal_repo, usuario_repo
 
 class TestCasalRepo:
     def test_criar_tabela_casal(self, test_db):

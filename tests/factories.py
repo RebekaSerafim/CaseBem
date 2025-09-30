@@ -10,14 +10,18 @@ from faker import Faker
 import random
 
 # Imports dos modelos
-from model.usuario_model import Usuario, TipoUsuario
-from model.fornecedor_model import Fornecedor
-from model.categoria_model import Categoria
-from model.item_model import Item
-from model.tipo_fornecimento_model import TipoFornecimento
-from model.casal_model import Casal
-from model.demanda_model import Demanda, StatusDemanda
-from model.orcamento_model import Orcamento
+from core.models.usuario_model import Usuario, TipoUsuario
+from core.models.fornecedor_model import Fornecedor
+from core.models.categoria_model import Categoria
+from core.models.item_model import Item
+from core.models.tipo_fornecimento_model import TipoFornecimento
+from core.models.casal_model import Casal
+from core.models.demanda_model import Demanda, StatusDemanda
+from core.models.orcamento_model import Orcamento
+from core.models.chat_model import Chat
+from core.models.fornecedor_item_model import FornecedorItem
+from core.models.item_demanda_model import ItemDemanda
+from core.models.item_orcamento_model import ItemOrcamento
 
 # Configurar Faker para português brasileiro
 fake = Faker('pt_BR')
@@ -381,3 +385,113 @@ class OrcamentoFactory(BaseFactory[Orcamento]):
     @classmethod
     def _construir_objeto(cls, dados: Dict[str, Any]) -> Orcamento:
         return Orcamento(**dados)
+
+
+class ChatFactory(BaseFactory[Chat]):
+    """Factory para criar mensagens de chat de teste"""
+
+    @classmethod
+    def _dados_padrao(cls) -> Dict[str, Any]:
+        return {
+            'id_remetente': 1,
+            'id_destinatario': 2,
+            'data_hora_envio': datetime.now(),
+            'mensagem': fake.sentence(),
+            'data_hora_leitura': None
+        }
+
+    @classmethod
+    def _variar_dados(cls, indice: int) -> Dict[str, Any]:
+        """Cria variações nos dados para listas"""
+        return {
+            'id_remetente': (indice % 3) + 1,
+            'id_destinatario': ((indice + 1) % 3) + 1,
+            'mensagem': f"Mensagem {indice + 1}: {fake.sentence()}"
+        }
+
+    @classmethod
+    def _construir_objeto(cls, dados: Dict[str, Any]) -> Chat:
+        return Chat(**dados)
+
+
+class FornecedorItemFactory(BaseFactory[FornecedorItem]):
+    """Factory para criar associações fornecedor-item de teste"""
+
+    @classmethod
+    def _dados_padrao(cls) -> Dict[str, Any]:
+        return {
+            'id_fornecedor': 1,
+            'id_item': 1,
+            'observacoes': fake.text(max_nb_chars=100) if random.choice([True, False]) else None,
+            'preco_personalizado': round(random.uniform(50, 500), 2),
+            'disponivel': True
+        }
+
+    @classmethod
+    def _variar_dados(cls, indice: int) -> Dict[str, Any]:
+        return {
+            'id_fornecedor': (indice % 3) + 1,
+            'id_item': (indice % 5) + 1,
+            'preco_personalizado': round(random.uniform(50 + indice*10, 500 + indice*10), 2),
+            'disponivel': indice % 2 == 0
+        }
+
+    @classmethod
+    def _construir_objeto(cls, dados: Dict[str, Any]) -> FornecedorItem:
+        return FornecedorItem(**dados)
+
+
+class ItemDemandaFactory(BaseFactory[ItemDemanda]):
+    """Factory para criar associações item-demanda de teste"""
+
+    @classmethod
+    def _dados_padrao(cls) -> Dict[str, Any]:
+        return {
+            'id_demanda': 1,
+            'id_item': 1,
+            'quantidade': random.randint(1, 10),
+            'observacoes': fake.text(max_nb_chars=100) if random.choice([True, False]) else None,
+            'preco_maximo': round(random.uniform(50, 500), 2) if random.choice([True, False]) else None
+        }
+
+    @classmethod
+    def _variar_dados(cls, indice: int) -> Dict[str, Any]:
+        return {
+            'id_demanda': (indice % 3) + 1,
+            'id_item': (indice % 5) + 1,
+            'quantidade': indice + 1,
+            'preco_maximo': round(random.uniform(100 + indice*20, 500 + indice*20), 2)
+        }
+
+    @classmethod
+    def _construir_objeto(cls, dados: Dict[str, Any]) -> ItemDemanda:
+        return ItemDemanda(**dados)
+
+
+class ItemOrcamentoFactory(BaseFactory[ItemOrcamento]):
+    """Factory para criar associações item-orçamento de teste"""
+
+    @classmethod
+    def _dados_padrao(cls) -> Dict[str, Any]:
+        return {
+            'id_orcamento': 1,
+            'id_item': 1,
+            'quantidade': random.randint(1, 10),
+            'preco_unitario': round(random.uniform(50, 500), 2),
+            'observacoes': fake.text(max_nb_chars=100) if random.choice([True, False]) else None,
+            'desconto': round(random.uniform(0, 50), 2)
+        }
+
+    @classmethod
+    def _variar_dados(cls, indice: int) -> Dict[str, Any]:
+        return {
+            'id_orcamento': (indice % 3) + 1,
+            'id_item': (indice % 5) + 1,
+            'quantidade': indice + 1,
+            'preco_unitario': round(random.uniform(50 + indice*10, 500 + indice*10), 2),
+            'desconto': round(random.uniform(0, 20), 2)
+        }
+
+    @classmethod
+    def _construir_objeto(cls, dados: Dict[str, Any]) -> ItemOrcamento:
+        return ItemOrcamento(**dados)

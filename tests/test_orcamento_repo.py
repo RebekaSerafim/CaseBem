@@ -1,11 +1,11 @@
 import pytest
 from datetime import datetime, timedelta
-from model.orcamento_model import Orcamento
-from model.demanda_model import Demanda
-from model.casal_model import Casal
-from model.categoria_model import Categoria
-from model.tipo_fornecimento_model import TipoFornecimento
-from repo import orcamento_repo, demanda_repo, casal_repo, usuario_repo, categoria_repo
+from core.models.orcamento_model import Orcamento
+from core.models.demanda_model import Demanda
+from core.models.casal_model import Casal
+from core.models.categoria_model import Categoria
+from core.models.tipo_fornecimento_model import TipoFornecimento
+from core.repositories import orcamento_repo, demanda_repo, casal_repo, usuario_repo, categoria_repo
 from util.exceptions import RecursoNaoEncontradoError
 
 class TestOrcamentoRepo:
@@ -408,7 +408,7 @@ class TestOrcamentoRepo:
             usuario_repo.inserir_usuario(noivo)
 
         # Inserir fornecedor (precisa inserir em ambas as tabelas)
-        from repo import fornecedor_repo
+        from core.repositories import fornecedor_repo
         fornecedor_repo.criar_tabela_fornecedor()
         id_fornecedor = fornecedor_repo.inserir_fornecedor(fornecedor_exemplo)
         

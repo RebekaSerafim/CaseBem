@@ -1,8 +1,9 @@
 from typing import Optional
-from repo import usuario_repo
+from core.repositories import usuario_repo
 from util.database import obter_conexao
-from sql.casal_sql import *
-from model.casal_model import Casal
+from util.exceptions import RecursoNaoEncontradoError
+from core.sql.casal_sql import *
+from core.models.casal_model import Casal
 
 def criar_tabela_casal() -> bool:
     try:
@@ -45,7 +46,7 @@ def excluir_casal(id: int) -> bool:
         cursor.execute(EXCLUIR_CASAL, (id,))
         return (cursor.rowcount > 0)
 
-def obter_casal_por_id(id: int) -> Optional[Casal]:
+def obter_casal_por_id(id: int) -> Casal:
     with obter_conexao() as conexao:
         cursor = conexao.cursor()
         cursor.execute(OBTER_CASAL_POR_ID, (id,))
@@ -63,7 +64,7 @@ def obter_casal_por_id(id: int) -> Optional[Casal]:
                 noivo1=usuario_repo.obter_usuario_por_id(resultado["id_noivo1"]),
                 noivo2=usuario_repo.obter_usuario_por_id(resultado["id_noivo2"])
             )
-    return None
+    raise RecursoNaoEncontradoError(recurso="Casal", identificador=id)
 
 def obter_casais_por_pagina(numero_pagina: int, tamanho_pagina: int) -> list[Casal]:
     with obter_conexao() as conexao:

@@ -3,8 +3,8 @@ Testes do repositório de usuários usando o novo sistema de factories
 Demonstra as melhores práticas com Factory Pattern e test helpers
 """
 
-from model.usuario_model import Usuario, TipoUsuario
-from repo import usuario_repo
+from core.models.usuario_model import Usuario, TipoUsuario
+from core.repositories import usuario_repo
 from util.exceptions import RecursoNaoEncontradoError, BancoDadosError
 from tests.test_helpers import assert_usuario_valido, AssertHelper
 import pytest

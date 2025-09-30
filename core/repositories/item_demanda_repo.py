@@ -1,7 +1,8 @@
 from typing import Optional, List
+from util.exceptions import RecursoNaoEncontradoError
 from util.database import obter_conexao
-from sql.item_demanda_sql import *
-from model.item_demanda_model import ItemDemanda
+from core.sql.item_demanda_sql import *
+from core.models.item_demanda_model import ItemDemanda
 
 def criar_tabela_item_demanda() -> bool:
     try:
@@ -49,7 +50,7 @@ def excluir_item_demanda(id_demanda: int, id_item: int) -> bool:
         print(f"Erro ao excluir item_demanda: {e}")
         return False
 
-def obter_item_demanda(id_demanda: int, id_item: int) -> Optional[ItemDemanda]:
+def obter_item_demanda(id_demanda: int, id_item: int) -> ItemDemanda:
     try:
         with obter_conexao() as conexao:
             cursor = conexao.cursor()
@@ -65,7 +66,8 @@ def obter_item_demanda(id_demanda: int, id_item: int) -> Optional[ItemDemanda]:
                 )
     except Exception as e:
         print(f"Erro ao obter item_demanda: {e}")
-    return None
+        raise
+    raise RecursoNaoEncontradoError(recurso="ItemDemanda", identificador=f"{id_demanda}/{id_item}")
 
 def obter_itens_por_demanda(id_demanda: int) -> List[dict]:
     try:

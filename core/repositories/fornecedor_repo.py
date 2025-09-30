@@ -1,9 +1,10 @@
 from typing import Optional, List
+from util.exceptions import RecursoNaoEncontradoError
 from util.database import obter_conexao
-from sql.fornecedor_sql import *
-from model.fornecedor_model import Fornecedor
-from model.usuario_model import TipoUsuario
-from repo import usuario_repo
+from core.sql.fornecedor_sql import *
+from core.models.fornecedor_model import Fornecedor
+from core.models.usuario_model import TipoUsuario
+from core.repositories import usuario_repo
 
 def criar_tabela_fornecedor() -> bool:
     try:
@@ -63,7 +64,7 @@ def excluir_fornecedor(id: int) -> bool:
         print(f"Erro ao excluir fornecedor: {e}")
         return False
 
-def obter_fornecedor_por_id(id: int) -> Optional[Fornecedor]:
+def obter_fornecedor_por_id(id: int) -> Fornecedor:
     try:
         with obter_conexao() as conexao:
             cursor = conexao.cursor()
@@ -93,7 +94,8 @@ def obter_fornecedor_por_id(id: int) -> Optional[Fornecedor]:
                 )
     except Exception as e:
         print(f"Erro ao obter fornecedor por ID: {e}")
-    return None
+        raise
+    raise RecursoNaoEncontradoError(recurso="Fornecedor", identificador=id)
 
 def obter_fornecedores_por_pagina(numero_pagina: int, tamanho_pagina: int) -> List[Fornecedor]:
     try:

@@ -1,8 +1,9 @@
 from typing import Optional, List, Union
 from datetime import datetime
 from util.database import obter_conexao
-from sql.demanda_sql import *
-from model.demanda_model import Demanda, StatusDemanda
+from util.exceptions import RecursoNaoEncontradoError
+from core.sql.demanda_sql import *
+from core.models.demanda_model import Demanda, StatusDemanda
 
 def criar_tabela_demandas() -> bool:
     try:
@@ -71,7 +72,7 @@ def excluir_demanda(id: int) -> bool:
         print(f"Erro ao excluir demanda: {e}")
         return False
 
-def obter_demanda_por_id(id: int) -> Optional[Demanda]:
+def obter_demanda_por_id(id: int) -> Demanda:
     try:
         with obter_conexao() as conexao:
             cursor = conexao.cursor()
@@ -81,7 +82,8 @@ def obter_demanda_por_id(id: int) -> Optional[Demanda]:
                 return _criar_demanda_de_resultado(resultado)
     except Exception as e:
         print(f"Erro ao obter demanda por ID: {e}")
-    return None
+        raise
+    raise RecursoNaoEncontradoError(recurso="Demanda", identificador=id)
 
 def obter_demandas_por_pagina(numero_pagina: int, tamanho_pagina: int) -> List[Demanda]:
     try:
