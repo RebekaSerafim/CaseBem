@@ -1,5 +1,5 @@
 from typing import Optional, List
-from util.base_repo import BaseRepo
+from core.repositories.base_repo import BaseRepo
 from util.exceptions import RecursoNaoEncontradoError
 from util.logger import logger
 from datetime import datetime

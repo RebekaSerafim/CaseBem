@@ -1,5 +1,5 @@
 from typing import Optional, List, Dict, Any
-from util.base_repo import BaseRepo
+from core.repositories.base_repo import BaseRepo
 from util.logger import logger
 from core.sql import item_sql
 from core.sql.item_sql import CONTAR_ITENS_PUBLICOS_FILTRADOS, OBTER_ITENS_PUBLICOS_FILTRADOS

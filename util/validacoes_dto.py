@@ -488,7 +488,7 @@ class ValidadorWrapper:
     """
 
     @staticmethod
-    def criar_validador(funcao_validacao, campo_nome: str = None, **kwargs):
+    def criar_validador(funcao_validacao, campo_nome: str = "", **kwargs):
         """
         Cria um validador pronto para usar com @field_validator.
 
@@ -516,7 +516,7 @@ class ValidadorWrapper:
         return validador
 
     @staticmethod
-    def criar_validador_opcional(funcao_validacao, campo_nome: str = None, **kwargs):
+    def criar_validador_opcional(funcao_validacao, campo_nome: str = "", **kwargs):
         """
         Cria validador para campos opcionais.
         Retorna None se o valor for vazio, senão valida normalmente.

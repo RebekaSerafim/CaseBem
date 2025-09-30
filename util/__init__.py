@@ -2,7 +2,6 @@
 Pacote de utilitários do sistema CaseBem.
 
 Este módulo contém classes e funções auxiliares usadas em todo o projeto:
-- Base repository pattern (BaseRepo, BaseRepoChaveComposta)
 - Error handlers e exception handlers
 - Logger e sistema de logging
 - Validações de DTOs
@@ -22,7 +21,6 @@ __all__ = [
     'exceptions',
     'logger',
     'error_handlers',
-    'base_repo',
     'validacoes_dto',
     'security',
     'database',

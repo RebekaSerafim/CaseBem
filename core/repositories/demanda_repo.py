@@ -1,6 +1,6 @@
 from typing import Optional, List, Union
 from datetime import datetime
-from util.base_repo import BaseRepo
+from core.repositories.base_repo import BaseRepo
 from util.exceptions import RecursoNaoEncontradoError
 from util.logger import logger
 from core.sql import demanda_sql

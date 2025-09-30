@@ -64,7 +64,7 @@ ORDER BY tipo_fornecimento ASC, nome ASC;
 
 OBTER_CATEGORIAS_ATIVAS = LISTAR_ATIVOS
 
-OBTER_CATEGORIAS_POR_TIPO_ATIVAS = """
+OBTER_CATEGORIAS_ATIVAS_POR_TIPO = """
 SELECT id, nome, tipo_fornecimento, descricao, ativo
 FROM categoria
 WHERE tipo_fornecimento = ? AND ativo = 1
