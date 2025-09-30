@@ -121,7 +121,7 @@ class BaseRepo:
             return [self._linha_para_objeto(row) for row in resultados]
 
     @tratar_erro_banco_dados("execução de query")
-    def executar_query(self, sql: str, params: tuple = ()) -> List[Dict]:
+    def executar_consulta(self, sql: str, params: tuple = ()) -> List[Dict]:
         """Executa uma query customizada"""
         with obter_conexao() as conexao:
             cursor = conexao.cursor()

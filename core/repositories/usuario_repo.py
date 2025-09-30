@@ -100,8 +100,7 @@ class UsuarioRepo(BaseRepo):
 
     def contar_usuarios_por_tipo(self, tipo: TipoUsuario) -> int:
         """Conta o total de usuários de um tipo específico"""
-        resultados = self.executar_query(usuario_sql.CONTAR_USUARIOS_POR_TIPO, (tipo.value,))
-        return resultados[0]["total"] if resultados else 0
+        return self.contar_registros("perfil = ?", (tipo.value,))
 
     def buscar_usuarios(self, busca: str = "", tipo_usuario: str = "", status: str = "", numero_pagina: int = 1, tamanho_pagina: int = 100) -> List[Usuario]:
         """Busca usuários com filtros de nome/email, tipo e status"""

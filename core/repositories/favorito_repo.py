@@ -74,11 +74,7 @@ class FavoritoRepo(BaseRepo):
 
     def contar_por_noivo(self, id_noivo: int) -> int:
         """Conta o total de favoritos de um noivo"""
-        resultados = self.executar_query(
-            favorito_sql.CONTAR_FAVORITOS_POR_NOIVO,
-            (id_noivo,)
-        )
-        return resultados[0]["total"] if resultados else 0
+        return self.contar_registros("id_noivo = ?", (id_noivo,))
 
 # Instância singleton do repositório
 favorito_repo = FavoritoRepo()
