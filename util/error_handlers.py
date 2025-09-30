@@ -13,6 +13,7 @@ from util.exceptions import (
 )
 from util.logger import logger
 from util.flash_messages import informar_erro
+from util.template_helpers import configurar_filtros_jinja
 
 
 def tratar_erro_banco_dados(operacao: str = "operação de banco"):
@@ -77,6 +78,7 @@ def tratar_erro_rota(template_erro: Optional[str] = None,
 
                 if template_erro:
                     templates = Jinja2Templates(directory="templates")
+                    configurar_filtros_jinja(templates)
                     return templates.TemplateResponse(template_erro, {
                         "request": request,
                         "erro": e.mensagem
@@ -100,6 +102,7 @@ def tratar_erro_rota(template_erro: Optional[str] = None,
                 return RedirectResponse(redirect_erro)
             elif template_erro:
                 templates = Jinja2Templates(directory="templates")
+                configurar_filtros_jinja(templates)
                 return templates.TemplateResponse(template_erro, {
                     "request": request,
                     "erro": "Ocorreu um erro. Tente novamente."
