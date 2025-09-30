@@ -251,7 +251,7 @@ async def criar_item(
         id_categoria=categoria_id
     )
 
-    item_id = item_repo.inserir_item(novo_item)
+    item_id = item_repo.inserir(novo_item)
 
     if item_id:
         # Processar foto se fornecida
@@ -440,7 +440,7 @@ async def atualizar_item(
         id_categoria=categoria_id
     )
 
-    sucesso = item_repo.atualizar_item(item_atualizado)
+    sucesso = item_repo.atualizar(item_atualizado)
 
     if sucesso:
         logger.info("Item atualizado com sucesso", item_id=id_item, fornecedor_id=id_fornecedor, nome=nome)
@@ -465,7 +465,7 @@ async def atualizar_item(
 async def excluir_item(request: Request, id_item: int, usuario_logado: dict = {}):
     """Exclui um item"""
     id_fornecedor = usuario_logado["id"]
-    sucesso = item_repo.excluir_item(id_item, id_fornecedor)
+    sucesso = item_repo.excluir(id_item, id_fornecedor)
 
     if sucesso:
         logger.info("Item excluído com sucesso", item_id=id_item, fornecedor_id=id_fornecedor)
@@ -538,7 +538,7 @@ async def listar_orcamentos(request: Request, status_filter: str = "", usuario_l
             if demanda:
                 casal = casal_repo.obter_casal_por_id(demanda.id_casal)
                 if casal:
-                    noivo = usuario_repo.obter_usuario_por_id(casal.id_noivo1)
+                    noivo = usuario_repo.obter_por_id(casal.id_noivo1)
 
             orcamento_data = {
                 "orcamento": orcamento,
@@ -589,7 +589,7 @@ async def listar_demandas(request: Request, categoria: str = "", usuario_logado:
             casal = casal_repo.obter_casal_por_id(demanda.id_casal)
             noivo = None
             if casal:
-                noivo = usuario_repo.obter_usuario_por_id(casal.id_noivo1)
+                noivo = usuario_repo.obter_por_id(casal.id_noivo1)
 
             # Verificar se já existe orçamento deste fornecedor para esta demanda
             orcamentos_existentes = orcamento_repo.obter_orcamentos_por_demanda(demanda.id)
@@ -632,7 +632,7 @@ async def form_propor_orcamento(request: Request, id_demanda: int, usuario_logad
     casal = casal_repo.obter_casal_por_id(demanda.id_casal)
     noivo = None
     if casal:
-        noivo = usuario_repo.obter_usuario_por_id(casal.id_noivo1)
+        noivo = usuario_repo.obter_por_id(casal.id_noivo1)
 
     # Verificar se já existe orçamento deste fornecedor para esta demanda
     orcamentos_existentes = orcamento_repo.obter_orcamentos_por_demanda(id_demanda)
@@ -702,7 +702,7 @@ async def criar_orcamento(
     )
 
     # Inserir no banco
-    id_orcamento = orcamento_repo.inserir_orcamento(novo_orcamento)
+    id_orcamento = orcamento_repo.inserir(novo_orcamento)
 
     if id_orcamento:
         logger.info("Orçamento criado com sucesso", orcamento_id=id_orcamento, demanda_id=id_demanda, fornecedor_id=usuario_logado["id"])
@@ -768,7 +768,7 @@ async def atualizar_perfil(
     fornecedor.descricao = descricao
     fornecedor.newsletter = newsletter_bool
 
-    sucesso = fornecedor_repo.atualizar_fornecedor(fornecedor)
+    sucesso = fornecedor_repo.atualizar(fornecedor)
 
     if sucesso:
         logger.info("Perfil fornecedor atualizado com sucesso", fornecedor_id=id_fornecedor)

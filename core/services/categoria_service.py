@@ -211,9 +211,9 @@ class CategoriaService:
         Returns:
             True se tem itens ativos
         """
-        # Temporariamente usando repo antigo
+        # Verificar se categoria tem itens ativos
         try:
-            from repo.item_repo import item_repo
+            from core.repositories import item_repo
             itens = item_repo.obter_itens_por_categoria(categoria_id)
             return any(item.ativo for item in itens)
         except:

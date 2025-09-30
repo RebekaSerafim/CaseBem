@@ -1,103 +1,89 @@
-from typing import Optional
+from typing import Optional, List
+from util.base_repo import BaseRepo
 from core.repositories import usuario_repo
 from util.database import obter_conexao
 from util.exceptions import RecursoNaoEncontradoError
-from core.sql.casal_sql import *
+from core.sql import casal_sql
 from core.models.casal_model import Casal
 
-def criar_tabela_casal() -> bool:
-    try:
-        with obter_conexao() as conexao:
-            cursor = conexao.cursor()
-            cursor.execute(CRIAR_TABELA_CASAL)
-            return True
-    except Exception as e:
-        print(f"Erro ao criar tabela de noivos: {e}")
-        return False
+class CasalRepo(BaseRepo):
+    """Repositório para operações com casais"""
 
-def inserir_casal(casal: Casal) -> Optional[int]:
-    with obter_conexao() as conexao:
-        cursor = conexao.cursor()
-        cursor.execute(INSERIR_CASAL, (
+    def __init__(self):
+        super().__init__('casal', Casal, casal_sql)
+
+    def _objeto_para_tupla_insert(self, casal: Casal) -> tuple:
+        """Prepara dados do casal para inserção"""
+        return (
             casal.id_noivo1,
             casal.id_noivo2,
             casal.data_casamento,
             casal.local_previsto,
             casal.orcamento_estimado,
             casal.numero_convidados
-        ))
-        return cursor.lastrowid
+        )
 
-def atualizar_casal(casal: Casal) -> bool:
-    with obter_conexao() as conexao:
-        cursor = conexao.cursor()
-        cursor.execute(ATUALIZAR_CASAL, (
+    def _objeto_para_tupla_update(self, casal: Casal) -> tuple:
+        """Prepara dados do casal para atualização"""
+        return (
             casal.data_casamento,
             casal.local_previsto,
             casal.orcamento_estimado,
             casal.numero_convidados,
             casal.id
-        ))
-        return (cursor.rowcount > 0)
+        )
 
-def excluir_casal(id: int) -> bool:
-    with obter_conexao() as conexao:
-        cursor = conexao.cursor()
-        cursor.execute(EXCLUIR_CASAL, (id,))
-        return (cursor.rowcount > 0)
+    def _linha_para_objeto(self, linha: dict) -> Casal:
+        """Converte linha do banco em objeto Casal"""
+        return Casal(
+            id=linha["id"],
+            id_noivo1=linha["id_noivo1"],
+            id_noivo2=linha["id_noivo2"],
+            data_casamento=linha["data_casamento"],
+            local_previsto=linha["local_previsto"],
+            orcamento_estimado=linha["orcamento_estimado"],
+            numero_convidados=linha["numero_convidados"],
+            data_cadastro=linha["data_cadastro"]
+        )
 
-def obter_casal_por_id(id: int) -> Casal:
-    with obter_conexao() as conexao:
-        cursor = conexao.cursor()
-        cursor.execute(OBTER_CASAL_POR_ID, (id,))
-        resultado = cursor.fetchone()
-        if resultado:
-            return Casal(
-                id=resultado["id"],
-                id_noivo1=resultado["id_noivo1"],
-                id_noivo2=resultado["id_noivo2"],
-                data_casamento=resultado["data_casamento"],
-                local_previsto=resultado["local_previsto"],
-                orcamento_estimado=resultado["orcamento_estimado"],
-                numero_convidados=resultado["numero_convidados"],
-                data_cadastro=resultado["data_cadastro"],
-                noivo1=usuario_repo.obter_usuario_por_id(resultado["id_noivo1"]),
-                noivo2=usuario_repo.obter_usuario_por_id(resultado["id_noivo2"])
-            )
-    raise RecursoNaoEncontradoError(recurso="Casal", identificador=id)
+    def obter_por_id_completo(self, id: int) -> Casal:
+        """Obtém casal por ID com dados dos noivos"""
+        try:
+            resultados = self.executar_query(casal_sql.OBTER_CASAL_POR_ID, (id,))
+            if resultados:
+                resultado = resultados[0]
+                # Usa _linha_para_objeto para criar o objeto base
+                casal = self._linha_para_objeto(resultado)
+                # Adiciona os objetos Usuario dos noivos
+                casal.noivo1 = usuario_repo.usuario_repo.obter_por_id(resultado["id_noivo1"])
+                casal.noivo2 = usuario_repo.usuario_repo.obter_por_id(resultado["id_noivo2"])
+                return casal
+        except Exception as e:
+            print(f"Erro ao obter casal por ID: {e}")
+            raise
+        raise RecursoNaoEncontradoError(recurso="Casal", identificador=id)
 
-def obter_casais_por_pagina(numero_pagina: int, tamanho_pagina: int) -> list[Casal]:
-    with obter_conexao() as conexao:
-        limite = tamanho_pagina
-        offset = (numero_pagina - 1) * tamanho_pagina
-        cursor = conexao.cursor()
-        cursor.execute(OBTER_CASAL_POR_PAGINA, (limite, offset))
-        resultados = cursor.fetchall()
-        return [Casal(
-            id=resultado["id"],
-            id_noivo1=resultado["id_noivo1"],
-            id_noivo2=resultado["id_noivo2"],
-            data_casamento=resultado["data_casamento"],
-            local_previsto=resultado["local_previsto"],
-            orcamento_estimado=resultado["orcamento_estimado"],
-            numero_convidados=resultado["numero_convidados"],
-            data_cadastro=resultado["data_cadastro"]
-        ) for resultado in resultados]
+    def obter_por_pagina(self, numero_pagina: int, tamanho_pagina: int) -> List[Casal]:
+        """Obtém casais com paginação"""
+        try:
+            limite = tamanho_pagina
+            offset = (numero_pagina - 1) * tamanho_pagina
+            resultados = self.executar_query(casal_sql.OBTER_CASAL_POR_PAGINA, (limite, offset))
+            return [self._linha_para_objeto(row) for row in resultados]
+        except Exception as e:
+            print(f"Erro ao obter casais por página: {e}")
+            return []
 
-def obter_casal_por_noivo(id_noivo: int) -> Optional[Casal]:
-    with obter_conexao() as conexao:
-        cursor = conexao.cursor()
-        cursor.execute(OBTER_CASAL_POR_NOIVO, (id_noivo, id_noivo))
-        resultado = cursor.fetchone()
-        if resultado:
-            return Casal(
-                id=resultado["id"],
-                id_noivo1=resultado["id_noivo1"],
-                id_noivo2=resultado["id_noivo2"],
-                data_casamento=resultado["data_casamento"],
-                local_previsto=resultado["local_previsto"],
-                orcamento_estimado=resultado["orcamento_estimado"],
-                numero_convidados=resultado["numero_convidados"],
-                data_cadastro=resultado["data_cadastro"]
-            )
-    return None
+    def obter_por_noivo(self, id_noivo: int) -> Optional[Casal]:
+        """Obtém casal pelo ID de um dos noivos"""
+        try:
+            resultados = self.executar_query(casal_sql.OBTER_CASAL_POR_NOIVO, (id_noivo, id_noivo))
+            if resultados:
+                return self._linha_para_objeto(resultados[0])
+            return None
+        except Exception as e:
+            print(f"Erro ao obter casal por noivo: {e}")
+            return None
+
+# Instância singleton do repositório
+casal_repo = CasalRepo()

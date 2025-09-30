@@ -55,7 +55,7 @@ async def dashboard_noivo(request: Request, usuario_logado: dict = None):
     logger.info("Carregando dashboard do noivo", noivo_id=id_noivo)
 
     # Buscar dados do noivo
-    noivo = usuario_repo.obter_usuario_por_id(id_noivo)
+    noivo = usuario_repo.obter_por_id(id_noivo)
 
     # Buscar dados do casal
     try:
@@ -291,7 +291,7 @@ async def criar_demanda(
     )
 
     # Inserir no banco
-    id_demanda = demanda_repo.inserir_demanda(nova_demanda)
+    id_demanda = demanda_repo.inserir(nova_demanda)
 
     if id_demanda:
         logger.info("Demanda criada com sucesso", demanda_id=id_demanda, casal_id=casal.id)
@@ -510,7 +510,7 @@ async def perfil_noivo(request: Request, usuario_logado: dict = None):
     id_noivo = usuario_logado["id"]
     logger.info("Carregando perfil do noivo", noivo_id=id_noivo)
 
-    noivo = usuario_repo.obter_usuario_por_id(id_noivo)
+    noivo = usuario_repo.obter_por_id(id_noivo)
 
     # Buscar dados do casal
     casal = None
@@ -542,7 +542,7 @@ async def atualizar_perfil_noivo(
     id_noivo = usuario_logado["id"]
     logger.info("Atualizando perfil do noivo", noivo_id=id_noivo, email=email)
 
-    noivo = usuario_repo.obter_usuario_por_id(id_noivo)
+    noivo = usuario_repo.obter_por_id(id_noivo)
 
     if not noivo:
         logger.error("Usuário não encontrado ao atualizar perfil", noivo_id=id_noivo)
@@ -559,7 +559,7 @@ async def atualizar_perfil_noivo(
     noivo.cpf = cpf if cpf else None
     noivo.data_nascimento = data_nascimento if data_nascimento else None
 
-    sucesso = usuario_repo.atualizar_usuario(noivo)
+    sucesso = usuario_repo.atualizar(noivo)
 
     if sucesso:
         logger.info("Perfil atualizado com sucesso", noivo_id=id_noivo)

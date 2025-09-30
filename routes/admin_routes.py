@@ -61,7 +61,7 @@ async def admin_root(request: Request, usuario_logado: dict = None):
 @tratar_erro_rota(template_erro="admin/perfil.html")
 async def perfil_admin(request: Request, usuario_logado: dict = None):
     """Página de perfil do administrador"""
-    admin = usuario_repo.obter_usuario_por_id(usuario_logado['id'])
+    admin = usuario_repo.obter_por_id(usuario_logado['id'])
     logger.info("Perfil do admin carregado com sucesso", admin_id=usuario_logado['id'])
 
     return templates.TemplateResponse("admin/perfil.html", {
@@ -87,7 +87,7 @@ async def atualizar_perfil_admin(
 ):
     """Atualiza o perfil do administrador"""
     try:
-        admin = usuario_repo.obter_usuario_por_id(usuario_logado['id'])
+        admin = usuario_repo.obter_por_id(usuario_logado['id'])
         if not admin:
             return templates.TemplateResponse("admin/perfil.html", {
                 "request": request,
@@ -103,7 +103,7 @@ async def atualizar_perfil_admin(
         # Campos específicos do admin podem ser armazenados como propriedades customizadas
         # ou em uma tabela separada dependendo da implementação do banco
 
-        sucesso = usuario_repo.atualizar_usuario(admin)
+        sucesso = usuario_repo.atualizar(admin)
 
         if sucesso:
             # Atualizar a sessão com os novos dados
@@ -126,7 +126,7 @@ async def atualizar_perfil_admin(
 
     except Exception as e:
         print(f"Erro ao atualizar perfil admin: {e}")
-        admin = usuario_repo.obter_usuario_por_id(usuario_logado['id'])
+        admin = usuario_repo.obter_por_id(usuario_logado['id'])
         return templates.TemplateResponse("admin/perfil.html", {
             "request": request,
             "usuario_logado": usuario_logado,
@@ -143,15 +143,15 @@ async def dashboard_admin(request: Request, usuario_logado: dict = None):
     try:
         # Estatísticas do sistema
         stats = {
-            "total_usuarios": usuario_repo.contar_usuarios(),
-            "total_fornecedores": fornecedor_repo.contar_fornecedores(),
+            "total_usuarios": usuario_repo.contar(),
+            "total_fornecedores": fornecedor_repo.contar(),
             "total_noivos": usuario_repo.contar_usuarios_por_tipo(TipoUsuario.NOIVO),
             "total_admins": usuario_repo.contar_usuarios_por_tipo(TipoUsuario.ADMIN),
             "fornecedores_nao_verificados": fornecedor_repo.contar_fornecedores_nao_verificados(),
-            "total_itens": item_repo.contar_itens(),
-            "total_categorias": categoria_repo.contar_categorias(),
-            "total_orcamentos": orcamento_repo.contar_orcamentos(),
-            "total_demandas": demanda_repo.contar_demandas(),
+            "total_itens": item_repo.contar(),
+            "total_categorias": categoria_repo.contar(),
+            "total_orcamentos": orcamento_repo.contar(),
+            "total_demandas": demanda_repo.contar(),
             "estatisticas_itens": {
                 "produtos": item_repo.contar_itens_por_tipo(TipoFornecimento.PRODUTO),
                 "servicos": item_repo.contar_itens_por_tipo(TipoFornecimento.SERVICO),
@@ -339,7 +339,7 @@ async def criar_admin(
         )
 
         # Inserir no banco
-        admin_id = usuario_repo.inserir_usuario(novo_admin)
+        admin_id = usuario_repo.inserir(novo_admin)
         if admin_id:
             return RedirectResponse("/admin/usuarios", status_code=status.HTTP_303_SEE_OTHER)
         else:
@@ -364,7 +364,7 @@ async def criar_admin(
 async def editar_admin_form(request: Request, id_admin: int, usuario_logado: dict = None):
     """Formulário para editar administrador"""
     try:
-        admin = usuario_repo.obter_usuario_por_id(id_admin)
+        admin = usuario_repo.obter_por_id(id_admin)
         if not admin or admin.perfil != TipoUsuario.ADMIN:
             return RedirectResponse("/admin/usuarios", status_code=status.HTTP_303_SEE_OTHER)
 
@@ -393,7 +393,7 @@ async def atualizar_admin(
     """Atualiza dados do administrador"""
     try:
         # Obter administrador atual
-        admin = usuario_repo.obter_usuario_por_id(id_admin)
+        admin = usuario_repo.obter_por_id(id_admin)
         if not admin or admin.perfil != TipoUsuario.ADMIN:
             return RedirectResponse("/admin/usuarios", status_code=status.HTTP_303_SEE_OTHER)
 
@@ -437,7 +437,7 @@ async def atualizar_admin(
         admin.telefone = telefone.strip() if telefone.strip() else None
         admin.data_nascimento = data_nascimento.strip() if data_nascimento.strip() else None
 
-        if usuario_repo.atualizar_usuario(admin):
+        if usuario_repo.atualizar(admin):
             # Atualizar sessão se o admin editou a si mesmo
             if usuario_logado['id'] == id_admin:
                 usuario_logado['nome'] = nome
@@ -455,7 +455,7 @@ async def atualizar_admin(
 
     except Exception as e:
         print(f"Erro ao atualizar administrador: {e}")
-        admin = usuario_repo.obter_usuario_por_id(id_admin)
+        admin = usuario_repo.obter_por_id(id_admin)
         return templates.TemplateResponse("admin/admin_form.html", {
             "request": request,
             "usuario_logado": usuario_logado,
@@ -469,7 +469,7 @@ async def atualizar_admin(
 async def visualizar_usuario(request: Request, id_usuario: int, usuario_logado: dict = None):
     """Visualiza detalhes de um usuário específico"""
     try:
-        usuario = usuario_repo.obter_usuario_por_id(id_usuario)
+        usuario = usuario_repo.obter_por_id(id_usuario)
 
         if not usuario:
             return templates.TemplateResponse("admin/usuarios.html", {
@@ -540,7 +540,7 @@ async def verificacao_fornecedor_especifico(request: Request, id_fornecedor: int
     """Página de verificação para um fornecedor específico"""
     try:
         # Buscar o usuário e dados do fornecedor
-        usuario = usuario_repo.obter_usuario_por_id(id_fornecedor)
+        usuario = usuario_repo.obter_por_id(id_fornecedor)
         if not usuario or usuario.perfil != TipoUsuario.FORNECEDOR:
             return templates.TemplateResponse("admin/verificacao.html", {
                 "request": request,
@@ -602,7 +602,7 @@ async def aprovar_fornecedor(request: Request, id_fornecedor: int, usuario_logad
         fornecedor.verificado = True
         from datetime import datetime
         fornecedor.data_verificacao = datetime.now().isoformat()
-        fornecedor_repo.atualizar_fornecedor(fornecedor)
+        fornecedor_repo.atualizar(fornecedor)
 
         informar_sucesso(request, "Fornecedor aprovado com sucesso!")
         return RedirectResponse("/admin/verificacao", status_code=status.HTTP_303_SEE_OTHER)
@@ -787,16 +787,16 @@ async def relatorios(request: Request, usuario_logado: dict = None):
     try:
         # Estatísticas gerais do sistema
         stats_gerais = {
-            "total_usuarios": usuario_repo.contar_usuarios(),
+            "total_usuarios": usuario_repo.contar(),
             "total_noivos": usuario_repo.contar_usuarios_por_tipo(TipoUsuario.NOIVO),
             "total_admins": usuario_repo.contar_usuarios_por_tipo(TipoUsuario.ADMIN),
-            "total_fornecedores": fornecedor_repo.contar_fornecedores(),
-            "fornecedores_verificados": fornecedor_repo.contar_fornecedores() - fornecedor_repo.contar_fornecedores_nao_verificados(),
+            "total_fornecedores": fornecedor_repo.contar(),
+            "fornecedores_verificados": fornecedor_repo.contar() - fornecedor_repo.contar_fornecedores_nao_verificados(),
             "fornecedores_nao_verificados": fornecedor_repo.contar_fornecedores_nao_verificados(),
-            "total_itens": item_repo.contar_itens(),
-            "total_categorias": categoria_repo.contar_categorias(),
-            "total_orcamentos": orcamento_repo.contar_orcamentos(),
-            "total_demandas": demanda_repo.contar_demandas()
+            "total_itens": item_repo.contar(),
+            "total_categorias": categoria_repo.contar(),
+            "total_orcamentos": orcamento_repo.contar(),
+            "total_demandas": demanda_repo.contar()
         }
 
         # Estatísticas de itens por tipo
@@ -863,16 +863,16 @@ async def exportar_relatorios(request: Request, formato: str = "json", usuario_l
         dados = {
             "data_geracao": datetime.now().isoformat(),
             "sistema": {
-                "total_usuarios": usuario_repo.contar_usuarios(),
+                "total_usuarios": usuario_repo.contar(),
                 "total_noivos": usuario_repo.contar_usuarios_por_tipo(TipoUsuario.NOIVO),
                 "total_admins": usuario_repo.contar_usuarios_por_tipo(TipoUsuario.ADMIN),
-                "total_fornecedores": fornecedor_repo.contar_fornecedores(),
-                "fornecedores_verificados": fornecedor_repo.contar_fornecedores() - fornecedor_repo.contar_fornecedores_nao_verificados(),
+                "total_fornecedores": fornecedor_repo.contar(),
+                "fornecedores_verificados": fornecedor_repo.contar() - fornecedor_repo.contar_fornecedores_nao_verificados(),
                 "fornecedores_nao_verificados": fornecedor_repo.contar_fornecedores_nao_verificados(),
-                "total_itens": item_repo.contar_itens(),
-                "total_categorias": categoria_repo.contar_categorias(),
-                "total_orcamentos": orcamento_repo.contar_orcamentos(),
-                "total_demandas": demanda_repo.contar_demandas()
+                "total_itens": item_repo.contar(),
+                "total_categorias": categoria_repo.contar(),
+                "total_orcamentos": orcamento_repo.contar(),
+                "total_demandas": demanda_repo.contar()
             },
             "itens": {
                 "produtos": item_repo.contar_itens_por_tipo(TipoFornecimento.PRODUTO),
@@ -1033,7 +1033,7 @@ async def criar_categoria(
             ativo=ativo
         )
 
-        categoria_id = categoria_repo.inserir_categoria(categoria)
+        categoria_id = categoria_repo.inserir(categoria)
         if categoria_id:
             return RedirectResponse("/admin/categorias", status_code=status.HTTP_303_SEE_OTHER)
         else:
@@ -1121,7 +1121,7 @@ async def atualizar_categoria(
             ativo=ativo
         )
 
-        if categoria_repo.atualizar_categoria(categoria):
+        if categoria_repo.atualizar(categoria):
             return RedirectResponse("/admin/categorias", status_code=status.HTTP_303_SEE_OTHER)
         else:
             categoria_atual = categoria_repo.obter_categoria_por_id(id_categoria)
@@ -1150,7 +1150,7 @@ async def atualizar_categoria(
 async def excluir_categoria(request: Request, id_categoria: int, usuario_logado: dict = None):
     """Exclui uma categoria"""
     try:
-        categoria_repo.excluir_categoria(id_categoria)
+        categoria_repo.excluir(id_categoria)
         return RedirectResponse("/admin/categorias", status_code=status.HTTP_303_SEE_OTHER)
     except Exception as e:
         print(f"Erro ao excluir categoria: {e}")

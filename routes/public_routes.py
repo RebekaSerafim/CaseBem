@@ -228,7 +228,7 @@ async def post_cadastro_noivos(request: Request,
         data_token=None,
         data_cadastro=None
     )
-    usuario1_id = usuario_repo.inserir_usuario(usuario1)
+    usuario1_id = usuario_repo.inserir(usuario1)
     logger.info(f"Primeiro noivo cadastrado com sucesso", usuario_id=usuario1_id, email=dados.email1)
 
     # Criar segundo usuário
@@ -246,7 +246,7 @@ async def post_cadastro_noivos(request: Request,
         data_token=None,
         data_cadastro=None
     )
-    usuario2_id = usuario_repo.inserir_usuario(usuario2)
+    usuario2_id = usuario_repo.inserir(usuario2)
     logger.info(f"Segundo noivo cadastrado com sucesso", usuario_id=usuario2_id, email=dados.email2)
 
     # Criar registro do casal se ambos usuários foram criados com sucesso
@@ -260,7 +260,7 @@ async def post_cadastro_noivos(request: Request,
             orcamento_estimado=dados.orcamento_estimado if dados.orcamento_estimado else None,
             numero_convidados=int(dados.numero_convidados) if dados.numero_convidados else None
         )
-        casal_id = casal_repo.inserir_casal(casal)
+        casal_id = casal_repo.inserir(casal)
         logger.info(f"Casal cadastrado com sucesso", casal_id=casal_id, noivo1_id=usuario1_id, noivo2_id=usuario2_id)
 
     informar_sucesso(request, "Cadastro realizado com sucesso! Faça login para continuar.")
@@ -376,7 +376,7 @@ async def post_cadastro_fornecedor(request: Request,
         descricao=dados.descricao,
         newsletter=dados.newsletter == "on"
     )
-    fornecedor_id = fornecedor_repo.inserir_fornecedor(fornecedor)
+    fornecedor_id = fornecedor_repo.inserir(fornecedor)
     logger.info(f"Fornecedor cadastrado com sucesso", fornecedor_id=fornecedor_id, email=dados.email, nome_empresa=dados.nome_empresa)
     informar_sucesso(request, "Cadastro realizado com sucesso! Faça login para continuar.")
     return RedirectResponse("/login", status.HTTP_303_SEE_OTHER)
@@ -429,7 +429,7 @@ async def post_cadastro_geral(request: Request,
         cnpj=None,
         descricao=None
     )
-    fornecedor_id = fornecedor_repo.inserir_fornecedor(fornecedor)
+    fornecedor_id = fornecedor_repo.inserir(fornecedor)
     logger.info(f"Cadastro geral realizado com sucesso", fornecedor_id=fornecedor_id, email=email, tipo=tipo)
     return RedirectResponse("/login", status.HTTP_303_SEE_OTHER)
 

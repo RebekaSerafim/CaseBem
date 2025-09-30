@@ -42,12 +42,12 @@ class ItemService:
         """
         # Validar fornecedor existe
         try:
-            self.fornecedor_repo.obter_fornecedor_por_id(dados['id_fornecedor'])
+            self.fornecedor_repo.obter_por_id(dados['id_fornecedor'])
         except RecursoNaoEncontradoError:
             raise RegraDeNegocioError(f"Fornecedor {dados['id_fornecedor']} não encontrado")
 
         # Validar categoria existe e é do tipo correto
-        categoria = self.categoria_repo.obter_categoria_por_id(dados['id_categoria'])
+        categoria = self.categoria_repo.obter_por_id(dados['id_categoria'])
 
         if dados['tipo'] != categoria.tipo_fornecimento:
             raise RegraDeNegocioError(
@@ -60,7 +60,7 @@ class ItemService:
 
         # Criar item
         item = Item(**dados)
-        id_item = self.repo.inserir_item(item)
+        id_item = self.repo.inserir(item)
 
         logger.info(f"Item criado: {id_item}", extra={
             'nome': dados['nome'],
@@ -81,11 +81,11 @@ class ItemService:
             True se atualizado com sucesso
         """
         # Buscar item existente
-        item = self.repo.obter_item_por_id(id_item)
+        item = self.repo.obter_por_id(id_item)
 
         # Se alterar categoria, validar tipo
         if 'id_categoria' in dados and dados['id_categoria'] != item.id_categoria:
-            categoria = self.categoria_repo.obter_categoria_por_id(dados['id_categoria'])
+            categoria = self.categoria_repo.obter_por_id(dados['id_categoria'])
             if item.tipo != categoria.tipo_fornecimento:
                 raise RegraDeNegocioError(
                     f"Tipo do item ({item.tipo.value}) não corresponde ao tipo da nova categoria ({categoria.tipo_fornecimento.value})"
@@ -102,7 +102,7 @@ class ItemService:
                 setattr(item, campo, dados[campo])
 
         # Salvar
-        sucesso = self.repo.atualizar_item(item)
+        sucesso = self.repo.atualizar(item)
 
         if sucesso:
             logger.info(f"Item atualizado: {id_item}")
@@ -119,7 +119,7 @@ class ItemService:
         Returns:
             Item encontrado
         """
-        return self.repo.obter_item_por_id(id_item)
+        return self.repo.obter_por_id(id_item)
 
     def listar_itens(self, pagina: int = 1, tamanho: int = 10,
                      id_fornecedor: Optional[int] = None,
@@ -204,10 +204,10 @@ class ItemService:
             True se excluído com sucesso
         """
         # Verificar se existe
-        self.repo.obter_item_por_id(id_item)
+        self.repo.obter_por_id(id_item)
 
         # Excluir (ou desativar)
-        sucesso = self.repo.excluir_item(id_item)
+        sucesso = self.repo.excluir(id_item)
 
         if sucesso:
             logger.info(f"Item excluído: {id_item}")

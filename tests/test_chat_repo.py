@@ -1,41 +1,42 @@
 import pytest
 from datetime import datetime
 from core.models.chat_model import Chat
-from core.repositories import chat_repo, usuario_repo
+from core.repositories.chat_repo import chat_repo
+from core.repositories.usuario_repo import usuario_repo
 
 class TestChatRepo:
     def test_criar_tabela_chat(self, test_db):
-        assert chat_repo.criar_tabela_chat() is True
+        assert chat_repo.criar_tabela() is True
 
     def test_inserir_chat(self, test_db, chat_factory, usuario_factory):
         # Arrange
-        usuario_repo.criar_tabela_usuarios()
+        usuario_repo.criar_tabela()
         usuarios = usuario_factory.criar_lista(2)
         for usuario in usuarios:
-            usuario_repo.inserir_usuario(usuario)
-        chat_repo.criar_tabela_chat()
+            usuario_repo.inserir(usuario)
+        chat_repo.criar_tabela()
         chat = chat_factory.criar(id_remetente=1, id_destinatario=2, mensagem="Mensagem de teste")
         # Act
-        sucesso = chat_repo.inserir_chat(chat)
+        sucesso = chat_repo.inserir(chat)
         # Assert
         assert sucesso is True
 
     def test_obter_mensagens_por_usuario(self, test_db, usuario_factory, chat_factory):
         # Arrange
-        usuario_repo.criar_tabela_usuarios()
+        usuario_repo.criar_tabela()
         usuarios = usuario_factory.criar_lista(3)
         for usuario in usuarios:
-            usuario_repo.inserir_usuario(usuario)
-        chat_repo.criar_tabela_chat()
+            usuario_repo.inserir(usuario)
+        chat_repo.criar_tabela()
 
         # Inserir algumas mensagens
         chat1 = chat_factory.criar(id_remetente=1, id_destinatario=2, mensagem="Olá!")
         chat2 = chat_factory.criar(id_remetente=2, id_destinatario=1, mensagem="Oi!")
         chat3 = chat_factory.criar(id_remetente=1, id_destinatario=3, mensagem="Tudo bem?")
 
-        chat_repo.inserir_chat(chat1)
-        chat_repo.inserir_chat(chat2)
-        chat_repo.inserir_chat(chat3)
+        chat_repo.inserir(chat1)
+        chat_repo.inserir(chat2)
+        chat_repo.inserir(chat3)
         
         # Act
         mensagens = chat_repo.obter_mensagens_por_usuario(1, 1, 10)
@@ -46,15 +47,15 @@ class TestChatRepo:
 
     def test_atualizar_data_leitura(self, test_db, usuario_factory, chat_factory):
         # Arrange
-        usuario_repo.criar_tabela_usuarios()
+        usuario_repo.criar_tabela()
         usuarios = usuario_factory.criar_lista(2)
         for usuario in usuarios:
-            usuario_repo.inserir_usuario(usuario)
-        chat_repo.criar_tabela_chat()
+            usuario_repo.inserir(usuario)
+        chat_repo.criar_tabela()
 
         data_envio = datetime.now()
         chat = chat_factory.criar(id_remetente=1, id_destinatario=2, data_hora_envio=data_envio, mensagem="Mensagem teste")
-        chat_repo.inserir_chat(chat)
+        chat_repo.inserir(chat)
         
         # Act
         data_leitura = datetime.now()
@@ -65,16 +66,16 @@ class TestChatRepo:
 
     def test_obter_mensagens_paginacao(self, test_db, usuario_factory, chat_factory):
         # Arrange
-        usuario_repo.criar_tabela_usuarios()
+        usuario_repo.criar_tabela()
         usuarios = usuario_factory.criar_lista(3)
         for usuario in usuarios:
-            usuario_repo.inserir_usuario(usuario)
-        chat_repo.criar_tabela_chat()
+            usuario_repo.inserir(usuario)
+        chat_repo.criar_tabela()
 
         # Inserir 10 mensagens
         for i in range(10):
             chat = chat_factory.criar(id_remetente=1, id_destinatario=2, mensagem=f"Mensagem {i}")
-            chat_repo.inserir_chat(chat)
+            chat_repo.inserir(chat)
         
         # Act
         pagina1 = chat_repo.obter_mensagens_por_usuario(1, 1, 5)

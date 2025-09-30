@@ -48,7 +48,7 @@ class CasalService:
 
         # Validar que ambos os usuários existem e são noivos
         try:
-            noivo1 = self.usuario_repo.obter_usuario_por_id(id_noivo1)
+            noivo1 = self.usuario_repo.obter_por_id(id_noivo1)
             if noivo1.perfil != TipoUsuario.NOIVO:
                 raise RegraDeNegocioError(f"Usuário {id_noivo1} não é um noivo")
         except RecursoNaoEncontradoError:
@@ -56,7 +56,7 @@ class CasalService:
 
         if id_noivo2:
             try:
-                noivo2 = self.usuario_repo.obter_usuario_por_id(id_noivo2)
+                noivo2 = self.usuario_repo.obter_por_id(id_noivo2)
                 if noivo2.perfil != TipoUsuario.NOIVO:
                     raise RegraDeNegocioError(f"Usuário {id_noivo2} não é um noivo")
             except RecursoNaoEncontradoError:
@@ -78,7 +78,7 @@ class CasalService:
 
         # Criar casal
         casal = Casal(**dados)
-        id_casal = self.repo.inserir_casal(casal)
+        id_casal = self.repo.inserir(casal)
 
         logger.info(f"Casal criado: {id_casal}", extra={
             'id_noivo1': id_noivo1,
@@ -99,7 +99,7 @@ class CasalService:
             True se atualizado com sucesso
         """
         # Buscar casal existente
-        casal = self.repo.obter_casal_por_id(id_casal)
+        casal = self.repo.obter_por_id(id_casal)
 
         # Validar orçamento se fornecido
         if 'orcamento_estimado' in dados and dados['orcamento_estimado'] < 0:
@@ -116,7 +116,7 @@ class CasalService:
                 setattr(casal, campo, dados[campo])
 
         # Salvar
-        sucesso = self.repo.atualizar_casal(casal)
+        sucesso = self.repo.atualizar(casal)
 
         if sucesso:
             logger.info(f"Casal atualizado: {id_casal}")
@@ -133,7 +133,7 @@ class CasalService:
         Returns:
             Casal encontrado
         """
-        return self.repo.obter_casal_por_id(id_casal)
+        return self.repo.obter_por_id(id_casal)
 
     def obter_casal_por_noivo(self, id_noivo: int) -> Optional[Casal]:
         """
@@ -171,10 +171,10 @@ class CasalService:
             True se excluído com sucesso
         """
         # Verificar se existe
-        self.repo.obter_casal_por_id(id_casal)
+        self.repo.obter_por_id(id_casal)
 
         # Excluir
-        sucesso = self.repo.excluir_casal(id_casal)
+        sucesso = self.repo.excluir(id_casal)
 
         if sucesso:
             logger.info(f"Casal excluído: {id_casal}")

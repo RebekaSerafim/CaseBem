@@ -7,12 +7,12 @@ import sqlite3
 from typing import Callable, Any, Optional, Type
 from fastapi import Request
 from fastapi.templating import Jinja2Templates
-from .exceptions import (
+from util.exceptions import (
     CaseBemError, BancoDadosError, ValidacaoError,
     RecursoNaoEncontradoError, TipoErro
 )
-from .logger import logger
-from .flash_messages import informar_erro
+from util.logger import logger
+from util.flash_messages import informar_erro
 
 
 def tratar_erro_banco_dados(operacao: str = "operação de banco"):

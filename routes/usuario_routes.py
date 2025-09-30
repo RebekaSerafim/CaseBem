@@ -64,7 +64,7 @@ async def post_alterar_senha(
         })
 
     # Buscar usuário atual
-    usuario = usuario_repo.obter_usuario_por_id(usuario_logado['id'])
+    usuario = usuario_repo.obter_por_id(usuario_logado['id'])
     if not usuario:
         logger.error(f"Usuário não encontrado ao alterar senha - usuario_id: {usuario_logado['id']}")
         return templates.TemplateResponse("usuario/alterar_senha.html", {

@@ -92,57 +92,39 @@ class CategoriaRepo(BaseRepo):
 
     def obter_categorias_paginado(self, pagina: int, tamanho_pagina: int) -> tuple[List[Categoria], int]:
         """Obtém categorias paginadas e retorna lista de categorias e total"""
-        try:
-            total_resultado = self.executar_query("SELECT COUNT(*) as total FROM categoria")
-            total = total_resultado[0]["total"] if total_resultado else 0
-
-            offset = (pagina - 1) * tamanho_pagina
-            resultados = self.executar_query(
-                "SELECT * FROM categoria ORDER BY id DESC LIMIT ? OFFSET ?",
-                (tamanho_pagina, offset)
-            )
-
-            categorias = [self._linha_para_objeto(row) for row in resultados]
-            return categorias, total
-        except Exception as e:
-            print(f"Erro ao obter categorias paginadas: {e}")
-            return [], 0
+        return self.obter_paginado(pagina, tamanho_pagina)
 
     def buscar_categorias_paginado(self, busca: str = "", tipo_fornecimento: str = "", status: str = "", pagina: int = 1, tamanho_pagina: int = 10) -> tuple[List[Categoria], int]:
         """Busca categorias paginadas com filtros e retorna lista de categorias e total"""
         try:
             condicoes = []
             parametros = []
-            parametros_count = []
 
             if busca:
                 condicoes.append("(nome LIKE ? OR descricao LIKE ?)")
                 busca_param = f"%{busca}%"
                 parametros.extend([busca_param, busca_param])
-                parametros_count.extend([busca_param, busca_param])
 
             if tipo_fornecimento:
                 condicoes.append("tipo_fornecimento = ?")
                 parametros.append(tipo_fornecimento)
-                parametros_count.append(tipo_fornecimento)
 
             if status == "ativo":
                 condicoes.append("ativo = 1")
             elif status == "inativo":
                 condicoes.append("ativo = 0")
 
-            where_clause = ""
-            if condicoes:
-                where_clause = "WHERE " + " AND ".join(condicoes)
+            where_clause = "WHERE " + " AND ".join(condicoes) if condicoes else ""
 
+            # Contar total
             sql_count = f"SELECT COUNT(*) as total FROM categoria {where_clause}"
-            total_resultado = self.executar_query(sql_count, parametros_count)
+            total_resultado = self.executar_query(sql_count, parametros[:])
             total = total_resultado[0]["total"] if total_resultado else 0
 
+            # Buscar categorias da página
             offset = (pagina - 1) * tamanho_pagina
             sql_select = f"SELECT * FROM categoria {where_clause} ORDER BY id DESC LIMIT ? OFFSET ?"
-            parametros.extend([tamanho_pagina, offset])
-            resultados = self.executar_query(sql_select, parametros)
+            resultados = self.executar_query(sql_select, parametros + [tamanho_pagina, offset])
 
             categorias = [self._linha_para_objeto(row) for row in resultados]
             return categorias, total
@@ -150,59 +132,5 @@ class CategoriaRepo(BaseRepo):
             print(f"Erro ao buscar categorias paginadas: {e}")
             return [], 0
 
+# Instância singleton do repositório
 categoria_repo = CategoriaRepo()
-
-def criar_tabela_categorias() -> bool:
-    return categoria_repo.criar_tabela()
-
-def inserir_categoria(categoria: Categoria) -> Optional[int]:
-    return categoria_repo.inserir(categoria)
-
-def atualizar_categoria(categoria: Categoria) -> bool:
-    return categoria_repo.atualizar(categoria)
-
-def excluir_categoria(id: int) -> bool:
-    return categoria_repo.excluir(id)
-
-def obter_categoria_por_id(id: int) -> Optional[Categoria]:
-    return categoria_repo.obter_por_id(id)
-
-def obter_categorias_por_tipo(tipo_fornecimento: TipoFornecimento) -> List[Categoria]:
-    return categoria_repo.obter_por_tipo(tipo_fornecimento)
-
-def obter_categorias() -> List[Categoria]:
-    return categoria_repo.listar_todos()
-
-def obter_categorias_ativas() -> List[Categoria]:
-    return categoria_repo.listar_todos(ativo=True)
-
-def obter_categorias_por_tipo_ativas(tipo_fornecimento: TipoFornecimento) -> List[Categoria]:
-    return categoria_repo.obter_por_tipo_ativas(tipo_fornecimento)
-
-def contar_categorias() -> int:
-    """Conta o total de categorias no sistema"""
-    return categoria_repo.contar_categorias()
-
-def obter_categoria_por_nome(nome: str, tipo_fornecimento: TipoFornecimento) -> Optional[Categoria]:
-    """Busca uma categoria pelo nome e tipo de fornecimento"""
-    return categoria_repo.obter_por_nome(nome, tipo_fornecimento)
-
-def buscar_categorias(busca: str = "", tipo_fornecimento: str = "", status: str = "") -> List[Categoria]:
-    """Busca categorias com filtros"""
-    return categoria_repo.buscar_categorias(busca, tipo_fornecimento, status)
-
-def ativar_categoria(id: int) -> bool:
-    """Ativa uma categoria"""
-    return categoria_repo.ativar_categoria(id)
-
-def desativar_categoria(id: int) -> bool:
-    """Desativa uma categoria"""
-    return categoria_repo.desativar_categoria(id)
-
-def obter_categorias_paginado(pagina: int, tamanho_pagina: int) -> tuple[List[Categoria], int]:
-    """Obtém categorias paginadas e retorna lista de categorias e total"""
-    return categoria_repo.obter_categorias_paginado(pagina, tamanho_pagina)
-
-def buscar_categorias_paginado(busca: str = "", tipo_fornecimento: str = "", status: str = "", pagina: int = 1, tamanho_pagina: int = 10) -> tuple[List[Categoria], int]:
-    """Busca categorias paginadas com filtros e retorna lista de categorias e total"""
-    return categoria_repo.buscar_categorias_paginado(busca, tipo_fornecimento, status, pagina, tamanho_pagina)

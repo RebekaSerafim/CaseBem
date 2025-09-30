@@ -4,11 +4,11 @@ from core.sql import item_sql
 from core.sql.item_sql import CONTAR_ITENS_PUBLICOS_FILTRADOS, OBTER_ITENS_PUBLICOS_FILTRADOS
 from core.models.item_model import Item
 from core.models.tipo_fornecimento_model import TipoFornecimento
-from core.repositories.categoria_repo import obter_categoria_por_id
+from core.repositories.categoria_repo import categoria_repo
 
 def validar_categoria_para_tipo(tipo: TipoFornecimento, id_categoria: int) -> bool:
     """Valida se uma categoria pertence a um tipo específico"""
-    categoria = obter_categoria_por_id(id_categoria)
+    categoria = categoria_repo.obter_por_id(id_categoria)
     if not categoria:
         return False
     return categoria.tipo_fornecimento == tipo
@@ -381,72 +381,5 @@ class ItemRepo(BaseRepo):
             print(f"Erro ao buscar itens paginados: {e}")
             return [], 0
 
+# Instância singleton do repositório
 item_repo = ItemRepo()
-
-def criar_tabela_item() -> bool:
-    return item_repo.criar_tabela()
-
-def inserir_item(item: Item) -> Optional[int]:
-    return item_repo.inserir(item)
-
-def atualizar_item(item: Item) -> bool:
-    return item_repo.atualizar(item)
-
-def excluir_item(id_item: int, id_fornecedor: int) -> bool:
-    return item_repo.excluir_item_fornecedor(id_item, id_fornecedor)
-
-def obter_item_por_id(id_item: int) -> Optional[Item]:
-    return item_repo.obter_por_id(id_item)
-
-def obter_itens_por_fornecedor(id_fornecedor: int) -> List[Item]:
-    return item_repo.obter_itens_por_fornecedor(id_fornecedor)
-
-def obter_itens_por_tipo(tipo: TipoFornecimento) -> List[Item]:
-    return item_repo.obter_itens_por_tipo(tipo)
-
-def obter_itens_por_pagina(numero_pagina: int, tamanho_pagina: int) -> List[Item]:
-    return item_repo.obter_itens_por_pagina(numero_pagina, tamanho_pagina)
-
-def buscar_itens(termo_busca: str, numero_pagina: int = 1, tamanho_pagina: int = 20) -> List[Item]:
-    return item_repo.buscar_itens(termo_busca, numero_pagina, tamanho_pagina)
-
-def obter_produtos() -> List[Item]:
-    return item_repo.obter_produtos()
-
-def obter_servicos() -> List[Item]:
-    return item_repo.obter_servicos()
-
-def obter_espacos() -> List[Item]:
-    return item_repo.obter_espacos()
-
-def contar_itens_por_fornecedor(id_fornecedor: int) -> int:
-    return item_repo.contar_itens_por_fornecedor(id_fornecedor)
-
-def obter_estatisticas_itens() -> List[Dict[str, Any]]:
-    return item_repo.obter_estatisticas_itens()
-
-def obter_itens_publicos(tipo: Optional[str] = None, busca: Optional[str] = None,
-                        categoria: Optional[int] = None, pagina: int = 1, tamanho_pagina: int = 12) -> tuple[List[dict], int]:
-    return item_repo.obter_itens_publicos(tipo, busca, categoria, pagina, tamanho_pagina)
-
-def obter_item_publico_por_id(id_item: int) -> Optional[dict]:
-    return item_repo.obter_item_publico_por_id(id_item)
-
-def ativar_item(id_item: int, id_fornecedor: int) -> bool:
-    return item_repo.ativar_item(id_item, id_fornecedor)
-
-def desativar_item(id_item: int, id_fornecedor: int) -> bool:
-    return item_repo.desativar_item(id_item, id_fornecedor)
-def contar_itens() -> int:
-    return item_repo.contar_itens()
-
-def contar_itens_por_tipo(tipo: TipoFornecimento) -> int:
-    return item_repo.contar_itens_por_tipo(tipo)
-
-def obter_itens_paginado(pagina: int, tamanho_pagina: int) -> tuple[List[Item], int]:
-    """Obtém itens paginados e retorna lista de itens e total"""
-    return item_repo.obter_itens_paginado_repo(pagina, tamanho_pagina)
-
-def buscar_itens_paginado(busca: str = "", tipo_item: str = "", status: str = "", categoria_id: str = "", pagina: int = 1, tamanho_pagina: int = 10) -> tuple[List[Item], int]:
-    """Busca itens paginados com filtros e retorna lista de itens e total"""
-    return item_repo.buscar_itens_paginado_repo(busca, tipo_item, status, categoria_id, pagina, tamanho_pagina)

@@ -4,7 +4,24 @@
     ],
     "python.testing.unittestEnabled": false,
     "python.testing.pytestEnabled": true,
-    "python.defaultInterpreter": "./venv/bin/python",
-    "python.pythonPath": "./venv/bin/python",
-    "python-envs.pythonProjects": []
+    "python.defaultInterpreterPath": "/Users/maroquio/.pyenv/versions/3.11.11/bin/python",
+    "python.analysis.extraPaths": [
+        "${workspaceFolder}",
+        "${workspaceFolder}/util",
+        "${workspaceFolder}/core",
+        "${workspaceFolder}/dtos",
+        "${workspaceFolder}/models",
+        "${workspaceFolder}/routes"
+    ],
+    "python.analysis.autoImportCompletions": true,
+    "python.analysis.typeCheckingMode": "basic",
+    "python.analysis.diagnosticMode": "workspace",
+    "python.analysis.useLibraryCodeForTypes": true,
+    "python.analysis.autoSearchPaths": true,
+    "python.languageServer": "Pylance",
+    "files.watcherExclude": {
+        "**/__pycache__/**": true,
+        "**/node_modules/**": true,
+        "**/.pytest_cache/**": true
+    }
 }

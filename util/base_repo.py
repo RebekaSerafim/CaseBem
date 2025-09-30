@@ -1,8 +1,8 @@
 from typing import Optional, List, Any, Dict
 from util.database import obter_conexao
-from .error_handlers import tratar_erro_banco_dados, validar_parametros
-from .exceptions import RecursoNaoEncontradoError, BancoDadosError, ValidacaoError
-from .logger import logger
+from util.error_handlers import tratar_erro_banco_dados, validar_parametros
+from util.exceptions import RecursoNaoEncontradoError, BancoDadosError, ValidacaoError
+from util.logger import logger
 
 class BaseRepo:
     """

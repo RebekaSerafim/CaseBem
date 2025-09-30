@@ -1,103 +1,92 @@
 from typing import Optional, List
-from util.exceptions import RecursoNaoEncontradoError
-from util.database import obter_conexao
-from core.sql.item_orcamento_sql import *
+from util.base_repo import BaseRepoChaveComposta
+from core.sql import item_orcamento_sql
 from core.models.item_orcamento_model import ItemOrcamento
 
-def criar_tabela_item_orcamento() -> bool:
-    try:
-        with obter_conexao() as conexao:
-            cursor = conexao.cursor()
-            cursor.execute(CRIAR_TABELA_ITEM_ORCAMENTO)
-            return True
-    except Exception as e:
-        print(f"Erro ao criar tabela item_orcamento: {e}")
-        return False
+class ItemOrcamentoRepo(BaseRepoChaveComposta):
+    """Repositório para operações com item_orcamento (tabela de relacionamento Orçamento-Item)"""
 
-def inserir_item_orcamento(item_orcamento: ItemOrcamento) -> bool:
-    try:
-        with obter_conexao() as conexao:
-            cursor = conexao.cursor()
-            cursor.execute(INSERIR_ITEM_ORCAMENTO,
-                (item_orcamento.id_orcamento, item_orcamento.id_item,
-                 item_orcamento.quantidade, item_orcamento.preco_unitario,
-                 item_orcamento.observacoes, item_orcamento.desconto))
-            return True
-    except Exception as e:
-        print(f"Erro ao inserir item_orcamento: {e}")
-        return False
+    def __init__(self):
+        super().__init__(
+            nome_tabela='item_orcamento',
+            model_class=ItemOrcamento,
+            sql_module=item_orcamento_sql,
+            campos_chave=['id_orcamento', 'id_item']
+        )
 
-def atualizar_item_orcamento(item_orcamento: ItemOrcamento) -> bool:
-    try:
-        with obter_conexao() as conexao:
-            cursor = conexao.cursor()
-            cursor.execute(ATUALIZAR_ITEM_ORCAMENTO,
-                (item_orcamento.quantidade, item_orcamento.preco_unitario,
-                 item_orcamento.observacoes, item_orcamento.desconto,
-                 item_orcamento.id_orcamento, item_orcamento.id_item))
-            return cursor.rowcount > 0
-    except Exception as e:
-        print(f"Erro ao atualizar item_orcamento: {e}")
-        return False
+    def _objeto_para_tupla_insert(self, item_orcamento: ItemOrcamento) -> tuple:
+        """Converte objeto ItemOrcamento em tupla para INSERT"""
+        return (
+            item_orcamento.id_orcamento,
+            item_orcamento.id_item,
+            item_orcamento.quantidade,
+            item_orcamento.preco_unitario,
+            item_orcamento.observacoes,
+            item_orcamento.desconto
+        )
 
-def excluir_item_orcamento(id_orcamento: int, id_item: int) -> bool:
-    try:
-        with obter_conexao() as conexao:
-            cursor = conexao.cursor()
-            cursor.execute(EXCLUIR_ITEM_ORCAMENTO, (id_orcamento, id_item))
-            return cursor.rowcount > 0
-    except Exception as e:
-        print(f"Erro ao excluir item_orcamento: {e}")
-        return False
+    def _objeto_para_tupla_update(self, item_orcamento: ItemOrcamento) -> tuple:
+        """Converte objeto ItemOrcamento em tupla para UPDATE"""
+        return (
+            item_orcamento.quantidade,
+            item_orcamento.preco_unitario,
+            item_orcamento.observacoes,
+            item_orcamento.desconto,
+            item_orcamento.id_orcamento,
+            item_orcamento.id_item
+        )
 
-def obter_item_orcamento(id_orcamento: int, id_item: int) -> ItemOrcamento:
-    try:
-        with obter_conexao() as conexao:
-            cursor = conexao.cursor()
-            cursor.execute(OBTER_ITEM_ORCAMENTO, (id_orcamento, id_item))
-            resultado = cursor.fetchone()
-            if resultado:
-                return ItemOrcamento(
-                    id_orcamento=resultado["id_orcamento"],
-                    id_item=resultado["id_item"],
-                    quantidade=resultado["quantidade"],
-                    preco_unitario=resultado["preco_unitario"],
-                    observacoes=resultado["observacoes"],
-                    desconto=resultado["desconto"]
-                )
-    except Exception as e:
-        print(f"Erro ao obter item_orcamento: {e}")
-        raise
-    raise RecursoNaoEncontradoError(recurso="ItemOrcamento", identificador=f"{id_orcamento}/{id_item}")
+    def _linha_para_objeto(self, linha: dict) -> ItemOrcamento:
+        """Converte linha do banco em objeto ItemOrcamento"""
+        return ItemOrcamento(
+            id_orcamento=linha["id_orcamento"],
+            id_item=linha["id_item"],
+            quantidade=linha["quantidade"],
+            preco_unitario=linha["preco_unitario"],
+            observacoes=linha["observacoes"],
+            desconto=linha["desconto"]
+        )
 
-def obter_itens_por_orcamento(id_orcamento: int) -> List[dict]:
-    try:
-        with obter_conexao() as conexao:
-            cursor = conexao.cursor()
-            cursor.execute(OBTER_ITENS_POR_ORCAMENTO, (id_orcamento,))
-            resultados = cursor.fetchall()
+    def obter(self, id_orcamento: int, id_item: int) -> ItemOrcamento:
+        """Obtém um item específico de um orçamento"""
+        return self.obter_por_chave(id_orcamento, id_item)
+
+    def obter_por_orcamento(self, id_orcamento: int) -> List[dict]:
+        """Obtém todos os itens de um orçamento"""
+        try:
+            resultados = self.executar_query(
+                item_orcamento_sql.OBTER_ITENS_POR_ORCAMENTO,
+                (id_orcamento,)
+            )
             return [dict(resultado) for resultado in resultados]
-    except Exception as e:
-        print(f"Erro ao obter itens por orçamento: {e}")
-        return []
+        except Exception as e:
+            print(f"Erro ao obter itens por orçamento: {e}")
+            return []
 
-def obter_total_orcamento(id_orcamento: int) -> float:
-    try:
-        with obter_conexao() as conexao:
-            cursor = conexao.cursor()
-            cursor.execute(OBTER_TOTAL_ORCAMENTO, (id_orcamento,))
-            resultado = cursor.fetchone()
-            return resultado["total"] if resultado and resultado["total"] else 0.0
-    except Exception as e:
-        print(f"Erro ao obter total do orçamento: {e}")
-        return 0.0
+    def obter_total_orcamento(self, id_orcamento: int) -> float:
+        """Calcula o total de um orçamento"""
+        try:
+            resultados = self.executar_query(
+                item_orcamento_sql.OBTER_TOTAL_ORCAMENTO,
+                (id_orcamento,)
+            )
+            if resultados and resultados[0]["total"]:
+                return resultados[0]["total"]
+            return 0.0
+        except Exception as e:
+            print(f"Erro ao obter total do orçamento: {e}")
+            return 0.0
 
-def excluir_itens_por_orcamento(id_orcamento: int) -> bool:
-    try:
-        with obter_conexao() as conexao:
-            cursor = conexao.cursor()
-            cursor.execute(EXCLUIR_ITENS_POR_ORCAMENTO, (id_orcamento,))
-            return True
-    except Exception as e:
-        print(f"Erro ao excluir itens por orçamento: {e}")
-        return False
+    def excluir_por_orcamento(self, id_orcamento: int) -> bool:
+        """Exclui todos os itens de um orçamento"""
+        try:
+            return self.executar_comando(
+                item_orcamento_sql.EXCLUIR_ITENS_POR_ORCAMENTO,
+                (id_orcamento,)
+            )
+        except Exception as e:
+            print(f"Erro ao excluir itens por orçamento: {e}")
+            return False
+
+# Instância singleton do repositório
+item_orcamento_repo = ItemOrcamentoRepo()

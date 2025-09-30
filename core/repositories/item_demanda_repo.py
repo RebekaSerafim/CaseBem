@@ -1,91 +1,75 @@
 from typing import Optional, List
-from util.exceptions import RecursoNaoEncontradoError
-from util.database import obter_conexao
-from core.sql.item_demanda_sql import *
+from util.base_repo import BaseRepoChaveComposta
+from core.sql import item_demanda_sql
 from core.models.item_demanda_model import ItemDemanda
 
-def criar_tabela_item_demanda() -> bool:
-    try:
-        with obter_conexao() as conexao:
-            cursor = conexao.cursor()
-            cursor.execute(CRIAR_TABELA_ITEM_DEMANDA)
-            return True
-    except Exception as e:
-        print(f"Erro ao criar tabela item_demanda: {e}")
-        return False
+class ItemDemandaRepo(BaseRepoChaveComposta):
+    """Repositório para operações com item_demanda (tabela de relacionamento Demanda-Item)"""
 
-def inserir_item_demanda(item_demanda: ItemDemanda) -> bool:
-    try:
-        with obter_conexao() as conexao:
-            cursor = conexao.cursor()
-            cursor.execute(INSERIR_ITEM_DEMANDA,
-                (item_demanda.id_demanda, item_demanda.id_item,
-                 item_demanda.quantidade, item_demanda.observacoes,
-                 item_demanda.preco_maximo))
-            return True
-    except Exception as e:
-        print(f"Erro ao inserir item_demanda: {e}")
-        return False
+    def __init__(self):
+        super().__init__(
+            nome_tabela='item_demanda',
+            model_class=ItemDemanda,
+            sql_module=item_demanda_sql,
+            campos_chave=['id_demanda', 'id_item']
+        )
 
-def atualizar_item_demanda(item_demanda: ItemDemanda) -> bool:
-    try:
-        with obter_conexao() as conexao:
-            cursor = conexao.cursor()
-            cursor.execute(ATUALIZAR_ITEM_DEMANDA,
-                (item_demanda.quantidade, item_demanda.observacoes,
-                 item_demanda.preco_maximo, item_demanda.id_demanda,
-                 item_demanda.id_item))
-            return cursor.rowcount > 0
-    except Exception as e:
-        print(f"Erro ao atualizar item_demanda: {e}")
-        return False
+    def _objeto_para_tupla_insert(self, item_demanda: ItemDemanda) -> tuple:
+        """Converte objeto ItemDemanda em tupla para INSERT"""
+        return (
+            item_demanda.id_demanda,
+            item_demanda.id_item,
+            item_demanda.quantidade,
+            item_demanda.observacoes,
+            item_demanda.preco_maximo
+        )
 
-def excluir_item_demanda(id_demanda: int, id_item: int) -> bool:
-    try:
-        with obter_conexao() as conexao:
-            cursor = conexao.cursor()
-            cursor.execute(EXCLUIR_ITEM_DEMANDA, (id_demanda, id_item))
-            return cursor.rowcount > 0
-    except Exception as e:
-        print(f"Erro ao excluir item_demanda: {e}")
-        return False
+    def _objeto_para_tupla_update(self, item_demanda: ItemDemanda) -> tuple:
+        """Converte objeto ItemDemanda em tupla para UPDATE"""
+        return (
+            item_demanda.quantidade,
+            item_demanda.observacoes,
+            item_demanda.preco_maximo,
+            item_demanda.id_demanda,
+            item_demanda.id_item
+        )
 
-def obter_item_demanda(id_demanda: int, id_item: int) -> ItemDemanda:
-    try:
-        with obter_conexao() as conexao:
-            cursor = conexao.cursor()
-            cursor.execute(OBTER_ITEM_DEMANDA, (id_demanda, id_item))
-            resultado = cursor.fetchone()
-            if resultado:
-                return ItemDemanda(
-                    id_demanda=resultado["id_demanda"],
-                    id_item=resultado["id_item"],
-                    quantidade=resultado["quantidade"],
-                    observacoes=resultado["observacoes"],
-                    preco_maximo=resultado["preco_maximo"]
-                )
-    except Exception as e:
-        print(f"Erro ao obter item_demanda: {e}")
-        raise
-    raise RecursoNaoEncontradoError(recurso="ItemDemanda", identificador=f"{id_demanda}/{id_item}")
+    def _linha_para_objeto(self, linha: dict) -> ItemDemanda:
+        """Converte linha do banco em objeto ItemDemanda"""
+        return ItemDemanda(
+            id_demanda=linha["id_demanda"],
+            id_item=linha["id_item"],
+            quantidade=linha["quantidade"],
+            observacoes=linha["observacoes"],
+            preco_maximo=linha["preco_maximo"]
+        )
 
-def obter_itens_por_demanda(id_demanda: int) -> List[dict]:
-    try:
-        with obter_conexao() as conexao:
-            cursor = conexao.cursor()
-            cursor.execute(OBTER_ITENS_POR_DEMANDA, (id_demanda,))
-            resultados = cursor.fetchall()
+    def obter(self, id_demanda: int, id_item: int) -> ItemDemanda:
+        """Obtém um item específico de uma demanda"""
+        return self.obter_por_chave(id_demanda, id_item)
+
+    def obter_por_demanda(self, id_demanda: int) -> List[dict]:
+        """Obtém todos os itens de uma demanda"""
+        try:
+            resultados = self.executar_query(
+                item_demanda_sql.OBTER_ITENS_POR_DEMANDA,
+                (id_demanda,)
+            )
             return [dict(resultado) for resultado in resultados]
-    except Exception as e:
-        print(f"Erro ao obter itens por demanda: {e}")
-        return []
+        except Exception as e:
+            print(f"Erro ao obter itens por demanda: {e}")
+            return []
 
-def excluir_itens_por_demanda(id_demanda: int) -> bool:
-    try:
-        with obter_conexao() as conexao:
-            cursor = conexao.cursor()
-            cursor.execute(EXCLUIR_ITENS_POR_DEMANDA, (id_demanda,))
-            return True
-    except Exception as e:
-        print(f"Erro ao excluir itens por demanda: {e}")
-        return False
+    def excluir_por_demanda(self, id_demanda: int) -> bool:
+        """Exclui todos os itens de uma demanda"""
+        try:
+            return self.executar_comando(
+                item_demanda_sql.EXCLUIR_ITENS_POR_DEMANDA,
+                (id_demanda,)
+            )
+        except Exception as e:
+            print(f"Erro ao excluir itens por demanda: {e}")
+            return False
+
+# Instância singleton do repositório
+item_demanda_repo = ItemDemandaRepo()

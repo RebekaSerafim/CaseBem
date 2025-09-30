@@ -21,10 +21,10 @@ class DemandaService:
     def criar_demanda(self, dados: dict) -> int:
         """Cria uma nova demanda"""
         # Validar casal existe
-        self.casal_repo.obter_casal_por_id(dados['id_casal'])
+        self.casal_repo.obter_por_id(dados['id_casal'])
 
         # Validar categoria existe
-        self.categoria_repo.obter_categoria_por_id(dados['id_categoria'])
+        self.categoria_repo.obter_por_id(dados['id_categoria'])
 
         # Validar orçamentos
         if dados.get('orcamento_min') and dados.get('orcamento_max'):
@@ -32,21 +32,21 @@ class DemandaService:
                 raise RegraDeNegocioError("Orçamento mínimo não pode ser maior que o máximo")
 
         demanda = Demanda(**dados)
-        id_demanda = self.repo.inserir_demanda(demanda)
+        id_demanda = self.repo.inserir(demanda)
 
         logger.info(f"Demanda criada: {id_demanda}")
         return id_demanda
 
     def atualizar_demanda(self, id_demanda: int, dados: dict) -> bool:
         """Atualiza uma demanda"""
-        demanda = self.repo.obter_demanda_por_id(id_demanda)
+        demanda = self.repo.obter_por_id(id_demanda)
 
         campos_atualizaveis = ['titulo', 'descricao', 'orcamento_min', 'orcamento_max', 'prazo_entrega', 'observacoes']
         for campo in campos_atualizaveis:
             if campo in dados:
                 setattr(demanda, campo, dados[campo])
 
-        sucesso = self.repo.atualizar_demanda(demanda)
+        sucesso = self.repo.atualizar(demanda)
         if sucesso:
             logger.info(f"Demanda atualizada: {id_demanda}")
         return sucesso
@@ -60,7 +60,7 @@ class DemandaService:
 
     def obter_demanda(self, id_demanda: int) -> Demanda:
         """Obtém uma demanda por ID"""
-        return self.repo.obter_demanda_por_id(id_demanda)
+        return self.repo.obter_por_id(id_demanda)
 
     def listar_demandas(self, pagina: int = 1, tamanho: int = 10,
                        id_casal: Optional[int] = None,
@@ -78,8 +78,8 @@ class DemandaService:
 
     def excluir_demanda(self, id_demanda: int) -> bool:
         """Exclui uma demanda"""
-        self.repo.obter_demanda_por_id(id_demanda)
-        sucesso = self.repo.excluir_demanda(id_demanda)
+        self.repo.obter_por_id(id_demanda)
+        sucesso = self.repo.excluir(id_demanda)
         if sucesso:
             logger.info(f"Demanda excluída: {id_demanda}")
         return sucesso

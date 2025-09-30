@@ -1,40 +1,42 @@
 import pytest
 from core.models.item_orcamento_model import ItemOrcamento
-from core.repositories import item_orcamento_repo, orcamento_repo, item_repo
+from core.repositories.item_orcamento_repo import item_orcamento_repo
+from core.repositories.orcamento_repo import orcamento_repo
+from core.repositories.item_repo import item_repo
 
 class TestItemOrcamentoRepo:
     def test_criar_tabela_item_orcamento(self, test_db):
         # Arrange
-        orcamento_repo.criar_tabela_orcamento()
-        item_repo.criar_tabela_item()
+        orcamento_repo.criar_tabela()
+        item_repo.criar_tabela()
         # Act
-        resultado = item_orcamento_repo.criar_tabela_item_orcamento()
+        resultado = item_orcamento_repo.criar_tabela()
         # Assert
         assert resultado == True, "A criação da tabela deveria retornar True"
 
     def test_inserir_item_orcamento(self, test_db, item_orcamento_factory):
         # Arrange
-        orcamento_repo.criar_tabela_orcamento()
-        item_repo.criar_tabela_item()
-        item_orcamento_repo.criar_tabela_item_orcamento()
+        orcamento_repo.criar_tabela()
+        item_repo.criar_tabela()
+        item_orcamento_repo.criar_tabela()
         item_orcamento = item_orcamento_factory.criar(id_orcamento=1, id_item=1)
         # Act
-        resultado = item_orcamento_repo.inserir_item_orcamento(item_orcamento)
+        resultado = item_orcamento_repo.inserir(item_orcamento)
         # Assert
         assert resultado == True, "A inserção deveria retornar True"
-        item_orcamento_db = item_orcamento_repo.obter_item_orcamento(
+        item_orcamento_db = item_orcamento_repo.obter(
             item_orcamento.id_orcamento, item_orcamento.id_item)
         assert item_orcamento_db is not None, "O item_orcamento inserido não deveria ser None"
 
     def test_obter_item_orcamento_existente(self, test_db, item_orcamento_factory):
         # Arrange
-        orcamento_repo.criar_tabela_orcamento()
-        item_repo.criar_tabela_item()
-        item_orcamento_repo.criar_tabela_item_orcamento()
+        orcamento_repo.criar_tabela()
+        item_repo.criar_tabela()
+        item_orcamento_repo.criar_tabela()
         item_orcamento = item_orcamento_factory.criar(id_orcamento=1, id_item=1, quantidade=2, preco_unitario=50.0)
-        item_orcamento_repo.inserir_item_orcamento(item_orcamento)
+        item_orcamento_repo.inserir(item_orcamento)
         # Act
-        item_orcamento_db = item_orcamento_repo.obter_item_orcamento(
+        item_orcamento_db = item_orcamento_repo.obter(
             item_orcamento.id_orcamento, item_orcamento.id_item)
         # Assert
         assert item_orcamento_db is not None
@@ -53,19 +55,19 @@ class TestItemOrcamentoRepo:
 
     def test_atualizar_item_orcamento(self, test_db, item_orcamento_factory):
         # Arrange
-        orcamento_repo.criar_tabela_orcamento()
-        item_repo.criar_tabela_item()
-        item_orcamento_repo.criar_tabela_item_orcamento()
+        orcamento_repo.criar_tabela()
+        item_repo.criar_tabela()
+        item_orcamento_repo.criar_tabela()
         item_orcamento = item_orcamento_factory.criar(id_orcamento=1, id_item=1)
-        item_orcamento_repo.inserir_item_orcamento(item_orcamento)
+        item_orcamento_repo.inserir(item_orcamento)
         item_orcamento.quantidade = 3
         item_orcamento.preco_unitario = 75.0
         item_orcamento.desconto = 5.0
         # Act
-        resultado = item_orcamento_repo.atualizar_item_orcamento(item_orcamento)
+        resultado = item_orcamento_repo.atualizar(item_orcamento)
         # Assert
         assert resultado == True
-        item_orcamento_db = item_orcamento_repo.obter_item_orcamento(
+        item_orcamento_db = item_orcamento_repo.obter(
             item_orcamento.id_orcamento, item_orcamento.id_item)
         assert item_orcamento_db.quantidade == 3
         assert item_orcamento_db.preco_unitario == 75.0
@@ -73,17 +75,17 @@ class TestItemOrcamentoRepo:
 
     def test_excluir_item_orcamento(self, test_db, item_orcamento_factory):
         # Arrange
-        orcamento_repo.criar_tabela_orcamento()
-        item_repo.criar_tabela_item()
-        item_orcamento_repo.criar_tabela_item_orcamento()
+        orcamento_repo.criar_tabela()
+        item_repo.criar_tabela()
+        item_orcamento_repo.criar_tabela()
         item_orcamento = item_orcamento_factory.criar(id_orcamento=1, id_item=1)
-        item_orcamento_repo.inserir_item_orcamento(item_orcamento)
+        item_orcamento_repo.inserir(item_orcamento)
         # Act
-        resultado = item_orcamento_repo.excluir_item_orcamento(
+        resultado = item_orcamento_repo.excluir(
             item_orcamento.id_orcamento, item_orcamento.id_item)
         # Assert
         assert resultado == True
         from util.exceptions import RecursoNaoEncontradoError
         with pytest.raises(RecursoNaoEncontradoError):
-            item_orcamento_repo.obter_item_orcamento(
+            item_orcamento_repo.obter(
                 item_orcamento.id_orcamento, item_orcamento.id_item)

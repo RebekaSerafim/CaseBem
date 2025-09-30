@@ -21,8 +21,8 @@ class FavoritoService:
     def adicionar_favorito(self, id_usuario: int, id_item: int) -> bool:
         """Adiciona um item aos favoritos"""
         # Validar que usuário e item existem
-        self.usuario_repo.obter_usuario_por_id(id_usuario)
-        self.item_repo.obter_item_por_id(id_item)
+        self.usuario_repo.obter_por_id(id_usuario)
+        self.item_repo.obter_por_id(id_item)
 
         # Verificar se já está nos favoritos
         try:
@@ -33,7 +33,7 @@ class FavoritoService:
             pass  # Não existe, pode adicionar
 
         favorito = Favorito(id_usuario=id_usuario, id_item=id_item)
-        sucesso = self.repo.inserir_favorito(favorito)
+        sucesso = self.repo.inserir(favorito)
 
         if sucesso:
             logger.info(f"Favorito adicionado: usuário={id_usuario}, item={id_item}")
@@ -42,7 +42,7 @@ class FavoritoService:
 
     def remover_favorito(self, id_usuario: int, id_item: int) -> bool:
         """Remove um item dos favoritos"""
-        sucesso = self.repo.excluir_favorito(id_usuario, id_item)
+        sucesso = self.repo.excluir(id_usuario, id_item)
 
         if sucesso:
             logger.info(f"Favorito removido: usuário={id_usuario}, item={id_item}")

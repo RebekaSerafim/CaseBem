@@ -1,72 +1,103 @@
 from typing import Optional, List
-from util.database import obter_conexao
-from core.sql.favorito_sql import *
+from util.base_repo import BaseRepo
+from core.sql import favorito_sql
 from core.models.favorito_model import Favorito
 
-def criar_tabela_favoritos() -> bool:
-    try:
-        with obter_conexao() as conexao:
-            cursor = conexao.cursor()
-            cursor.execute(CRIAR_TABELA_FAVORITO)
-            return True
-    except Exception as e:
-        print(f"Erro ao criar tabela de favoritos: {e}")
-        return False
+class FavoritoRepo(BaseRepo):
+    """Repositório para operações com favoritos (tabela de relacionamento Noivo-Item)"""
 
-def adicionar_favorito(id_noivo: int, id_item: int) -> bool:
-    """Adiciona um item aos favoritos do noivo"""
-    try:
-        with obter_conexao() as conexao:
-            cursor = conexao.cursor()
-            cursor.execute(INSERIR_FAVORITO, (id_noivo, id_item))
-            return cursor.rowcount > 0
-    except Exception as e:
-        print(f"Erro ao adicionar favorito: {e}")
-        return False
+    def __init__(self):
+        super().__init__(
+            nome_tabela='favorito',
+            model_class=Favorito,
+            sql_module=favorito_sql
+        )
 
-def remover_favorito(id_noivo: int, id_item: int) -> bool:
-    """Remove um item dos favoritos do noivo"""
-    try:
-        with obter_conexao() as conexao:
-            cursor = conexao.cursor()
-            cursor.execute(EXCLUIR_FAVORITO, (id_noivo, id_item))
-            return cursor.rowcount > 0
-    except Exception as e:
-        print(f"Erro ao remover favorito: {e}")
-        return False
+    def _objeto_para_tupla_insert(self, favorito: Favorito) -> tuple:
+        """Converte objeto Favorito em tupla para INSERT"""
+        return (
+            favorito.id_noivo,
+            favorito.id_item
+        )
 
-def obter_favoritos_por_noivo(id_noivo: int) -> List[dict]:
-    """Obtém todos os favoritos de um noivo com dados dos itens"""
-    try:
-        with obter_conexao() as conexao:
-            cursor = conexao.cursor()
-            cursor.execute(OBTER_FAVORITOS_POR_NOIVO, (id_noivo,))
-            resultados = cursor.fetchall()
+    def _objeto_para_tupla_update(self, favorito: Favorito) -> tuple:
+        """Converte objeto Favorito em tupla para UPDATE"""
+        return (
+            favorito.id_noivo,
+            favorito.id_item,
+            favorito.id
+        )
+
+    def _linha_para_objeto(self, linha: dict) -> Favorito:
+        """Converte linha do banco em objeto Favorito"""
+        return Favorito(
+            id=linha["id"],
+            id_noivo=linha["id_noivo"],
+            id_item=linha["id_item"],
+            data_adicao=linha.get("data_adicao")
+        )
+
+    def adicionar(self, id_noivo: int, id_item: int) -> bool:
+        """Adiciona um item aos favoritos do noivo"""
+        try:
+            favorito = Favorito(
+                id=0,
+                id_noivo=id_noivo,
+                id_item=id_item,
+                data_adicao=None
+            )
+            id_inserido = self.inserir(favorito)
+            return id_inserido is not None and id_inserido > 0
+        except Exception as e:
+            print(f"Erro ao adicionar favorito: {e}")
+            return False
+
+    def remover(self, id_noivo: int, id_item: int) -> bool:
+        """Remove um item dos favoritos do noivo"""
+        try:
+            return self.executar_comando(
+                favorito_sql.EXCLUIR_FAVORITO,
+                (id_noivo, id_item)
+            )
+        except Exception as e:
+            print(f"Erro ao remover favorito: {e}")
+            return False
+
+    def obter_por_noivo(self, id_noivo: int) -> List[dict]:
+        """Obtém todos os favoritos de um noivo com dados dos itens"""
+        try:
+            resultados = self.executar_query(
+                favorito_sql.OBTER_FAVORITOS_POR_NOIVO,
+                (id_noivo,)
+            )
             return [dict(resultado) for resultado in resultados]
-    except Exception as e:
-        print(f"Erro ao obter favoritos: {e}")
-        return []
+        except Exception as e:
+            print(f"Erro ao obter favoritos: {e}")
+            return []
 
-def verificar_favorito(id_noivo: int, id_item: int) -> bool:
-    """Verifica se um item está nos favoritos do noivo"""
-    try:
-        with obter_conexao() as conexao:
-            cursor = conexao.cursor()
-            cursor.execute(VERIFICAR_FAVORITO, (id_noivo, id_item))
-            resultado = cursor.fetchone()
-            return resultado["count"] > 0 if resultado else False
-    except Exception as e:
-        print(f"Erro ao verificar favorito: {e}")
-        return False
+    def verificar(self, id_noivo: int, id_item: int) -> bool:
+        """Verifica se um item está nos favoritos do noivo"""
+        try:
+            resultados = self.executar_query(
+                favorito_sql.VERIFICAR_FAVORITO,
+                (id_noivo, id_item)
+            )
+            return resultados[0]["count"] > 0 if resultados else False
+        except Exception as e:
+            print(f"Erro ao verificar favorito: {e}")
+            return False
 
-def contar_favoritos_por_noivo(id_noivo: int) -> int:
-    """Conta o total de favoritos de um noivo"""
-    try:
-        with obter_conexao() as conexao:
-            cursor = conexao.cursor()
-            cursor.execute(CONTAR_FAVORITOS_POR_NOIVO, (id_noivo,))
-            resultado = cursor.fetchone()
-            return resultado["total"] if resultado else 0
-    except Exception as e:
-        print(f"Erro ao contar favoritos: {e}")
-        return 0
+    def contar_por_noivo(self, id_noivo: int) -> int:
+        """Conta o total de favoritos de um noivo"""
+        try:
+            resultados = self.executar_query(
+                favorito_sql.CONTAR_FAVORITOS_POR_NOIVO,
+                (id_noivo,)
+            )
+            return resultados[0]["total"] if resultados else 0
+        except Exception as e:
+            print(f"Erro ao contar favoritos: {e}")
+            return 0
+
+# Instância singleton do repositório
+favorito_repo = FavoritoRepo()

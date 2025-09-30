@@ -21,8 +21,8 @@ class ChatService:
     def enviar_mensagem(self, dados: dict) -> bool:
         """Envia uma mensagem"""
         # Validar que remetente e destinatário existem
-        self.usuario_repo.obter_usuario_por_id(dados['id_remetente'])
-        self.usuario_repo.obter_usuario_por_id(dados['id_destinatario'])
+        self.usuario_repo.obter_por_id(dados['id_remetente'])
+        self.usuario_repo.obter_por_id(dados['id_destinatario'])
 
         # Validar que não está enviando para si mesmo
         if dados['id_remetente'] == dados['id_destinatario']:
@@ -33,7 +33,7 @@ class ChatService:
             raise RegraDeNegocioError("Mensagem não pode ser vazia")
 
         chat = Chat(**dados)
-        sucesso = self.repo.inserir_chat(chat)
+        sucesso = self.repo.inserir(chat)
 
         if sucesso:
             logger.info(f"Mensagem enviada de {dados['id_remetente']} para {dados['id_destinatario']}")

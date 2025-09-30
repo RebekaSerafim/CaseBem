@@ -21,24 +21,24 @@ class OrcamentoService:
     def criar_orcamento(self, dados: dict) -> int:
         """Cria um novo orçamento"""
         # Validar demanda existe
-        self.demanda_repo.obter_demanda_por_id(dados['id_demanda'])
+        self.demanda_repo.obter_por_id(dados['id_demanda'])
 
         # Validar fornecedor existe
-        self.fornecedor_repo.obter_fornecedor_por_id(dados['id_fornecedor_prestador'])
+        self.fornecedor_repo.obter_por_id(dados['id_fornecedor_prestador'])
 
         # Validar valor total
         if dados.get('valor_total') and dados['valor_total'] < 0:
             raise RegraDeNegocioError("Valor total não pode ser negativo")
 
         orcamento = Orcamento(**dados)
-        id_orcamento = self.repo.inserir_orcamento(orcamento)
+        id_orcamento = self.repo.inserir(orcamento)
 
         logger.info(f"Orçamento criado: {id_orcamento}")
         return id_orcamento
 
     def atualizar_orcamento(self, id_orcamento: int, dados: dict) -> bool:
         """Atualiza um orçamento"""
-        orcamento = self.repo.obter_orcamento_por_id(id_orcamento)
+        orcamento = self.repo.obter_por_id(id_orcamento)
 
         if 'valor_total' in dados and dados['valor_total'] < 0:
             raise RegraDeNegocioError("Valor total não pode ser negativo")
@@ -48,14 +48,14 @@ class OrcamentoService:
             if campo in dados:
                 setattr(orcamento, campo, dados[campo])
 
-        sucesso = self.repo.atualizar_orcamento(orcamento)
+        sucesso = self.repo.atualizar(orcamento)
         if sucesso:
             logger.info(f"Orçamento atualizado: {id_orcamento}")
         return sucesso
 
     def obter_orcamento(self, id_orcamento: int) -> Orcamento:
         """Obtém um orçamento por ID"""
-        return self.repo.obter_orcamento_por_id(id_orcamento)
+        return self.repo.obter_por_id(id_orcamento)
 
     def listar_orcamentos(self, id_demanda: Optional[int] = None,
                          id_fornecedor: Optional[int] = None,
@@ -69,8 +69,8 @@ class OrcamentoService:
 
     def excluir_orcamento(self, id_orcamento: int) -> bool:
         """Exclui um orçamento"""
-        self.repo.obter_orcamento_por_id(id_orcamento)
-        sucesso = self.repo.excluir_orcamento(id_orcamento)
+        self.repo.obter_por_id(id_orcamento)
+        sucesso = self.repo.excluir(id_orcamento)
         if sucesso:
             logger.info(f"Orçamento excluído: {id_orcamento}")
         return sucesso

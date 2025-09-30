@@ -30,7 +30,7 @@ class UsuarioRepo(BaseRepo):
         except Exception as e:
             from infrastructure.logging.logger import CaseBemLogger
             logger = CaseBemLogger()
-            logger.log_error("Erro ao criar tabela de usuários", extra={'erro': str(e)})
+            logger.error("Erro ao criar tabela de usuários", extra={'erro': str(e)})
             return False
 
     def _objeto_para_tupla_insert(self, usuario: Usuario) -> tuple:
@@ -149,54 +149,39 @@ class UsuarioRepo(BaseRepo):
 
     def obter_usuarios_paginado(self, pagina: int, tamanho_pagina: int) -> tuple[List[Usuario], int]:
         """Obtém usuários paginados e retorna lista de usuários e total"""
-        try:
-            total_resultado = self.executar_query("SELECT COUNT(*) as total FROM usuario")
-            total = total_resultado[0]["total"] if total_resultado else 0
-
-            offset = (pagina - 1) * tamanho_pagina
-            resultados = self.executar_query(usuario_sql.OBTER_USUARIOS_POR_PAGINA, (tamanho_pagina, offset))
-
-            usuarios = [self._linha_para_objeto(row) for row in resultados]
-            return usuarios, total
-        except Exception as e:
-            print(f"Erro ao obter usuários paginados: {e}")
-            return [], 0
+        return self.obter_paginado(pagina, tamanho_pagina)
 
     def buscar_usuarios_paginado(self, busca: str = "", tipo_usuario: str = "", status: str = "", pagina: int = 1, tamanho_pagina: int = 10) -> tuple[List[Usuario], int]:
         """Busca usuários paginados com filtros e retorna lista de usuários e total"""
         try:
             condicoes = []
             parametros = []
-            parametros_count = []
 
             if busca:
                 condicoes.append("(nome LIKE ? OR email LIKE ?)")
                 busca_param = f"%{busca}%"
                 parametros.extend([busca_param, busca_param])
-                parametros_count.extend([busca_param, busca_param])
 
             if tipo_usuario:
                 condicoes.append("perfil = ?")
                 parametros.append(tipo_usuario)
-                parametros_count.append(tipo_usuario)
 
             if status == "ativo":
                 condicoes.append("ativo = 1")
             elif status == "inativo":
                 condicoes.append("ativo = 0")
 
-            where_clause = ""
-            if condicoes:
-                where_clause = "WHERE " + " AND ".join(condicoes)
+            where_clause = "WHERE " + " AND ".join(condicoes) if condicoes else ""
 
+            # Contar total
             sql_count = f"SELECT COUNT(*) as total FROM usuario {where_clause}"
-            total_resultado = self.executar_query(sql_count, parametros_count)
+            total_resultado = self.executar_query(sql_count, parametros[:])
             total = total_resultado[0]["total"] if total_resultado else 0
 
+            # Buscar usuários da página
             offset = (pagina - 1) * tamanho_pagina
             sql_select = f"SELECT * FROM usuario {where_clause} ORDER BY id DESC LIMIT ? OFFSET ?"
-            parametros.extend([tamanho_pagina, offset])
-            resultados = self.executar_query(sql_select, parametros)
+            resultados = self.executar_query(sql_select, parametros + [tamanho_pagina, offset])
 
             usuarios = [self._linha_para_objeto(row) for row in resultados]
             return usuarios, total
@@ -204,60 +189,5 @@ class UsuarioRepo(BaseRepo):
             print(f"Erro ao buscar usuários paginados: {e}")
             return [], 0
 
+# Instância singleton do repositório
 usuario_repo = UsuarioRepo()
-
-def criar_tabela_usuarios() -> bool:
-    return usuario_repo.criar_tabela()
-
-def inserir_usuario(usuario: Usuario) -> Optional[int]:
-    return usuario_repo.inserir(usuario)
-
-def atualizar_usuario(usuario: Usuario) -> bool:
-    return usuario_repo.atualizar(usuario)
-    
-def atualizar_senha_usuario(id: int, senha_hash: str) -> bool:
-    return usuario_repo.atualizar_senha_usuario(id, senha_hash)
-
-def excluir_usuario(id: int) -> bool:
-    return usuario_repo.excluir(id)    
-
-def obter_usuario_por_id(id: int) -> Optional[Usuario]:
-    return usuario_repo.obter_por_id(id)
-
-def obter_usuario_por_email(email: str) -> Optional[Usuario]:
-    return usuario_repo.obter_usuario_por_email(email)
-
-def obter_usuarios_por_pagina(numero_pagina: int, tamanho_pagina: int) -> list[Usuario]:
-    return usuario_repo.obter_usuarios_por_pagina(numero_pagina, tamanho_pagina)
-
-
-def obter_usuarios_por_tipo_por_pagina(tipo: TipoUsuario, numero_pagina: int, tamanho_pagina: int) -> list[Usuario]:
-    return usuario_repo.obter_usuarios_por_tipo_por_pagina(tipo, numero_pagina, tamanho_pagina)
-
-def contar_usuarios() -> int:
-    """Conta o total de usuários no sistema"""
-    return usuario_repo.contar_usuarios()
-
-def contar_usuarios_por_tipo(tipo: TipoUsuario) -> int:
-    """Conta o total de usuários de um tipo específico"""
-    return usuario_repo.contar_usuarios_por_tipo(tipo)
-
-def buscar_usuarios(busca: str = "", tipo_usuario: str = "", status: str = "", numero_pagina: int = 1, tamanho_pagina: int = 100) -> List[Usuario]:
-    """Busca usuários com filtros de nome/email, tipo e status"""
-    return usuario_repo.buscar_usuarios(busca, tipo_usuario, status, numero_pagina, tamanho_pagina)
-
-def bloquear_usuario(id_usuario: int) -> bool:
-    """Bloqueia (desativa) um usuário"""
-    return usuario_repo.bloquear_usuario(id_usuario)
-
-def ativar_usuario(id_usuario: int) -> bool:
-    """Ativa um usuário"""
-    return usuario_repo.ativar_usuario(id_usuario)
-
-def obter_usuarios_paginado(pagina: int, tamanho_pagina: int) -> tuple[list[Usuario], int]:
-    """Obtém usuários paginados e retorna lista de usuários e total"""
-    return usuario_repo.obter_usuarios_paginado(pagina, tamanho_pagina)
-
-def buscar_usuarios_paginado(busca: str = "", tipo_usuario: str = "", status: str = "", pagina: int = 1, tamanho_pagina: int = 10) -> tuple[list[Usuario], int]:
-    """Busca usuários paginados com filtros e retorna lista de usuários e total"""
-    return usuario_repo.buscar_usuarios_paginado(busca, tipo_usuario, status, pagina, tamanho_pagina)

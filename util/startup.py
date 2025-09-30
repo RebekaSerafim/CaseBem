@@ -16,18 +16,18 @@ def criar_tabelas_banco():
     """
     Cria todas as tabelas necessárias no banco de dados.
     """
-    usuario_repo.criar_tabela_usuarios()
-    fornecedor_repo.criar_tabela_fornecedor()
-    casal_repo.criar_tabela_casal()
-    item_repo.criar_tabela_item()
-    categoria_repo.criar_tabela_categorias()
-    fornecedor_item_repo.criar_tabela_fornecedor_item()
-    demanda_repo.criar_tabela_demandas()
-    orcamento_repo.criar_tabela_orcamento()
-    item_demanda_repo.criar_tabela_item_demanda()
-    item_orcamento_repo.criar_tabela_item_orcamento()
-    favorito_repo.criar_tabela_favoritos()
-    chat_repo.criar_tabela_chat()
+    usuario_repo.criar_tabela()
+    fornecedor_repo.criar_tabela()
+    casal_repo.criar_tabela()
+    item_repo.criar_tabela()
+    categoria_repo.criar_tabela()
+    fornecedor_item_repo.criar_tabela()
+    demanda_repo.criar_tabela()
+    orcamento_repo.criar_tabela()
+    item_demanda_repo.criar_tabela()
+    item_orcamento_repo.criar_tabela()
+    favorito_repo.criar_tabela()
+    chat_repo.criar_tabela()
 
 def criar_admin_padrao() -> Optional[int]:
     """
@@ -60,7 +60,7 @@ def criar_admin_padrao() -> Optional[int]:
             data_cadastro=None
         )
 
-        admin_id = usuario_repo.inserir_usuario(admin)
+        admin_id = usuario_repo.inserir(admin)
 
         if admin_id:
             print(f"✅ Administrador padrão criado com sucesso! ID: {admin_id}")
@@ -101,7 +101,7 @@ def criar_categorias():
     """
     try:
         # Verificar se já existem categorias
-        categorias_existentes = categoria_repo.obter_categorias()
+        categorias_existentes = categoria_repo.listar_todos()
         if categorias_existentes:
             print("✅ Categorias já existem no sistema")
             return
@@ -129,7 +129,7 @@ def criar_categorias():
 
         # Inserir todas as categorias
         for categoria in todas_categorias:
-            categoria_id = categoria_repo.inserir_categoria(categoria)
+            categoria_id = categoria_repo.inserir(categoria)
             if categoria_id:
                 print(f"✅ Categoria '{categoria.nome}' criada com sucesso")
             else:
@@ -147,13 +147,13 @@ def criar_fornecedores():
     """
     try:
         # Verificar se já existem fornecedores
-        total_fornecedores = fornecedor_repo.contar_fornecedores()
+        total_fornecedores = fornecedor_repo.contar()
         if total_fornecedores >= 10:
             print("✅ Fornecedores de teste já existem no sistema")
             return
 
         # Obter categorias para associar aos itens
-        categorias = categoria_repo.obter_categorias()
+        categorias = categoria_repo.listar_todos()
         if not categorias:
             print("❌ Nenhuma categoria encontrada. Execute criar_categorias() primeiro.")
             return
@@ -218,7 +218,7 @@ def criar_fornecedores():
                 verificado=True
             )
 
-            fornecedor_id = fornecedor_repo.inserir_fornecedor(fornecedor)
+            fornecedor_id = fornecedor_repo.inserir(fornecedor)
 
             if fornecedor_id:
                 print(f"✅ Fornecedor '{fornecedor.nome_empresa}' criado com sucesso! ID: {fornecedor_id}")
@@ -242,7 +242,7 @@ def criar_fornecedores():
                                 data_cadastro=None
                             )
 
-                            item_id = item_repo.inserir_item(item)
+                            item_id = item_repo.inserir(item)
                             if item_id:
                                 print(f"  ✅ Item '{item.nome}' criado na categoria '{categoria.nome}' - R$ {item.preco:.2f}")
                                 total_itens += 1
@@ -270,7 +270,7 @@ def criar_casais():
     """
     try:
         # Verificar se já existem casais
-        casais_existentes = casal_repo.obter_casais_por_pagina(1, 20)
+        casais_existentes = casal_repo.obter_por_pagina(1, 20)
         if len(casais_existentes) >= 10:
             print("✅ Casais de teste já existem no sistema")
             return
@@ -301,7 +301,7 @@ def criar_casais():
                 data_cadastro=None
             )
 
-            noivo1_id = usuario_repo.inserir_usuario(noivo1)
+            noivo1_id = usuario_repo.inserir(noivo1)
 
             if not noivo1_id:
                 print(f"❌ Erro ao criar noivo {casal_data['noivo1']['nome']}")
@@ -322,7 +322,7 @@ def criar_casais():
                 data_cadastro=None
             )
 
-            noiva1_id = usuario_repo.inserir_usuario(noiva1)
+            noiva1_id = usuario_repo.inserir(noiva1)
 
             if not noiva1_id:
                 print(f"❌ Erro ao criar noiva {casal_data['noiva1']['nome']}")
@@ -340,7 +340,7 @@ def criar_casais():
                 data_cadastro=None
             )
 
-            casal_id = casal_repo.inserir_casal(casal)
+            casal_id = casal_repo.inserir(casal)
 
             if casal_id:
                 print(f"✅ Casal '{casal_data['noivo1']['nome']} & {casal_data['noiva1']['nome']}' criado com sucesso! ID: {casal_id}")

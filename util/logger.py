@@ -6,7 +6,7 @@ import logging
 import json
 from datetime import datetime, date
 from typing import Dict, Any, Optional
-from .exceptions import CaseBemError, TipoErro
+from util.exceptions import CaseBemError, TipoErro
 
 
 class DateTimeEncoder(json.JSONEncoder):

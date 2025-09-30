@@ -70,7 +70,7 @@ class FornecedorService:
 
         # Criar fornecedor
         fornecedor = Fornecedor(**dados)
-        id_fornecedor = self.repo.inserir_fornecedor(fornecedor)
+        id_fornecedor = self.repo.inserir(fornecedor)
 
         logger.info(f"Fornecedor criado: {id_fornecedor}", extra={
             'nome_empresa': dados['nome_empresa'],
@@ -91,7 +91,7 @@ class FornecedorService:
             True se atualizado com sucesso
         """
         # Buscar fornecedor existente
-        fornecedor = self.repo.obter_fornecedor_por_id(id_fornecedor)
+        fornecedor = self.repo.obter_por_id(id_fornecedor)
 
         # Atualizar campos permitidos
         campos_atualizaveis = ['nome', 'telefone', 'nome_empresa', 'descricao', 'newsletter']
@@ -100,7 +100,7 @@ class FornecedorService:
                 setattr(fornecedor, campo, dados[campo])
 
         # Salvar
-        sucesso = self.repo.atualizar_fornecedor(fornecedor)
+        sucesso = self.repo.atualizar(fornecedor)
 
         if sucesso:
             logger.info(f"Fornecedor atualizado: {id_fornecedor}")
@@ -119,11 +119,11 @@ class FornecedorService:
         """
         from datetime import datetime
 
-        fornecedor = self.repo.obter_fornecedor_por_id(id_fornecedor)
+        fornecedor = self.repo.obter_por_id(id_fornecedor)
         fornecedor.verificado = True
         fornecedor.data_verificacao = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
-        sucesso = self.repo.atualizar_fornecedor(fornecedor)
+        sucesso = self.repo.atualizar(fornecedor)
 
         if sucesso:
             logger.info(f"Fornecedor verificado: {id_fornecedor}")
@@ -140,7 +140,7 @@ class FornecedorService:
         Returns:
             Fornecedor encontrado
         """
-        return self.repo.obter_fornecedor_por_id(id_fornecedor)
+        return self.repo.obter_por_id(id_fornecedor)
 
     def listar_fornecedores(self, pagina: int = 1, tamanho: int = 10,
                            verificado: Optional[bool] = None) -> List[Fornecedor]:
@@ -183,10 +183,10 @@ class FornecedorService:
             True se excluído com sucesso
         """
         # Verificar se existe
-        self.repo.obter_fornecedor_por_id(id_fornecedor)
+        self.repo.obter_por_id(id_fornecedor)
 
         # Excluir
-        sucesso = self.repo.excluir_fornecedor(id_fornecedor)
+        sucesso = self.repo.excluir(id_fornecedor)
 
         if sucesso:
             logger.info(f"Fornecedor excluído: {id_fornecedor}")

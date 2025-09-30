@@ -5,8 +5,8 @@ Sistema de logging padronizado do CaseBem
 import logging
 import json
 from datetime import datetime
-from typing import Dict, Any, Optional
-from .exceptions import CaseBemError, TipoErro
+from typing import Optional
+from util.exceptions import CaseBemError, TipoErro
 
 
 class CaseBemLogger:
