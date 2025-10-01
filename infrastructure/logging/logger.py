@@ -5,7 +5,7 @@ Sistema de logging padronizado do CaseBem
 import logging
 import json
 from datetime import datetime
-from typing import Optional
+from typing import Optional, Any
 from util.exceptions import CaseBemError, TipoErro
 
 
@@ -27,13 +27,32 @@ class CaseBemLogger:
             self.logger.addHandler(handler)
             self.logger.setLevel(logging.INFO)
 
+    def _serializar_valor(self, valor: Any) -> Any:
+        """Serializa valores que não são JSON-serializáveis por padrão"""
+        if isinstance(valor, datetime):
+            return valor.isoformat()
+        elif isinstance(valor, (tuple, list)):
+            return [self._serializar_valor(v) for v in valor]
+        elif isinstance(valor, dict):
+            return {k: self._serializar_valor(v) for k, v in valor.items()}
+        else:
+            # Para outros objetos, tenta converter para string
+            try:
+                json.dumps(valor)
+                return valor
+            except (TypeError, ValueError):
+                return str(valor)
+
     def _criar_contexto_log(self, **kwargs) -> dict:
         """Cria contexto padronizado para logs"""
-        return {
+        contexto_base = {
             "timestamp": datetime.now().isoformat(),
             "sistema": "casebem",
-            **kwargs
         }
+        # Serializa todos os valores do kwargs
+        for chave, valor in kwargs.items():
+            contexto_base[chave] = self._serializar_valor(valor)
+        return contexto_base
 
     def info(self, mensagem: str, **contexto):
         """Log de informação"""
