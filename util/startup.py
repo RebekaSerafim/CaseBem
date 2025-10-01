@@ -7,7 +7,6 @@ from core.models.fornecedor_model import Fornecedor
 from core.models.casal_model import Casal
 from core.repositories import usuario_repo, fornecedor_repo, casal_repo, item_repo, categoria_repo, fornecedor_item_repo, item_demanda_repo, item_orcamento_repo, demanda_repo, orcamento_repo, favorito_repo, chat_repo
 from infrastructure.security import criar_hash_senha
-from util.migracoes_avatar import migrar_sistema_avatar
 
 def criar_tabelas_banco():
     """
