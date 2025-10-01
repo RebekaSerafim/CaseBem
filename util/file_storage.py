@@ -7,6 +7,7 @@ consolidando a lógica duplicada de gerenciamento de arquivos.
 
 from enum import Enum
 import os
+from infrastructure.logging import logger
 
 
 class TipoArquivo(Enum):
@@ -108,7 +109,11 @@ class FileStorageManager:
                 return True
             return False
         except Exception as e:
-            print(f"Erro ao excluir arquivo {tipo.value} ID {id_recurso}: {e}")
+            logger.error("Erro ao excluir arquivo",
+                tipo=tipo.value,
+                id_recurso=id_recurso,
+                exc_info=True
+            )
             return False
 
     @staticmethod
@@ -127,7 +132,10 @@ class FileStorageManager:
             os.makedirs(diretorio, exist_ok=True)
             return True
         except Exception as e:
-            print(f"Erro ao criar diretório {tipo.value}: {e}")
+            logger.error("Erro ao criar diretório",
+                tipo=tipo.value,
+                exc_info=True
+            )
             return False
 
     @staticmethod
@@ -159,7 +167,10 @@ class FileStorageManager:
 
             return sorted(ids)
         except Exception as e:
-            print(f"Erro ao listar arquivos {tipo.value}: {e}")
+            logger.error("Erro ao listar arquivos",
+                tipo=tipo.value,
+                exc_info=True
+            )
             return []
 
 
