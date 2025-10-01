@@ -8,7 +8,7 @@ incluindo criação, autenticação, validações e operações complexas.
 from typing import Optional, List
 from util.exceptions import RegraDeNegocioError, RecursoNaoEncontradoError, ValidacaoError
 from core.models.usuario_model import Usuario, TipoUsuario
-from util.logger import logger
+from infrastructure.logging import logger
 
 
 class UsuarioService:
@@ -22,7 +22,7 @@ class UsuarioService:
 
     def __init__(self):
         from core.repositories.usuario_repo import UsuarioRepo, usuario_repo
-        from util.security import criar_hash_senha, verificar_senha
+        from infrastructure.security import criar_hash_senha, verificar_senha
 
         self.repo: UsuarioRepo = usuario_repo
         self.hash_password = criar_hash_senha

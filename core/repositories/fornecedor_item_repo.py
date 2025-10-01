@@ -1,6 +1,6 @@
 from typing import Optional, List
 from core.repositories.base_repo import BaseRepoChaveComposta
-from util.logger import logger
+from infrastructure.logging import logger
 from core.sql import fornecedor_item_sql
 from core.models.fornecedor_item_model import FornecedorItem
 from core.models.tipo_fornecimento_model import TipoFornecimento

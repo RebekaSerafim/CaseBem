@@ -3,9 +3,9 @@ from fastapi.responses import RedirectResponse
 from fastapi.templating import Jinja2Templates
 from PIL import Image
 from core.models.demanda_model import StatusDemanda
-from util.auth_decorator import requer_autenticacao
+from infrastructure.security import requer_autenticacao
 from util.error_handlers import tratar_erro_rota
-from util.logger import logger
+from infrastructure.logging import logger
 from core.models.usuario_model import TipoUsuario
 from core.models.item_model import Item
 from core.models.tipo_fornecimento_model import TipoFornecimento

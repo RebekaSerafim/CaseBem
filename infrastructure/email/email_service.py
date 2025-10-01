@@ -6,7 +6,7 @@ from typing import List, Dict, Optional, Any
 from dataclasses import dataclass
 from jinja2 import Environment, FileSystemLoader
 from mailersend import MailerSendClient, Email, EmailBuilder
-from util.email_config import EmailConfig, get_email_settings
+from infrastructure.email.email_config import EmailConfig, get_email_settings
 
 
 @dataclass

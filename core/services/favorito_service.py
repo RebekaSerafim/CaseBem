@@ -4,7 +4,7 @@ Serviço de favoritos - Lógica de negócio centralizada
 
 from typing import List
 from util.exceptions import RegraDeNegocioError
-from util.logger import logger
+from infrastructure.logging import logger
 
 
 class FavoritoService:

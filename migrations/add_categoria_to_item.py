@@ -1,5 +1,5 @@
 import sqlite3
-from util.database import obter_conexao
+from infrastructure.database import obter_conexao
 
 def add_categoria_to_item():
     """Adiciona o campo id_categoria à tabela item"""

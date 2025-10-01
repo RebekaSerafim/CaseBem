@@ -1,6 +1,6 @@
 from typing import Optional, List
 from core.repositories.base_repo import BaseRepo
-from util.logger import logger
+from infrastructure.logging import logger
 from core.sql import favorito_sql
 from core.models.favorito_model import Favorito
 

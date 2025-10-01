@@ -9,7 +9,7 @@ from starlette.middleware.sessions import SessionMiddleware
 from routes.admin_routes import router as admin_router
 from routes.public_routes import router as public_router
 from core.models.usuario_model import TipoUsuario, Usuario
-from util.security import criar_hash_senha
+from infrastructure.security import criar_hash_senha
 from util.usuario_util import usuario_para_sessao, eh_admin, validar_permissao
 
 

@@ -9,7 +9,7 @@ from typing import List, Optional
 from util.exceptions import RegraDeNegocioError, ValidacaoError
 from core.models.categoria_model import Categoria
 from core.models.tipo_fornecimento_model import TipoFornecimento
-from util.logger import logger
+from infrastructure.logging import logger
 
 
 class CategoriaService:

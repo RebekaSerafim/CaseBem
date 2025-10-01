@@ -1,8 +1,8 @@
 from typing import Optional, List
 from core.repositories.base_repo import BaseRepo
 from util.exceptions import RecursoNaoEncontradoError
-from util.database import obter_conexao
-from util.logger import logger
+from infrastructure.database import obter_conexao
+from infrastructure.logging import logger
 from core.sql import fornecedor_sql
 from core.models.fornecedor_model import Fornecedor
 from core.models.usuario_model import TipoUsuario

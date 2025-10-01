@@ -6,7 +6,7 @@ from typing import List
 from datetime import datetime
 from util.exceptions import RegraDeNegocioError
 from core.models.chat_model import Chat
-from util.logger import logger
+from infrastructure.logging import logger
 
 
 class ChatService:

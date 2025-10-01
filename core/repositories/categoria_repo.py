@@ -1,6 +1,6 @@
 from typing import Optional, List
 from core.repositories.base_repo import BaseRepo
-from util.logger import logger
+from infrastructure.logging import logger
 from core.sql import categoria_sql
 from core.models.categoria_model import Categoria
 from core.models.tipo_fornecimento_model import TipoFornecimento

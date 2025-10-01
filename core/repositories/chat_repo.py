@@ -1,7 +1,7 @@
 from typing import List
 from datetime import datetime
 from core.repositories.base_repo import BaseRepoChaveComposta
-from util.logger import logger
+from infrastructure.logging import logger
 from core.sql import chat_sql
 from core.models.chat_model import Chat
 

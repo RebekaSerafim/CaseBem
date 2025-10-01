@@ -1,6 +1,6 @@
 import sqlite3
 import os
-from util.sqlite_adapters import register_adapters
+from infrastructure.database.adapters import register_adapters
 
 def obter_conexao():
     # Registra os adaptadores customizados para datetime

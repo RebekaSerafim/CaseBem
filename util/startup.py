@@ -6,7 +6,7 @@ from core.models.tipo_fornecimento_model import TipoFornecimento
 from core.models.fornecedor_model import Fornecedor
 from core.models.casal_model import Casal
 from core.repositories import usuario_repo, fornecedor_repo, casal_repo, item_repo, categoria_repo, fornecedor_item_repo, item_demanda_repo, item_orcamento_repo, demanda_repo, orcamento_repo, favorito_repo, chat_repo
-from util.security import criar_hash_senha
+from infrastructure.security import criar_hash_senha
 from util.migracoes_avatar import migrar_sistema_avatar
 
 def criar_tabelas_banco():
@@ -112,7 +112,7 @@ def criar_categorias():
         lista_categorias = dados_categorias['categorias']
 
         # Inserir categorias com IDs explícitos
-        from util.database import obter_conexao
+        from infrastructure.database import obter_conexao
         from core.sql import categoria_sql
 
         with obter_conexao() as conexao:
@@ -195,7 +195,7 @@ def criar_fornecedores():
             categorias_por_fornecedor[fornecedor_idx].append(categoria_id)
 
         # Importar módulos necessários
-        from util.database import obter_conexao
+        from infrastructure.database import obter_conexao
         from core.sql import item_sql
 
         # Criar fornecedores e seus itens

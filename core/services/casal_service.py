@@ -9,7 +9,7 @@ from typing import Optional, List
 from util.exceptions import RegraDeNegocioError, RecursoNaoEncontradoError
 from core.models.casal_model import Casal
 from core.models.usuario_model import TipoUsuario
-from util.logger import logger
+from infrastructure.logging import logger
 
 
 class CasalService:

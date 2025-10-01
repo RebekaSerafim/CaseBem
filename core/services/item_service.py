@@ -9,7 +9,7 @@ from typing import Optional, List
 from util.exceptions import RegraDeNegocioError, RecursoNaoEncontradoError
 from core.models.item_model import Item
 from core.models.tipo_fornecimento_model import TipoFornecimento
-from util.logger import logger
+from infrastructure.logging import logger
 
 
 class ItemService:

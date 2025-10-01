@@ -1,10 +1,10 @@
 from fastapi import APIRouter, Request, Form, status
 from fastapi.responses import RedirectResponse
 from fastapi.templating import Jinja2Templates
-from util.auth_decorator import requer_autenticacao
+from infrastructure.security import requer_autenticacao
 from util.error_handlers import tratar_erro_rota
 from util.exceptions import RecursoNaoEncontradoError, ValidacaoError
-from util.logger import logger
+from infrastructure.logging import logger
 from core.models.usuario_model import TipoUsuario
 from core.models.categoria_model import Categoria
 from core.models.tipo_fornecimento_model import TipoFornecimento
@@ -35,11 +35,8 @@ def get_admin_active_page(request: Request) -> str:
     else:
         return ""
 
-def render_admin_template(request: Request, template_name: str, context: dict = None):
-    """Renderiza template admin incluindo active_page"""
-    if context is None:
-        context = {}
-
+def render_admin_template(request: Request, template_name: str, context: dict = {}):
+    """Renderiza template admin incluindo active_page"""  
     context.update({
         "active_page": get_admin_active_page(request)
     })
@@ -50,7 +47,7 @@ def render_admin_template(request: Request, template_name: str, context: dict = 
 
 @router.get("/admin")
 @requer_autenticacao([TipoUsuario.ADMIN.value])
-async def admin_root(request: Request, usuario_logado: dict = None):
+async def admin_root(request: Request, usuario_logado: dict = {}):
     """Redireciona /admin para /admin/dashboard"""
     return RedirectResponse("/admin/dashboard", status_code=status.HTTP_302_FOUND)
 
@@ -59,7 +56,7 @@ async def admin_root(request: Request, usuario_logado: dict = None):
 @router.get("/admin/perfil")
 @requer_autenticacao([TipoUsuario.ADMIN.value])
 @tratar_erro_rota(template_erro="admin/perfil.html")
-async def perfil_admin(request: Request, usuario_logado: dict = None):
+async def perfil_admin(request: Request, usuario_logado: dict = {}):
     """Página de perfil do administrador"""
     admin = usuario_repo.obter_por_id(usuario_logado['id'])
     logger.info("Perfil do admin carregado com sucesso", admin_id=usuario_logado['id'])
@@ -83,7 +80,7 @@ async def atualizar_perfil_admin(
     cidade: str = Form(""),
     estado: str = Form(""),
     observacoes: str = Form(""),
-    usuario_logado: dict = None
+    usuario_logado: dict = {}
 ):
     """Atualiza o perfil do administrador"""
     try:
@@ -138,7 +135,7 @@ async def atualizar_perfil_admin(
 
 @router.get("/admin/dashboard")
 @requer_autenticacao([TipoUsuario.ADMIN.value])
-async def dashboard_admin(request: Request, usuario_logado: dict = None):
+async def dashboard_admin(request: Request, usuario_logado: dict = {}):
     """Dashboard principal do administrador"""
     try:
         # Estatísticas do sistema
@@ -147,7 +144,7 @@ async def dashboard_admin(request: Request, usuario_logado: dict = None):
             "total_fornecedores": fornecedor_repo.contar(),
             "total_noivos": usuario_repo.contar_usuarios_por_tipo(TipoUsuario.NOIVO),
             "total_admins": usuario_repo.contar_usuarios_por_tipo(TipoUsuario.ADMIN),
-            "fornecedores_nao_verificados": fornecedor_repo.contar_fornecedores_nao_verificados(),
+            "fornecedores_nao_verificados": fornecedor_repo.contar_nao_verificados(),
             "total_itens": item_repo.contar(),
             "total_categorias": categoria_repo.contar(),
             "total_orcamentos": orcamento_repo.contar(),
@@ -185,7 +182,7 @@ async def dashboard_admin(request: Request, usuario_logado: dict = None):
 async def listar_usuarios(
     request: Request,
     pagina: int = 1,
-    usuario_logado: dict = None
+    usuario_logado: dict = {}
 ):
     """Lista todos os usuários do sistema com filtros e paginação"""
     try:
@@ -219,7 +216,7 @@ async def listar_usuarios(
         fornecedores_dados = {}
         for usuario in usuarios:
             if usuario.perfil == TipoUsuario.FORNECEDOR:
-                fornecedor = fornecedor_repo.obter_fornecedor_por_id(usuario.id)
+                fornecedor = fornecedor_repo.obter_por_id(usuario.id)
                 if fornecedor:
                     fornecedores_dados[usuario.id] = fornecedor
 
@@ -251,7 +248,7 @@ async def listar_usuarios(
 
 @router.get("/admin/usuarios/novo-admin")
 @requer_autenticacao([TipoUsuario.ADMIN.value])
-async def novo_admin_form(request: Request, usuario_logado: dict = None):
+async def novo_admin_form(request: Request, usuario_logado: dict = {}):
     """Formulário para cadastrar novo administrador"""
     return templates.TemplateResponse("admin/admin_form.html", {
         "request": request,
@@ -269,7 +266,7 @@ async def criar_admin(
     telefone: str = Form(""),
     data_nascimento: str = Form(""),
     senha: str = Form(...),
-    usuario_logado: dict = None
+    usuario_logado: dict = {}
 ):
     """Cria um novo administrador"""
     try:
@@ -318,7 +315,7 @@ async def criar_admin(
         data_nascimento = data_nascimento.strip() if data_nascimento.strip() else None
 
         # Hash da senha
-        from util.security import criar_hash_senha
+        from infrastructure.security import criar_hash_senha
         senha_hash = criar_hash_senha(senha)
 
         # Criar objeto Usuario
@@ -361,7 +358,7 @@ async def criar_admin(
 
 @router.get("/admin/usuarios/editar-admin/{id_admin}")
 @requer_autenticacao([TipoUsuario.ADMIN.value])
-async def editar_admin_form(request: Request, id_admin: int, usuario_logado: dict = None):
+async def editar_admin_form(request: Request, id_admin: int, usuario_logado: dict = {}):
     """Formulário para editar administrador"""
     try:
         admin = usuario_repo.obter_por_id(id_admin)
@@ -388,7 +385,7 @@ async def atualizar_admin(
     cpf: str = Form(""),
     telefone: str = Form(""),
     data_nascimento: str = Form(""),
-    usuario_logado: dict = None
+    usuario_logado: dict = {}
 ):
     """Atualiza dados do administrador"""
     try:
@@ -466,7 +463,7 @@ async def atualizar_admin(
 
 @router.get("/admin/usuarios/{id_usuario}")
 @requer_autenticacao([TipoUsuario.ADMIN.value])
-async def visualizar_usuario(request: Request, id_usuario: int, usuario_logado: dict = None):
+async def visualizar_usuario(request: Request, id_usuario: int, usuario_logado: dict = {}):
     """Visualiza detalhes de um usuário específico"""
     try:
         usuario = usuario_repo.obter_por_id(id_usuario)
@@ -500,7 +497,7 @@ async def visualizar_usuario(request: Request, id_usuario: int, usuario_logado: 
 @router.post("/admin/usuarios/{id_usuario}/bloquear")
 @requer_autenticacao([TipoUsuario.ADMIN.value])
 @tratar_erro_rota(redirect_erro="/admin/usuarios")
-async def bloquear_usuario(request: Request, id_usuario: int, usuario_logado: dict = None):
+async def bloquear_usuario(request: Request, id_usuario: int, usuario_logado: dict = {}):
     """Bloqueia um usuário"""
     if id_usuario <= 0:
         raise ValidacaoError("ID do usuário deve ser um número positivo", "id_usuario", id_usuario)
@@ -517,7 +514,7 @@ async def bloquear_usuario(request: Request, id_usuario: int, usuario_logado: di
 
 @router.post("/admin/usuarios/{id_usuario}/ativar")
 @requer_autenticacao([TipoUsuario.ADMIN.value])
-async def ativar_usuario(request: Request, id_usuario: int, usuario_logado: dict = None):
+async def ativar_usuario(request: Request, id_usuario: int, usuario_logado: dict = {}):
     """Ativa um usuário"""
     try:
         sucesso = usuario_repo.ativar_usuario(id_usuario)
@@ -536,7 +533,7 @@ async def ativar_usuario(request: Request, id_usuario: int, usuario_logado: dict
 
 @router.get("/admin/verificacao/{id_fornecedor}")
 @requer_autenticacao([TipoUsuario.ADMIN.value])
-async def verificacao_fornecedor_especifico(request: Request, id_fornecedor: int, usuario_logado: dict = None):
+async def verificacao_fornecedor_especifico(request: Request, id_fornecedor: int, usuario_logado: dict = {}):
     """Página de verificação para um fornecedor específico"""
     try:
         # Buscar o usuário e dados do fornecedor
@@ -571,7 +568,7 @@ async def verificacao_fornecedor_especifico(request: Request, id_fornecedor: int
 
 @router.get("/admin/verificacao")
 @requer_autenticacao([TipoUsuario.ADMIN.value])
-async def verificacao_fornecedores(request: Request, usuario_logado: dict = None):
+async def verificacao_fornecedores(request: Request, usuario_logado: dict = {}):
     """Lista fornecedores pendentes de verificação"""
     try:
         fornecedores = fornecedor_repo.obter_fornecedores_por_pagina(1, 100)
@@ -592,7 +589,7 @@ async def verificacao_fornecedores(request: Request, usuario_logado: dict = None
 
 @router.post("/admin/verificacao/{id_fornecedor}/aprovar")
 @requer_autenticacao([TipoUsuario.ADMIN.value])
-async def aprovar_fornecedor(request: Request, id_fornecedor: int, usuario_logado: dict = None):
+async def aprovar_fornecedor(request: Request, id_fornecedor: int, usuario_logado: dict = {}):
     """Aprova um fornecedor"""
     try:
         fornecedor = fornecedor_repo.obter_fornecedor_por_id(id_fornecedor)
@@ -612,7 +609,7 @@ async def aprovar_fornecedor(request: Request, id_fornecedor: int, usuario_logad
 
 @router.post("/admin/verificacao/{id_fornecedor}/rejeitar")
 @requer_autenticacao([TipoUsuario.ADMIN.value])
-async def rejeitar_fornecedor(request: Request, id_fornecedor: int, observacoes: str = Form(""), usuario_logado: dict = None):
+async def rejeitar_fornecedor(request: Request, id_fornecedor: int, observacoes: str = Form(""), usuario_logado: dict = {}):
     """Rejeita um fornecedor"""
     try:
         fornecedor = fornecedor_repo.obter_fornecedor_por_id(id_fornecedor)
@@ -637,7 +634,7 @@ async def rejeitar_fornecedor(request: Request, id_fornecedor: int, observacoes:
 async def listar_itens(
     request: Request,
     pagina: int = 1,
-    usuario_logado: dict = None
+    usuario_logado: dict = {}
 ):
     """Lista todos os itens do sistema com filtros e paginação"""
     try:
@@ -713,7 +710,7 @@ async def listar_itens(
 
 @router.get("/admin/item/{id_item}")
 @requer_autenticacao([TipoUsuario.ADMIN.value])
-async def visualizar_item(request: Request, id_item: int, usuario_logado: dict = None):
+async def visualizar_item(request: Request, id_item: int, usuario_logado: dict = {}):
     """Visualiza detalhes de um item específico"""
     try:
         item = item_repo.obter_item_por_id(id_item)
@@ -744,10 +741,10 @@ async def visualizar_item(request: Request, id_item: int, usuario_logado: dict =
 
 @router.get("/admin/item/{id_item}/ativar")
 @requer_autenticacao([TipoUsuario.ADMIN.value])
-async def ativar_item_admin(request: Request, id_item: int, usuario_logado: dict = None):
+async def ativar_item_admin(request: Request, id_item: int, usuario_logado: dict = {}):
     """Ativa um item (admin pode ativar qualquer item)"""
     try:
-        from util.database import obter_conexao
+        from infrastructure.database import obter_conexao
         with obter_conexao() as conexao:
             cursor = conexao.cursor()
             cursor.execute("UPDATE item SET ativo = 1 WHERE id = ?", (id_item,))
@@ -762,10 +759,10 @@ async def ativar_item_admin(request: Request, id_item: int, usuario_logado: dict
 
 @router.get("/admin/item/{id_item}/desativar")
 @requer_autenticacao([TipoUsuario.ADMIN.value])
-async def desativar_item_admin(request: Request, id_item: int, usuario_logado: dict = None):
+async def desativar_item_admin(request: Request, id_item: int, usuario_logado: dict = {}):
     """Desativa um item (admin pode desativar qualquer item)"""
     try:
-        from util.database import obter_conexao
+        from infrastructure.database import obter_conexao
         with obter_conexao() as conexao:
             cursor = conexao.cursor()
             cursor.execute("UPDATE item SET ativo = 0 WHERE id = ?", (id_item,))
@@ -782,7 +779,7 @@ async def desativar_item_admin(request: Request, id_item: int, usuario_logado: d
 
 @router.get("/admin/relatorios")
 @requer_autenticacao([TipoUsuario.ADMIN.value])
-async def relatorios(request: Request, usuario_logado: dict = None):
+async def relatorios(request: Request, usuario_logado: dict = {}):
     """Página de relatórios e estatísticas"""
     try:
         # Estatísticas gerais do sistema
@@ -853,7 +850,7 @@ async def relatorios(request: Request, usuario_logado: dict = None):
 
 @router.get("/admin/relatorios/exportar")
 @requer_autenticacao([TipoUsuario.ADMIN.value])
-async def exportar_relatorios(request: Request, formato: str = "json", usuario_logado: dict = None):
+async def exportar_relatorios(request: Request, formato: str = "json", usuario_logado: dict = {}):
     """Exporta relatórios em formato JSON ou CSV"""
     try:
         from fastapi.responses import JSONResponse, PlainTextResponse
@@ -926,7 +923,7 @@ async def exportar_relatorios(request: Request, formato: str = "json", usuario_l
 async def listar_categorias(
     request: Request,
     pagina: int = 1,
-    usuario_logado: dict = None
+    usuario_logado: dict = {}
 ):
     """Lista todas as categorias de item com filtros e paginação"""
     try:
@@ -982,7 +979,7 @@ async def listar_categorias(
 
 @router.get("/admin/categoria/nova")
 @requer_autenticacao([TipoUsuario.ADMIN.value])
-async def nova_categoria(request: Request, usuario_logado: dict = None):
+async def nova_categoria(request: Request, usuario_logado: dict = {}):
     """Formulário para criar nova categoria"""
     return templates.TemplateResponse("admin/categoria_form.html", {
         "request": request,
@@ -999,7 +996,7 @@ async def criar_categoria(
     tipo_fornecimento: str = Form(...),
     descricao: str = Form(""),
     ativo: bool = Form(True),
-    usuario_logado: dict = None
+    usuario_logado: dict = {}
 ):
     """Cria uma nova categoria"""
     try:
@@ -1056,7 +1053,7 @@ async def criar_categoria(
 
 @router.get("/admin/categoria/editar/{id_categoria}")
 @requer_autenticacao([TipoUsuario.ADMIN.value])
-async def editar_categoria(request: Request, id_categoria: int, usuario_logado: dict = None):
+async def editar_categoria(request: Request, id_categoria: int, usuario_logado: dict = {}):
     """Formulário para editar categoria"""
     try:
         categoria = categoria_repo.obter_categoria_por_id(id_categoria)
@@ -1083,7 +1080,7 @@ async def atualizar_categoria(
     tipo_fornecimento: str = Form(...),
     descricao: str = Form(""),
     ativo: bool = Form(True),
-    usuario_logado: dict = None
+    usuario_logado: dict = {}
 ):
     """Atualiza uma categoria existente"""
     try:
@@ -1147,7 +1144,7 @@ async def atualizar_categoria(
 
 @router.post("/admin/categoria/excluir/{id_categoria}")
 @requer_autenticacao([TipoUsuario.ADMIN.value])
-async def excluir_categoria(request: Request, id_categoria: int, usuario_logado: dict = None):
+async def excluir_categoria(request: Request, id_categoria: int, usuario_logado: dict = {}):
     """Exclui uma categoria"""
     try:
         categoria_repo.excluir(id_categoria)
@@ -1158,7 +1155,7 @@ async def excluir_categoria(request: Request, id_categoria: int, usuario_logado:
 
 @router.get("/admin/categoria/{id_categoria}/ativar")
 @requer_autenticacao([TipoUsuario.ADMIN.value])
-async def ativar_categoria(request: Request, id_categoria: int, usuario_logado: dict = None):
+async def ativar_categoria(request: Request, id_categoria: int, usuario_logado: dict = {}):
     """Ativa uma categoria"""
     try:
         sucesso = categoria_repo.ativar_categoria(id_categoria)
@@ -1171,7 +1168,7 @@ async def ativar_categoria(request: Request, id_categoria: int, usuario_logado: 
 
 @router.get("/admin/categoria/{id_categoria}/desativar")
 @requer_autenticacao([TipoUsuario.ADMIN.value])
-async def desativar_categoria(request: Request, id_categoria: int, usuario_logado: dict = None):
+async def desativar_categoria(request: Request, id_categoria: int, usuario_logado: dict = {}):
     """Desativa uma categoria"""
     try:
         sucesso = categoria_repo.desativar_categoria(id_categoria)
@@ -1186,7 +1183,7 @@ async def desativar_categoria(request: Request, id_categoria: int, usuario_logad
 
 @router.get("/admin/configuracoes")
 @requer_autenticacao([TipoUsuario.ADMIN.value])
-async def configuracoes(request: Request, usuario_logado: dict = None):
+async def configuracoes(request: Request, usuario_logado: dict = {}):
     """Página de configurações do sistema"""
     return templates.TemplateResponse("admin/configuracoes.html", {
         "request": request,

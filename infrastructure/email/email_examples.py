@@ -1,7 +1,7 @@
 """
 Exemplos de uso do serviço de e-mail MailerSend
 """
-from util.email_service import (
+from infrastructure.email.email_service import (
     MailerSendService,
     EmailRecipient,
     EmailSender,
@@ -10,7 +10,7 @@ from util.email_service import (
     enviar_email_recuperacao_senha,
     enviar_notificacao_orcamento,
 )
-from util.email_config import EmailConfig
+from infrastructure.email.email_config import EmailConfig
 import base64
 
 

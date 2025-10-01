@@ -11,7 +11,7 @@ from util.exceptions import (
     CaseBemError, BancoDadosError, ValidacaoError,
     RecursoNaoEncontradoError, TipoErro
 )
-from util.logger import logger
+from infrastructure.logging import logger
 from util.flash_messages import informar_erro
 from util.template_helpers import configurar_filtros_jinja
 

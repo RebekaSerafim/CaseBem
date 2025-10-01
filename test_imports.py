@@ -7,7 +7,7 @@ Se este arquivo não mostrar erros no VS Code, os imports estão funcionando.
 from util.exceptions import CaseBemError, TipoErro, ValidacaoError
 
 # Teste 2: Import absoluto de logger
-from util.logger import logger, CaseBemLogger
+from infrastructure.logging import logger, CaseBemLogger
 
 # Teste 3: Import absoluto de error_handlers
 from util.error_handlers import tratar_erro_banco_dados, validar_parametros

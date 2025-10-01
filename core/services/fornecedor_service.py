@@ -9,7 +9,7 @@ from typing import Optional, List
 from util.exceptions import RegraDeNegocioError, RecursoNaoEncontradoError
 from core.models.fornecedor_model import Fornecedor
 from core.models.usuario_model import TipoUsuario
-from util.logger import logger
+from infrastructure.logging import logger
 
 
 class FornecedorService:
@@ -23,7 +23,7 @@ class FornecedorService:
     def __init__(self):
         from core.repositories.fornecedor_repo import FornecedorRepo, fornecedor_repo
         from core.repositories.usuario_repo import UsuarioRepo, usuario_repo
-        from util.security import criar_hash_senha
+        from infrastructure.security import criar_hash_senha
 
         self.repo: FornecedorRepo = fornecedor_repo
         self.usuario_repo: UsuarioRepo = usuario_repo

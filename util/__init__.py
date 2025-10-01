@@ -10,6 +10,6 @@ Este módulo contém classes e funções auxiliares usadas em todo o projeto:
 
 Uso:
     from util.exceptions import CaseBemError, ValidacaoError
-    from util.logger import logger
+    from infrastructure.logging import logger
     from util.error_handlers import tratar_erro_banco_dados
 """

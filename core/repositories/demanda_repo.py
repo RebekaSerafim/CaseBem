@@ -2,7 +2,7 @@ from typing import Optional, List, Union
 from datetime import datetime
 from core.repositories.base_repo import BaseRepo
 from util.exceptions import RecursoNaoEncontradoError
-from util.logger import logger
+from infrastructure.logging import logger
 from core.sql import demanda_sql
 from core.models.demanda_model import Demanda, StatusDemanda
 

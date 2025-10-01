@@ -1,6 +1,6 @@
 from typing import Optional, List
 from core.repositories.base_repo import BaseRepoChaveComposta
-from util.logger import logger
+from infrastructure.logging import logger
 from core.sql import item_demanda_sql
 from core.models.item_demanda_model import ItemDemanda
 

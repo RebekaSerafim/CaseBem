@@ -5,7 +5,7 @@ Serviço de orçamentos - Lógica de negócio centralizada
 from typing import Optional, List
 from util.exceptions import RegraDeNegocioError
 from core.models.orcamento_model import Orcamento
-from util.logger import logger
+from infrastructure.logging import logger
 
 
 class OrcamentoService:
