@@ -7,6 +7,7 @@ from core.models.fornecedor_model import Fornecedor
 from core.models.casal_model import Casal
 from core.repositories import usuario_repo, fornecedor_repo, casal_repo, item_repo, categoria_repo, fornecedor_item_repo, item_demanda_repo, item_orcamento_repo, demanda_repo, orcamento_repo, favorito_repo, chat_repo
 from infrastructure.security import criar_hash_senha
+from infrastructure.logging import logger
 
 def criar_tabelas_banco():
     """
@@ -36,7 +37,7 @@ def criar_admin_padrao() -> Optional[int]:
         admin_existente = usuario_repo.obter_usuario_por_email("admin@casebem.com")
 
         if admin_existente:
-            print("✅ Administrador já existe no sistema")
+            logger.info("Administrador já existe no sistema")
             return admin_existente.id
 
         # Criar administrador padrão
@@ -59,35 +60,35 @@ def criar_admin_padrao() -> Optional[int]:
         admin_id = usuario_repo.inserir(admin)
 
         if admin_id:
-            print(f"✅ Administrador padrão criado com sucesso! ID: {admin_id}")
-            print("📧 Email: admin@casebem.com")
-            print("🔑 Senha: 1234aA@#")
-            print("⚠️ IMPORTANTE: Altere a senha no primeiro login!")
+            logger.info(f"Administrador padrão criado com sucesso! ID: {admin_id}")
+            logger.info("Email: admin@casebem.com")
+            logger.info("Senha: 1234aA@#")
+            logger.warning("IMPORTANTE: Altere a senha no primeiro login!")
             return admin_id
         else:
-            print("❌ Erro ao criar administrador padrão")
+            logger.error("Erro ao criar administrador padrão")
             return None
 
     except Exception as e:
-        print(f"❌ Erro ao verificar/criar administrador: {e}")
+        logger.error(f"Erro ao verificar/criar administrador: {e}")
         return None
 
 def carregar_dados_json(nome_arquivo: str) -> dict:
     """
-    Carrega dados de um arquivo JSON na pasta data/.
+    Carrega dados de um arquivo JSON na pasta data/seeds/.
     """
     try:
-        caminho_arquivo = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'data', nome_arquivo)
+        caminho_arquivo = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'data', 'seeds', nome_arquivo)
         with open(caminho_arquivo, 'r', encoding='utf-8') as arquivo:
             return json.load(arquivo)
     except FileNotFoundError:
-        print(f"❌ Arquivo {nome_arquivo} não encontrado na pasta data/")
+        logger.error(f"Arquivo {nome_arquivo} não encontrado na pasta data/seeds/")
         return {}
     except json.JSONDecodeError:
-        print(f"❌ Erro ao decodificar JSON do arquivo {nome_arquivo}")
+        logger.error(f"Erro ao decodificar JSON do arquivo {nome_arquivo}")
         return {}
     except Exception as e:
-        print(f"❌ Erro ao carregar arquivo {nome_arquivo}: {e}")
+        logger.error(f"Erro ao carregar arquivo {nome_arquivo}: {e}")
         return {}
 
 def criar_categorias():
@@ -99,13 +100,13 @@ def criar_categorias():
         # Verificar se já existem categorias
         categorias_existentes = categoria_repo.listar_todos()
         if categorias_existentes:
-            print("✅ Categorias já existem no sistema")
+            logger.info("Categorias já existem no sistema")
             return
 
         # Carregar dados das categorias do arquivo JSON
         dados_categorias = carregar_dados_json('categorias.json')
         if not dados_categorias or 'categorias' not in dados_categorias:
-            print("❌ Não foi possível carregar os dados das categorias")
+            logger.error("Não foi possível carregar os dados das categorias")
             return
 
         lista_categorias = dados_categorias['categorias']
@@ -132,12 +133,12 @@ def criar_categorias():
                         1  # ativo
                     )
                 )
-                print(f"✅ Categoria ID {cat_data['id']} '{cat_data['nome']}' criada com sucesso")
+                logger.info(f"Categoria ID {cat_data['id']} '{cat_data['nome']}' criada com sucesso")
 
-        print(f"✅ {len(lista_categorias)} categorias padrão criadas com sucesso!")
+        logger.info(f"{len(lista_categorias)} categorias padrão criadas com sucesso!")
 
     except Exception as e:
-        print(f"❌ Erro ao criar categorias padrão: {e}")
+        logger.error(f"Erro ao criar categorias padrão: {e}")
 
 def criar_fornecedores():
     """
@@ -148,19 +149,19 @@ def criar_fornecedores():
         # Verificar se já existem fornecedores
         total_fornecedores = fornecedor_repo.contar()
         if total_fornecedores >= 10:
-            print("✅ Fornecedores de teste já existem no sistema")
+            logger.info("Fornecedores de teste já existem no sistema")
             return
 
         # Obter categorias
         categorias = categoria_repo.listar_todos()
         if not categorias:
-            print("❌ Nenhuma categoria encontrada. Execute criar_categorias() primeiro.")
+            logger.error("Nenhuma categoria encontrada. Execute criar_categorias() primeiro.")
             return
 
         # Carregar itens do JSON com IDs explícitos
         dados_itens = carregar_dados_json('itens.json')
         if not dados_itens or 'itens' not in dados_itens:
-            print("❌ Não foi possível carregar os dados dos itens")
+            logger.error("Não foi possível carregar os dados dos itens")
             return
 
         lista_itens = dados_itens['itens']
@@ -168,10 +169,10 @@ def criar_fornecedores():
         # Carregar fornecedores base do arquivo JSON
         fornecedores_base = carregar_dados_json('fornecedores.json')
         if not fornecedores_base:
-            print("❌ Não foi possível carregar os dados dos fornecedores básicos")
+            logger.error("Não foi possível carregar os dados dos fornecedores básicos")
             return
 
-        print("🏢 Criando fornecedores com distribuição determinística de itens...")
+        logger.info("Criando fornecedores com distribuição determinística de itens...")
 
         # Agrupar itens por categoria (mantendo ordem do JSON)
         itens_por_categoria = {}
@@ -224,7 +225,7 @@ def criar_fornecedores():
             fornecedor_id = fornecedor_repo.inserir(fornecedor)
 
             if fornecedor_id:
-                print(f"✅ Fornecedor '{fornecedor.nome_empresa}' criado com sucesso! ID: {fornecedor_id}")
+                logger.info(f"Fornecedor '{fornecedor.nome_empresa}' criado com sucesso! ID: {fornecedor_id}")
 
                 # Criar itens para as categorias deste fornecedor com IDs explícitos
                 total_itens = 0
@@ -250,17 +251,17 @@ def criar_fornecedores():
                                         1  # ativo
                                     )
                                 )
-                                print(f"  ✅ Item ID {item_data['id']} '{item_data['nome']}' criado - R$ {item_data['preco']:.2f}")
+                                logger.debug(f"Item ID {item_data['id']} '{item_data['nome']}' criado - R$ {item_data['preco']:.2f}")
                                 total_itens += 1
 
-                print(f"  📦 Total de {total_itens} itens criados para {fornecedor.nome_empresa}")
+                logger.info(f"Total de {total_itens} itens criados para {fornecedor.nome_empresa}")
             else:
-                print(f"❌ Erro ao criar fornecedor '{fornecedor_data['empresa']}'")
+                logger.error(f"Erro ao criar fornecedor '{fornecedor_data['empresa']}'")
 
-        print("✅ Fornecedores e itens criados com IDs fixos!")
+        logger.info("Fornecedores e itens criados com IDs fixos!")
 
     except Exception as e:
-        print(f"❌ Erro ao criar fornecedores: {e}")
+        logger.error(f"Erro ao criar fornecedores: {e}")
 
 def criar_itens():
     """
@@ -276,16 +277,16 @@ def criar_casais():
         # Verificar se já existem casais
         casais_existentes = casal_repo.obter_por_pagina(1, 20)
         if len(casais_existentes) >= 10:
-            print("✅ Casais de teste já existem no sistema")
+            logger.info("Casais de teste já existem no sistema")
             return
 
         # Carregar dados dos casais do arquivo JSON
         casais_dados = carregar_dados_json('casais.json')
         if not casais_dados:
-            print("❌ Não foi possível carregar os dados dos casais")
+            logger.error("Não foi possível carregar os dados dos casais")
             return
 
-        print("💑 Criando casais de teste...")
+        logger.info("Criando casais de teste...")
 
         for casal_data in casais_dados:
             # Criar usuário noivo1
@@ -308,7 +309,7 @@ def criar_casais():
             noivo1_id = usuario_repo.inserir(noivo1)
 
             if not noivo1_id:
-                print(f"❌ Erro ao criar noivo {casal_data['noivo1']['nome']}")
+                logger.error(f"Erro ao criar noivo {casal_data['noivo1']['nome']}")
                 continue
 
             # Criar usuário noiva1 (noivo2)
@@ -329,7 +330,7 @@ def criar_casais():
             noiva1_id = usuario_repo.inserir(noiva1)
 
             if not noiva1_id:
-                print(f"❌ Erro ao criar noiva {casal_data['noiva1']['nome']}")
+                logger.error(f"Erro ao criar noiva {casal_data['noiva1']['nome']}")
                 continue
 
             # Criar casal
@@ -347,21 +348,21 @@ def criar_casais():
             casal_id = casal_repo.inserir(casal)
 
             if casal_id:
-                print(f"✅ Casal '{casal_data['noivo1']['nome']} & {casal_data['noiva1']['nome']}' criado com sucesso! ID: {casal_id}")
-                print(f"   📅 Casamento: {casal_data['data_casamento']} | 👥 Convidados: {casal_data['numero_convidados']} | 💰 Orçamento: {casal_data['orcamento_estimado']}")
+                logger.info(f"Casal '{casal_data['noivo1']['nome']} & {casal_data['noiva1']['nome']}' criado com sucesso! ID: {casal_id}")
+                logger.info(f"Casamento: {casal_data['data_casamento']} | 👥 Convidados: {casal_data['numero_convidados']} | 💰 Orçamento: {casal_data['orcamento_estimado']}")
             else:
-                print(f"❌ Erro ao criar casal {casal_data['noivo1']['nome']} & {casal_data['noiva1']['nome']}")
+                logger.error(f"Erro ao criar casal {casal_data['noivo1']['nome']} & {casal_data['noiva1']['nome']}")
 
-        print("✅ Casais de teste criados com sucesso!")
+        logger.info("Casais de teste criados com sucesso!")
 
     except Exception as e:
-        print(f"❌ Erro ao criar casais de teste: {e}")
+        logger.error(f"Erro ao criar casais de teste: {e}")
 
 def inicializar_sistema():
     """
     Inicializa o sistema executando todas as verificações e configurações necessárias.
     """
-    print("🚀 Inicializando sistema CaseBem...")
+    logger.info("Inicializando sistema CaseBem...")
 
     # Criar todas as tabelas necessárias
     criar_tabelas_banco()
@@ -378,4 +379,4 @@ def inicializar_sistema():
     # Criar casais de teste se necessário
     criar_casais()
 
-    print("✅ Sistema inicializado com sucesso!")
+    logger.info("Sistema inicializado com sucesso!")

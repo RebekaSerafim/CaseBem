@@ -1,3 +1,18 @@
+"""
+NOTA: Este middleware NÃO está ativo no sistema.
+
+As mensagens flash são tratadas diretamente nas rotas usando o módulo
+util/flash_messages.py. Este arquivo é mantido para referência futura
+ou caso seja necessário ativar o middleware.
+
+Para ativar este middleware, adicione em main.py:
+    from middleware.flash_middleware import FlashMessageMiddleware
+    app.add_middleware(FlashMessageMiddleware)
+
+Atualmente, as mensagens flash funcionam sem este middleware porque
+cada rota chama get_flashed_messages() diretamente nos templates.
+"""
+
 from fastapi import Request
 from fastapi.templating import Jinja2Templates
 from starlette.middleware.base import BaseHTTPMiddleware
