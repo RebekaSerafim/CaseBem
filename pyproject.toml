@@ -1,0 +1,134 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "casebem"
+version = "2.0.0"
+description = "Sistema de Gestão para Casamentos - Conectando noivos e fornecedores"
+readme = "README.md"
+requires-python = ">=3.11"
+license = {text = "Proprietary - IFES Campus Serra"}
+authors = [
+    {name = "IFES - Campus Serra", email = "contato@serra.ifes.edu.br"}
+]
+keywords = ["wedding", "management", "fastapi", "marketplace", "education"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Education",
+    "Topic :: Education",
+    "Topic :: Internet :: WWW/HTTP :: Dynamic Content",
+    "Framework :: FastAPI",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+]
+
+dependencies = [
+    "fastapi[standard]",
+    "uvicorn[standard]",
+    "pydantic",
+    "jinja2",
+    "Babel",
+    "python-multipart",
+    "itsdangerous",
+    "passlib[bcrypt]",
+    "python-jose[cryptography]",
+    "python-dotenv",
+    "mailersend",
+    "pillow",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest",
+    "pytest-asyncio",
+    "pytest-cov",
+    "faker",
+]
+
+[project.urls]
+Homepage = "https://github.com/ifes-serra/casebem"
+Documentation = "https://github.com/ifes-serra/casebem/tree/main/docs"
+Repository = "https://github.com/ifes-serra/casebem"
+Issues = "https://github.com/ifes-serra/casebem/issues"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py", "*_test.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+markers = [
+    "slow: marca testes que demoram para executar",
+    "integration: marca testes de integração",
+    "unit: marca testes unitários",
+]
+addopts = [
+    "-v",
+    "--strict-markers",
+    "--disable-warnings",
+    "--color=yes",
+    "--tb=short",
+    "--maxfail=1",
+    "--strict-config",
+    "--cov=.",
+    "--cov-report=html",
+    "--cov-report=term-missing:skip-covered",
+    "--cov-config=.coveragerc",
+]
+filterwarnings = [
+    "ignore::DeprecationWarning",
+    "ignore::PendingDeprecationWarning",
+]
+log_cli = false
+log_cli_level = "INFO"
+console_output_style = "progress"
+
+[tool.coverage.run]
+source = ["."]
+omit = [
+    "*/.venv/*",
+    "*/tests/*",
+    "*/test_*",
+    "setup.py",
+    "main.py",
+    "*/migrations/*",
+    "*/venv/*",
+    "*/env/*",
+]
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "def __repr__",
+    "raise AssertionError",
+    "raise NotImplementedError",
+    "if __name__ == .__main__.:",
+    "if TYPE_CHECKING:",
+    "@abstract",
+]
+
+[tool.coverage.html]
+directory = "htmlcov"
+
+[tool.pyright]
+include = ["util", "dtos", "core", "routes", "models", "sql", "tests"]
+exclude = [
+    "**/node_modules",
+    "**/__pycache__",
+    ".git",
+    ".venv",
+    "venv",
+    "static",
+    "uploads",
+]
+pythonVersion = "3.11"
+pythonPlatform = "Darwin"
+typeCheckingMode = "basic"
+reportMissingImports = "warning"
+reportMissingTypeStubs = false
+reportGeneralTypeIssues = false
+reportOptionalMemberAccess = false
+reportOptionalSubscript = false
+reportPrivateImportUsage = false
+useLibraryCodeForTypes = true

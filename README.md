@@ -1,6 +1,6 @@
 # 🌟 CaseBem - Sistema de Gestão para Casamentos
 
-[![Python](https://img.shields.io/badge/Python-3.13-blue.svg)](https://python.org)
+[![Python](https://img.shields.io/badge/Python-3.11+-blue.svg)](https://python.org)
 [![FastAPI](https://img.shields.io/badge/FastAPI-Latest-green.svg)](https://fastapi.tiangolo.com)
 [![SQLite](https://img.shields.io/badge/SQLite-3-lightgrey.svg)](https://sqlite.org)
 [![Tests](https://img.shields.io/badge/Tests-135/135_Pass-brightgreen.svg)](#testes)
@@ -28,8 +28,7 @@ Sistema web moderno para conectar noivos e fornecedores de serviços para casame
 │   ├── 📁 repositories/       # 💾 12 repositórios (BaseRepo)
 │   ├── 📁 services/           # 🧠 9 serviços de negócio
 │   └── 📁 sql/                # 📄 Queries SQL organizadas
-├── 📁 api/                    # 🌐 Interface da aplicação
-│   └── 📁 dtos/               # 📝 DTOs com validação Pydantic
+├── 📁 dtos/                   # 📝 DTOs com validação Pydantic
 ├── 📁 routes/                 # 🛣️  6 routers FastAPI
 ├── 📁 middleware/             # ⚙️  Middlewares (auth, errors)
 ├── 📁 util/                   # 🔧 Utilitários e infraestrutura
@@ -49,7 +48,7 @@ Sistema web moderno para conectar noivos e fornecedores de serviços para casame
 ## 🚀 Como Executar
 
 ### Pré-requisitos
-- Python 3.11+ (desenvolvido em 3.13)
+- Python 3.11+
 - Git
 
 ### Instalação Rápida

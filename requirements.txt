@@ -7,7 +7,6 @@ python-multipart
 itsdangerous
 passlib[bcrypt]
 python-jose[cryptography]
-itsdangerous
 python-dotenv
 mailersend
 pillow
