@@ -1,105 +1,123 @@
 {
-  "servicos": [
+  "_ORDEM_ORIGINAL_DADOS2DB": "As 20 categorias mantêm a ordem exata do banco dados.db para preservar compatibilidade",
+
+  "categorias": [
     {
+      "id": 1,
       "nome": "Fotografia e Filmagem",
       "tipo": "SERVICO",
       "descricao": "Serviços de registro fotográfico e audiovisual do casamento"
     },
     {
+      "id": 2,
       "nome": "Música e Som",
       "tipo": "SERVICO",
       "descricao": "DJ, banda, músicos e equipamentos de som"
     },
     {
+      "id": 3,
       "nome": "Buffet e Catering",
       "tipo": "SERVICO",
       "descricao": "Serviços de alimentação e bebidas"
     },
     {
+      "id": 4,
       "nome": "Cerimonial e Assessoria",
       "tipo": "SERVICO",
       "descricao": "Organização e coordenação do evento"
     },
     {
+      "id": 5,
       "nome": "Celebrante",
       "tipo": "SERVICO",
       "descricao": "Oficialização da cerimônia religiosa ou civil"
     },
     {
+      "id": 6,
       "nome": "Beleza e Estética",
       "tipo": "SERVICO",
       "descricao": "Maquiagem, cabelo, manicure e tratamentos"
     },
     {
+      "id": 7,
       "nome": "Transporte",
       "tipo": "SERVICO",
       "descricao": "Aluguel de carros, limusines e outros veículos"
     },
     {
+      "id": 8,
       "nome": "Decoração e Ambientação",
       "tipo": "SERVICO",
       "descricao": "Decoração floral e temática do evento"
     },
     {
+      "id": 9,
       "nome": "Segurança",
       "tipo": "SERVICO",
       "descricao": "Serviços de segurança para o evento"
     },
     {
+      "id": 10,
       "nome": "Limpeza",
       "tipo": "SERVICO",
       "descricao": "Limpeza pós-evento"
-    }
-  ],
-  "produtos": [
+    },
     {
+      "id": 11,
       "nome": "Vestidos e Roupas",
       "tipo": "PRODUTO",
       "descricao": "Vestidos de noiva, ternos e roupas para cerimônia"
     },
     {
+      "id": 12,
       "nome": "Alianças e Joias",
       "tipo": "PRODUTO",
       "descricao": "Alianças de casamento e joias"
     },
     {
+      "id": 13,
       "nome": "Convites e Papelaria",
       "tipo": "PRODUTO",
       "descricao": "Convites, lembrancinhas e papelaria personalizada"
     },
     {
+      "id": 14,
       "nome": "Bolos e Doces",
       "tipo": "PRODUTO",
       "descricao": "Bolos de casamento e doces finos"
     },
     {
+      "id": 15,
       "nome": "Flores e Arranjos",
       "tipo": "PRODUTO",
       "descricao": "Buquês, arranjos florais e plantas"
     },
     {
+      "id": 16,
       "nome": "Móveis e Utensílios",
       "tipo": "PRODUTO",
       "descricao": "Móveis, louças e utensílios para a festa"
     },
     {
+      "id": 17,
       "nome": "Bebidas",
       "tipo": "PRODUTO",
       "descricao": "Vinhos, champanhe e outras bebidas especiais"
-    }
-  ],
-  "espacos": [
+    },
     {
+      "id": 18,
       "nome": "Espaços para Cerimônia",
       "tipo": "ESPACO",
       "descricao": "Igrejas, jardins e locais para a cerimônia"
     },
     {
+      "id": 19,
       "nome": "Espaços para Recepção",
       "tipo": "ESPACO",
       "descricao": "Salões, sítios e locais para a festa"
     },
     {
+      "id": 20,
       "nome": "Hospedagem",
       "tipo": "ESPACO",
       "descricao": "Hotéis e pousadas para convidados"

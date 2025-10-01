@@ -2,15 +2,12 @@ from typing import Optional
 import json
 import os
 from core.models.usuario_model import Usuario, TipoUsuario
-from core.models.categoria_model import Categoria
-from core.models.item_model import Item
 from core.models.tipo_fornecimento_model import TipoFornecimento
 from core.models.fornecedor_model import Fornecedor
 from core.models.casal_model import Casal
 from core.repositories import usuario_repo, fornecedor_repo, casal_repo, item_repo, categoria_repo, fornecedor_item_repo, item_demanda_repo, item_orcamento_repo, demanda_repo, orcamento_repo, favorito_repo, chat_repo
 from util.security import criar_hash_senha
 from util.migracoes_avatar import migrar_sistema_avatar
-import random
 
 def criar_tabelas_banco():
     """
@@ -97,7 +94,7 @@ def carregar_dados_json(nome_arquivo: str) -> dict:
 def criar_categorias():
     """
     Cria categorias padrão para casamentos se não existirem no sistema.
-    Utiliza dados do arquivo data/categorias.json.
+    Utiliza dados do arquivo data/categorias.json com IDs explícitos.
     """
     try:
         # Verificar se já existem categorias
@@ -108,34 +105,37 @@ def criar_categorias():
 
         # Carregar dados das categorias do arquivo JSON
         dados_categorias = carregar_dados_json('categorias.json')
-        if not dados_categorias:
+        if not dados_categorias or 'categorias' not in dados_categorias:
             print("❌ Não foi possível carregar os dados das categorias")
             return
 
-        todas_categorias = []
+        lista_categorias = dados_categorias['categorias']
 
-        # Processar cada tipo de categoria
-        for tipo_categoria, lista_categorias in dados_categorias.items():
+        # Inserir categorias com IDs explícitos
+        from util.database import obter_conexao
+        from core.sql import categoria_sql
+
+        with obter_conexao() as conexao:
+            cursor = conexao.cursor()
+
             for cat_data in lista_categorias:
                 # Mapear string do tipo para enum
                 tipo_item = getattr(TipoFornecimento, cat_data['tipo'])
-                categoria = Categoria(
-                    id=0,
-                    nome=cat_data['nome'],
-                    tipo_fornecimento=tipo_item,
-                    descricao=cat_data['descricao']
+
+                # Inserir com ID explícito
+                cursor.execute(
+                    categoria_sql.INSERIR_COM_ID,
+                    (
+                        cat_data['id'],
+                        cat_data['nome'],
+                        tipo_item.value,
+                        cat_data['descricao'],
+                        1  # ativo
+                    )
                 )
-                todas_categorias.append(categoria)
+                print(f"✅ Categoria ID {cat_data['id']} '{cat_data['nome']}' criada com sucesso")
 
-        # Inserir todas as categorias
-        for categoria in todas_categorias:
-            categoria_id = categoria_repo.inserir(categoria)
-            if categoria_id:
-                print(f"✅ Categoria '{categoria.nome}' criada com sucesso")
-            else:
-                print(f"❌ Erro ao criar categoria '{categoria.nome}'")
-
-        print(f"✅ {len(todas_categorias)} categorias padrão criadas com sucesso!")
+        print(f"✅ {len(lista_categorias)} categorias padrão criadas com sucesso!")
 
     except Exception as e:
         print(f"❌ Erro ao criar categorias padrão: {e}")
@@ -143,7 +143,7 @@ def criar_categorias():
 def criar_fornecedores():
     """
     Cria fornecedores de teste com distribuição inteligente de itens por categoria.
-    Utiliza todos os itens disponíveis no JSON, distribuindo-os entre os fornecedores.
+    Utiliza IDs explícitos do JSON para preservar compatibilidade com fotos.
     """
     try:
         # Verificar se já existem fornecedores
@@ -152,28 +152,19 @@ def criar_fornecedores():
             print("✅ Fornecedores de teste já existem no sistema")
             return
 
-        # Obter categorias para associar aos itens
+        # Obter categorias
         categorias = categoria_repo.listar_todos()
         if not categorias:
             print("❌ Nenhuma categoria encontrada. Execute criar_categorias() primeiro.")
             return
 
-        # Obter templates de itens
-        itens_templates = criar_itens()
+        # Carregar itens do JSON com IDs explícitos
+        dados_itens = carregar_dados_json('itens.json')
+        if not dados_itens or 'itens' not in dados_itens:
+            print("❌ Não foi possível carregar os dados dos itens")
+            return
 
-        print("🏢 Criando fornecedores com distribuição inteligente de itens...")
-
-        # Criar um mapeamento de categoria para seus itens
-        categoria_para_itens = {}
-        for categoria in categorias:
-            if categoria.nome in itens_templates:
-                categoria_para_itens[categoria.id] = itens_templates[categoria.nome]
-
-        # Usar TODOS os itens disponíveis para cada categoria
-        itens_por_categoria = {}
-        for categoria_id, itens_disponiveis in categoria_para_itens.items():
-            # Usar todos os itens da categoria (não limitar a 1-4)
-            itens_por_categoria[categoria_id] = itens_disponiveis
+        lista_itens = dados_itens['itens']
 
         # Carregar fornecedores base do arquivo JSON
         fornecedores_base = carregar_dados_json('fornecedores.json')
@@ -181,9 +172,18 @@ def criar_fornecedores():
             print("❌ Não foi possível carregar os dados dos fornecedores básicos")
             return
 
-        # Distribuir categorias entre fornecedores
-        categorias_ids = list(itens_por_categoria.keys())
-        random.shuffle(categorias_ids)
+        print("🏢 Criando fornecedores com distribuição determinística de itens...")
+
+        # Agrupar itens por categoria (mantendo ordem do JSON)
+        itens_por_categoria = {}
+        for item_data in lista_itens:
+            cat_id = item_data['id_categoria']
+            if cat_id not in itens_por_categoria:
+                itens_por_categoria[cat_id] = []
+            itens_por_categoria[cat_id].append(item_data)
+
+        # Distribuir categorias entre fornecedores de forma determinística
+        categorias_ids = sorted(itens_por_categoria.keys())  # Ordem determinística
 
         categorias_por_fornecedor = []
         for i in range(len(fornecedores_base)):
@@ -193,6 +193,10 @@ def criar_fornecedores():
         for i, categoria_id in enumerate(categorias_ids):
             fornecedor_idx = i % len(fornecedores_base)
             categorias_por_fornecedor[fornecedor_idx].append(categoria_id)
+
+        # Importar módulos necessários
+        from util.database import obter_conexao
+        from core.sql import item_sql
 
         # Criar fornecedores e seus itens
         for i, fornecedor_data in enumerate(fornecedores_base):
@@ -223,37 +227,38 @@ def criar_fornecedores():
             if fornecedor_id:
                 print(f"✅ Fornecedor '{fornecedor.nome_empresa}' criado com sucesso! ID: {fornecedor_id}")
 
-                # Criar itens para as categorias deste fornecedor
+                # Criar itens para as categorias deste fornecedor com IDs explícitos
                 total_itens = 0
-                for categoria_id in categorias_por_fornecedor[i]:
-                    categoria = next((c for c in categorias if c.id == categoria_id), None)
-                    if categoria and categoria_id in itens_por_categoria:
-                        for item_data in itens_por_categoria[categoria_id]:
-                            item = Item(
-                                id=0,
-                                id_fornecedor=fornecedor_id,
-                                tipo=categoria.tipo_fornecimento,
-                                nome=item_data["nome"],
-                                descricao=item_data["descricao"],
-                                preco=item_data["preco"],
-                                id_categoria=categoria_id,
-                                observacoes=None,
-                                ativo=True,
-                                data_cadastro=None
-                            )
+                with obter_conexao() as conexao:
+                    cursor = conexao.cursor()
 
-                            item_id = item_repo.inserir(item)
-                            if item_id:
-                                print(f"  ✅ Item '{item.nome}' criado na categoria '{categoria.nome}' - R$ {item.preco:.2f}")
+                    for categoria_id in categorias_por_fornecedor[i]:
+                        categoria = next((c for c in categorias if c.id == categoria_id), None)
+                        if categoria and categoria_id in itens_por_categoria:
+                            for item_data in itens_por_categoria[categoria_id]:
+                                # Inserir item com ID explícito
+                                cursor.execute(
+                                    item_sql.INSERIR_COM_ID,
+                                    (
+                                        item_data['id'],
+                                        fornecedor_id,
+                                        categoria.tipo_fornecimento.value,
+                                        item_data['nome'],
+                                        item_data['descricao'],
+                                        item_data['preco'],
+                                        item_data['id_categoria'],
+                                        None,  # observacoes
+                                        1  # ativo
+                                    )
+                                )
+                                print(f"  ✅ Item ID {item_data['id']} '{item_data['nome']}' criado - R$ {item_data['preco']:.2f}")
                                 total_itens += 1
-                            else:
-                                print(f"  ❌ Erro ao criar item '{item.nome}'")
 
                 print(f"  📦 Total de {total_itens} itens criados para {fornecedor.nome_empresa}")
             else:
                 print(f"❌ Erro ao criar fornecedor '{fornecedor_data['empresa']}'")
 
-        print("✅ Fornecedores e itens criados com distribuição inteligente!")
+        print("✅ Fornecedores e itens criados com IDs fixos!")
 
     except Exception as e:
         print(f"❌ Erro ao criar fornecedores: {e}")

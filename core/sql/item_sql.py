@@ -24,6 +24,11 @@ VALUES (?, ?, ?, ?, ?, ?, ?, ?);
 
 INSERIR_ITEM = INSERIR
 
+INSERIR_COM_ID = """
+INSERT INTO item (id, id_fornecedor, tipo, nome, descricao, preco, id_categoria, observacoes, ativo)
+VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?);
+"""
+
 ATUALIZAR = """
 UPDATE item
 SET tipo = ?, nome = ?, descricao = ?, preco = ?, id_categoria = ?, observacoes = ?, ativo = ?

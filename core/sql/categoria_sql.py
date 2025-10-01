@@ -17,6 +17,11 @@ VALUES (?, ?, ?, ?);
 
 INSERIR_CATEGORIA = INSERIR
 
+INSERIR_COM_ID = """
+INSERT INTO categoria (id, nome, tipo_fornecimento, descricao, ativo)
+VALUES (?, ?, ?, ?, ?);
+"""
+
 ATUALIZAR = """
 UPDATE categoria
 SET nome = ?, tipo_fornecimento = ?, descricao = ?, ativo = ?
