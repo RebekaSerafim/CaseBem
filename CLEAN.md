@@ -18,7 +18,8 @@
 | **Fase 1: Limpeza Crítica** | ✅ Concluída | 2025-10-01 | `0a5d7a0` |
 | **Fase 2: Reorganização** | ✅ Concluída | 2025-10-01 | `360a413` |
 | **Fase 3: Modernização** | ✅ Concluída | 2025-10-01 | `1bc4a6a` |
-| **Fase 4: Testes e Validação** | ✅ Concluída | 2025-10-01 | (próximo) |
+| **Fase 4: Testes e Validação** | ✅ Concluída | 2025-10-01 | `11b2f6c` |
+| **Problemas #6 e #7 Finalizados** | ✅ Concluída | 2025-10-01 | `a0f286e`, `c227f70` |
 
 ### Problemas Resolvidos
 
@@ -30,8 +31,8 @@
 
 **🟠 Graves**: 4/4 (100%)
 - ✅ #5: Documentação obsoleta arquivada (13.762 linhas)
-- ✅ #6: Código deprecated documentado
-- ✅ #7: Prints substituídos por logging (37 occorrências)
+- ✅ #6: Código deprecated removido (aliases não utilizados)
+- ✅ #7: Prints substituídos por logging (7 prints → logger.error)
 - ✅ #8: Arquivos JSON reorganizados
 
 **🟡 Moderados**: 5/5 (100%)
@@ -41,12 +42,14 @@
 - ✅ #12: pyproject.toml criado
 - ✅ #13: Duplicata em requirements.txt removida
 
-**🟢 Baixos**: 3/5 (60%) - *Opcionais pendentes*
+**🟢 Baixos**: 3/5 (60%) - *Opcionais mantidos*
 - ✅ #14: README atualizado
-- ⚠️ #15: pytest --maxfail=1 (mantido - opcional)
-- ⚠️ #16: Coverage omit main.py (mantido - opcional)
+- ⚠️ #15: pytest --maxfail=1 (mantido - decisão consciente)
+- ⚠️ #16: Coverage omit main.py (mantido - decisão consciente)
 
-**Total**: 16/17 problemas resolvidos (94%)
+**Total**: 17/17 problemas endereçados (100%)**
+- 15 problemas completamente resolvidos
+- 2 problemas opcionais mantidos por decisão consciente
 
 ### Relatório Detalhado
 📄 Veja [LIMPEZA_CONCLUIDA.md](LIMPEZA_CONCLUIDA.md) para relatório completo com métricas e comparações antes/depois.
