@@ -13,10 +13,7 @@ from infrastructure.security import criar_sessao
 from infrastructure.security import (
     criar_hash_senha,
     verificar_senha,
-    validar_forca_senha,
-    validar_cpf,
     validar_cnpj,
-    validar_telefone,
 )
 from util.usuario_util import usuario_para_sessao
 from util.flash_messages import informar_sucesso
@@ -183,76 +180,51 @@ async def post_cadastro_noivos(
             {"request": request, "erro": error_msg, "dados": None},
         )
 
-    # Validações adicionais específicas do negócio
-    # Validar força da senha
-    senha_valida, erro_senha = validar_forca_senha(dados.senha)
-    if not senha_valida:
+    # Validações adicionais usando UsuarioValidator
+    from core.validators.usuario_validator import UsuarioValidator
+
+    # Validar primeiro noivo
+    valido, erro = UsuarioValidator.validar_dados_cadastro(
+        nome=dados.nome1,
+        email=dados.email1,
+        senha=dados.senha,
+        cpf=dados.cpf1,
+        telefone=dados.telefone1
+    )
+    if not valido:
         return templates.TemplateResponse(
             "publico/cadastro_noivos.html",
-            {"request": request, "erro": erro_senha, "dados": dados},
+            {"request": request, "erro": f"Primeiro noivo: {erro}", "dados": dados},
         )
 
-    # Validar CPFs se fornecidos
-    if dados.cpf1 and not validar_cpf(dados.cpf1):
+    # Verificar email único do primeiro noivo
+    valido, erro = UsuarioValidator.validar_email_unico(dados.email1)
+    if not valido:
         return templates.TemplateResponse(
             "publico/cadastro_noivos.html",
-            {
-                "request": request,
-                "erro": "CPF do primeiro noivo é inválido",
-                "dados": dados,
-            },
+            {"request": request, "erro": erro, "dados": dados},
         )
 
-    if dados.cpf2 and not validar_cpf(dados.cpf2):
+    # Validar segundo noivo
+    valido, erro = UsuarioValidator.validar_dados_cadastro(
+        nome=dados.nome2,
+        email=dados.email2,
+        senha=dados.senha,  # Mesma senha para ambos
+        cpf=dados.cpf2,
+        telefone=dados.telefone2
+    )
+    if not valido:
         return templates.TemplateResponse(
             "publico/cadastro_noivos.html",
-            {
-                "request": request,
-                "erro": "CPF do segundo noivo é inválido",
-                "dados": dados,
-            },
+            {"request": request, "erro": f"Segundo noivo: {erro}", "dados": dados},
         )
 
-    # Validar telefones
-    if not validar_telefone(dados.telefone1):
+    # Verificar email único do segundo noivo
+    valido, erro = UsuarioValidator.validar_email_unico(dados.email2)
+    if not valido:
         return templates.TemplateResponse(
             "publico/cadastro_noivos.html",
-            {
-                "request": request,
-                "erro": "Telefone do primeiro noivo é inválido",
-                "dados": dados,
-            },
-        )
-
-    if not validar_telefone(dados.telefone2):
-        return templates.TemplateResponse(
-            "publico/cadastro_noivos.html",
-            {
-                "request": request,
-                "erro": "Telefone do segundo noivo é inválido",
-                "dados": dados,
-            },
-        )
-
-    # Verificar se emails já existem
-    if usuario_repo.obter_usuario_por_email(dados.email1):
-        return templates.TemplateResponse(
-            "publico/cadastro_noivos.html",
-            {
-                "request": request,
-                "erro": f"E-mail {dados.email1} já cadastrado",
-                "dados": dados,
-            },
-        )
-
-    if usuario_repo.obter_usuario_por_email(dados.email2):
-        return templates.TemplateResponse(
-            "publico/cadastro_noivos.html",
-            {
-                "request": request,
-                "erro": f"E-mail {dados.email2} já cadastrado",
-                "dados": dados,
-            },
+            {"request": request, "erro": erro, "dados": dados},
         )
 
     # Criar hash da senha compartilhada
@@ -382,41 +354,36 @@ async def post_cadastro_fornecedor(
             {"request": request, "erro": error_msg, "dados": None},
         )
 
-    # Validações adicionais específicas do negócio
-    # Validar força da senha
-    senha_valida, erro_senha = validar_forca_senha(dados.senha)
-    if not senha_valida:
+    # Validações usando UsuarioValidator
+    from core.validators.usuario_validator import UsuarioValidator
+
+    # Validar dados do fornecedor
+    valido, erro = UsuarioValidator.validar_dados_cadastro(
+        nome=dados.nome,
+        email=dados.email,
+        senha=dados.senha,
+        cpf=dados.cpf,
+        telefone=dados.telefone
+    )
+    if not valido:
         return templates.TemplateResponse(
             "publico/cadastro_fornecedor.html",
-            {"request": request, "erro": erro_senha, "dados": dados},
+            {"request": request, "erro": erro, "dados": dados},
         )
 
-    # Validar CPF se fornecido
-    if dados.cpf and not validar_cpf(dados.cpf):
-        return templates.TemplateResponse(
-            "publico/cadastro_fornecedor.html",
-            {"request": request, "erro": "CPF inválido", "dados": dados},
-        )
-
-    # Validar CNPJ se fornecido
+    # Validar CNPJ se fornecido (lógica específica de fornecedor, não está no validator genérico)
     if dados.cnpj and not validar_cnpj(dados.cnpj):
         return templates.TemplateResponse(
             "publico/cadastro_fornecedor.html",
             {"request": request, "erro": "CNPJ inválido", "dados": dados},
         )
 
-    # Validar telefone
-    if not validar_telefone(dados.telefone):
+    # Verificar email único
+    valido, erro = UsuarioValidator.validar_email_unico(dados.email)
+    if not valido:
         return templates.TemplateResponse(
             "publico/cadastro_fornecedor.html",
-            {"request": request, "erro": "Telefone inválido", "dados": dados},
-        )
-
-    # Verificar se email já existe
-    if usuario_repo.obter_usuario_por_email(dados.email):
-        return templates.TemplateResponse(
-            "publico/cadastro_fornecedor.html",
-            {"request": request, "erro": "E-mail já cadastrado", "dados": dados},
+            {"request": request, "erro": erro, "dados": dados},
         )
 
     # Criar hash da senha

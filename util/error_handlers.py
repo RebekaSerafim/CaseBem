@@ -4,12 +4,12 @@ Decoradores e handlers para tratamento de erros
 
 import functools
 import sqlite3
-from typing import Callable, Any, Optional, Type
+from typing import Callable, Optional, Type
 from fastapi import Request
 from fastapi.templating import Jinja2Templates
 from util.exceptions import (
     CaseBemError, BancoDadosError, ValidacaoError,
-    RecursoNaoEncontradoError, TipoErro
+    RecursoNaoEncontradoError
 )
 from infrastructure.logging import logger
 from util.flash_messages import informar_erro

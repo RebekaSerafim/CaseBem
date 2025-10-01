@@ -81,15 +81,7 @@ def validar_forca_senha(senha: str) -> tuple[bool, str]:
     """
     if len(senha) < 8:
         return False, "A senha deve ter pelo menos 8 caracteres"
-    
-    # Adicione mais validações conforme necessário
-    # if not any(c.isupper() for c in senha):
-    #     return False, "A senha deve conter pelo menos uma letra maiúscula"
-    # if not any(c.islower() for c in senha):
-    #     return False, "A senha deve conter pelo menos uma letra minúscula"
-    # if not any(c.isdigit() for c in senha):
-    #     return False, "A senha deve conter pelo menos um número"
-    
+
     return True, ""
 
 

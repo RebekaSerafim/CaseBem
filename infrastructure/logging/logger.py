@@ -6,7 +6,7 @@ import logging
 import json
 from datetime import datetime
 from typing import Optional, Any
-from util.exceptions import CaseBemError, TipoErro
+from util.exceptions import CaseBemError
 
 
 class CaseBemLogger:

@@ -265,12 +265,24 @@ class ItemRepo(BaseRepo):
         return None
 
     def ativar_item(self, id_item: int, id_fornecedor: int) -> bool:
-        """Ativa um item"""
-        return self.executar_comando(item_sql.ATIVAR_ITEM, (id_item, id_fornecedor))
+        """Ativa um item (validando fornecedor)"""
+        sql = "UPDATE item SET ativo = 1 WHERE id = ? AND id_fornecedor = ?"
+        return self.executar_comando(sql, (id_item, id_fornecedor))
 
     def desativar_item(self, id_item: int, id_fornecedor: int) -> bool:
-        """Desativa um item (soft delete)"""
-        return self.executar_comando(item_sql.DESATIVAR_ITEM, (id_item, id_fornecedor))
+        """Desativa um item (soft delete) (validando fornecedor)"""
+        sql = "UPDATE item SET ativo = 0 WHERE id = ? AND id_fornecedor = ?"
+        return self.executar_comando(sql, (id_item, id_fornecedor))
+
+    def ativar_item_admin(self, id_item: int) -> bool:
+        """Ativa um item sem validar fornecedor (uso exclusivo do admin)"""
+        sql = "UPDATE item SET ativo = 1 WHERE id = ?"
+        return self.executar_comando(sql, (id_item,))
+
+    def desativar_item_admin(self, id_item: int) -> bool:
+        """Desativa um item sem validar fornecedor (uso exclusivo do admin)"""
+        sql = "UPDATE item SET ativo = 0 WHERE id = ?"
+        return self.executar_comando(sql, (id_item,))
 
     def obter_itens_paginado_repo(
         self, pagina: int, tamanho_pagina: int

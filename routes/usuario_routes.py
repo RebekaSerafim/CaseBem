@@ -12,12 +12,7 @@ from infrastructure.security import (
     validar_forca_senha,
 )
 from util.template_helpers import configurar_filtros_jinja
-from util.avatar_util import (
-    obter_caminho_avatar_fisico,
-    criar_diretorio_usuarios,
-    excluir_avatar,
-)
-from PIL import Image
+from util.avatar_util import excluir_avatar
 
 router = APIRouter()
 templates = Jinja2Templates(directory="templates")
@@ -146,85 +141,40 @@ async def alterar_foto(
     request: Request, foto: UploadFile = File(...), usuario_logado: dict = {}
 ):
     """Processa o upload de avatar do usuário"""
+    from util.image_processor import ImageProcessor
+    from util.file_storage import FileStorageManager, TipoArquivo
+    from config.constants import ImageConstants
+
     perfil = usuario_logado["perfil"].lower()
 
-    # Validar tipo de arquivo
-    tipos_permitidos = ["image/jpeg", "image/png", "image/jpg", "image/webp"]
-    if foto.content_type not in tipos_permitidos:
-        logger.warning(
-            f"Tentativa de upload com tipo de arquivo inválido - usuario_id: {usuario_logado['id']}, tipo: {foto.content_type}"
-        )
-        return RedirectResponse(
-            f"/{perfil}/perfil?erro=tipo_invalido", status.HTTP_303_SEE_OTHER
-        )
+    # Criar diretório se não existir
+    FileStorageManager.criar_diretorio(TipoArquivo.USUARIO)
 
-    # Validar tamanho do arquivo (máximo 5MB)
-    conteudo = await foto.read()
-    if len(conteudo) > 5 * 1024 * 1024:  # 5MB
-        logger.warning(
-            f"Tentativa de upload com arquivo muito grande - usuario_id: {usuario_logado['id']}, tamanho: {len(conteudo)} bytes"
-        )
-        return RedirectResponse(
-            f"/{perfil}/perfil?erro=arquivo_muito_grande", status.HTTP_303_SEE_OTHER
-        )
+    # Obter caminho físico para salvar
+    caminho_arquivo = FileStorageManager.obter_caminho(
+        TipoArquivo.USUARIO,
+        usuario_logado["id"],
+        fisico=True
+    )
 
-    try:
-        # Criar diretório se não existir
-        criar_diretorio_usuarios()
+    # Processar e salvar imagem usando ImageProcessor
+    sucesso, erro = await ImageProcessor.processar_e_salvar_imagem(
+        foto,
+        caminho_arquivo,
+        tamanho=ImageConstants.Sizes.AVATAR.value  # (300, 300)
+    )
 
-        # Obter caminho físico baseado no ID do usuário
-        caminho_arquivo = obter_caminho_avatar_fisico(usuario_logado["id"])
-
-        # Processar imagem com Pillow
-        try:
-            # Criar uma nova instância BytesIO com o conteúdo
-            from io import BytesIO
-
-            imagem_bytes = BytesIO(conteudo)
-
-            # Abrir imagem
-            imagem = Image.open(imagem_bytes)
-
-            # Converter para RGB se necessário (para salvar como JPG)
-            if imagem.mode in ("RGBA", "P"):
-                imagem = imagem.convert("RGB")
-
-            # Redimensionar para 300x300 mantendo proporção
-            imagem.thumbnail((300, 300), Image.Resampling.LANCZOS)
-
-            # Criar uma imagem quadrada com fundo branco
-            imagem_quadrada = Image.new("RGB", (300, 300), (255, 255, 255))
-
-            # Centralizar a imagem redimensionada
-            x = (300 - imagem.width) // 2
-            y = (300 - imagem.height) // 2
-            imagem_quadrada.paste(imagem, (x, y))
-
-            # Salvar como JPG
-            imagem_quadrada.save(caminho_arquivo, "JPEG", quality=85)
-            logger.info(
-                f"Avatar atualizado com sucesso - usuario_id: {usuario_logado['id']}"
-            )
-
-        except Exception as e:
-            logger.error(
-                f"Erro ao processar imagem - usuario_id: {usuario_logado['id']}, erro: {e}"
-            )
-            return RedirectResponse(
-                f"/{perfil}/perfil?erro=processamento_falhou", status.HTTP_303_SEE_OTHER
-            )
-
-        # Redirecionar com sucesso
+    if sucesso:
+        logger.info(f"Avatar atualizado com sucesso - usuario_id: {usuario_logado['id']}")
         return RedirectResponse(
             f"/{perfil}/perfil?foto_sucesso=1", status.HTTP_303_SEE_OTHER
         )
-
-    except Exception as e:
-        logger.error(
-            f"Erro ao salvar avatar - usuario_id: {usuario_logado['id']}, erro: {e}"
+    else:
+        logger.warning(
+            f"Falha no upload de avatar - usuario_id: {usuario_logado['id']}, erro: {erro}"
         )
         return RedirectResponse(
-            f"/{perfil}/perfil?erro=upload_falhou", status.HTTP_303_SEE_OTHER
+            f"/{perfil}/perfil?erro={erro}", status.HTTP_303_SEE_OTHER
         )
 
 

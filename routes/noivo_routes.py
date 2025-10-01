@@ -23,27 +23,17 @@ router = APIRouter()
 templates = Jinja2Templates(directory="templates")
 configurar_filtros_jinja(templates)
 
+# Importar função centralizada de route_helpers
+from util.route_helpers import get_active_page
+
 
 def get_noivo_active_page(request: Request) -> str:
-    """Determina qual página está ativa na área noivo"""
-    url_path = str(request.url.path)
-
-    if url_path == "/noivo/dashboard":
-        return "dashboard"
-    elif url_path == "/noivo/perfil":
-        return "perfil"
-    elif url_path.startswith("/noivo/fornecedores"):
-        return "fornecedores"
-    elif url_path.startswith("/noivo/demandas"):
-        return "demandas"
-    elif url_path.startswith("/noivo/orcamentos"):
-        return "orcamentos"
-    elif url_path.startswith("/noivo/checklist"):
-        return "checklist"
-    elif url_path.startswith("/noivo/favoritos"):
-        return "favoritos"
-    else:
-        return ""
+    """
+    Determina qual página está ativa na área noivo.
+    DEPRECATED: Usa get_active_page do route_helpers.
+    Mantido para compatibilidade.
+    """
+    return get_active_page(request, "noivo")
 
 
 # ==================== REDIRECIONAMENTO RAIZ ====================

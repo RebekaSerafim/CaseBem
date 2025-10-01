@@ -1,5 +1,4 @@
 import os
-from typing import Optional
 
 def obter_caminho_avatar(usuario_id: int) -> str:
     """
