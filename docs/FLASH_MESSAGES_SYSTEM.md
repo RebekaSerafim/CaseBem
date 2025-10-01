@@ -58,13 +58,6 @@ flash(request, "Mensagem", "tipo")
 # Funções utilitárias
 get_flashed_messages(request)  # Recupera e remove mensagens
 has_flashed_messages(request)  # Verifica se há mensagens
-
-# Aliases em inglês (deprecated, para compatibilidade)
-flash_success = informar_sucesso
-flash_error = informar_erro
-flash_warning = informar_aviso
-flash_info = informar_info
-flash_alert = informar_alerta
 ```
 
 ### 3. Helper de Template
