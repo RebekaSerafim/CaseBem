@@ -3,7 +3,6 @@ from fastapi.responses import RedirectResponse
 from fastapi.templating import Jinja2Templates
 from infrastructure.security import requer_autenticacao
 from core.models.usuario_model import TipoUsuario
-from core.models.tipo_fornecimento_model import TipoFornecimento
 from core.models.demanda_model import Demanda
 from core.repositories import (
     usuario_repo,
@@ -15,8 +14,8 @@ from core.repositories import (
     fornecedor_repo,
     item_orcamento_repo,
 )
-from util.flash_messages import informar_sucesso, informar_erro, informar_aviso
-from util.template_helpers import template_response_with_flash, configurar_filtros_jinja
+from util.flash_messages import informar_sucesso, informar_erro
+from util.template_helpers import configurar_filtros_jinja
 from util.error_handlers import tratar_erro_rota
 from infrastructure.logging import logger
 
@@ -416,14 +415,14 @@ async def listar_orcamentos(
         orcamentos_filtrados = []
         for orcamento in orcamentos:
             try:
-                fornecedor = fornecedor_repo.obter_por_id(orcamento.id_fornecedor)
+                fornecedor = fornecedor_repo.obter_por_id(orcamento.id_fornecedor_prestador)
                 if fornecedor and search.lower() in fornecedor.nome.lower():
                     orcamentos_filtrados.append(orcamento)
             except Exception as e:
                 logger.warning(
                     "Erro ao buscar fornecedor para filtro",
                     orcamento_id=orcamento.id,
-                    fornecedor_id=orcamento.id_fornecedor,
+                    fornecedor_id=orcamento.id_fornecedor_prestador,
                     erro=e,
                 )
                 continue
@@ -442,18 +441,18 @@ async def listar_orcamentos(
             # Buscar dados da demanda
             demanda_data = demanda_repo.obter_por_id(orcamento.id_demanda)
             # Buscar dados do fornecedor
-            fornecedor_data = fornecedor_repo.obter_por_id(orcamento.id_fornecedor)
+            fornecedor_data = fornecedor_repo.obter_por_id(orcamento.id_fornecedor_prestador)
             # Buscar itens do orçamento
             itens_orcamento = item_orcamento_repo.obter_por_orcamento(orcamento.id)
 
             orcamento_dict = {
                 "id": orcamento.id,
                 "id_demanda": orcamento.id_demanda,
-                "id_fornecedor": orcamento.id_fornecedor,
+                "id_fornecedor": orcamento.id_fornecedor_prestador,
                 "status": orcamento.status,
                 "valor_total": orcamento.valor_total,
-                "data_envio": orcamento.data_envio,
-                "prazo_entrega": orcamento.prazo_entrega,
+                "data_envio": orcamento.data_hora_cadastro,
+                "prazo_entrega": orcamento.data_hora_validade,
                 "observacoes": orcamento.observacoes,
                 "demanda_titulo": (
                     demanda_data.titulo if demanda_data else "Demanda não encontrada"
@@ -530,24 +529,24 @@ async def visualizar_orcamento(
     itens_enriched = []
     for item_orc in itens_orcamento:
         try:
-            item_data = item_repo.obter_por_id(item_orc.id_item)
+            item_data = item_repo.obter_por_id(item_orc["id_item"])
             item_dict = {
-                "id_item": item_orc.id_item,
+                "id_item": item_orc["id_item"],
                 "nome_item": item_data.nome if item_data else "Item não encontrado",
                 "descricao_item": item_data.descricao if item_data else "",
                 "tipo_item": item_data.tipo.value if item_data else "",
-                "quantidade": item_orc.quantidade,
-                "preco_unitario": item_orc.preco_unitario,
-                "desconto": item_orc.desconto or 0,
-                "preco_total": item_orc.preco_total,
-                "observacoes": item_orc.observacoes,
+                "quantidade": item_orc["quantidade"],
+                "preco_unitario": item_orc["preco_unitario"],
+                "desconto": item_orc.get("desconto", 0) or 0,
+                "preco_total": item_orc["preco_total"],
+                "observacoes": item_orc.get("observacoes"),
             }
             itens_enriched.append(item_dict)
         except Exception as e:
             logger.error(
                 "Erro ao enriquecer item do orçamento",
                 orcamento_id=id_orcamento,
-                item_id=item_orc.id_item,
+                item_id=item_orc.get("id_item"),
                 erro=e,
             )
             continue
@@ -556,13 +555,13 @@ async def visualizar_orcamento(
     orcamento_enriched = {
         "id": orcamento.id,
         "id_demanda": orcamento.id_demanda,
-        "id_fornecedor": orcamento.id_fornecedor,
+        "id_fornecedor": orcamento.id_fornecedor_prestador,
         "status": orcamento.status,
         "valor_total": orcamento.valor_total,
-        "data_envio": orcamento.data_envio,
-        "prazo_entrega": orcamento.prazo_entrega,
+        "data_envio": orcamento.data_hora_cadastro,
+        "prazo_entrega": orcamento.data_hora_validade,
         "observacoes": orcamento.observacoes,
-        "desconto": orcamento.desconto or 0,
+        "desconto": getattr(orcamento, "desconto", 0) or 0,
         "data_resposta": getattr(orcamento, "data_resposta", None),
         "itens": itens_enriched,
     }
@@ -769,18 +768,27 @@ async def listar_fornecedores(request: Request, usuario_logado: dict = {}):
                 or (f.descricao and search.lower() in f.descricao.lower())
             ]
 
-        # Adicionar contagem de itens para cada fornecedor
+        # Enriquecer fornecedores com contagem de itens
+        fornecedores_enriched = []
         for fornecedor in fornecedores:
-            fornecedor.total_itens = item_repo.contar_itens_por_fornecedor(
-                fornecedor.id
-            )
+            fornecedor_dict = {
+                "id": fornecedor.id,
+                "nome": fornecedor.nome,
+                "nome_empresa": fornecedor.nome_empresa,
+                "descricao": fornecedor.descricao,
+                "telefone": fornecedor.telefone,
+                "email": fornecedor.email,
+                "verificado": fornecedor.verificado,
+                "total_itens": item_repo.contar_itens_por_fornecedor(fornecedor.id),
+            }
+            fornecedores_enriched.append(fornecedor_dict)
 
         # Paginação manual
-        total = len(fornecedores)
+        total = len(fornecedores_enriched)
         total_pages = (total + per_page - 1) // per_page if total > 0 else 1
         start = (page - 1) * per_page
         end = start + per_page
-        fornecedores_paginados = fornecedores[start:end]
+        fornecedores_paginados = fornecedores_enriched[start:end]
 
         return templates.TemplateResponse(
             "noivo/fornecedores.html",

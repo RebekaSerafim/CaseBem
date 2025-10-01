@@ -14,8 +14,9 @@ from util.flash_messages import informar_sucesso, informar_erro, informar_aviso
 from util.template_helpers import template_response_with_flash, configurar_filtros_jinja
 from util.item_foto_util import (
     criar_diretorio_itens, obter_caminho_foto_item_fisico,
-    excluir_foto_item, foto_item_existe
+    excluir_foto_item
 )
+from decimal import Decimal
 
 router = APIRouter()
 templates = Jinja2Templates(directory="templates")
@@ -53,7 +54,7 @@ async def dashboard_fornecedor(request: Request, usuario_logado: dict = {}):
     id_fornecedor = usuario_logado["id"]
 
     # Buscar dados do fornecedor
-    fornecedor = fornecedor_repo.obter_fornecedor_por_id(id_fornecedor)
+    fornecedor = fornecedor_repo.obter_por_id(id_fornecedor)
 
     # Estatísticas dos itens do fornecedor
     total_itens = item_repo.contar_itens_por_fornecedor(id_fornecedor)
@@ -66,7 +67,7 @@ async def dashboard_fornecedor(request: Request, usuario_logado: dict = {}):
 
     # Buscar orçamentos do fornecedor
     try:
-        orcamentos_fornecedor = orcamento_repo.obter_orcamentos_por_fornecedor_prestador(id_fornecedor)
+        orcamentos_fornecedor = orcamento_repo.obter_por_fornecedor_prestador(id_fornecedor)
         orcamentos_pendentes = [o for o in orcamentos_fornecedor if o.status == 'PENDENTE']
         orcamentos_aceitos = [o for o in orcamentos_fornecedor if o.status == 'ACEITO']
     except Exception as e:
@@ -156,7 +157,7 @@ async def listar_itens(request: Request, usuario_logado: dict = {}):
 @requer_autenticacao([TipoUsuario.FORNECEDOR.value])
 async def novo_item_form(request: Request, usuario_logado: dict = {}):
     """Formulário para criar novo item"""
-    categorias = categoria_repo.obter_categorias_ativas()
+    categorias = [c for c in categoria_repo.buscar_categorias() if c.ativo]
     return templates.TemplateResponse("fornecedor/item_form.html", {
         "request": request,
         "usuario_logado": usuario_logado,
@@ -187,7 +188,7 @@ async def criar_item(
         tipo_enum = TipoFornecimento(tipo)
     except ValueError:
         logger.warning("Tipo de item inválido", tipo=tipo, fornecedor_id=id_fornecedor)
-        categorias = categoria_repo.obter_categorias_ativas()
+        categorias = [c for c in categoria_repo.buscar_categorias() if c.ativo]
         return templates.TemplateResponse("fornecedor/item_form.html", {
             "request": request,
             "usuario_logado": usuario_logado,
@@ -200,7 +201,7 @@ async def criar_item(
     # Validar categoria
     if not categoria:
         logger.warning("Categoria não fornecida", fornecedor_id=id_fornecedor)
-        categorias = categoria_repo.obter_categorias_ativas()
+        categorias = [c for c in categoria_repo.buscar_categorias() if c.ativo]
         return templates.TemplateResponse("fornecedor/item_form.html", {
             "request": request,
             "usuario_logado": usuario_logado,
@@ -214,7 +215,7 @@ async def criar_item(
         categoria_id = int(categoria)
     except ValueError:
         logger.warning("Categoria inválida", categoria=categoria, fornecedor_id=id_fornecedor)
-        categorias = categoria_repo.obter_categorias_ativas()
+        categorias = [c for c in categoria_repo.buscar_categorias() if c.ativo]
         return templates.TemplateResponse("fornecedor/item_form.html", {
             "request": request,
             "usuario_logado": usuario_logado,
@@ -225,9 +226,10 @@ async def criar_item(
         })
 
     # Validar se categoria pertence ao tipo
-    if not item_repo.validar_categoria_para_tipo(tipo_enum, categoria_id):
+    categoria_obj = categoria_repo.obter_por_id(categoria_id)
+    if not categoria_obj or categoria_obj.tipo_fornecimento != tipo_enum:
         logger.warning("Categoria não pertence ao tipo", tipo=tipo, categoria_id=categoria_id, fornecedor_id=id_fornecedor)
-        categorias = categoria_repo.obter_categorias_ativas()
+        categorias = [c for c in categoria_repo.buscar_categorias() if c.ativo]
         return templates.TemplateResponse("fornecedor/item_form.html", {
             "request": request,
             "usuario_logado": usuario_logado,
@@ -244,7 +246,7 @@ async def criar_item(
         tipo=tipo_enum,
         nome=nome,
         descricao=descricao,
-        preco=preco,
+        preco=Decimal(str(preco)),
         observacoes=observacoes if observacoes else None,
         ativo=True,
         data_cadastro=None,
@@ -310,7 +312,7 @@ async def criar_item(
         return RedirectResponse("/fornecedor/itens", status_code=status.HTTP_303_SEE_OTHER)
     else:
         logger.error("Erro ao inserir item no banco", fornecedor_id=id_fornecedor, nome=nome)
-        categorias = categoria_repo.obter_categorias_ativas()
+        categorias = [c for c in categoria_repo.buscar_categorias() if c.ativo]
         return templates.TemplateResponse("fornecedor/item_form.html", {
             "request": request,
             "usuario_logado": usuario_logado,
@@ -326,13 +328,13 @@ async def criar_item(
 async def editar_item_form(request: Request, id_item: int, usuario_logado: dict = {}):
     """Formulário para editar item"""
     id_fornecedor = usuario_logado["id"]
-    item = item_repo.obter_item_por_id(id_item)
+    item = item_repo.obter_por_id(id_item)
 
     if not item or item.id_fornecedor != id_fornecedor:
         logger.warning("Tentativa de editar item não autorizado", item_id=id_item, fornecedor_id=id_fornecedor)
         return RedirectResponse("/fornecedor/itens", status_code=status.HTTP_303_SEE_OTHER)
 
-    categorias = categoria_repo.obter_categorias_ativas()
+    categorias = [c for c in categoria_repo.buscar_categorias() if c.ativo]
     logger.info("Formulário de edição carregado", item_id=id_item, fornecedor_id=id_fornecedor)
     return templates.TemplateResponse("fornecedor/item_form.html", {
         "request": request,
@@ -362,7 +364,7 @@ async def atualizar_item(
     id_fornecedor = usuario_logado["id"]
 
     # Verificar se o item pertence ao fornecedor
-    item_existente = item_repo.obter_item_por_id(id_item)
+    item_existente = item_repo.obter_por_id(id_item)
     if not item_existente or item_existente.id_fornecedor != id_fornecedor:
         logger.warning("Tentativa de atualizar item não autorizado", item_id=id_item, fornecedor_id=id_fornecedor)
         return RedirectResponse("/fornecedor/itens", status_code=status.HTTP_303_SEE_OTHER)
@@ -372,7 +374,7 @@ async def atualizar_item(
         tipo_enum = TipoFornecimento(tipo)
     except ValueError:
         logger.warning("Tipo de item inválido ao atualizar", tipo=tipo, item_id=id_item)
-        categorias = categoria_repo.obter_categorias_ativas()
+        categorias = [c for c in categoria_repo.buscar_categorias() if c.ativo]
         return templates.TemplateResponse("fornecedor/item_form.html", {
             "request": request,
             "usuario_logado": usuario_logado,
@@ -386,7 +388,7 @@ async def atualizar_item(
     # Validar categoria
     if not categoria:
         logger.warning("Categoria não fornecida ao atualizar", item_id=id_item)
-        categorias = categoria_repo.obter_categorias_ativas()
+        categorias = [c for c in categoria_repo.buscar_categorias() if c.ativo]
         return templates.TemplateResponse("fornecedor/item_form.html", {
             "request": request,
             "usuario_logado": usuario_logado,
@@ -401,7 +403,7 @@ async def atualizar_item(
         categoria_id = int(categoria)
     except ValueError:
         logger.warning("Categoria inválida ao atualizar", categoria=categoria, item_id=id_item)
-        categorias = categoria_repo.obter_categorias_ativas()
+        categorias = [c for c in categoria_repo.buscar_categorias() if c.ativo]
         return templates.TemplateResponse("fornecedor/item_form.html", {
             "request": request,
             "usuario_logado": usuario_logado,
@@ -413,9 +415,10 @@ async def atualizar_item(
         })
 
     # Validar se categoria pertence ao tipo
-    if not item_repo.validar_categoria_para_tipo(tipo_enum, categoria_id):
+    categoria_obj_validacao = categoria_repo.obter_por_id(categoria_id)
+    if not categoria_obj_validacao or categoria_obj_validacao.tipo_fornecimento != tipo_enum:
         logger.warning("Categoria não pertence ao tipo ao atualizar", tipo=tipo, categoria_id=categoria_id, item_id=id_item)
-        categorias = categoria_repo.obter_categorias_ativas()
+        categorias = [c for c in categoria_repo.buscar_categorias() if c.ativo]
         return templates.TemplateResponse("fornecedor/item_form.html", {
             "request": request,
             "usuario_logado": usuario_logado,
@@ -433,7 +436,7 @@ async def atualizar_item(
         tipo=tipo_enum,
         nome=nome,
         descricao=descricao,
-        preco=preco,
+        preco=Decimal(str(preco)),
         observacoes=observacoes if observacoes else None,
         ativo=ativo,
         data_cadastro=item_existente.data_cadastro,
@@ -448,7 +451,7 @@ async def atualizar_item(
         return RedirectResponse("/fornecedor/itens", status_code=status.HTTP_303_SEE_OTHER)
     else:
         logger.error("Erro ao atualizar item no banco", item_id=id_item, fornecedor_id=id_fornecedor)
-        categorias = categoria_repo.obter_categorias_ativas()
+        categorias = [c for c in categoria_repo.buscar_categorias() if c.ativo]
         return templates.TemplateResponse("fornecedor/item_form.html", {
             "request": request,
             "usuario_logado": usuario_logado,
@@ -520,7 +523,7 @@ async def listar_orcamentos(request: Request, status_filter: str = "", usuario_l
     id_fornecedor = usuario_logado["id"]
 
     # Buscar orçamentos do fornecedor
-    orcamentos = orcamento_repo.obter_orcamentos_por_fornecedor_prestador(id_fornecedor)
+    orcamentos = orcamento_repo.obter_por_fornecedor_prestador(id_fornecedor)
 
     # Filtrar por status se especificado
     if status_filter:
@@ -531,12 +534,12 @@ async def listar_orcamentos(request: Request, status_filter: str = "", usuario_l
     for orcamento in orcamentos:
         try:
             # Buscar dados da demanda
-            demanda = demanda_repo.obter_demanda_por_id(orcamento.id_demanda)
+            demanda = demanda_repo.obter_por_id(orcamento.id_demanda)
 
             # Buscar dados do casal e noivo
             noivo = None
             if demanda:
-                casal = casal_repo.obter_casal_por_id(demanda.id_casal)
+                casal = casal_repo.obter_por_id(demanda.id_casal)
                 if casal:
                     noivo = usuario_repo.obter_por_id(casal.id_noivo1)
 
@@ -569,7 +572,7 @@ async def listar_orcamentos(request: Request, status_filter: str = "", usuario_l
 async def listar_demandas(request: Request, categoria: str = "", usuario_logado: dict = {}):
     """Lista demandas disponíveis para o fornecedor"""
     # Buscar todas as demandas ativas
-    demandas = demanda_repo.obter_demandas_por_status(StatusDemanda.ATIVA.value)
+    demandas = demanda_repo.obter_por_status(StatusDemanda.ATIVA.value)
 
     # Filtrar por categoria se especificado
     if categoria:
@@ -586,13 +589,13 @@ async def listar_demandas(request: Request, categoria: str = "", usuario_logado:
     for demanda in demandas:
         try:
             # Buscar dados do casal e noivo
-            casal = casal_repo.obter_casal_por_id(demanda.id_casal)
+            casal = casal_repo.obter_por_id(demanda.id_casal)
             noivo = None
             if casal:
                 noivo = usuario_repo.obter_por_id(casal.id_noivo1)
 
             # Verificar se já existe orçamento deste fornecedor para esta demanda
-            orcamentos_existentes = orcamento_repo.obter_orcamentos_por_demanda(demanda.id)
+            orcamentos_existentes = orcamento_repo.obter_por_demanda(demanda.id)
             ja_tem_orcamento = any(o.id_fornecedor_prestador == usuario_logado["id"] for o in orcamentos_existentes)
 
             demanda_data = {
@@ -623,19 +626,19 @@ async def listar_demandas(request: Request, categoria: str = "", usuario_logado:
 async def form_propor_orcamento(request: Request, id_demanda: int, usuario_logado: dict = {}):
     """Formulário para propor orçamento para uma demanda"""
     # Buscar a demanda
-    demanda = demanda_repo.obter_demanda_por_id(id_demanda)
+    demanda = demanda_repo.obter_por_id(id_demanda)
     if not demanda:
         logger.warning("Demanda não encontrada ao propor orçamento", demanda_id=id_demanda)
         return RedirectResponse("/fornecedor/demandas?erro=demanda_nao_encontrada", status_code=status.HTTP_303_SEE_OTHER)
 
     # Buscar dados do casal e noivo
-    casal = casal_repo.obter_casal_por_id(demanda.id_casal)
+    casal = casal_repo.obter_por_id(demanda.id_casal)
     noivo = None
     if casal:
         noivo = usuario_repo.obter_por_id(casal.id_noivo1)
 
     # Verificar se já existe orçamento deste fornecedor para esta demanda
-    orcamentos_existentes = orcamento_repo.obter_orcamentos_por_demanda(id_demanda)
+    orcamentos_existentes = orcamento_repo.obter_por_demanda(id_demanda)
     ja_tem_orcamento = any(o.id_fornecedor_prestador == usuario_logado["id"] for o in orcamentos_existentes)
 
     if ja_tem_orcamento:
@@ -666,13 +669,13 @@ async def criar_orcamento(
     from core.models.orcamento_model import Orcamento
 
     # Verificar se a demanda existe
-    demanda = demanda_repo.obter_demanda_por_id(id_demanda)
+    demanda = demanda_repo.obter_por_id(id_demanda)
     if not demanda:
         logger.warning("Demanda não encontrada ao criar orçamento", demanda_id=id_demanda)
         return RedirectResponse(f"/fornecedor/demandas/{id_demanda}/propor?erro=demanda_nao_encontrada", status_code=status.HTTP_303_SEE_OTHER)
 
     # Verificar se já existe orçamento deste fornecedor para esta demanda
-    orcamentos_existentes = orcamento_repo.obter_orcamentos_por_demanda(id_demanda)
+    orcamentos_existentes = orcamento_repo.obter_por_demanda(id_demanda)
     ja_tem_orcamento = any(o.id_fornecedor_prestador == usuario_logado["id"] for o in orcamentos_existentes)
 
     if ja_tem_orcamento:
@@ -721,7 +724,7 @@ async def criar_orcamento(
 async def perfil_fornecedor(request: Request, usuario_logado: dict = {}):
     """Página de perfil do fornecedor"""
     id_fornecedor = usuario_logado["id"]
-    fornecedor = fornecedor_repo.obter_fornecedor_por_id(id_fornecedor)
+    fornecedor = fornecedor_repo.obter_por_id(id_fornecedor)
 
     logger.info("Perfil fornecedor carregado", fornecedor_id=id_fornecedor)
     return templates.TemplateResponse("fornecedor/perfil.html", {
@@ -746,7 +749,7 @@ async def atualizar_perfil(
 ):
     """Atualiza perfil do fornecedor"""
     id_fornecedor = usuario_logado["id"]
-    fornecedor = fornecedor_repo.obter_fornecedor_por_id(id_fornecedor)
+    fornecedor = fornecedor_repo.obter_por_id(id_fornecedor)
 
     if not fornecedor:
         logger.error("Fornecedor não encontrado ao atualizar perfil", fornecedor_id=id_fornecedor)
@@ -799,7 +802,7 @@ async def alterar_foto_item(
     """Processa o upload de foto do item"""
 
     # Verificar se o item pertence ao fornecedor logado
-    item = item_repo.obter_item_por_id(item_id)
+    item = item_repo.obter_por_id(item_id)
     if not item or item.id_fornecedor != usuario_logado['id']:
         logger.warning("Tentativa de alterar foto de item não autorizado", item_id=item_id, fornecedor_id=usuario_logado['id'])
         informar_erro(request, "Item não encontrado ou não autorizado")
@@ -868,7 +871,7 @@ async def remover_foto_item(request: Request, item_id: int, usuario_logado: dict
     """Remove a foto do item"""
 
     # Verificar se o item pertence ao fornecedor logado
-    item = item_repo.obter_item_por_id(item_id)
+    item = item_repo.obter_por_id(item_id)
     if not item or item.id_fornecedor != usuario_logado['id']:
         logger.warning("Tentativa de remover foto de item não autorizado", item_id=item_id, fornecedor_id=usuario_logado['id'])
         informar_erro(request, "Item não encontrado ou não autorizado")

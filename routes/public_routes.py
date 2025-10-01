@@ -1,8 +1,8 @@
-from fastapi import APIRouter, Form, Request, status, HTTPException
+from fastapi import APIRouter, Form, Request, status
 from fastapi.responses import RedirectResponse
 from fastapi.templating import Jinja2Templates
 from pydantic import ValidationError
-import os
+from typing import Optional
 
 from core.models.usuario_model import TipoUsuario, Usuario
 from core.models.fornecedor_model import Fornecedor
@@ -19,7 +19,7 @@ from infrastructure.security import (
     validar_telefone,
 )
 from util.usuario_util import usuario_para_sessao
-from util.flash_messages import informar_sucesso, informar_erro, informar_aviso
+from util.flash_messages import informar_sucesso
 from util.template_helpers import template_response_with_flash, configurar_filtros_jinja
 from util.error_handlers import tratar_erro_rota
 from infrastructure.logging import logger
@@ -76,7 +76,7 @@ def render_template_with_user(request: Request, template_name: str, context: dic
 
 @router.get("/")
 @tratar_erro_rota(template_erro="publico/home.html")
-async def get_home(request: Request, stay: str = None):
+async def get_home(request: Request, stay: Optional[str] = None):
     from infrastructure.security import obter_usuario_logado
 
     # Verificar se há usuário logado
@@ -352,7 +352,6 @@ async def post_cadastro_fornecedor(
     telefone: str = Form(...),
     senha: str = Form(...),
     confirmar_senha: str = Form(...),
-    perfis: list = Form(...),
     newsletter: str = Form(None),
 ):
     try:
@@ -368,7 +367,6 @@ async def post_cadastro_fornecedor(
             telefone=telefone,
             senha=senha,
             confirmar_senha=confirmar_senha,
-            perfis=perfis if perfis else [],
             newsletter=newsletter,
         )
     except ValidationError as e:
@@ -517,9 +515,9 @@ async def post_cadastro_geral(
 
 
 @router.get("/cadastro_confirmacao")
-async def get_root():
+async def get_cadastro_confirmacao(request: Request):
     response = templates.TemplateResponse(
-        "publico/cadastro_confirmacao.html", {"request": {}}
+        "publico/cadastro_confirmacao.html", {"request": request}
     )
     return response
 
@@ -598,9 +596,9 @@ async def get_sobre(request: Request):
 @tratar_erro_rota(template_erro="publico/itens.html")
 async def listar_itens_publicos(
     request: Request,
-    tipo: str = None,
-    busca: str = None,
-    categoria: str = None,
+    tipo: Optional[str] = None,
+    busca: Optional[str] = None,
+    categoria: Optional[str] = None,
     pagina: int = 1,
 ):
     """Lista itens públicos com filtros e paginação"""
@@ -668,61 +666,61 @@ async def listar_itens_publicos(
 
 
 @router.get("/produtos")
-async def produtos_redirect(request: Request):
+async def produtos_redirect():
     """Redireciona para a página de itens com filtro de produtos"""
     return RedirectResponse("/itens?tipo=produto", status_code=status.HTTP_302_FOUND)
 
 
 @router.get("/servicos")
-async def servicos_redirect(request: Request):
+async def servicos_redirect():
     """Redireciona para a página de itens com filtro de serviços"""
     return RedirectResponse("/itens?tipo=servico", status_code=status.HTTP_302_FOUND)
 
 
 @router.get("/espacos")
-async def espacos_redirect(request: Request):
+async def espacos_redirect():
     """Redireciona para a página de itens com filtro de espaços"""
     return RedirectResponse("/itens?tipo=espaco", status_code=status.HTTP_302_FOUND)
 
 
 @router.get("/locais")
-async def locais_redirect(request: Request):
+async def locais_redirect():
     """Redireciona para a página de itens com filtro de espaços (alias para espacos)"""
     return RedirectResponse("/itens?tipo=espaco", status_code=status.HTTP_302_FOUND)
 
 
 @router.get("/fornecedores")
-async def get_root():
-    response = templates.TemplateResponse("publico/fornecedores.html", {"request": {}})
+async def get_fornecedores(request: Request):
+    response = templates.TemplateResponse("publico/fornecedores.html", {"request": request})
     return response
 
 
 @router.get("/prestadores")
-async def get_root():
-    response = templates.TemplateResponse("publico/prestadores.html", {"request": {}})
+async def get_prestadores(request: Request):
+    response = templates.TemplateResponse("publico/prestadores.html", {"request": request})
     return response
 
 
 @router.get("/locais/{id}")
-async def get_root(id: int):
+async def get_local_detalhes(request: Request, id: int):
     response = templates.TemplateResponse(
-        "publico/detalhes_local.html", {"request": {}, "id": id}
+        "publico/detalhes_local.html", {"request": request, "id": id}
     )
     return response
 
 
 @router.get("/fornecedores/{id}")
-async def get_root(id: int):
+async def get_fornecedor_detalhes(request: Request, id: int):
     response = templates.TemplateResponse(
-        "publico/detalhes_fornecedor.html", {"request": {}, "id": id}
+        "publico/detalhes_fornecedor.html", {"request": request, "id": id}
     )
     return response
 
 
 @router.get("/prestadores/{id}")
-async def get_root(id: int):
+async def get_prestador_detalhes(request: Request, id: int):
     response = templates.TemplateResponse(
-        "publico/detalhes_prestador.html", {"request": {}, "id": id}
+        "publico/detalhes_prestador.html", {"request": request, "id": id}
     )
     return response
 
@@ -743,7 +741,7 @@ async def detalhes_item_publico(request: Request, id: int):
             {"request": request, "erro": "Item não encontrado"},
         )
 
-    logger.info(f"Detalhes do item público exibidos", item_id=id, item_nome=item.nome)
+    logger.info(f"Detalhes do item público exibidos", item_id=id, item_nome=item.get("nome", "desconhecido") if isinstance(item, dict) else item.nome)
 
     return template_response_with_flash(
         templates, "publico/item_detalhes.html", {"request": request, "item": item}

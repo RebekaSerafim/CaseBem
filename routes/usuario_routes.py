@@ -16,10 +16,7 @@ from util.avatar_util import (
     obter_caminho_avatar_fisico,
     criar_diretorio_usuarios,
     excluir_avatar,
-    obter_avatar_ou_padrao,
 )
-import os
-import secrets
 from PIL import Image
 
 router = APIRouter()
