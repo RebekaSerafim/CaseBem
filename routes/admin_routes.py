@@ -11,6 +11,8 @@ from core.models.tipo_fornecimento_model import TipoFornecimento
 from core.repositories import usuario_repo, fornecedor_repo, item_repo, categoria_repo, orcamento_repo, demanda_repo
 from util.flash_messages import informar_sucesso, informar_erro
 from util.template_helpers import configurar_filtros_jinja
+from util.pagination import PaginationHelper
+import math
 
 router = APIRouter()
 templates = Jinja2Templates(directory="templates")
@@ -178,17 +180,15 @@ async def listar_usuarios(
 ):
     """Lista todos os usuários do sistema com filtros e paginação"""
     try:
-        import math
-
         # Obter parâmetros de filtro da URL
         busca = request.query_params.get("search", "").strip()
         tipo_usuario = request.query_params.get("tipo_usuario", "").strip()
         status = request.query_params.get("status", "").strip()
-        tamanho_pagina = 10
+        tamanho_pagina = PaginationHelper.DEFAULT_PAGE_SIZE
 
         # Aplicar filtros se fornecidos, senão listar todos
         if busca or tipo_usuario or status:
-            usuarios, total_usuarios = usuario_repo.buscar_usuarios_paginado(
+            usuarios, total_usuarios = usuario_repo.buscar_paginado(
                 busca=busca,
                 tipo_usuario=tipo_usuario,
                 status=status,
@@ -196,17 +196,17 @@ async def listar_usuarios(
                 tamanho_pagina=tamanho_pagina
             )
         else:
-            usuarios, total_usuarios = usuario_repo.obter_usuarios_paginado(
+            usuarios, total_usuarios = usuario_repo.obter_paginado_usuarios(
                 pagina=pagina,
                 tamanho_pagina=tamanho_pagina
             )
 
-        # Calcular total de páginas
-        total_paginas = math.ceil(total_usuarios / tamanho_pagina) if total_usuarios > 0 else 1
+        # Aplicar paginação
+        page_info = PaginationHelper.paginate(usuarios, total_usuarios, pagina, tamanho_pagina)
 
         # Buscar dados de fornecedores para verificar status de verificação
         fornecedores_dados = {}
-        for usuario in usuarios:
+        for usuario in page_info.items:
             if usuario.perfil == TipoUsuario.FORNECEDOR:
                 fornecedor = fornecedor_repo.obter_por_id(usuario.id)
                 if fornecedor:
@@ -215,11 +215,11 @@ async def listar_usuarios(
         return templates.TemplateResponse("admin/usuarios.html", {
             "request": request,
             "usuario_logado": usuario_logado,
-            "usuarios": usuarios,
+            "usuarios": page_info.items,
             "fornecedores_dados": fornecedores_dados,
-            "total_usuarios": total_usuarios,
-            "pagina_atual": pagina,
-            "total_paginas": total_paginas,
+            "total_usuarios": page_info.total_items,
+            "pagina_atual": page_info.current_page,
+            "total_paginas": page_info.total_pages,
             "busca": busca,
             "tipo_usuario": tipo_usuario,
             "status": status
@@ -633,18 +633,16 @@ async def listar_itens(
 ):
     """Lista todos os itens do sistema com filtros e paginação"""
     try:
-        import math
-
         # Obter parâmetros de filtro da URL
         busca = request.query_params.get("search", "").strip()
         tipo_item = request.query_params.get("tipo_item", "").strip()
         status_filtro = request.query_params.get("status", "").strip()
         categoria_id = request.query_params.get("categoria", "").strip()
-        tamanho_pagina = 10
+        tamanho_pagina = PaginationHelper.DEFAULT_PAGE_SIZE
 
         # Aplicar filtros se fornecidos, senão listar todos
         if busca or tipo_item or status_filtro or categoria_id:
-            itens, total_itens = item_repo.buscar_itens_paginado_repo(
+            itens, total_itens = item_repo.buscar_paginado(
                 busca=busca,
                 tipo_item=tipo_item,
                 status=status_filtro,
@@ -653,17 +651,17 @@ async def listar_itens(
                 tamanho_pagina=tamanho_pagina
             )
         else:
-            itens, total_itens = item_repo.obter_itens_paginado_repo(
+            itens, total_itens = item_repo.obter_paginado_itens(
                 pagina=pagina,
                 tamanho_pagina=tamanho_pagina
             )
 
-        # Calcular total de páginas
-        total_paginas = math.ceil(total_itens / tamanho_pagina) if total_itens > 0 else 1
+        # Aplicar paginação
+        page_info = PaginationHelper.paginate(itens, total_itens, pagina, tamanho_pagina)
 
         # Buscar dados das categorias para exibir nomes
         categorias_dados = {}
-        for item in itens:
+        for item in page_info.items:
             if item.id_categoria and item.id_categoria not in categorias_dados:
                 try:
                     categoria = categoria_repo.obter_por_id(item.id_categoria)
@@ -679,13 +677,13 @@ async def listar_itens(
         return templates.TemplateResponse("admin/itens.html", {
             "request": request,
             "usuario_logado": usuario_logado,
-            "itens": itens,
+            "itens": page_info.items,
             "categorias_dados": categorias_dados,
             "categorias": categorias,
             "tipos_item": [tipo for tipo in TipoFornecimento],
-            "total_itens": total_itens,
-            "pagina_atual": pagina,
-            "total_paginas": total_paginas,
+            "total_itens": page_info.total_items,
+            "pagina_atual": page_info.current_page,
+            "total_paginas": page_info.total_pages,
             "busca": busca,
             "tipo_item": tipo_item,
             "status_filtro": status_filtro,
@@ -805,7 +803,8 @@ async def relatorios(request: Request, usuario_logado: dict = {}):
                 "verificados": len([f for f in fornecedores if f.verificado]),
                 "nao_verificados": len([f for f in fornecedores if not f.verificado])
             }
-        except:
+        except Exception as e:
+            logger.error("Erro ao obter estatísticas de fornecedores", exc_info=True)
             stats_fornecedores = {
                 "total": 0,
                 "verificados": 0,
@@ -916,17 +915,15 @@ async def listar_categorias(
 ):
     """Lista todas as categorias de item com filtros e paginação"""
     try:
-        import math
-
         # Obter parâmetros de filtro da URL
         busca = request.query_params.get("search", "").strip()
         tipo_fornecimento = request.query_params.get("tipo_fornecimento", "").strip()
         status_filtro = request.query_params.get("status", "").strip()
-        tamanho_pagina = 10
+        tamanho_pagina = PaginationHelper.DEFAULT_PAGE_SIZE
 
         # Aplicar filtros se fornecidos, senão listar todas
         if busca or tipo_fornecimento or status_filtro:
-            categorias, total_categorias = categoria_repo.buscar_categorias_paginado(
+            categorias, total_categorias = categoria_repo.buscar_paginado(
                 busca=busca,
                 tipo_fornecimento=tipo_fornecimento,
                 status=status_filtro,
@@ -934,22 +931,22 @@ async def listar_categorias(
                 tamanho_pagina=tamanho_pagina
             )
         else:
-            categorias, total_categorias = categoria_repo.obter_categorias_paginado(
+            categorias, total_categorias = categoria_repo.obter_paginado_categorias(
                 pagina=pagina,
                 tamanho_pagina=tamanho_pagina
             )
 
-        # Calcular total de páginas
-        total_paginas = math.ceil(total_categorias / tamanho_pagina) if total_categorias > 0 else 1
+        # Aplicar paginação
+        page_info = PaginationHelper.paginate(categorias, total_categorias, pagina, tamanho_pagina)
 
         return templates.TemplateResponse("admin/categorias.html", {
             "request": request,
             "usuario_logado": usuario_logado,
-            "categorias": categorias,
+            "categorias": page_info.items,
             "tipos_item": [tipo for tipo in TipoFornecimento],
-            "total_categorias": total_categorias,
-            "pagina_atual": pagina,
-            "total_paginas": total_paginas,
+            "total_categorias": page_info.total_items,
+            "pagina_atual": page_info.current_page,
+            "total_paginas": page_info.total_pages,
             "busca": busca,
             "tipo_fornecimento": tipo_fornecimento,
             "status_filtro": status_filtro

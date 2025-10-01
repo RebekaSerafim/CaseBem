@@ -287,7 +287,7 @@ class TestItemRepo:
             item_repo.inserir(item)
 
         # Act
-        total = item_repo.contar_itens_por_fornecedor(id_fornecedor)
+        total = item_repo.contar_por_fornecedor(id_fornecedor)
 
         # Assert
         assert total == 5, "Deveria contar 5 itens ativos"

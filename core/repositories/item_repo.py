@@ -154,7 +154,7 @@ class ItemRepo(BaseRepo):
         """Obtém todos os espaços ativos"""
         return self.obter_itens_por_tipo(TipoFornecimento.ESPACO)
 
-    def contar_itens_por_fornecedor(self, id_fornecedor: int) -> int:
+    def contar_por_fornecedor(self, id_fornecedor: int) -> int:
         """Conta itens ativos de um fornecedor"""
         return self.contar_registros(
             "id_fornecedor = ? AND ativo = 1", (id_fornecedor,)
@@ -284,13 +284,13 @@ class ItemRepo(BaseRepo):
         sql = "UPDATE item SET ativo = 0 WHERE id = ?"
         return self.executar_comando(sql, (id_item,))
 
-    def obter_itens_paginado_repo(
+    def obter_paginado_itens(
         self, pagina: int, tamanho_pagina: int
     ) -> tuple[List[Item], int]:
         """Obtém itens paginados com total"""
         return self.obter_paginado(pagina, tamanho_pagina)
 
-    def buscar_itens_paginado_repo(
+    def buscar_paginado(
         self,
         busca: str = "",
         tipo_item: str = "",

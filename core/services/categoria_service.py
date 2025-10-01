@@ -215,8 +215,12 @@ class CategoriaService:
             from core.repositories.item_repo import item_repo
             count = item_repo.contar_registros("id_categoria = ? AND ativo = 1", (categoria_id,))
             return count > 0
-        except:
+        except Exception as e:
             # Se erro, assumir que tem itens por segurança
+            logger.error("Erro ao verificar itens ativos da categoria",
+                categoria_id=categoria_id,
+                exc_info=True
+            )
             return True
 
 

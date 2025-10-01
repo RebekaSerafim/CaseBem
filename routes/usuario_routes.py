@@ -11,12 +11,13 @@ from infrastructure.security import (
     verificar_senha,
     validar_forca_senha,
 )
-from util.template_helpers import configurar_filtros_jinja
+from util.template_helpers import configurar_filtros_jinja, TemplateRenderer
 from util.avatar_util import excluir_avatar
 
 router = APIRouter()
 templates = Jinja2Templates(directory="templates")
 configurar_filtros_jinja(templates)
+renderer = TemplateRenderer(templates)
 
 # ==================== ALTERAÇÃO DE SENHA ====================
 
@@ -27,10 +28,7 @@ configurar_filtros_jinja(templates)
 )
 async def get_alterar_senha(request: Request, usuario_logado: dict = {}):
     """Página para alteração de senha (todos os perfis)"""
-    return templates.TemplateResponse(
-        "usuario/alterar_senha.html",
-        {"request": request, "usuario_logado": usuario_logado},
-    )
+    return renderer.render(request, "usuario/alterar_senha.html")
 
 
 @router.post("/alterar-senha")
@@ -51,13 +49,10 @@ async def post_alterar_senha(
         logger.warning(
             f"Tentativa de alteração de senha com senhas não coincidentes - usuario_id: {usuario_logado['id']}"
         )
-        return templates.TemplateResponse(
+        return renderer.render(
+            request,
             "usuario/alterar_senha.html",
-            {
-                "request": request,
-                "usuario_logado": usuario_logado,
-                "erro": "A nova senha e confirmação não coincidem",
-            },
+            {"erro": "A nova senha e confirmação não coincidem"}
         )
 
     # Validar força da nova senha
@@ -66,9 +61,10 @@ async def post_alterar_senha(
         logger.warning(
             f"Tentativa de alteração de senha com senha fraca - usuario_id: {usuario_logado['id']}, erro: {erro_senha}"
         )
-        return templates.TemplateResponse(
+        return renderer.render(
+            request,
             "usuario/alterar_senha.html",
-            {"request": request, "usuario_logado": usuario_logado, "erro": erro_senha},
+            {"erro": erro_senha}
         )
 
     # Buscar usuário atual
@@ -77,13 +73,10 @@ async def post_alterar_senha(
         logger.error(
             f"Usuário não encontrado ao alterar senha - usuario_id: {usuario_logado['id']}"
         )
-        return templates.TemplateResponse(
+        return renderer.render(
+            request,
             "usuario/alterar_senha.html",
-            {
-                "request": request,
-                "usuario_logado": usuario_logado,
-                "erro": "Usuário não encontrado",
-            },
+            {"erro": "Usuário não encontrado"}
         )
 
     # Verificar senha atual
@@ -91,13 +84,10 @@ async def post_alterar_senha(
         logger.warning(
             f"Senha atual incorreta ao alterar senha - usuario_id: {usuario_logado['id']}"
         )
-        return templates.TemplateResponse(
+        return renderer.render(
+            request,
             "usuario/alterar_senha.html",
-            {
-                "request": request,
-                "usuario_logado": usuario_logado,
-                "erro": "Senha atual incorreta",
-            },
+            {"erro": "Senha atual incorreta"}
         )
 
     # Gerar hash da nova senha
@@ -108,25 +98,19 @@ async def post_alterar_senha(
 
     if sucesso:
         logger.info(f"Senha alterada com sucesso - usuario_id: {usuario_logado['id']}")
-        return templates.TemplateResponse(
+        return renderer.render(
+            request,
             "usuario/alterar_senha.html",
-            {
-                "request": request,
-                "usuario_logado": usuario_logado,
-                "sucesso": "Senha alterada com sucesso!",
-            },
+            {"sucesso": "Senha alterada com sucesso!"}
         )
     else:
         logger.error(
             f"Erro ao atualizar senha no banco de dados - usuario_id: {usuario_logado['id']}"
         )
-        return templates.TemplateResponse(
+        return renderer.render(
+            request,
             "usuario/alterar_senha.html",
-            {
-                "request": request,
-                "usuario_logado": usuario_logado,
-                "erro": "Erro ao atualizar senha no banco de dados",
-            },
+            {"erro": "Erro ao atualizar senha no banco de dados"}
         )
 
 

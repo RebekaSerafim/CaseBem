@@ -152,13 +152,13 @@ class UsuarioRepo(BaseRepo):
         """Ativa um usuário"""
         return self.ativar(id_usuario)
 
-    def obter_usuarios_paginado(
+    def obter_paginado_usuarios(
         self, pagina: int, tamanho_pagina: int
     ) -> tuple[List[Usuario], int]:
         """Obtém usuários paginados e retorna lista de usuários e total"""
         return self.obter_paginado(pagina, tamanho_pagina)
 
-    def buscar_usuarios_paginado(
+    def buscar_paginado(
         self,
         busca: str = "",
         tipo_usuario: str = "",

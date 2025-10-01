@@ -47,7 +47,7 @@ async def dashboard_fornecedor(request: Request, usuario_logado: dict = {}):
     fornecedor = fornecedor_repo.obter_por_id(id_fornecedor)
 
     # Estatísticas dos itens do fornecedor
-    total_itens = item_repo.contar_itens_por_fornecedor(id_fornecedor)
+    total_itens = item_repo.contar_por_fornecedor(id_fornecedor)
     meus_itens = item_repo.obter_itens_por_fornecedor(id_fornecedor)
 
     # Separar por tipo
@@ -656,7 +656,7 @@ async def criar_orcamento(
     if data_validade:
         try:
             data_hora_validade = datetime.strptime(data_validade, "%Y-%m-%d")
-        except:
+        except (ValueError, TypeError):
             logger.warning("Data de validade inválida, usando padrão de 30 dias", data_validade=data_validade)
             data_hora_validade = datetime.now() + timedelta(days=30)
     else:

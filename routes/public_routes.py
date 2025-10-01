@@ -3,6 +3,7 @@ from fastapi.responses import RedirectResponse
 from fastapi.templating import Jinja2Templates
 from pydantic import ValidationError
 from typing import Optional
+import math
 
 from core.models.usuario_model import TipoUsuario, Usuario
 from core.models.fornecedor_model import Fornecedor
@@ -20,6 +21,7 @@ from util.flash_messages import informar_sucesso
 from util.template_helpers import template_response_with_flash, configurar_filtros_jinja
 from util.error_handlers import tratar_erro_rota
 from infrastructure.logging import logger
+from util.pagination import PaginationHelper
 
 router = APIRouter()
 templates = Jinja2Templates(directory="templates")
@@ -571,7 +573,6 @@ async def listar_itens_publicos(
     """Lista itens públicos com filtros e paginação"""
     from core.repositories import item_repo, categoria_repo
     from core.models.tipo_fornecimento_model import TipoFornecimento
-    import math
 
     # Converter categoria para int se não estiver vazia
     categoria_int = None
@@ -600,11 +601,16 @@ async def listar_itens_publicos(
         busca=busca,
         categoria=categoria_int,
         pagina=pagina,
-        tamanho_pagina=12,
+        tamanho_pagina=PaginationHelper.PUBLIC_PAGE_SIZE,
     )
 
-    # Calcular total de páginas
-    total_paginas = math.ceil(total_itens / 12) if total_itens > 0 else 1
+    # Aplicar paginação
+    page_info = PaginationHelper.paginate(
+        itens,
+        total_itens,
+        pagina,
+        PaginationHelper.PUBLIC_PAGE_SIZE
+    )
 
     logger.info(
         f"Itens públicos listados",
@@ -620,10 +626,10 @@ async def listar_itens_publicos(
         "publico/itens.html",
         {
             "request": request,
-            "itens": itens,
-            "total_itens": total_itens,
-            "pagina_atual": pagina,
-            "total_paginas": total_paginas,
+            "itens": page_info.items,
+            "total_itens": page_info.total_items,
+            "pagina_atual": page_info.current_page,
+            "total_paginas": page_info.total_pages,
             "tipo": tipo,
             "busca": busca,
             "categoria": categoria_int,

@@ -37,7 +37,8 @@ def verificar_senha(senha_plana: str, senha_hash: str) -> bool:
     """
     try:
         return pwd_context.verify(senha_plana, senha_hash)
-    except:
+    except (ValueError, TypeError):
+        # Retorna False se hash inválido ou senha em formato incorreto
         return False
 
 

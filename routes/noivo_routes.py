@@ -18,6 +18,7 @@ from util.flash_messages import informar_sucesso, informar_erro
 from util.template_helpers import configurar_filtros_jinja
 from util.error_handlers import tratar_erro_rota
 from infrastructure.logging import logger
+from util.pagination import PaginationHelper
 
 router = APIRouter()
 templates = Jinja2Templates(directory="templates")
@@ -279,8 +280,6 @@ async def listar_demandas(
             if search.lower() in d.titulo.lower()
             or search.lower() in d.descricao.lower()
         ]
-
-    # TODO: Implementar paginação real
 
     return templates.TemplateResponse(
         "noivo/demandas.html",
@@ -741,8 +740,7 @@ async def listar_fornecedores(request: Request, usuario_logado: dict = {}):
         # Parâmetros de filtro
         search = request.query_params.get("search", "").strip()
         tipo = request.query_params.get("tipo", "").strip()
-        page = int(request.query_params.get("page", 1))
-        per_page = 12
+        page = PaginationHelper.get_page_number(request)
 
         # Buscar todos os fornecedores verificados
         todos_fornecedores = fornecedor_repo.obter_fornecedores_verificados()
@@ -769,26 +767,32 @@ async def listar_fornecedores(request: Request, usuario_logado: dict = {}):
                 "telefone": fornecedor.telefone,
                 "email": fornecedor.email,
                 "verificado": fornecedor.verificado,
-                "total_itens": item_repo.contar_itens_por_fornecedor(fornecedor.id),
+                "total_itens": item_repo.contar_por_fornecedor(fornecedor.id),
             }
             fornecedores_enriched.append(fornecedor_dict)
 
-        # Paginação manual
+        # Aplicar paginação
         total = len(fornecedores_enriched)
-        total_pages = (total + per_page - 1) // per_page if total > 0 else 1
-        start = (page - 1) * per_page
-        end = start + per_page
+        start = (page - 1) * PaginationHelper.PUBLIC_PAGE_SIZE
+        end = start + PaginationHelper.PUBLIC_PAGE_SIZE
         fornecedores_paginados = fornecedores_enriched[start:end]
+
+        page_info = PaginationHelper.paginate(
+            fornecedores_paginados,
+            total,
+            page,
+            PaginationHelper.PUBLIC_PAGE_SIZE
+        )
 
         return templates.TemplateResponse(
             "noivo/fornecedores.html",
             {
                 "request": request,
                 "usuario_logado": usuario_logado,
-                "fornecedores": fornecedores_paginados,
-                "pagina_atual": page,
-                "total_pages": total_pages,
-                "total": total,
+                "fornecedores": page_info.items,
+                "pagina_atual": page_info.current_page,
+                "total_pages": page_info.total_pages,
+                "total": page_info.total_items,
             },
         )
     except Exception as e:
@@ -891,8 +895,7 @@ async def checklist(request: Request, usuario_logado: dict = {}):
         id_noivo = usuario_logado["id"]
         logger.info("Carregando checklist do noivo", noivo_id=id_noivo)
 
-        # Por enquanto, retornamos um checklist vazio
-        # TODO: Implementar modelo de checklist no banco de dados
+        # Checklist vazio (feature futura)
         categorias = []
         total_tarefas = 0
         tarefas_concluidas = 0

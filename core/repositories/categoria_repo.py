@@ -96,13 +96,13 @@ class CategoriaRepo(BaseRepo):
         """Desativa uma categoria"""
         return self.desativar(id)
 
-    def obter_categorias_paginado(
+    def obter_paginado_categorias(
         self, pagina: int, tamanho_pagina: int
     ) -> tuple[List[Categoria], int]:
         """Obtém categorias paginadas e retorna lista de categorias e total"""
         return self.obter_paginado(pagina, tamanho_pagina)
 
-    def buscar_categorias_paginado(
+    def buscar_paginado(
         self,
         busca: str = "",
         tipo_fornecimento: str = "",
