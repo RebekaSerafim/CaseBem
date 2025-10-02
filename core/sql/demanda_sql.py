@@ -1,4 +1,8 @@
-CRIAR_TABELA_DEMANDA = """
+# ==============================================================================
+# QUERIES GENÉRICAS (usadas pelo BaseRepo)
+# ==============================================================================
+
+CRIAR_TABELA = """
 CREATE TABLE IF NOT EXISTS demanda (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     id_casal INTEGER NOT NULL,
@@ -15,9 +19,6 @@ CREATE TABLE IF NOT EXISTS demanda (
     FOREIGN KEY (id_categoria) REFERENCES categoria(id)
 );
 """
-
-# Queries compatíveis com BaseRepo
-CRIAR_TABELA = CRIAR_TABELA_DEMANDA
 
 INSERIR = """
 INSERT INTO demanda (id_casal, id_categoria, titulo, descricao, orcamento_min, orcamento_max, prazo_entrega, observacoes)
@@ -46,32 +47,14 @@ FROM demanda
 ORDER BY data_criacao DESC;
 """
 
-# Queries específicas do domínio (mantidas para compatibilidade)
-INSERIR_DEMANDA = INSERIR
-ATUALIZAR_DEMANDA = ATUALIZAR
+# ==============================================================================
+# QUERIES ESPECÍFICAS DE NEGÓCIO (métodos customizados do repositório)
+# ==============================================================================
 
 ATUALIZAR_STATUS_DEMANDA = """
 UPDATE demanda
 SET status = ?
 WHERE id = ?;
-"""
-
-EXCLUIR_DEMANDA = """
-DELETE FROM demanda
-WHERE id = ?;
-"""
-
-OBTER_DEMANDA_POR_ID = """
-SELECT id, id_casal, id_categoria, titulo, descricao, orcamento_min, orcamento_max, prazo_entrega, status, data_criacao, observacoes
-FROM demanda
-WHERE id = ?;
-"""
-
-OBTER_DEMANDAS_POR_PAGINA = """
-SELECT id, id_casal, id_categoria, titulo, descricao, orcamento_min, orcamento_max, prazo_entrega, status, data_criacao, observacoes
-FROM demanda
-ORDER BY data_criacao DESC
-LIMIT ? OFFSET ?;
 """
 
 OBTER_DEMANDAS_POR_CASAL = """

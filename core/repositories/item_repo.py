@@ -115,13 +115,8 @@ class ItemRepo(BaseRepo):
         self, numero_pagina: int, tamanho_pagina: int
     ) -> List[Item]:
         """Obtém itens com paginação"""
-        return [
-            self._linha_para_objeto(row)
-            for row in self.executar_consulta(
-                item_sql.OBTER_ITENS_POR_PAGINA,
-                (tamanho_pagina, (numero_pagina - 1) * tamanho_pagina),
-            )
-        ]
+        itens, _ = self.obter_paginado(numero_pagina, tamanho_pagina)
+        return itens
 
     def buscar_itens(
         self, termo_busca: str, numero_pagina: int = 1, tamanho_pagina: int = 20

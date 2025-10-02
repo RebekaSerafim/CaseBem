@@ -1,3 +1,7 @@
+# ==============================================================================
+# QUERIES GENÉRICAS (usadas pelo BaseRepo)
+# ==============================================================================
+
 CRIAR_TABELA = """
 CREATE TABLE IF NOT EXISTS item (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -15,14 +19,10 @@ CREATE TABLE IF NOT EXISTS item (
 );
 """
 
-CRIAR_TABELA_ITEM = CRIAR_TABELA
-
 INSERIR = """
 INSERT INTO item (id_fornecedor, tipo, nome, descricao, preco, id_categoria, observacoes, ativo)
 VALUES (?, ?, ?, ?, ?, ?, ?, ?);
 """
-
-INSERIR_ITEM = INSERIR
 
 INSERIR_COM_ID = """
 INSERT INTO item (id, id_fornecedor, tipo, nome, descricao, preco, id_categoria, observacoes, ativo)
@@ -35,14 +35,10 @@ SET tipo = ?, nome = ?, descricao = ?, preco = ?, id_categoria = ?, observacoes 
 WHERE id = ? AND id_fornecedor = ?;
 """
 
-ATUALIZAR_ITEM = ATUALIZAR
-
 EXCLUIR = """
 DELETE FROM item
 WHERE id = ? AND id_fornecedor = ?;
 """
-
-EXCLUIR_ITEM = EXCLUIR
 
 OBTER_POR_ID = """
 SELECT id, id_fornecedor, tipo, nome, descricao, preco, observacoes, ativo, data_cadastro, id_categoria
@@ -50,7 +46,18 @@ FROM item
 WHERE id = ?;
 """
 
-OBTER_ITEM_POR_ID = OBTER_POR_ID
+LISTAR_TODOS = """
+SELECT id, id_fornecedor, tipo, nome, descricao, preco, observacoes, ativo, data_cadastro, id_categoria
+FROM item
+ORDER BY data_cadastro DESC;
+"""
+
+# ==============================================================================
+# QUERIES ESPECÍFICAS DE NEGÓCIO (métodos customizados do repositório)
+# ==============================================================================
+
+# Nota: EXCLUIR_ITEM mantido separadamente pois valida id_fornecedor (segurança)
+EXCLUIR_ITEM = EXCLUIR
 
 OBTER_ITENS_POR_FORNECEDOR = """
 SELECT id, id_fornecedor, tipo, nome, descricao, preco, observacoes, ativo, data_cadastro, id_categoria
@@ -66,13 +73,6 @@ WHERE tipo = ? AND ativo = 1
 ORDER BY nome ASC;
 """
 
-OBTER_ITENS_POR_PAGINA = """
-SELECT id, id_fornecedor, tipo, nome, descricao, preco, observacoes, ativo, data_cadastro, id_categoria
-FROM item
-ORDER BY data_cadastro DESC
-LIMIT ? OFFSET ?;
-"""
-
 BUSCAR_ITENS = """
 SELECT id, id_fornecedor, tipo, nome, descricao, preco, observacoes, ativo, data_cadastro, id_categoria
 FROM item
@@ -83,33 +83,6 @@ WHERE (
 )
 ORDER BY nome ASC
 LIMIT ? OFFSET ?;
-"""
-
-OBTER_PRODUTOS = """
-SELECT id, id_fornecedor, tipo, nome, descricao, preco, observacoes, ativo, data_cadastro, id_categoria
-FROM item
-WHERE tipo = 'PRODUTO' AND ativo = 1
-ORDER BY nome ASC;
-"""
-
-OBTER_SERVICOS = """
-SELECT id, id_fornecedor, tipo, nome, descricao, preco, observacoes, ativo, data_cadastro, id_categoria
-FROM item
-WHERE tipo = 'SERVIÇO' AND ativo = 1
-ORDER BY nome ASC;
-"""
-
-OBTER_ESPACOS = """
-SELECT id, id_fornecedor, tipo, nome, descricao, preco, observacoes, ativo, data_cadastro, id_categoria
-FROM item
-WHERE tipo = 'ESPAÇO' AND ativo = 1
-ORDER BY nome ASC;
-"""
-
-CONTAR_ITENS_POR_FORNECEDOR = """
-SELECT COUNT(*) as total
-FROM item
-WHERE id_fornecedor = ? AND ativo = 1;
 """
 
 OBTER_ESTATISTICAS_ITENS = """
@@ -123,16 +96,10 @@ FROM item
 WHERE ativo = 1
 GROUP BY tipo;
 """
-CONTAR_ITENS = """
-SELECT COUNT(*) as total
-FROM item;
-"""
 
-CONTAR_ITENS_POR_TIPO = """
-SELECT COUNT(*) as total
-FROM item
-WHERE tipo = ?;
-"""
+# Queries OBTER_ITENS_POR_PAGINA, OBTER_PRODUTOS, OBTER_SERVICOS, OBTER_ESPACOS,
+# CONTAR_ITENS_POR_FORNECEDOR, CONTAR_ITENS, CONTAR_ITENS_POR_TIPO removidas:
+# Use BaseRepo.obter_paginado() e BaseRepo.contar_registros() com condições apropriadas
 
 OBTER_ITENS_PUBLICOS_FILTRADOS = """
 SELECT i.id, i.id_fornecedor, i.tipo, i.nome, i.descricao, i.preco, i.observacoes, i.ativo, i.data_cadastro, i.id_categoria,
@@ -172,9 +139,8 @@ LEFT JOIN categoria c ON i.id_categoria = c.id
 WHERE i.id = ? AND i.ativo = 1;
 """
 
-ATIVAR_ITEM = "UPDATE item SET ativo = 1 WHERE id = ? AND id_fornecedor = ?"
-
-DESATIVAR_ITEM = "UPDATE item SET ativo = 0 WHERE id = ? AND id_fornecedor = ?"
+# Queries ATIVAR_ITEM e DESATIVAR_ITEM removidas:
+# Use item_repo.ativar_item() e item_repo.desativar_item() que validam fornecedor (segurança)
 
 BUSCAR_ITENS_FILTRADOS = """
 SELECT id, id_fornecedor, tipo, nome, descricao, preco, id_categoria, observacoes, ativo, data_cadastro

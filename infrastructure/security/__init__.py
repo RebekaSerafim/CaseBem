@@ -4,7 +4,6 @@ Infrastructure Security - Segurança e autenticação
 Este módulo gerencia toda a infraestrutura de segurança:
 - security: Hash de senhas, validação CPF/CNPJ, tokens
 - auth_decorator: Decorators de autenticação e autorização
-- security_middleware: Middleware avançado de segurança
 """
 
 # Funções de segurança (senhas, tokens, validações)
@@ -29,18 +28,6 @@ from infrastructure.security.auth_decorator import (
     requer_autenticacao,
 )
 
-# Middleware e funções de segurança avançada
-from infrastructure.security.security_middleware import (
-    get_client_ip,
-    register_failed_attempt,
-    clear_failed_attempts,
-    enhanced_create_session,
-    enhanced_destroy_session,
-    log_security_event,
-    security_middleware,
-    requires_secure_access,
-)
-
 __all__ = [
     # Security
     'criar_hash_senha',
@@ -58,13 +45,4 @@ __all__ = [
     'criar_sessao',
     'destruir_sessao',
     'requer_autenticacao',
-    # Middleware
-    'get_client_ip',
-    'register_failed_attempt',
-    'clear_failed_attempts',
-    'enhanced_create_session',
-    'enhanced_destroy_session',
-    'log_security_event',
-    'security_middleware',
-    'requires_secure_access',
 ]

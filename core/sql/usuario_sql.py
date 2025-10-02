@@ -1,3 +1,7 @@
+# ==============================================================================
+# QUERIES GENÉRICAS (usadas pelo BaseRepo)
+# ==============================================================================
+
 CRIAR_TABELA = """
 CREATE TABLE IF NOT EXISTS usuario (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -15,26 +19,14 @@ CREATE TABLE IF NOT EXISTS usuario (
 );
 """
 
-CRIAR_TABELA_USUARIO = CRIAR_TABELA
-
 INSERIR = """
 INSERT INTO usuario (nome, cpf, data_nascimento, email, telefone, senha, perfil)
 VALUES (?, ?, ?, ?, ?, ?, ?);
 """
 
-INSERIR_USUARIO = INSERIR
-
 ATUALIZAR = """
 UPDATE usuario
 SET nome = ?, cpf = ?, data_nascimento = ?, telefone = ?, email = ?
-WHERE id = ?;
-"""
-
-ATUALIZAR_USUARIO = ATUALIZAR
-
-ATUALIZAR_SENHA_USUARIO = """
-UPDATE usuario
-SET senha = ?
 WHERE id = ?;
 """
 
@@ -43,26 +35,32 @@ DELETE FROM usuario
 WHERE id = ?;
 """
 
-EXCLUIR_USUARIO = EXCLUIR
-
 OBTER_POR_ID = """
 SELECT id, nome, cpf, data_nascimento, email, telefone, senha, perfil, token_redefinicao, data_token, data_cadastro, ativo
 FROM usuario
 WHERE id = ?;
 """
 
-OBTER_USUARIO_POR_ID = OBTER_POR_ID
+LISTAR_TODOS = """
+SELECT id, nome, cpf, data_nascimento, email, telefone, senha, perfil, token_redefinicao, data_token, data_cadastro, ativo
+FROM usuario
+ORDER BY nome ASC;
+"""
+
+# ==============================================================================
+# QUERIES ESPECÍFICAS DE NEGÓCIO (métodos customizados do repositório)
+# ==============================================================================
+
+ATUALIZAR_SENHA_USUARIO = """
+UPDATE usuario
+SET senha = ?
+WHERE id = ?;
+"""
 
 OBTER_USUARIO_POR_EMAIL = """
 SELECT id, nome, cpf, data_nascimento, email, telefone, senha, perfil, token_redefinicao, data_token, data_cadastro, ativo
 FROM usuario
 WHERE email = ?;
-"""
-
-LISTAR_TODOS = """
-SELECT id, nome, cpf, data_nascimento, email, telefone, senha, perfil, token_redefinicao, data_token, data_cadastro, ativo
-FROM usuario
-ORDER BY nome ASC;
 """
 
 OBTER_USUARIOS_POR_PAGINA = """
@@ -78,17 +76,6 @@ FROM usuario
 WHERE perfil = ?
 ORDER BY nome ASC
 LIMIT ? OFFSET ?;
-"""
-
-CONTAR_USUARIOS = """
-SELECT COUNT(*) as total
-FROM usuario;
-"""
-
-CONTAR_USUARIOS_POR_TIPO = """
-SELECT COUNT(*) as total
-FROM usuario
-WHERE perfil = ?;
 """
 
 ADICIONAR_COLUNA_ATIVO = """
@@ -113,14 +100,5 @@ WHERE (? = '' OR nome LIKE '%' || ? || '%' OR email LIKE '%' || ? || '%')
   AND (? = '' OR (? = 'ativo' AND ativo = 1) OR (? = 'inativo' AND ativo = 0));
 """
 
-BLOQUEAR_USUARIO = """
-UPDATE usuario
-SET ativo = 0
-WHERE id = ?;
-"""
-
-ATIVAR_USUARIO = """
-UPDATE usuario
-SET ativo = 1
-WHERE id = ?;
-"""
+# Queries CONTAR_USUARIOS, CONTAR_USUARIOS_POR_TIPO, BLOQUEAR_USUARIO e ATIVAR_USUARIO removidas:
+# Use BaseRepo.contar_registros(), BaseRepo.desativar(id) e BaseRepo.ativar(id) ao invés

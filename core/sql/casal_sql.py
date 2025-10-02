@@ -1,4 +1,8 @@
-CRIAR_TABELA_CASAL = """
+# ==============================================================================
+# QUERIES GENÉRICAS (usadas pelo BaseRepo)
+# ==============================================================================
+
+CRIAR_TABELA = """
 CREATE TABLE IF NOT EXISTS casal (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     id_noivo1 INTEGER NOT NULL,
@@ -12,9 +16,6 @@ CREATE TABLE IF NOT EXISTS casal (
     FOREIGN KEY (id_noivo2) REFERENCES usuario(id)
 );
 """
-
-# Queries compatíveis com BaseRepo
-CRIAR_TABELA = CRIAR_TABELA_CASAL
 
 INSERIR = """
 INSERT INTO casal (id_noivo1, id_noivo2, data_casamento, local_previsto, orcamento_estimado, numero_convidados)
@@ -44,10 +45,11 @@ FROM casal
 ORDER BY id DESC;
 """
 
-# Queries específicas do domínio (mantidas para compatibilidade)
-INSERIR_CASAL = INSERIR
-ATUALIZAR_CASAL = ATUALIZAR
-EXCLUIR_CASAL = EXCLUIR
+# ==============================================================================
+# QUERIES ESPECÍFICAS DE NEGÓCIO (métodos customizados do repositório)
+# ==============================================================================
+
+# Alias mantido para compatibilidade com método obter_por_id_completo()
 OBTER_CASAL_POR_ID = OBTER_POR_ID
 
 OBTER_CASAL_POR_NOIVO = """
@@ -57,8 +59,4 @@ WHERE (id_noivo1 = ? OR id_noivo2 = ?)
 ORDER BY id DESC;
 """
 
-OBTER_CASAL_POR_PAGINA = """
-SELECT id, id_noivo1, id_noivo2, data_casamento, local_previsto, orcamento_estimado, numero_convidados, data_cadastro
-FROM casal
-LIMIT ? OFFSET ?;
-"""
+# Query OBTER_CASAL_POR_PAGINA removida: Use BaseRepo.obter_paginado() ao invés
