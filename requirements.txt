@@ -16,3 +16,6 @@ pytest
 pytest-asyncio
 pytest-cov
 faker
+playwright
+playwright[async]
+pytest-playwright

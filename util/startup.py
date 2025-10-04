@@ -264,11 +264,80 @@ def criar_fornecedores_seed():
     except Exception as e:
         logger.error(f"Erro ao importar fornecedores: {e}")
 
-def criar_itens():
+def criar_itens_seed():
     """
-    Carrega os templates de itens do arquivo JSON.
+    Importa itens do arquivo seeds/itens.json se não existirem.
+    Os itens são distribuídos entre fornecedores com base em suas categorias.
     """
-    return carregar_dados_json('itens.json')
+    try:
+        # Verificar se já existem itens ativos
+        from infrastructure.database import obter_conexao
+        with obter_conexao() as conexao:
+            cursor = conexao.cursor()
+            cursor.execute("SELECT COUNT(*) FROM item WHERE ativo = 1")
+            total_itens = cursor.fetchone()[0]
+
+        if total_itens >= 80:
+            logger.info(f"Itens já existem no sistema ({total_itens} ativos)")
+            return
+
+        # Carregar dados de itens e categorias
+        itens_json = carregar_dados_json('itens.json')
+        if not itens_json or 'itens' not in itens_json:
+            logger.error("Não foi possível carregar os dados dos itens")
+            return
+
+        itens_dados = itens_json['itens']
+
+        # Carregar categorias para obter o tipo (PRODUTO/SERVICO/ESPACO)
+        categorias_json = carregar_dados_json('categorias.json')
+        if not categorias_json or 'categorias' not in categorias_json:
+            logger.error("Não foi possível carregar as categorias")
+            return
+
+        # Criar mapa id_categoria -> tipo (normalizando para o formato do banco)
+        def normalizar_tipo(tipo: str) -> str:
+            """Normaliza tipo para o formato esperado pelo banco (com acentos)"""
+            tipo_map = {
+                'SERVICO': 'SERVIÇO',
+                'ESPACO': 'ESPAÇO',
+                'PRODUTO': 'PRODUTO'
+            }
+            return tipo_map.get(tipo.upper(), tipo)
+
+        categoria_tipo_map = {cat['id']: normalizar_tipo(cat['tipo']) for cat in categorias_json['categorias']}
+
+        logger.info(f"Importando {len(itens_dados)} itens do seed...")
+
+        with obter_conexao() as conexao:
+            cursor = conexao.cursor()
+
+            for item_data in itens_dados:
+                # Obter tipo da categoria (já normalizado com acentos)
+                tipo = categoria_tipo_map.get(item_data['id_categoria'], 'PRODUTO')
+
+                # Inserir item com ID explícito (compatibilidade com fotos)
+                cursor.execute(
+                    """INSERT INTO item (id, id_fornecedor, tipo, nome, descricao, preco, id_categoria, observacoes, ativo)
+                       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)""",
+                    (
+                        item_data['id'],
+                        item_data['id_fornecedor'],
+                        tipo,
+                        item_data['nome'],
+                        item_data['descricao'],
+                        item_data['preco'],
+                        item_data['id_categoria'],
+                        None,  # observacoes
+                        1      # ativo
+                    )
+                )
+                logger.debug(f"Item ID {item_data['id']} '{item_data['nome']}' importado (Fornecedor {item_data['id_fornecedor']})")
+
+        logger.info(f"{len(itens_dados)} itens importados com sucesso!")
+
+    except Exception as e:
+        logger.error(f"Erro ao importar itens: {e}")
 
 def criar_casais_seed():
     """
@@ -327,7 +396,8 @@ def inicializar_sistema():
     3. Criar categorias padrão
     4. Importar usuários de teste (OPCIONAL - seeds/usuarios.json)
     5. Importar fornecedores (OPCIONAL - seeds/fornecedores.json)
-    6. Importar casais (OPCIONAL - seeds/casais.json)
+    6. Importar itens (OPCIONAL - seeds/itens.json)
+    7. Importar casais (OPCIONAL - seeds/casais.json)
     """
     logger.info("Inicializando sistema CaseBem...")
 
@@ -345,6 +415,9 @@ def inicializar_sistema():
 
     # Importar fornecedores de exemplo (OPCIONAL)
     criar_fornecedores_seed()
+
+    # Importar itens de exemplo (OPCIONAL - após fornecedores)
+    criar_itens_seed()
 
     # Importar casais de teste (OPCIONAL)
     criar_casais_seed()
