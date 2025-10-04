@@ -1,0 +1,52 @@
+[
+    {
+        "id": 10,
+        "id_demanda": 1,
+        "id_fornecedor_prestador": 2,
+        "data_hora_cadastro": "2025-09-26 10:00:00",
+        "data_hora_validade": "2025-10-26 23:59:59",
+        "status": "PENDENTE",
+        "observacoes": "Proposta com desconto especial: Cobertura de 8 horas, 250 fotos editadas, álbum 25x25cm, vídeo highlights.",
+        "valor_total": 3200.00
+    },
+    {
+        "id": 11,
+        "id_demanda": 2,
+        "id_fornecedor_prestador": 3,
+        "data_hora_cadastro": "2025-09-26 14:00:00",
+        "data_hora_validade": "2025-11-02 23:59:59",
+        "status": "PENDENTE",
+        "observacoes": "Bolo naked cake de 3 andares, 200 bem-casados, 250 doces finos. Teste de degustação incluso.",
+        "valor_total": 2400.00
+    },
+    {
+        "id": 12,
+        "id_demanda": 1,
+        "id_fornecedor_prestador": 4,
+        "data_hora_cadastro": "2025-09-27 09:00:00",
+        "data_hora_validade": "2025-10-27 23:59:59",
+        "status": "ACEITO",
+        "observacoes": "Pacote fotografia + filmagem: 10 horas de cobertura, 300 fotos, vídeo completo 20 minutos.",
+        "valor_total": 5200.00
+    },
+    {
+        "id": 13,
+        "id_demanda": 3,
+        "id_fornecedor_prestador": 5,
+        "data_hora_cadastro": "2025-09-27 11:00:00",
+        "data_hora_validade": "2025-12-20 23:59:59",
+        "status": "PENDENTE",
+        "observacoes": "Decoração floral premium: buquê cascata, 20 centros de mesa, altar, mesa doces. Flores frescas importadas.",
+        "valor_total": 7200.00
+    },
+    {
+        "id": 14,
+        "id_demanda": 1,
+        "id_fornecedor_prestador": 6,
+        "data_hora_cadastro": "2025-09-27 15:00:00",
+        "data_hora_validade": "2025-10-27 23:59:59",
+        "status": "REJEITADO",
+        "observacoes": "Fotografia básica: 6 horas, 150 fotos, sem álbum físico.",
+        "valor_total": 2800.00
+    }
+]

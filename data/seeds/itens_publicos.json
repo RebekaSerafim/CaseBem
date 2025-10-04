@@ -1,0 +1,226 @@
+{
+  "_INFO": "Itens públicos de diversos fornecedores para visualização nos testes E2E",
+
+  "itens": [
+    {
+      "id": 301,
+      "id_fornecedor": 2,
+      "id_categoria": 1,
+      "nome": "Fotografia Casamento Clássico",
+      "tipo": "SERVIÇO",
+      "preco": 2800.00,
+      "descricao": "Cobertura fotográfica de 6 horas, 200 fotos editadas, álbum digital básico.",
+      "ativo": true,
+      "data_cadastro": "2025-09-15 10:00:00"
+    },
+    {
+      "id": 302,
+      "id_fornecedor": 3,
+      "id_categoria": 14,
+      "nome": "Bolo Temático Personalizado",
+      "tipo": "PRODUTO",
+      "preco": 900.00,
+      "descricao": "Bolo personalizado 2 andares, sabor a escolher, decoração tema do casal.",
+      "ativo": true,
+      "data_cadastro": "2025-09-15 11:00:00"
+    },
+    {
+      "id": 303,
+      "id_fornecedor": 4,
+      "id_categoria": 10,
+      "nome": "Banda MPB ao Vivo",
+      "tipo": "SERVIÇO",
+      "preco": 3500.00,
+      "descricao": "Banda com 4 músicos, repertório MPB e samba, 4 horas de apresentação.",
+      "ativo": true,
+      "data_cadastro": "2025-09-15 12:00:00"
+    },
+    {
+      "id": 304,
+      "id_fornecedor": 5,
+      "id_categoria": 15,
+      "nome": "Arranjos Florais Premium",
+      "tipo": "SERVIÇO",
+      "preco": 3200.00,
+      "descricao": "Buquê de noiva, 15 centros de mesa, decoração altar. Flores importadas.",
+      "ativo": true,
+      "data_cadastro": "2025-09-16 09:00:00"
+    },
+    {
+      "id": 305,
+      "id_fornecedor": 6,
+      "id_categoria": 18,
+      "nome": "Espaço Villa Jardim",
+      "tipo": "ESPAÇO",
+      "preco": 4500.00,
+      "descricao": "Chácara para eventos, capacidade 200 pessoas, área verde, salão coberto.",
+      "ativo": true,
+      "data_cadastro": "2025-09-16 10:00:00"
+    },
+    {
+      "id": 306,
+      "id_fornecedor": 7,
+      "id_categoria": 7,
+      "nome": "Buffet Sofisticado",
+      "tipo": "SERVIÇO",
+      "preco": 9500.00,
+      "descricao": "Buffet completo 120 pessoas, menu gourmet, drinks premium, garçons.",
+      "ativo": true,
+      "data_cadastro": "2025-09-16 11:00:00"
+    },
+    {
+      "id": 307,
+      "id_fornecedor": 8,
+      "id_categoria": 6,
+      "nome": "Make e Hair Noiva + Madrinhas",
+      "tipo": "SERVIÇO",
+      "preco": 1200.00,
+      "descricao": "Maquiagem e penteado para noiva + 3 madrinhas, teste incluído.",
+      "ativo": true,
+      "data_cadastro": "2025-09-17 10:00:00"
+    },
+    {
+      "id": 308,
+      "id_fornecedor": 9,
+      "id_categoria": 11,
+      "nome": "Vestido de Noiva Princesa",
+      "tipo": "PRODUTO",
+      "preco": 2500.00,
+      "descricao": "Vestido estilo princesa, cauda longa, bordados pérolas, pronta entrega.",
+      "ativo": true,
+      "data_cadastro": "2025-09-17 11:00:00"
+    },
+    {
+      "id": 309,
+      "id_fornecedor": 10,
+      "id_categoria": 4,
+      "nome": "Assessoria Completa de Casamento",
+      "tipo": "SERVIÇO",
+      "preco": 4800.00,
+      "descricao": "Planejamento completo 6 meses, coordenação dia do evento, equipe 3 pessoas.",
+      "ativo": true,
+      "data_cadastro": "2025-09-17 14:00:00"
+    },
+    {
+      "id": 310,
+      "id_fornecedor": 2,
+      "id_categoria": 14,
+      "nome": "Doces Finos Variados 150un",
+      "tipo": "PRODUTO",
+      "preco": 650.00,
+      "descricao": "150 unidades doces variados: brigadeiro, beijinho, cajuzinho, bem-casado.",
+      "ativo": true,
+      "data_cadastro": "2025-09-18 09:00:00"
+    },
+    {
+      "id": 311,
+      "id_fornecedor": 3,
+      "id_categoria": 1,
+      "nome": "Filmagem Profissional Drone",
+      "tipo": "SERVIÇO",
+      "preco": 2200.00,
+      "descricao": "Filmagem com drone + câmera solo, vídeo 15 min editado, música.",
+      "ativo": true,
+      "data_cadastro": "2025-09-18 10:00:00"
+    },
+    {
+      "id": 312,
+      "id_fornecedor": 4,
+      "id_categoria": 10,
+      "nome": "DJ + Iluminação Completa",
+      "tipo": "SERVIÇO",
+      "preco": 1800.00,
+      "descricao": "DJ profissional, som, iluminação LED, 5 horas, playlist personalizada.",
+      "ativo": true,
+      "data_cadastro": "2025-09-18 11:00:00"
+    },
+    {
+      "id": 313,
+      "id_fornecedor": 5,
+      "id_categoria": 15,
+      "nome": "Decoração Rústica com Flores",
+      "tipo": "SERVIÇO",
+      "preco": 2800.00,
+      "descricao": "Decoração estilo rústico, flores do campo, madeira, 18 centros de mesa.",
+      "ativo": true,
+      "data_cadastro": "2025-09-19 09:00:00"
+    },
+    {
+      "id": 314,
+      "id_fornecedor": 6,
+      "id_categoria": 18,
+      "nome": "Salão de Festas Centro",
+      "tipo": "ESPAÇO",
+      "preco": 3500.00,
+      "descricao": "Salão 150 pessoas, ar condicionado, cozinha, estacionamento próprio.",
+      "ativo": true,
+      "data_cadastro": "2025-09-19 10:00:00"
+    },
+    {
+      "id": 315,
+      "id_fornecedor": 7,
+      "id_categoria": 7,
+      "nome": "Buffet Vegetariano Premium",
+      "tipo": "SERVIÇO",
+      "preco": 7500.00,
+      "descricao": "Buffet 100% vegetariano, menu gourmet, 80 pessoas, bebidas naturais.",
+      "ativo": true,
+      "data_cadastro": "2025-09-19 11:00:00"
+    },
+    {
+      "id": 316,
+      "id_fornecedor": 8,
+      "id_categoria": 11,
+      "nome": "Terno Noivo Sob Medida",
+      "tipo": "PRODUTO",
+      "preco": 1800.00,
+      "descricao": "Terno sob medida, tecido importado, 3 provas, gravata e sapato inclusos.",
+      "ativo": true,
+      "data_cadastro": "2025-09-20 09:00:00"
+    },
+    {
+      "id": 317,
+      "id_fornecedor": 9,
+      "id_categoria": 14,
+      "nome": "Cupcakes Gourmet 100un",
+      "tipo": "PRODUTO",
+      "preco": 450.00,
+      "descricao": "100 cupcakes gourmet, 5 sabores, decoração personalizada, embalados.",
+      "ativo": true,
+      "data_cadastro": "2025-09-20 10:00:00"
+    },
+    {
+      "id": 318,
+      "id_fornecedor": 10,
+      "id_categoria": 4,
+      "nome": "Cerimonial Day-of",
+      "tipo": "SERVIÇO",
+      "preco": 1200.00,
+      "descricao": "Coordenação apenas no dia do evento, 10 horas, 2 profissionais.",
+      "ativo": true,
+      "data_cadastro": "2025-09-20 14:00:00"
+    },
+    {
+      "id": 319,
+      "id_fornecedor": 2,
+      "id_categoria": 6,
+      "nome": "Spa Day Noiva",
+      "tipo": "SERVIÇO",
+      "preco": 800.00,
+      "descricao": "Dia de spa para noiva: massagem, facial, manicure, pedicure, hidratação.",
+      "ativo": true,
+      "data_cadastro": "2025-09-21 10:00:00"
+    },
+    {
+      "id": 320,
+      "id_fornecedor": 3,
+      "id_categoria": 1,
+      "nome": "Ensaio Pré-Wedding",
+      "tipo": "SERVIÇO",
+      "preco": 1500.00,
+      "descricao": "Ensaio fotográfico pré-casamento, 3 horas, local a escolher, 50 fotos.",
+      "ativo": true,
+      "data_cadastro": "2025-09-21 11:00:00"
+    }
+  ]
+}

@@ -1,0 +1,116 @@
+{
+  "_INFO": "Itens do fornecedor teste E2E (id 999) para testes automatizados",
+
+  "itens": [
+    {
+      "id": 201,
+      "id_fornecedor": 999,
+      "id_categoria": 1,
+      "nome": "Fotografia Premium para Casamentos",
+      "tipo": "SERVIÇO",
+      "preco": 3800.00,
+      "descricao": "Cobertura fotográfica completa com 10 horas de duração, 300 fotos editadas em alta resolução, álbum digital premium e vídeo highlights de 5-8 minutos.",
+      "ativo": true,
+      "data_cadastro": "2025-09-20 10:00:00"
+    },
+    {
+      "id": 202,
+      "id_fornecedor": 999,
+      "id_categoria": 14,
+      "nome": "Bolo de Casamento Artesanal 3 Andares",
+      "tipo": "PRODUTO",
+      "preco": 1200.00,
+      "descricao": "Bolo artesanal de 3 andares para 120 pessoas, com massa e recheio à escolha. Decoração personalizada incluída. Sabores disponíveis: chocolate, baunilha, limão, morango, brigadeiro.",
+      "ativo": true,
+      "data_cadastro": "2025-09-20 11:00:00"
+    },
+    {
+      "id": 203,
+      "id_fornecedor": 999,
+      "id_categoria": 14,
+      "nome": "Kit Doces Finos Gourmet 200un",
+      "tipo": "PRODUTO",
+      "preco": 850.00,
+      "descricao": "Kit com 200 unidades de doces finos variados: brigadeiros gourmet, beijinhos, cajuzinhos, bem-casados, olho de sogra. Embalados individualmente para eventos.",
+      "ativo": true,
+      "data_cadastro": "2025-09-20 11:30:00"
+    },
+    {
+      "id": 204,
+      "id_fornecedor": 999,
+      "id_categoria": 4,
+      "nome": "Assessoria Day-of Coordinator",
+      "tipo": "SERVIÇO",
+      "preco": 1500.00,
+      "descricao": "Coordenação completa no dia do casamento (12 horas). Gestão de fornecedores, timeline, resolução de imprevistos. Equipe de 2 profissionais.",
+      "ativo": true,
+      "data_cadastro": "2025-09-20 14:00:00"
+    },
+    {
+      "id": 205,
+      "id_fornecedor": 999,
+      "id_categoria": 10,
+      "nome": "DJ Profissional para Festas",
+      "tipo": "SERVIÇO",
+      "preco": 2200.00,
+      "descricao": "DJ profissional com equipamento de som e iluminação. Duração de 5 horas. Playlist personalizada, interação com convidados, efeitos especiais de luz.",
+      "ativo": true,
+      "data_cadastro": "2025-09-21 09:00:00"
+    },
+    {
+      "id": 206,
+      "id_fornecedor": 999,
+      "id_categoria": 15,
+      "nome": "Decoração Floral Romântica",
+      "tipo": "SERVIÇO",
+      "preco": 4500.00,
+      "descricao": "Decoração floral completa: buquê de noiva, arranjos para altar (6un), centros de mesa (20un), decoração da mesa de bolo. Flores frescas premium.",
+      "ativo": true,
+      "data_cadastro": "2025-09-21 10:00:00"
+    },
+    {
+      "id": 207,
+      "id_fornecedor": 999,
+      "id_categoria": 6,
+      "nome": "Maquiagem e Penteado de Noiva Deluxe",
+      "tipo": "SERVIÇO",
+      "preco": 680.00,
+      "descricao": "Maquiagem profissional e penteado para noiva. Teste incluído. Produtos de alta qualidade. Atendimento no local. Retoque durante evento.",
+      "ativo": true,
+      "data_cadastro": "2025-09-21 11:00:00"
+    },
+    {
+      "id": 208,
+      "id_fornecedor": 999,
+      "id_categoria": 18,
+      "nome": "Espaço Jardim dos Sonhos",
+      "tipo": "ESPAÇO",
+      "preco": 5500.00,
+      "descricao": "Espaço ao ar livre para cerimônias e recepções. Capacidade: 150 pessoas. Jardim paisagístico, gazebo, área coberta de apoio, banheiros, estacionamento para 50 carros.",
+      "ativo": true,
+      "data_cadastro": "2025-09-21 15:00:00"
+    },
+    {
+      "id": 209,
+      "id_fornecedor": 999,
+      "id_categoria": 7,
+      "nome": "Buffet Completo Premium 100 pessoas",
+      "tipo": "SERVIÇO",
+      "preco": 8500.00,
+      "descricao": "Buffet completo para 100 pessoas: entrada, prato principal (2 opções), guarnições, sobremesa, bar de drinks. Opção vegetariana incluída. Garçons e estrutura completa.",
+      "ativo": true,
+      "data_cadastro": "2025-09-22 10:00:00"
+    },
+    {
+      "id": 210,
+      "id_fornecedor": 999,
+      "id_categoria": 11,
+      "nome": "Vestido de Noiva Sob Medida",
+      "tipo": "PRODUTO",
+      "preco": 3200.00,
+      "descricao": "Vestido de noiva confeccionado sob medida. Diversos modelos disponíveis: princesa, sereia, evasê. Tecidos nobres, bordados artesanais. 3 provas incluídas.",
+      "ativo": true,
+      "data_cadastro": "2025-09-22 14:00:00"
+    }
+  ]
+}

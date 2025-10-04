@@ -1,0 +1,92 @@
+[
+    {
+        "id": 1,
+        "id_demanda": 1,
+        "id_fornecedor_prestador": 8,
+        "data_hora_cadastro": "2025-09-25 14:00:00",
+        "data_hora_validade": "2025-10-25 23:59:59",
+        "status": "PENDENTE",
+        "observacoes": "Pacote inclui: Cobertura completa de 8 horas, álbum premium 30x30cm com 40 páginas, 250 fotos editadas em alta resolução, vídeo highlights de 8-10 minutos com trilha sonora personalizada, e sessão pré-wedding (opcional).",
+        "valor_total": 4500.00
+    },
+    {
+        "id": 2,
+        "id_demanda": 1,
+        "id_fornecedor_prestador": 999,
+        "data_hora_cadastro": "2025-09-25 16:30:00",
+        "data_hora_validade": "2025-10-25 23:59:59",
+        "status": "PENDENTE",
+        "observacoes": "Proposta do fornecedor teste E2E: Cobertura de 10 horas, álbum digital, 300 fotos editadas, vídeo de 5 minutos. Inclui sessão de ensaio antes do casamento.",
+        "valor_total": 3800.00
+    },
+    {
+        "id": 3,
+        "id_demanda": 2,
+        "id_fornecedor_prestador": 7,
+        "data_hora_cadastro": "2025-09-25 17:00:00",
+        "data_hora_validade": "2025-11-01 23:59:59",
+        "status": "ACEITO",
+        "observacoes": "Bolo de 3 andares (sabores: brigadeiro, limão e morango), 150 bem-casados tradicionais embalados individualmente, 200 doces finos variados (brigadeiros gourmet, cajuzinhos, beijinhos, olho de sogra). Teste de degustação incluído sem custo adicional.",
+        "valor_total": 2200.00
+    },
+    {
+        "id": 4,
+        "id_demanda": 2,
+        "id_fornecedor_prestador": 999,
+        "data_hora_cadastro": "2025-09-26 09:00:00",
+        "data_hora_validade": "2025-11-01 23:59:59",
+        "status": "REJEITADO",
+        "observacoes": "Proposta alternativa do fornecedor teste: Bolo naked cake de 3 andares, 150 bem-casados e 200 doces finos.",
+        "valor_total": 1900.00
+    },
+    {
+        "id": 5,
+        "id_demanda": 3,
+        "id_fornecedor_prestador": 2,
+        "data_hora_cadastro": "2025-09-26 18:00:00",
+        "data_hora_validade": "2025-12-15 23:59:59",
+        "status": "PENDENTE",
+        "observacoes": "Decoração completa: Buquê de noiva cascata com rosas brancas e flores azuis, 6 arranjos florais para altar e passarela, 20 centros de mesa baixos, decoração da mesa de bolo e doces, pétalas para caminho da noiva. Todas as flores frescas e resistentes.",
+        "valor_total": 6500.00
+    },
+    {
+        "id": 6,
+        "id_demanda": 4,
+        "id_fornecedor_prestador": 3,
+        "data_hora_cadastro": "2025-09-27 10:00:00",
+        "data_hora_validade": "2026-01-15 23:59:59",
+        "status": "PENDENTE",
+        "observacoes": "Assessoria completa: Planejamento desde 5 meses antes, gestão de fornecedores, cronograma detalhado, ensaio da cerimônia, coordenação no dia (12 horas), equipe de 3 profissionais, suporte pós-evento.",
+        "valor_total": 5500.00
+    },
+    {
+        "id": 7,
+        "id_demanda": 5,
+        "id_fornecedor_prestador": 10,
+        "data_hora_cadastro": "2025-09-27 15:00:00",
+        "data_hora_validade": "2024-10-30 23:59:59",
+        "status": "PENDENTE",
+        "observacoes": "Banda com 5 músicos: Cerimônia (1h - músicas clássicas e instrumentais), recepção (4h - MPB, samba, música dançante). Equipamento de som profissional incluso. Repertório personalizável.",
+        "valor_total": 4000.00
+    },
+    {
+        "id": 8,
+        "id_demanda": 6,
+        "id_fornecedor_prestador": 3,
+        "data_hora_cadastro": "2025-09-27 16:00:00",
+        "data_hora_validade": "2024-10-30 23:59:59",
+        "status": "PENDENTE",
+        "observacoes": "Maquiagem e penteado para noiva + 4 madrinhas. Teste de maquiagem 30 dias antes. Atendimento no local. Produtos de alta qualidade (MAC, Bobbi Brown). Retoque durante evento incluído.",
+        "valor_total": 1200.00
+    },
+    {
+        "id": 9,
+        "id_demanda": 7,
+        "id_fornecedor_prestador": 999,
+        "data_hora_cadastro": "2025-09-24 18:00:00",
+        "data_hora_validade": "2024-11-15 23:59:59",
+        "status": "ACEITO",
+        "observacoes": "Buffet completo: Entrada (10 tipos de canapés), pratos principais (filé mignon ao molho madeira, salmão grelhado com legumes), guarnições (arroz, purê, saladas), sobremesa (petit gateau, mousses), bar com 4 tipos de drinks. Opção vegetariana: risoto de cogumelos.",
+        "valor_total": 11000.00
+    }
+]

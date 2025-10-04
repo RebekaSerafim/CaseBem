@@ -46,6 +46,10 @@ dev = [
     "pytest-cov",
     "faker",
 ]
+e2e = [
+    "playwright>=1.40.0",
+    "pytest-playwright>=0.4.3",
+]
 
 [project.urls]
 Homepage = "https://github.com/ifes-serra/casebem"
@@ -62,6 +66,7 @@ markers = [
     "slow: marca testes que demoram para executar",
     "integration: marca testes de integração",
     "unit: marca testes unitários",
+    "e2e: marca testes end-to-end",
 ]
 addopts = [
     "-v",
