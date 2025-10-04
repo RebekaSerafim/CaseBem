@@ -1,0 +1,41 @@
+{
+  "include": [
+    "util",
+    "dtos",
+    "core",
+    "routes",
+    "models",
+    "sql",
+    "tests"
+  ],
+  "exclude": [
+    "**/node_modules",
+    "**/__pycache__",
+    ".git",
+    ".venv",
+    "venv",
+    "static",
+    "uploads"
+  ],
+  "executionEnvironments": [
+    {
+      "root": ".",
+      "pythonVersion": "3.11",
+      "pythonPlatform": "Darwin",
+      "extraPaths": [
+        "."
+      ]
+    }
+  ],
+  "pythonVersion": "3.11",
+  "pythonPlatform": "Darwin",
+  "typeCheckingMode": "basic",
+  "reportMissingImports": "warning",
+  "reportMissingTypeStubs": false,
+  "reportGeneralTypeIssues": false,
+  "reportOptionalMemberAccess": false,
+  "reportOptionalSubscript": false,
+  "reportPrivateImportUsage": false,
+  "stubPath": "",
+  "useLibraryCodeForTypes": true
+}

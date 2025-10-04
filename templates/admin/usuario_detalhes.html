@@ -94,9 +94,33 @@
     </div>
 
     <div class="col-md-4">
+        <!-- Avatar do Usuário -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="card-title mb-0">
+                    <i class="bi bi-person-circle"></i> Avatar
+                </h5>
+            </div>
+            <div class="card-body text-center">
+                <div class="d-inline-block position-relative">
+                    <img src="{{ obter_avatar_ou_padrao(usuario.id) }}"
+                         class="rounded-circle border"
+                         style="width: 120px; height: 120px; object-fit: cover;"
+                         alt="Avatar de {{ usuario.nome }}">
+                    {% if not avatar_existe(usuario.id) %}
+                    <small class="d-block text-muted mt-2">
+                        <i class="bi bi-info-circle"></i> Avatar padrão
+                    </small>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
         <div class="card">
             <div class="card-header">
-                <h5 class="card-title mb-0">Ações</h5>
+                <h5 class="card-title mb-0">
+                    <i class="bi bi-gear"></i> Ações
+                </h5>
             </div>
             <div class="card-body">
                 {% if usuario.perfil.value == 'FORNECEDOR' and fornecedor %}

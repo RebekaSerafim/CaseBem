@@ -1,5 +1,5 @@
 import os
-from typing import Optional
+from infrastructure.logging import logger
 
 def obter_caminho_foto_item(item_id: int) -> str:
     """
@@ -71,7 +71,10 @@ def excluir_foto_item(item_id: int) -> bool:
             return True
         return False
     except Exception as e:
-        print(f"Erro ao excluir foto do item {item_id}: {e}")
+        logger.error("Erro ao excluir foto do item",
+            item_id=item_id,
+            exc_info=True
+        )
         return False
 
 def criar_diretorio_itens() -> bool:
@@ -87,5 +90,5 @@ def criar_diretorio_itens() -> bool:
             os.makedirs(diretorio, exist_ok=True)
         return True
     except Exception as e:
-        print(f"Erro ao criar diretório de itens: {e}")
+        logger.error("Erro ao criar diretório de itens", exc_info=True)
         return False

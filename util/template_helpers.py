@@ -2,11 +2,18 @@
 Helpers para templates que incluem automaticamente mensagens flash
 """
 
+from typing import Dict, Any, Optional
 from fastapi import Request
 from fastapi.templating import Jinja2Templates
+from fastapi.responses import Response
 from util.flash_messages import get_flashed_messages
+
+# Mantém imports antigos para compatibilidade
 from util.avatar_util import obter_avatar_ou_padrao, obter_caminho_avatar, avatar_existe
 from util.item_foto_util import obter_foto_item_ou_padrao, obter_caminho_foto_item, foto_item_existe
+
+# Imports novos (recomendado usar no futuro)
+from util.file_storage import FileStorageManager, TipoArquivo
 
 
 def formatar_moeda(valor):
@@ -267,3 +274,133 @@ def configurar_filtros_jinja(templates: Jinja2Templates):
     templates.env.globals['obter_caminho_foto_item'] = obter_caminho_foto_item
     templates.env.globals['foto_item_existe'] = foto_item_existe
     templates.env.globals['get_active_page_from_url'] = get_active_page_from_url
+
+
+class TemplateRenderer:
+    """
+    Renderizador centralizado de templates com contexto automático.
+
+    Elimina a necessidade de adicionar manualmente request, usuario_logado,
+    active_page, etc em cada chamada de TemplateResponse.
+    """
+
+    def __init__(self, templates: Jinja2Templates):
+        """
+        Inicializa o renderizador.
+
+        Args:
+            templates: Instância do Jinja2Templates
+        """
+        self.templates = templates
+
+    def render(
+        self,
+        request: Request,
+        template_name: str,
+        context: Optional[Dict[str, Any]] = None,
+        auto_context: bool = True,
+        include_flash: bool = True
+    ) -> Response:
+        """
+        Renderiza template com contexto automático.
+
+        Args:
+            request: Request do FastAPI
+            template_name: Nome do template
+            context: Contexto adicional
+            auto_context: Se True, adiciona request e usuario_logado automaticamente
+            include_flash: Se True, inclui mensagens flash automaticamente
+
+        Returns:
+            TemplateResponse renderizada
+
+        Examples:
+            >>> renderer = TemplateRenderer(templates)
+            >>> # Ao invés de:
+            >>> templates.TemplateResponse("admin/perfil.html", {
+            ...     "request": request,
+            ...     "usuario_logado": usuario_logado,
+            ...     "admin": admin,
+            ... })
+            >>> # Use:
+            >>> renderer.render(request, "admin/perfil.html", {"admin": admin})
+        """
+        if context is None:
+            context = {}
+
+        if auto_context:
+            # Importa aqui para evitar circular import
+            try:
+                from infrastructure.security import obter_usuario_logado
+                usuario_logado = obter_usuario_logado(request)
+            except Exception:
+                usuario_logado = None
+
+            # Adiciona contexto padrão
+            base_context = {
+                "request": request,
+                "usuario_logado": usuario_logado,
+                "active_page": get_active_page_from_url(request),
+            }
+
+            # Merge contexts (context do usuário tem prioridade)
+            final_context = {**base_context, **context}
+        else:
+            final_context = {"request": request, **context}
+
+        # Adiciona mensagens flash se solicitado
+        if include_flash and "request" in final_context:
+            flash_messages = get_flashed_messages(final_context["request"])
+            final_context["flash_messages"] = flash_messages
+
+        return self.templates.TemplateResponse(template_name, final_context)
+
+    def render_with_error(
+        self,
+        request: Request,
+        template_name: str,
+        error_message: str,
+        context: Optional[Dict[str, Any]] = None
+    ) -> Response:
+        """
+        Renderiza template com mensagem de erro.
+
+        Args:
+            request: Request do FastAPI
+            template_name: Nome do template
+            error_message: Mensagem de erro
+            context: Contexto adicional
+
+        Returns:
+            TemplateResponse com erro
+        """
+        if context is None:
+            context = {}
+
+        context["erro"] = error_message
+        return self.render(request, template_name, context)
+
+    def render_with_success(
+        self,
+        request: Request,
+        template_name: str,
+        success_message: str,
+        context: Optional[Dict[str, Any]] = None
+    ) -> Response:
+        """
+        Renderiza template com mensagem de sucesso.
+
+        Args:
+            request: Request do FastAPI
+            template_name: Nome do template
+            success_message: Mensagem de sucesso
+            context: Contexto adicional
+
+        Returns:
+            TemplateResponse com mensagem de sucesso
+        """
+        if context is None:
+            context = {}
+
+        context["sucesso"] = success_message
+        return self.render(request, template_name, context)

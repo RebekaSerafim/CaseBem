@@ -1,5 +1,5 @@
 import os
-from typing import Optional
+from infrastructure.logging import logger
 
 def obter_caminho_avatar(usuario_id: int) -> str:
     """
@@ -71,7 +71,10 @@ def excluir_avatar(usuario_id: int) -> bool:
             return True
         return False
     except Exception as e:
-        print(f"Erro ao excluir avatar do usuário {usuario_id}: {e}")
+        logger.error("Erro ao excluir avatar do usuário",
+            usuario_id=usuario_id,
+            exc_info=True
+        )
         return False
 
 def criar_diretorio_usuarios() -> bool:
@@ -87,5 +90,5 @@ def criar_diretorio_usuarios() -> bool:
             os.makedirs(diretorio, exist_ok=True)
         return True
     except Exception as e:
-        print(f"Erro ao criar diretório de usuários: {e}")
+        logger.error("Erro ao criar diretório de usuários", exc_info=True)
         return False

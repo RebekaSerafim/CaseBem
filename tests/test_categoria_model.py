@@ -1,6 +1,6 @@
 import pytest
-from model.categoria_model import Categoria
-from model.tipo_fornecimento_model import TipoFornecimento
+from core.models.categoria_model import Categoria
+from core.models.tipo_fornecimento_model import TipoFornecimento
 
 class TestCategoriaModel:
     def test_criar_categoria_com_dados_validos(self):

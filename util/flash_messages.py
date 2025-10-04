@@ -43,13 +43,6 @@ def informar_alerta(request: Request, message: str) -> None:
     """Adiciona mensagem de alerta"""
     flash(request, message, "alert")
 
-# Aliases para compatibilidade (deprecated)
-flash_success = informar_sucesso
-flash_error = informar_erro
-flash_warning = informar_aviso
-flash_info = informar_info
-flash_alert = informar_alerta
-
 def get_flashed_messages(request: Request) -> List[Dict[str, Any]]:
     """
     Recupera e remove as mensagens flash da sessão

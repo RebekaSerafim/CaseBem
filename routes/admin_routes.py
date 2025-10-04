@@ -1,42 +1,36 @@
 from fastapi import APIRouter, Request, Form, status
 from fastapi.responses import RedirectResponse
 from fastapi.templating import Jinja2Templates
-from util.auth_decorator import requer_autenticacao
-from model.usuario_model import TipoUsuario
-from model.categoria_model import Categoria
-from model.tipo_fornecimento_model import TipoFornecimento
-from repo import usuario_repo, fornecedor_repo, item_repo, categoria_repo, orcamento_repo, demanda_repo
-from util.flash_messages import informar_sucesso, informar_erro, informar_aviso
-from util.template_helpers import template_response_with_flash, configurar_filtros_jinja
+from infrastructure.security import requer_autenticacao
+from util.error_handlers import tratar_erro_rota
+from util.exceptions import ValidacaoError
+from infrastructure.logging import logger
+from core.models.usuario_model import TipoUsuario
+from core.models.categoria_model import Categoria
+from core.models.tipo_fornecimento_model import TipoFornecimento
+from core.repositories import usuario_repo, fornecedor_repo, item_repo, categoria_repo, orcamento_repo, demanda_repo
+from util.flash_messages import informar_sucesso, informar_erro
+from util.template_helpers import configurar_filtros_jinja
+from util.pagination import PaginationHelper
+import math
 
 router = APIRouter()
 templates = Jinja2Templates(directory="templates")
 configurar_filtros_jinja(templates)
 
+# Importar função centralizada de route_helpers
+from util.route_helpers import get_active_page
+
 def get_admin_active_page(request: Request) -> str:
-    """Determina qual página está ativa na área admin"""
-    url_path = str(request.url.path)
+    """
+    Determina qual página está ativa na área admin.
+    DEPRECATED: Usa get_active_page do route_helpers.
+    Mantido para compatibilidade.
+    """
+    return get_active_page(request, "admin")
 
-    if url_path == "/admin/dashboard":
-        return "dashboard"
-    elif url_path == "/admin/perfil":
-        return "perfil"
-    elif url_path.startswith("/admin/usuarios"):
-        return "usuarios"
-    elif url_path.startswith("/admin/categorias"):
-        return "categorias"
-    elif url_path.startswith("/admin/itens"):
-        return "itens"
-    elif url_path.startswith("/admin/relatorios"):
-        return "relatorios"
-    else:
-        return ""
-
-def render_admin_template(request: Request, template_name: str, context: dict = None):
-    """Renderiza template admin incluindo active_page"""
-    if context is None:
-        context = {}
-
+def render_admin_template(request: Request, template_name: str, context: dict = {}):
+    """Renderiza template admin incluindo active_page"""  
     context.update({
         "active_page": get_admin_active_page(request)
     })
@@ -47,7 +41,7 @@ def render_admin_template(request: Request, template_name: str, context: dict = 
 
 @router.get("/admin")
 @requer_autenticacao([TipoUsuario.ADMIN.value])
-async def admin_root(request: Request, usuario_logado: dict = None):
+async def admin_root(request: Request, usuario_logado: dict = {}):
     """Redireciona /admin para /admin/dashboard"""
     return RedirectResponse("/admin/dashboard", status_code=status.HTTP_302_FOUND)
 
@@ -55,23 +49,18 @@ async def admin_root(request: Request, usuario_logado: dict = None):
 
 @router.get("/admin/perfil")
 @requer_autenticacao([TipoUsuario.ADMIN.value])
-async def perfil_admin(request: Request, usuario_logado: dict = None):
+@tratar_erro_rota(template_erro="admin/perfil.html")
+async def perfil_admin(request: Request, usuario_logado: dict = {}):
     """Página de perfil do administrador"""
-    try:
-        admin = usuario_repo.obter_usuario_por_id(usuario_logado['id'])
-        return templates.TemplateResponse("admin/perfil.html", {
-            "request": request,
-            "usuario_logado": usuario_logado,
-            "admin": admin,
-            "active_page": get_admin_active_page(request)
-        })
-    except Exception as e:
-        print(f"Erro ao carregar perfil admin: {e}")
-        return templates.TemplateResponse("admin/perfil.html", {
-            "request": request,
-            "usuario_logado": usuario_logado,
-            "erro": "Erro ao carregar perfil"
-        })
+    admin = usuario_repo.obter_por_id(usuario_logado['id'])
+    logger.info("Perfil do admin carregado com sucesso", admin_id=usuario_logado['id'])
+
+    return templates.TemplateResponse("admin/perfil.html", {
+        "request": request,
+        "usuario_logado": usuario_logado,
+        "admin": admin,
+        "active_page": get_admin_active_page(request)
+    })
 
 @router.post("/admin/perfil")
 @requer_autenticacao([TipoUsuario.ADMIN.value])
@@ -85,11 +74,11 @@ async def atualizar_perfil_admin(
     cidade: str = Form(""),
     estado: str = Form(""),
     observacoes: str = Form(""),
-    usuario_logado: dict = None
+    usuario_logado: dict = {}
 ):
     """Atualiza o perfil do administrador"""
     try:
-        admin = usuario_repo.obter_usuario_por_id(usuario_logado['id'])
+        admin = usuario_repo.obter_por_id(usuario_logado['id'])
         if not admin:
             return templates.TemplateResponse("admin/perfil.html", {
                 "request": request,
@@ -105,7 +94,7 @@ async def atualizar_perfil_admin(
         # Campos específicos do admin podem ser armazenados como propriedades customizadas
         # ou em uma tabela separada dependendo da implementação do banco
 
-        sucesso = usuario_repo.atualizar_usuario(admin)
+        sucesso = usuario_repo.atualizar(admin)
 
         if sucesso:
             # Atualizar a sessão com os novos dados
@@ -127,8 +116,8 @@ async def atualizar_perfil_admin(
             })
 
     except Exception as e:
-        print(f"Erro ao atualizar perfil admin: {e}")
-        admin = usuario_repo.obter_usuario_por_id(usuario_logado['id'])
+        logger.error("Erro ao atualizar perfil admin: ", erro=e)
+        admin = usuario_repo.obter_por_id(usuario_logado['id'])
         return templates.TemplateResponse("admin/perfil.html", {
             "request": request,
             "usuario_logado": usuario_logado,
@@ -140,20 +129,20 @@ async def atualizar_perfil_admin(
 
 @router.get("/admin/dashboard")
 @requer_autenticacao([TipoUsuario.ADMIN.value])
-async def dashboard_admin(request: Request, usuario_logado: dict = None):
+async def dashboard_admin(request: Request, usuario_logado: dict = {}):
     """Dashboard principal do administrador"""
     try:
         # Estatísticas do sistema
         stats = {
-            "total_usuarios": usuario_repo.contar_usuarios(),
-            "total_fornecedores": fornecedor_repo.contar_fornecedores(),
+            "total_usuarios": usuario_repo.contar(),
+            "total_fornecedores": fornecedor_repo.contar(),
             "total_noivos": usuario_repo.contar_usuarios_por_tipo(TipoUsuario.NOIVO),
             "total_admins": usuario_repo.contar_usuarios_por_tipo(TipoUsuario.ADMIN),
-            "fornecedores_nao_verificados": fornecedor_repo.contar_fornecedores_nao_verificados(),
-            "total_itens": item_repo.contar_itens(),
-            "total_categorias": categoria_repo.contar_categorias(),
-            "total_orcamentos": orcamento_repo.contar_orcamentos(),
-            "total_demandas": demanda_repo.contar_demandas(),
+            "fornecedores_nao_verificados": fornecedor_repo.contar_nao_verificados(),
+            "total_itens": item_repo.contar(),
+            "total_categorias": categoria_repo.contar(),
+            "total_orcamentos": orcamento_repo.contar(),
+            "total_demandas": demanda_repo.contar(),
             "estatisticas_itens": {
                 "produtos": item_repo.contar_itens_por_tipo(TipoFornecimento.PRODUTO),
                 "servicos": item_repo.contar_itens_por_tipo(TipoFornecimento.SERVICO),
@@ -172,7 +161,7 @@ async def dashboard_admin(request: Request, usuario_logado: dict = None):
             "active_page": get_admin_active_page(request)
         })
     except Exception as e:
-        print(f"Erro no dashboard admin: {e}")
+        logger.error("Erro no dashboard admin: ", erro=e)
         return templates.TemplateResponse("admin/dashboard.html", {
             "request": request,
             "usuario_logado": usuario_logado,
@@ -187,21 +176,19 @@ async def dashboard_admin(request: Request, usuario_logado: dict = None):
 async def listar_usuarios(
     request: Request,
     pagina: int = 1,
-    usuario_logado: dict = None
+    usuario_logado: dict = {}
 ):
     """Lista todos os usuários do sistema com filtros e paginação"""
     try:
-        import math
-
         # Obter parâmetros de filtro da URL
         busca = request.query_params.get("search", "").strip()
         tipo_usuario = request.query_params.get("tipo_usuario", "").strip()
         status = request.query_params.get("status", "").strip()
-        tamanho_pagina = 10
+        tamanho_pagina = PaginationHelper.DEFAULT_PAGE_SIZE
 
         # Aplicar filtros se fornecidos, senão listar todos
         if busca or tipo_usuario or status:
-            usuarios, total_usuarios = usuario_repo.buscar_usuarios_paginado(
+            usuarios, total_usuarios = usuario_repo.buscar_paginado(
                 busca=busca,
                 tipo_usuario=tipo_usuario,
                 status=status,
@@ -209,36 +196,36 @@ async def listar_usuarios(
                 tamanho_pagina=tamanho_pagina
             )
         else:
-            usuarios, total_usuarios = usuario_repo.obter_usuarios_paginado(
+            usuarios, total_usuarios = usuario_repo.obter_paginado_usuarios(
                 pagina=pagina,
                 tamanho_pagina=tamanho_pagina
             )
 
-        # Calcular total de páginas
-        total_paginas = math.ceil(total_usuarios / tamanho_pagina) if total_usuarios > 0 else 1
+        # Aplicar paginação
+        page_info = PaginationHelper.paginate(usuarios, total_usuarios, pagina, tamanho_pagina)
 
         # Buscar dados de fornecedores para verificar status de verificação
         fornecedores_dados = {}
-        for usuario in usuarios:
+        for usuario in page_info.items:
             if usuario.perfil == TipoUsuario.FORNECEDOR:
-                fornecedor = fornecedor_repo.obter_fornecedor_por_id(usuario.id)
+                fornecedor = fornecedor_repo.obter_por_id(usuario.id)
                 if fornecedor:
                     fornecedores_dados[usuario.id] = fornecedor
 
         return templates.TemplateResponse("admin/usuarios.html", {
             "request": request,
             "usuario_logado": usuario_logado,
-            "usuarios": usuarios,
+            "usuarios": page_info.items,
             "fornecedores_dados": fornecedores_dados,
-            "total_usuarios": total_usuarios,
-            "pagina_atual": pagina,
-            "total_paginas": total_paginas,
+            "total_usuarios": page_info.total_items,
+            "pagina_atual": page_info.current_page,
+            "total_paginas": page_info.total_pages,
             "busca": busca,
             "tipo_usuario": tipo_usuario,
             "status": status
         })
     except Exception as e:
-        print(f"Erro ao listar usuários: {e}")
+        logger.error("Erro ao listar usuários: ", erro=e)
         return templates.TemplateResponse("admin/usuarios.html", {
             "request": request,
             "usuario_logado": usuario_logado,
@@ -253,7 +240,7 @@ async def listar_usuarios(
 
 @router.get("/admin/usuarios/novo-admin")
 @requer_autenticacao([TipoUsuario.ADMIN.value])
-async def novo_admin_form(request: Request, usuario_logado: dict = None):
+async def novo_admin_form(request: Request, usuario_logado: dict = {}):
     """Formulário para cadastrar novo administrador"""
     return templates.TemplateResponse("admin/admin_form.html", {
         "request": request,
@@ -271,7 +258,7 @@ async def criar_admin(
     telefone: str = Form(""),
     data_nascimento: str = Form(""),
     senha: str = Form(...),
-    usuario_logado: dict = None
+    usuario_logado: dict = {}
 ):
     """Cria um novo administrador"""
     try:
@@ -315,23 +302,24 @@ async def criar_admin(
             })
 
         # Limpar campos opcionais
-        cpf = cpf.strip() if cpf.strip() else None
-        telefone = telefone.strip() if telefone.strip() else None
-        data_nascimento = data_nascimento.strip() if data_nascimento.strip() else None
+        from typing import Optional
+        cpf_limpo: Optional[str] = cpf.strip() if cpf and cpf.strip() else None
+        telefone_limpo: str = telefone.strip() if telefone and telefone.strip() else ""
+        data_nascimento_limpo: Optional[str] = data_nascimento.strip() if data_nascimento and data_nascimento.strip() else None
 
         # Hash da senha
-        from util.security import criar_hash_senha
+        from infrastructure.security import criar_hash_senha
         senha_hash = criar_hash_senha(senha)
 
         # Criar objeto Usuario
-        from model.usuario_model import Usuario
+        from core.models.usuario_model import Usuario
         novo_admin = Usuario(
             id=0,
             nome=nome,
-            cpf=cpf,
-            data_nascimento=data_nascimento,
+            cpf=cpf_limpo,
+            data_nascimento=data_nascimento_limpo,
             email=email,
-            telefone=telefone,
+            telefone=telefone_limpo,
             senha=senha_hash,
             perfil=TipoUsuario.ADMIN,
             token_redefinicao=None,
@@ -341,7 +329,7 @@ async def criar_admin(
         )
 
         # Inserir no banco
-        admin_id = usuario_repo.inserir_usuario(novo_admin)
+        admin_id = usuario_repo.inserir(novo_admin)
         if admin_id:
             return RedirectResponse("/admin/usuarios", status_code=status.HTTP_303_SEE_OTHER)
         else:
@@ -353,7 +341,7 @@ async def criar_admin(
             })
 
     except Exception as e:
-        print(f"Erro ao criar administrador: {e}")
+        logger.error("Erro ao criar administrador: ", erro=e)
         return templates.TemplateResponse("admin/admin_form.html", {
             "request": request,
             "usuario_logado": usuario_logado,
@@ -363,10 +351,10 @@ async def criar_admin(
 
 @router.get("/admin/usuarios/editar-admin/{id_admin}")
 @requer_autenticacao([TipoUsuario.ADMIN.value])
-async def editar_admin_form(request: Request, id_admin: int, usuario_logado: dict = None):
+async def editar_admin_form(request: Request, id_admin: int, usuario_logado: dict = {}):
     """Formulário para editar administrador"""
     try:
-        admin = usuario_repo.obter_usuario_por_id(id_admin)
+        admin = usuario_repo.obter_por_id(id_admin)
         if not admin or admin.perfil != TipoUsuario.ADMIN:
             return RedirectResponse("/admin/usuarios", status_code=status.HTTP_303_SEE_OTHER)
 
@@ -377,7 +365,7 @@ async def editar_admin_form(request: Request, id_admin: int, usuario_logado: dic
             "acao": "editar"
         })
     except Exception as e:
-        print(f"Erro ao carregar administrador para edição: {e}")
+        logger.error("Erro ao carregar administrador para edição: ", erro=e)
         return RedirectResponse("/admin/usuarios", status_code=status.HTTP_303_SEE_OTHER)
 
 @router.post("/admin/usuarios/atualizar-admin/{id_admin}")
@@ -390,12 +378,12 @@ async def atualizar_admin(
     cpf: str = Form(""),
     telefone: str = Form(""),
     data_nascimento: str = Form(""),
-    usuario_logado: dict = None
+    usuario_logado: dict = {}
 ):
     """Atualiza dados do administrador"""
     try:
         # Obter administrador atual
-        admin = usuario_repo.obter_usuario_por_id(id_admin)
+        admin = usuario_repo.obter_por_id(id_admin)
         if not admin or admin.perfil != TipoUsuario.ADMIN:
             return RedirectResponse("/admin/usuarios", status_code=status.HTTP_303_SEE_OTHER)
 
@@ -439,7 +427,7 @@ async def atualizar_admin(
         admin.telefone = telefone.strip() if telefone.strip() else None
         admin.data_nascimento = data_nascimento.strip() if data_nascimento.strip() else None
 
-        if usuario_repo.atualizar_usuario(admin):
+        if usuario_repo.atualizar(admin):
             # Atualizar sessão se o admin editou a si mesmo
             if usuario_logado['id'] == id_admin:
                 usuario_logado['nome'] = nome
@@ -456,8 +444,8 @@ async def atualizar_admin(
             })
 
     except Exception as e:
-        print(f"Erro ao atualizar administrador: {e}")
-        admin = usuario_repo.obter_usuario_por_id(id_admin)
+        logger.error("Erro ao atualizar administrador: ", erro=e)
+        admin = usuario_repo.obter_por_id(id_admin)
         return templates.TemplateResponse("admin/admin_form.html", {
             "request": request,
             "usuario_logado": usuario_logado,
@@ -468,10 +456,10 @@ async def atualizar_admin(
 
 @router.get("/admin/usuarios/{id_usuario}")
 @requer_autenticacao([TipoUsuario.ADMIN.value])
-async def visualizar_usuario(request: Request, id_usuario: int, usuario_logado: dict = None):
+async def visualizar_usuario(request: Request, id_usuario: int, usuario_logado: dict = {}):
     """Visualiza detalhes de um usuário específico"""
     try:
-        usuario = usuario_repo.obter_usuario_por_id(id_usuario)
+        usuario = usuario_repo.obter_por_id(id_usuario)
 
         if not usuario:
             return templates.TemplateResponse("admin/usuarios.html", {
@@ -483,7 +471,7 @@ async def visualizar_usuario(request: Request, id_usuario: int, usuario_logado: 
         # Se for fornecedor, buscar dados adicionais
         fornecedor = None
         if usuario.perfil == TipoUsuario.FORNECEDOR:
-            fornecedor = fornecedor_repo.obter_fornecedor_por_id(id_usuario)
+            fornecedor = fornecedor_repo.obter_por_id(id_usuario)
 
         return templates.TemplateResponse("admin/usuario_detalhes.html", {
             "request": request,
@@ -492,7 +480,7 @@ async def visualizar_usuario(request: Request, id_usuario: int, usuario_logado: 
             "fornecedor": fornecedor
         })
     except Exception as e:
-        print(f"Erro ao visualizar usuário: {e}")
+        logger.error("Erro ao visualizar usuário: ", erro=e)
         return templates.TemplateResponse("admin/usuarios.html", {
             "request": request,
             "usuario_logado": usuario_logado,
@@ -501,23 +489,25 @@ async def visualizar_usuario(request: Request, id_usuario: int, usuario_logado: 
 
 @router.post("/admin/usuarios/{id_usuario}/bloquear")
 @requer_autenticacao([TipoUsuario.ADMIN.value])
-async def bloquear_usuario(request: Request, id_usuario: int, usuario_logado: dict = None):
+@tratar_erro_rota(redirect_erro="/admin/usuarios")
+async def bloquear_usuario(request: Request, id_usuario: int, usuario_logado: dict = {}):
     """Bloqueia um usuário"""
-    try:
-        sucesso = usuario_repo.bloquear_usuario(id_usuario)
-        if sucesso:
-            informar_sucesso(request, "Usuário bloqueado com sucesso!")
-        else:
-            informar_erro(request, "Erro ao bloquear usuário!")
-        return RedirectResponse("/admin/usuarios", status_code=status.HTTP_303_SEE_OTHER)
-    except Exception as e:
-        print(f"Erro ao bloquear usuário: {e}")
+    if id_usuario <= 0:
+        raise ValidacaoError("ID do usuário deve ser um número positivo", "id_usuario", id_usuario)
+
+    sucesso = usuario_repo.bloquear_usuario(id_usuario)
+    if sucesso:
+        logger.info("Usuário bloqueado com sucesso", id_usuario=id_usuario, admin_id=usuario_logado['id'])
+        informar_sucesso(request, "Usuário bloqueado com sucesso!")
+    else:
+        logger.warning("Falha ao bloquear usuário", id_usuario=id_usuario)
         informar_erro(request, "Erro ao bloquear usuário!")
-        return RedirectResponse("/admin/usuarios", status_code=status.HTTP_303_SEE_OTHER)
+
+    return RedirectResponse("/admin/usuarios", status_code=status.HTTP_303_SEE_OTHER)
 
 @router.post("/admin/usuarios/{id_usuario}/ativar")
 @requer_autenticacao([TipoUsuario.ADMIN.value])
-async def ativar_usuario(request: Request, id_usuario: int, usuario_logado: dict = None):
+async def ativar_usuario(request: Request, id_usuario: int, usuario_logado: dict = {}):
     """Ativa um usuário"""
     try:
         sucesso = usuario_repo.ativar_usuario(id_usuario)
@@ -527,7 +517,7 @@ async def ativar_usuario(request: Request, id_usuario: int, usuario_logado: dict
             informar_erro(request, "Erro ao ativar usuário!")
         return RedirectResponse("/admin/usuarios", status_code=status.HTTP_303_SEE_OTHER)
     except Exception as e:
-        print(f"Erro ao ativar usuário: {e}")
+        logger.error("Erro ao ativar usuário: ", erro=e)
         informar_erro(request, "Erro ao ativar usuário!")
         return RedirectResponse("/admin/usuarios", status_code=status.HTTP_303_SEE_OTHER)
 
@@ -536,11 +526,11 @@ async def ativar_usuario(request: Request, id_usuario: int, usuario_logado: dict
 
 @router.get("/admin/verificacao/{id_fornecedor}")
 @requer_autenticacao([TipoUsuario.ADMIN.value])
-async def verificacao_fornecedor_especifico(request: Request, id_fornecedor: int, usuario_logado: dict = None):
+async def verificacao_fornecedor_especifico(request: Request, id_fornecedor: int, usuario_logado: dict = {}):
     """Página de verificação para um fornecedor específico"""
     try:
         # Buscar o usuário e dados do fornecedor
-        usuario = usuario_repo.obter_usuario_por_id(id_fornecedor)
+        usuario = usuario_repo.obter_por_id(id_fornecedor)
         if not usuario or usuario.perfil != TipoUsuario.FORNECEDOR:
             return templates.TemplateResponse("admin/verificacao.html", {
                 "request": request,
@@ -548,7 +538,7 @@ async def verificacao_fornecedor_especifico(request: Request, id_fornecedor: int
                 "erro": "Fornecedor não encontrado"
             })
 
-        fornecedor = fornecedor_repo.obter_fornecedor_por_id(id_fornecedor)
+        fornecedor = fornecedor_repo.obter_por_id(id_fornecedor)
         if not fornecedor:
             return templates.TemplateResponse("admin/verificacao.html", {
                 "request": request,
@@ -562,7 +552,7 @@ async def verificacao_fornecedor_especifico(request: Request, id_fornecedor: int
             "fornecedor": fornecedor
         })
     except Exception as e:
-        print(f"Erro ao carregar verificação: {e}")
+        logger.error("Erro ao carregar verificação: ", erro=e)
         return templates.TemplateResponse("admin/verificacao.html", {
             "request": request,
             "usuario_logado": usuario_logado,
@@ -571,7 +561,7 @@ async def verificacao_fornecedor_especifico(request: Request, id_fornecedor: int
 
 @router.get("/admin/verificacao")
 @requer_autenticacao([TipoUsuario.ADMIN.value])
-async def verificacao_fornecedores(request: Request, usuario_logado: dict = None):
+async def verificacao_fornecedores(request: Request, usuario_logado: dict = {}):
     """Lista fornecedores pendentes de verificação"""
     try:
         fornecedores = fornecedor_repo.obter_fornecedores_por_pagina(1, 100)
@@ -583,7 +573,7 @@ async def verificacao_fornecedores(request: Request, usuario_logado: dict = None
             "fornecedores_pendentes": fornecedores_pendentes
         })
     except Exception as e:
-        print(f"Erro ao carregar verificação: {e}")
+        logger.error("Erro ao carregar verificação: ", erro=e)
         return templates.TemplateResponse("admin/verificacao.html", {
             "request": request,
             "usuario_logado": usuario_logado,
@@ -592,42 +582,44 @@ async def verificacao_fornecedores(request: Request, usuario_logado: dict = None
 
 @router.post("/admin/verificacao/{id_fornecedor}/aprovar")
 @requer_autenticacao([TipoUsuario.ADMIN.value])
-async def aprovar_fornecedor(request: Request, id_fornecedor: int, usuario_logado: dict = None):
+async def aprovar_fornecedor(request: Request, id_fornecedor: int, usuario_logado: dict = {}):
     """Aprova um fornecedor"""
     try:
-        fornecedor = fornecedor_repo.obter_fornecedor_por_id(id_fornecedor)
+        fornecedor = fornecedor_repo.obter_por_id(id_fornecedor)
         if not fornecedor:
             return RedirectResponse("/admin/verificacao", status_code=status.HTTP_303_SEE_OTHER)
 
         fornecedor.verificado = True
         from datetime import datetime
         fornecedor.data_verificacao = datetime.now().isoformat()
-        fornecedor_repo.atualizar_fornecedor(fornecedor)
+        fornecedor_repo.atualizar(fornecedor)
 
         informar_sucesso(request, "Fornecedor aprovado com sucesso!")
         return RedirectResponse("/admin/verificacao", status_code=status.HTTP_303_SEE_OTHER)
     except Exception as e:
-        print(f"Erro ao aprovar fornecedor: {e}")
+        logger.error("Erro ao aprovar fornecedor: ", erro=e)
         return RedirectResponse("/admin/verificacao", status_code=status.HTTP_303_SEE_OTHER)
 
 @router.post("/admin/verificacao/{id_fornecedor}/rejeitar")
 @requer_autenticacao([TipoUsuario.ADMIN.value])
-async def rejeitar_fornecedor(request: Request, id_fornecedor: int, observacoes: str = Form(""), usuario_logado: dict = None):
+async def rejeitar_fornecedor(request: Request, id_fornecedor: int, observacoes: str = Form(""), usuario_logado: dict = {}):
     """Rejeita um fornecedor"""
     try:
-        fornecedor = fornecedor_repo.obter_fornecedor_por_id(id_fornecedor)
+        fornecedor = fornecedor_repo.obter_por_id(id_fornecedor)
         if not fornecedor:
             return RedirectResponse("/admin/verificacao", status_code=status.HTTP_303_SEE_OTHER)
 
         # Rejeitar fornecedor (remover verificação)
-        sucesso = fornecedor_repo.rejeitar_fornecedor(id_fornecedor)
+        fornecedor.verificado = False
+        fornecedor.data_verificacao = None
+        sucesso = fornecedor_repo.atualizar(fornecedor)
 
         if not sucesso:
-            print(f"Falha ao rejeitar fornecedor {id_fornecedor}")
+            logger.warning("Falha ao rejeitar fornecedor", fornecedor_id=id_fornecedor)
 
         return RedirectResponse("/admin/verificacao", status_code=status.HTTP_303_SEE_OTHER)
     except Exception as e:
-        print(f"Erro ao rejeitar fornecedor: {e}")
+        logger.error("Erro ao rejeitar fornecedor: ", erro=e)
         return RedirectResponse("/admin/verificacao", status_code=status.HTTP_303_SEE_OTHER)
 
 # ==================== GESTÃO DE ITENS (VISUALIZAÇÃO E CONTROLE) ====================
@@ -637,22 +629,20 @@ async def rejeitar_fornecedor(request: Request, id_fornecedor: int, observacoes:
 async def listar_itens(
     request: Request,
     pagina: int = 1,
-    usuario_logado: dict = None
+    usuario_logado: dict = {}
 ):
     """Lista todos os itens do sistema com filtros e paginação"""
     try:
-        import math
-
         # Obter parâmetros de filtro da URL
         busca = request.query_params.get("search", "").strip()
         tipo_item = request.query_params.get("tipo_item", "").strip()
         status_filtro = request.query_params.get("status", "").strip()
         categoria_id = request.query_params.get("categoria", "").strip()
-        tamanho_pagina = 10
+        tamanho_pagina = PaginationHelper.DEFAULT_PAGE_SIZE
 
         # Aplicar filtros se fornecidos, senão listar todos
         if busca or tipo_item or status_filtro or categoria_id:
-            itens, total_itens = item_repo.buscar_itens_paginado(
+            itens, total_itens = item_repo.buscar_paginado(
                 busca=busca,
                 tipo_item=tipo_item,
                 status=status_filtro,
@@ -661,46 +651,46 @@ async def listar_itens(
                 tamanho_pagina=tamanho_pagina
             )
         else:
-            itens, total_itens = item_repo.obter_itens_paginado(
+            itens, total_itens = item_repo.obter_paginado_itens(
                 pagina=pagina,
                 tamanho_pagina=tamanho_pagina
             )
 
-        # Calcular total de páginas
-        total_paginas = math.ceil(total_itens / tamanho_pagina) if total_itens > 0 else 1
+        # Aplicar paginação
+        page_info = PaginationHelper.paginate(itens, total_itens, pagina, tamanho_pagina)
 
         # Buscar dados das categorias para exibir nomes
         categorias_dados = {}
-        for item in itens:
+        for item in page_info.items:
             if item.id_categoria and item.id_categoria not in categorias_dados:
                 try:
-                    categoria = categoria_repo.obter_categoria_por_id(item.id_categoria)
+                    categoria = categoria_repo.obter_por_id(item.id_categoria)
                     if categoria:
                         categorias_dados[item.id_categoria] = categoria
                 except Exception as e:
-                    print(f"Erro ao buscar categoria {item.id_categoria}: {e}")
+                    logger.error("Erro ao buscar categoria", categoria_id=item.id_categoria, erro=e)
                     continue
 
         # Buscar todas as categorias para o filtro
-        categorias = categoria_repo.obter_categorias()
+        categorias = categoria_repo.buscar_categorias()
 
         return templates.TemplateResponse("admin/itens.html", {
             "request": request,
             "usuario_logado": usuario_logado,
-            "itens": itens,
+            "itens": page_info.items,
             "categorias_dados": categorias_dados,
             "categorias": categorias,
             "tipos_item": [tipo for tipo in TipoFornecimento],
-            "total_itens": total_itens,
-            "pagina_atual": pagina,
-            "total_paginas": total_paginas,
+            "total_itens": page_info.total_items,
+            "pagina_atual": page_info.current_page,
+            "total_paginas": page_info.total_pages,
             "busca": busca,
             "tipo_item": tipo_item,
             "status_filtro": status_filtro,
             "categoria_id": categoria_id
         })
     except Exception as e:
-        print(f"Erro ao listar itens: {e}")
+        logger.error("Erro ao listar itens: ", erro=e)
         return templates.TemplateResponse("admin/itens.html", {
             "request": request,
             "usuario_logado": usuario_logado,
@@ -713,10 +703,10 @@ async def listar_itens(
 
 @router.get("/admin/item/{id_item}")
 @requer_autenticacao([TipoUsuario.ADMIN.value])
-async def visualizar_item(request: Request, id_item: int, usuario_logado: dict = None):
+async def visualizar_item(request: Request, id_item: int, usuario_logado: dict = {}):
     """Visualiza detalhes de um item específico"""
     try:
-        item = item_repo.obter_item_por_id(id_item)
+        item = item_repo.obter_por_id(id_item)
 
         if not item:
             return templates.TemplateResponse("admin/itens.html", {
@@ -726,7 +716,7 @@ async def visualizar_item(request: Request, id_item: int, usuario_logado: dict =
             })
 
         # Buscar dados do fornecedor
-        fornecedor = fornecedor_repo.obter_fornecedor_por_id(item.id_fornecedor)
+        fornecedor = fornecedor_repo.obter_por_id(item.id_fornecedor)
 
         return templates.TemplateResponse("admin/item_detalhes.html", {
             "request": request,
@@ -735,7 +725,7 @@ async def visualizar_item(request: Request, id_item: int, usuario_logado: dict =
             "fornecedor": fornecedor
         })
     except Exception as e:
-        print(f"Erro ao visualizar item: {e}")
+        logger.error("Erro ao visualizar item: ", erro=e)
         return templates.TemplateResponse("admin/itens.html", {
             "request": request,
             "usuario_logado": usuario_logado,
@@ -744,59 +734,57 @@ async def visualizar_item(request: Request, id_item: int, usuario_logado: dict =
 
 @router.get("/admin/item/{id_item}/ativar")
 @requer_autenticacao([TipoUsuario.ADMIN.value])
-async def ativar_item_admin(request: Request, id_item: int, usuario_logado: dict = None):
+async def ativar_item_admin(request: Request, id_item: int, usuario_logado: dict = {}):
     """Ativa um item (admin pode ativar qualquer item)"""
     try:
-        from util.database import obter_conexao
-        with obter_conexao() as conexao:
-            cursor = conexao.cursor()
-            cursor.execute("UPDATE item SET ativo = 1 WHERE id = ?", (id_item,))
-            sucesso = cursor.rowcount > 0
+        sucesso = item_repo.ativar_item_admin(id_item)
 
-        if not sucesso:
-            print(f"Falha ao ativar item {id_item}")
+        if sucesso:
+            informar_sucesso(request, "Item ativado com sucesso!")
+        else:
+            informar_erro(request, "Erro ao ativar item. Item não encontrado.")
+
         return RedirectResponse("/admin/itens", status_code=status.HTTP_303_SEE_OTHER)
     except Exception as e:
-        print(f"Erro ao ativar item: {e}")
+        informar_erro(request, f"Erro ao ativar item: {str(e)}")
         return RedirectResponse("/admin/itens", status_code=status.HTTP_303_SEE_OTHER)
 
 @router.get("/admin/item/{id_item}/desativar")
 @requer_autenticacao([TipoUsuario.ADMIN.value])
-async def desativar_item_admin(request: Request, id_item: int, usuario_logado: dict = None):
+async def desativar_item_admin(request: Request, id_item: int, usuario_logado: dict = {}):
     """Desativa um item (admin pode desativar qualquer item)"""
     try:
-        from util.database import obter_conexao
-        with obter_conexao() as conexao:
-            cursor = conexao.cursor()
-            cursor.execute("UPDATE item SET ativo = 0 WHERE id = ?", (id_item,))
-            sucesso = cursor.rowcount > 0
+        sucesso = item_repo.desativar_item_admin(id_item)
 
-        if not sucesso:
-            print(f"Falha ao desativar item {id_item}")
+        if sucesso:
+            informar_sucesso(request, "Item desativado com sucesso!")
+        else:
+            informar_erro(request, "Erro ao desativar item. Item não encontrado.")
+
         return RedirectResponse("/admin/itens", status_code=status.HTTP_303_SEE_OTHER)
     except Exception as e:
-        print(f"Erro ao desativar item: {e}")
+        informar_erro(request, f"Erro ao desativar item: {str(e)}")
         return RedirectResponse("/admin/itens", status_code=status.HTTP_303_SEE_OTHER)
 
 # ==================== RELATÓRIOS ====================
 
 @router.get("/admin/relatorios")
 @requer_autenticacao([TipoUsuario.ADMIN.value])
-async def relatorios(request: Request, usuario_logado: dict = None):
+async def relatorios(request: Request, usuario_logado: dict = {}):
     """Página de relatórios e estatísticas"""
     try:
         # Estatísticas gerais do sistema
         stats_gerais = {
-            "total_usuarios": usuario_repo.contar_usuarios(),
+            "total_usuarios": usuario_repo.contar(),
             "total_noivos": usuario_repo.contar_usuarios_por_tipo(TipoUsuario.NOIVO),
             "total_admins": usuario_repo.contar_usuarios_por_tipo(TipoUsuario.ADMIN),
-            "total_fornecedores": fornecedor_repo.contar_fornecedores(),
-            "fornecedores_verificados": fornecedor_repo.contar_fornecedores() - fornecedor_repo.contar_fornecedores_nao_verificados(),
-            "fornecedores_nao_verificados": fornecedor_repo.contar_fornecedores_nao_verificados(),
-            "total_itens": item_repo.contar_itens(),
-            "total_categorias": categoria_repo.contar_categorias(),
-            "total_orcamentos": orcamento_repo.contar_orcamentos(),
-            "total_demandas": demanda_repo.contar_demandas()
+            "total_fornecedores": fornecedor_repo.contar(),
+            "fornecedores_verificados": fornecedor_repo.contar() - fornecedor_repo.contar_nao_verificados(),
+            "fornecedores_nao_verificados": fornecedor_repo.contar_nao_verificados(),
+            "total_itens": item_repo.contar(),
+            "total_categorias": categoria_repo.contar(),
+            "total_orcamentos": orcamento_repo.contar(),
+            "total_demandas": demanda_repo.contar()
         }
 
         # Estatísticas de itens por tipo
@@ -811,17 +799,14 @@ async def relatorios(request: Request, usuario_logado: dict = None):
         try:
             fornecedores = fornecedor_repo.obter_fornecedores_por_pagina(1, 1000)
             stats_fornecedores = {
-                "prestadores": len([f for f in fornecedores if f.prestador]),
-                "vendedores": len([f for f in fornecedores if f.vendedor]),
-                "locadores": len([f for f in fornecedores if f.locador]),
+                "total": len(fornecedores),
                 "verificados": len([f for f in fornecedores if f.verificado]),
                 "nao_verificados": len([f for f in fornecedores if not f.verificado])
             }
-        except:
+        except Exception as e:
+            logger.error("Erro ao obter estatísticas de fornecedores", exc_info=True)
             stats_fornecedores = {
-                "prestadores": 0,
-                "vendedores": 0,
-                "locadores": 0,
+                "total": 0,
                 "verificados": 0,
                 "nao_verificados": 0
             }
@@ -844,7 +829,7 @@ async def relatorios(request: Request, usuario_logado: dict = None):
             "percentuais": percentuais
         })
     except Exception as e:
-        print(f"Erro ao gerar relatórios: {e}")
+        logger.error("Erro ao gerar relatórios: ", erro=e)
         return templates.TemplateResponse("admin/relatorios.html", {
             "request": request,
             "usuario_logado": usuario_logado,
@@ -853,7 +838,7 @@ async def relatorios(request: Request, usuario_logado: dict = None):
 
 @router.get("/admin/relatorios/exportar")
 @requer_autenticacao([TipoUsuario.ADMIN.value])
-async def exportar_relatorios(request: Request, formato: str = "json", usuario_logado: dict = None):
+async def exportar_relatorios(request: Request, formato: str = "json", usuario_logado: dict = {}):
     """Exporta relatórios em formato JSON ou CSV"""
     try:
         from fastapi.responses import JSONResponse, PlainTextResponse
@@ -863,16 +848,16 @@ async def exportar_relatorios(request: Request, formato: str = "json", usuario_l
         dados = {
             "data_geracao": datetime.now().isoformat(),
             "sistema": {
-                "total_usuarios": usuario_repo.contar_usuarios(),
+                "total_usuarios": usuario_repo.contar(),
                 "total_noivos": usuario_repo.contar_usuarios_por_tipo(TipoUsuario.NOIVO),
                 "total_admins": usuario_repo.contar_usuarios_por_tipo(TipoUsuario.ADMIN),
-                "total_fornecedores": fornecedor_repo.contar_fornecedores(),
-                "fornecedores_verificados": fornecedor_repo.contar_fornecedores() - fornecedor_repo.contar_fornecedores_nao_verificados(),
-                "fornecedores_nao_verificados": fornecedor_repo.contar_fornecedores_nao_verificados(),
-                "total_itens": item_repo.contar_itens(),
-                "total_categorias": categoria_repo.contar_categorias(),
-                "total_orcamentos": orcamento_repo.contar_orcamentos(),
-                "total_demandas": demanda_repo.contar_demandas()
+                "total_fornecedores": fornecedor_repo.contar(),
+                "fornecedores_verificados": fornecedor_repo.contar() - fornecedor_repo.contar_nao_verificados(),
+                "fornecedores_nao_verificados": fornecedor_repo.contar_nao_verificados(),
+                "total_itens": item_repo.contar(),
+                "total_categorias": categoria_repo.contar(),
+                "total_orcamentos": orcamento_repo.contar(),
+                "total_demandas": demanda_repo.contar()
             },
             "itens": {
                 "produtos": item_repo.contar_itens_por_tipo(TipoFornecimento.PRODUTO),
@@ -913,7 +898,7 @@ async def exportar_relatorios(request: Request, formato: str = "json", usuario_l
             return JSONResponse(content=dados)
 
     except Exception as e:
-        print(f"Erro ao exportar relatórios: {e}")
+        logger.error("Erro ao exportar relatórios: ", erro=e)
         return JSONResponse(
             content={"erro": "Erro ao exportar relatórios"},
             status_code=500
@@ -926,21 +911,19 @@ async def exportar_relatorios(request: Request, formato: str = "json", usuario_l
 async def listar_categorias(
     request: Request,
     pagina: int = 1,
-    usuario_logado: dict = None
+    usuario_logado: dict = {}
 ):
     """Lista todas as categorias de item com filtros e paginação"""
     try:
-        import math
-
         # Obter parâmetros de filtro da URL
         busca = request.query_params.get("search", "").strip()
         tipo_fornecimento = request.query_params.get("tipo_fornecimento", "").strip()
         status_filtro = request.query_params.get("status", "").strip()
-        tamanho_pagina = 10
+        tamanho_pagina = PaginationHelper.DEFAULT_PAGE_SIZE
 
         # Aplicar filtros se fornecidos, senão listar todas
         if busca or tipo_fornecimento or status_filtro:
-            categorias, total_categorias = categoria_repo.buscar_categorias_paginado(
+            categorias, total_categorias = categoria_repo.buscar_paginado(
                 busca=busca,
                 tipo_fornecimento=tipo_fornecimento,
                 status=status_filtro,
@@ -948,28 +931,28 @@ async def listar_categorias(
                 tamanho_pagina=tamanho_pagina
             )
         else:
-            categorias, total_categorias = categoria_repo.obter_categorias_paginado(
+            categorias, total_categorias = categoria_repo.obter_paginado_categorias(
                 pagina=pagina,
                 tamanho_pagina=tamanho_pagina
             )
 
-        # Calcular total de páginas
-        total_paginas = math.ceil(total_categorias / tamanho_pagina) if total_categorias > 0 else 1
+        # Aplicar paginação
+        page_info = PaginationHelper.paginate(categorias, total_categorias, pagina, tamanho_pagina)
 
         return templates.TemplateResponse("admin/categorias.html", {
             "request": request,
             "usuario_logado": usuario_logado,
-            "categorias": categorias,
+            "categorias": page_info.items,
             "tipos_item": [tipo for tipo in TipoFornecimento],
-            "total_categorias": total_categorias,
-            "pagina_atual": pagina,
-            "total_paginas": total_paginas,
+            "total_categorias": page_info.total_items,
+            "pagina_atual": page_info.current_page,
+            "total_paginas": page_info.total_pages,
             "busca": busca,
             "tipo_fornecimento": tipo_fornecimento,
             "status_filtro": status_filtro
         })
     except Exception as e:
-        print(f"Erro ao listar categorias: {e}")
+        logger.error("Erro ao listar categorias: ", erro=e)
         return templates.TemplateResponse("admin/categorias.html", {
             "request": request,
             "usuario_logado": usuario_logado,
@@ -982,7 +965,7 @@ async def listar_categorias(
 
 @router.get("/admin/categoria/nova")
 @requer_autenticacao([TipoUsuario.ADMIN.value])
-async def nova_categoria(request: Request, usuario_logado: dict = None):
+async def nova_categoria(request: Request, usuario_logado: dict = {}):
     """Formulário para criar nova categoria"""
     return templates.TemplateResponse("admin/categoria_form.html", {
         "request": request,
@@ -999,7 +982,7 @@ async def criar_categoria(
     tipo_fornecimento: str = Form(...),
     descricao: str = Form(""),
     ativo: bool = Form(True),
-    usuario_logado: dict = None
+    usuario_logado: dict = {}
 ):
     """Cria uma nova categoria"""
     try:
@@ -1015,7 +998,8 @@ async def criar_categoria(
             })
 
         # Verificar se já existe categoria com o mesmo nome e tipo
-        categoria_existente = categoria_repo.obter_categoria_por_nome(nome, TipoFornecimento(tipo_fornecimento))
+        todas_categorias = categoria_repo.buscar_categorias()
+        categoria_existente = next((c for c in todas_categorias if c.nome.lower() == nome.lower() and c.tipo_fornecimento == TipoFornecimento(tipo_fornecimento)), None)
         if categoria_existente:
             return templates.TemplateResponse("admin/categoria_form.html", {
                 "request": request,
@@ -1033,7 +1017,7 @@ async def criar_categoria(
             ativo=ativo
         )
 
-        categoria_id = categoria_repo.inserir_categoria(categoria)
+        categoria_id = categoria_repo.inserir(categoria)
         if categoria_id:
             return RedirectResponse("/admin/categorias", status_code=status.HTTP_303_SEE_OTHER)
         else:
@@ -1045,7 +1029,7 @@ async def criar_categoria(
                 "erro": "Erro ao criar categoria"
             })
     except Exception as e:
-        print(f"Erro ao criar categoria: {e}")
+        logger.error("Erro ao criar categoria: ", erro=e)
         return templates.TemplateResponse("admin/categoria_form.html", {
             "request": request,
             "usuario_logado": usuario_logado,
@@ -1056,10 +1040,10 @@ async def criar_categoria(
 
 @router.get("/admin/categoria/editar/{id_categoria}")
 @requer_autenticacao([TipoUsuario.ADMIN.value])
-async def editar_categoria(request: Request, id_categoria: int, usuario_logado: dict = None):
+async def editar_categoria(request: Request, id_categoria: int, usuario_logado: dict = {}):
     """Formulário para editar categoria"""
     try:
-        categoria = categoria_repo.obter_categoria_por_id(id_categoria)
+        categoria = categoria_repo.obter_por_id(id_categoria)
         if not categoria:
             return RedirectResponse("/admin/categorias", status_code=status.HTTP_303_SEE_OTHER)
 
@@ -1071,7 +1055,7 @@ async def editar_categoria(request: Request, id_categoria: int, usuario_logado: 
             "acao": "editar"
         })
     except Exception as e:
-        print(f"Erro ao carregar categoria para edição: {e}")
+        logger.error("Erro ao carregar categoria para edição: ", erro=e)
         return RedirectResponse("/admin/categorias", status_code=status.HTTP_303_SEE_OTHER)
 
 @router.post("/admin/categoria/atualizar/{id_categoria}")
@@ -1083,14 +1067,14 @@ async def atualizar_categoria(
     tipo_fornecimento: str = Form(...),
     descricao: str = Form(""),
     ativo: bool = Form(True),
-    usuario_logado: dict = None
+    usuario_logado: dict = {}
 ):
     """Atualiza uma categoria existente"""
     try:
         # Validar se o nome não está vazio
         nome = nome.strip()
         if not nome:
-            categoria_atual = categoria_repo.obter_categoria_por_id(id_categoria)
+            categoria_atual = categoria_repo.obter_por_id(id_categoria)
             return templates.TemplateResponse("admin/categoria_form.html", {
                 "request": request,
                 "usuario_logado": usuario_logado,
@@ -1101,9 +1085,10 @@ async def atualizar_categoria(
             })
 
         # Verificar se já existe outra categoria com o mesmo nome e tipo
-        categoria_existente = categoria_repo.obter_categoria_por_nome(nome, TipoFornecimento(tipo_fornecimento))
+        todas_categorias = categoria_repo.buscar_categorias()
+        categoria_existente = next((c for c in todas_categorias if c.nome.lower() == nome.lower() and c.tipo_fornecimento == TipoFornecimento(tipo_fornecimento)), None)
         if categoria_existente and categoria_existente.id != id_categoria:
-            categoria_atual = categoria_repo.obter_categoria_por_id(id_categoria)
+            categoria_atual = categoria_repo.obter_por_id(id_categoria)
             return templates.TemplateResponse("admin/categoria_form.html", {
                 "request": request,
                 "usuario_logado": usuario_logado,
@@ -1121,10 +1106,10 @@ async def atualizar_categoria(
             ativo=ativo
         )
 
-        if categoria_repo.atualizar_categoria(categoria):
+        if categoria_repo.atualizar(categoria):
             return RedirectResponse("/admin/categorias", status_code=status.HTTP_303_SEE_OTHER)
         else:
-            categoria_atual = categoria_repo.obter_categoria_por_id(id_categoria)
+            categoria_atual = categoria_repo.obter_por_id(id_categoria)
             return templates.TemplateResponse("admin/categoria_form.html", {
                 "request": request,
                 "usuario_logado": usuario_logado,
@@ -1134,8 +1119,8 @@ async def atualizar_categoria(
                 "erro": "Erro ao atualizar categoria"
             })
     except Exception as e:
-        print(f"Erro ao atualizar categoria: {e}")
-        categoria_atual = categoria_repo.obter_categoria_por_id(id_categoria)
+        logger.error("Erro ao atualizar categoria: ", erro=e)
+        categoria_atual = categoria_repo.obter_por_id(id_categoria)
         return templates.TemplateResponse("admin/categoria_form.html", {
             "request": request,
             "usuario_logado": usuario_logado,
@@ -1147,46 +1132,46 @@ async def atualizar_categoria(
 
 @router.post("/admin/categoria/excluir/{id_categoria}")
 @requer_autenticacao([TipoUsuario.ADMIN.value])
-async def excluir_categoria(request: Request, id_categoria: int, usuario_logado: dict = None):
+async def excluir_categoria(request: Request, id_categoria: int, usuario_logado: dict = {}):
     """Exclui uma categoria"""
     try:
-        categoria_repo.excluir_categoria(id_categoria)
+        categoria_repo.excluir(id_categoria)
         return RedirectResponse("/admin/categorias", status_code=status.HTTP_303_SEE_OTHER)
     except Exception as e:
-        print(f"Erro ao excluir categoria: {e}")
+        logger.error("Erro ao excluir categoria: ", erro=e)
         return RedirectResponse("/admin/categorias", status_code=status.HTTP_303_SEE_OTHER)
 
 @router.get("/admin/categoria/{id_categoria}/ativar")
 @requer_autenticacao([TipoUsuario.ADMIN.value])
-async def ativar_categoria(request: Request, id_categoria: int, usuario_logado: dict = None):
+async def ativar_categoria(request: Request, id_categoria: int, usuario_logado: dict = {}):
     """Ativa uma categoria"""
     try:
         sucesso = categoria_repo.ativar_categoria(id_categoria)
         if not sucesso:
-            print(f"Falha ao ativar categoria {id_categoria}")
+            logger.error("Falha ao ativar categoria", categoria_id=id_categoria)
         return RedirectResponse("/admin/categorias", status_code=status.HTTP_303_SEE_OTHER)
     except Exception as e:
-        print(f"Erro ao ativar categoria: {e}")
+        logger.error("Erro ao ativar categoria: ", erro=e)
         return RedirectResponse("/admin/categorias", status_code=status.HTTP_303_SEE_OTHER)
 
 @router.get("/admin/categoria/{id_categoria}/desativar")
 @requer_autenticacao([TipoUsuario.ADMIN.value])
-async def desativar_categoria(request: Request, id_categoria: int, usuario_logado: dict = None):
+async def desativar_categoria(request: Request, id_categoria: int, usuario_logado: dict = {}):
     """Desativa uma categoria"""
     try:
         sucesso = categoria_repo.desativar_categoria(id_categoria)
         if not sucesso:
-            print(f"Falha ao desativar categoria {id_categoria}")
+            logger.error("Falha ao desativar categoria", categoria_id=id_categoria)
         return RedirectResponse("/admin/categorias", status_code=status.HTTP_303_SEE_OTHER)
     except Exception as e:
-        print(f"Erro ao desativar categoria: {e}")
+        logger.error("Erro ao desativar categoria: ", erro=e)
         return RedirectResponse("/admin/categorias", status_code=status.HTTP_303_SEE_OTHER)
 
 # ==================== CONFIGURAÇÕES ====================
 
 @router.get("/admin/configuracoes")
 @requer_autenticacao([TipoUsuario.ADMIN.value])
-async def configuracoes(request: Request, usuario_logado: dict = None):
+async def configuracoes(request: Request, usuario_logado: dict = {}):
     """Página de configurações do sistema"""
     return templates.TemplateResponse("admin/configuracoes.html", {
         "request": request,

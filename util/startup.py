@@ -1,262 +1,268 @@
 from typing import Optional
 import json
 import os
-from model.usuario_model import Usuario, TipoUsuario
-from model.categoria_model import Categoria
-from model.item_model import Item
-from model.tipo_fornecimento_model import TipoFornecimento
-from model.fornecedor_model import Fornecedor
-from model.casal_model import Casal
-from repo import usuario_repo, fornecedor_repo, casal_repo, item_repo, categoria_repo, fornecedor_item_repo, item_demanda_repo, item_orcamento_repo, demanda_repo, orcamento_repo, favorito_repo, chat_repo
-from util.security import criar_hash_senha
-from util.migracoes_avatar import migrar_sistema_avatar
-import random
+from core.models.usuario_model import Usuario, TipoUsuario
+from core.models.tipo_fornecimento_model import TipoFornecimento
+from core.models.fornecedor_model import Fornecedor
+from core.models.casal_model import Casal
+from core.repositories import usuario_repo, fornecedor_repo, casal_repo, item_repo, categoria_repo, fornecedor_item_repo, item_demanda_repo, item_orcamento_repo, demanda_repo, orcamento_repo, favorito_repo, chat_repo
+from infrastructure.security import criar_hash_senha
+from infrastructure.logging import logger
 
 def criar_tabelas_banco():
     """
     Cria todas as tabelas necessárias no banco de dados.
     """
-    usuario_repo.criar_tabela_usuarios()
-    fornecedor_repo.criar_tabela_fornecedor()
-    casal_repo.criar_tabela_casal()
-    item_repo.criar_tabela_item()
-    categoria_repo.criar_tabela_categorias()
-    fornecedor_item_repo.criar_tabela_fornecedor_item()
-    demanda_repo.criar_tabela_demandas()
-    orcamento_repo.criar_tabela_orcamento()
-    item_demanda_repo.criar_tabela_item_demanda()
-    item_orcamento_repo.criar_tabela_item_orcamento()
-    favorito_repo.criar_tabela_favoritos()
-    chat_repo.criar_tabela_chat()
+    usuario_repo.criar_tabela()
+    fornecedor_repo.criar_tabela()
+    casal_repo.criar_tabela()
+    item_repo.criar_tabela()
+    categoria_repo.criar_tabela()
+    fornecedor_item_repo.criar_tabela()
+    demanda_repo.criar_tabela()
+    orcamento_repo.criar_tabela()
+    item_demanda_repo.criar_tabela()
+    item_orcamento_repo.criar_tabela()
+    favorito_repo.criar_tabela()
+    chat_repo.criar_tabela()
 
 def criar_admin_padrao() -> Optional[int]:
     """
-    Cria um administrador padrão se não existir nenhum admin no sistema.
-    Retorna o ID do admin criado ou None se já existir um admin.
+    Cria o administrador padrão se não existir.
+    Esta função SEMPRE é executada na inicialização do sistema.
+    Retorna o ID do admin criado ou existente.
     """
     try:
-        # Buscar por um admin existente (simplificado - seria melhor ter uma query específica)
-        # Por ora, vamos verificar se existe um usuário com email admin específico
+        # Verificar se já existe admin
         admin_existente = usuario_repo.obter_usuario_por_email("admin@casebem.com")
-
         if admin_existente:
-            print("✅ Administrador já existe no sistema")
+            logger.info("Administrador já existe no sistema")
             return admin_existente.id
 
         # Criar administrador padrão
-        senha_hash = criar_hash_senha("1234aA@#")  # Senha padrão - deve ser alterada no primeiro login
+        logger.info("Criando administrador padrão...")
 
-        admin = Usuario(
-            id=0,
-            nome="Administrador Padrão",
-            cpf="000.000.000-00",
-            data_nascimento="1990-01-01",
-            email="admin@casebem.com",
-            telefone="(28) 99999-0000",
-            senha=senha_hash,
-            perfil=TipoUsuario.ADMIN,
-            token_redefinicao=None,
-            data_token=None,
-            data_cadastro=None
-        )
+        from infrastructure.database import obter_conexao
 
-        admin_id = usuario_repo.inserir_usuario(admin)
+        with obter_conexao() as conexao:
+            cursor = conexao.cursor()
 
-        if admin_id:
-            print(f"✅ Administrador padrão criado com sucesso! ID: {admin_id}")
-            print("📧 Email: admin@casebem.com")
-            print("🔑 Senha: 1234aA@#")
-            print("⚠️ IMPORTANTE: Altere a senha no primeiro login!")
-            return admin_id
-        else:
-            print("❌ Erro ao criar administrador padrão")
-            return None
+            # Inserir admin com ID fixo = 1
+            cursor.execute(
+                """INSERT INTO usuario (id, nome, cpf, data_nascimento, email, telefone, senha, perfil, ativo, token_redefinicao, data_token, data_cadastro)
+                   VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, datetime('now'))""",
+                (
+                    1,  # ID fixo
+                    "Administrador Padrão",
+                    "000.000.000-00",
+                    "1900-01-01",
+                    "admin@casebem.com",
+                    "(28) 99999-0000",
+                    criar_hash_senha("1234aA@#"),
+                    TipoUsuario.ADMIN.value,
+                    1,  # ativo
+                    None,  # token_redefinicao
+                    None   # data_token
+                )
+            )
+
+        logger.info("Administrador padrão criado com sucesso! ID: 1")
+        logger.info("Email: admin@casebem.com | Senha: 1234aA@#")
+        logger.warning("IMPORTANTE: Altere a senha no primeiro login!")
+        return 1
 
     except Exception as e:
-        print(f"❌ Erro ao verificar/criar administrador: {e}")
+        logger.error(f"Erro ao verificar/criar administrador: {e}")
         return None
+
+def criar_usuarios_seed():
+    """
+    Importa usuários (noivos) do arquivo seeds/usuarios.json se não existirem.
+    Esta função é opcional e só executa se o arquivo JSON existir.
+    """
+    try:
+        # Verificar se já existem usuários noivos (não conta admin)
+        from infrastructure.database import obter_conexao
+
+        with obter_conexao() as conexao:
+            cursor = conexao.cursor()
+            cursor.execute("SELECT COUNT(*) FROM usuario WHERE perfil = 'NOIVO'")
+            total_noivos = cursor.fetchone()[0]
+
+            if total_noivos > 0:
+                logger.info("Usuários noivos já existem no sistema")
+                return
+
+        # Carregar dados dos usuários do arquivo JSON
+        usuarios_dados = carregar_dados_json('usuarios.json')
+        if not usuarios_dados:
+            logger.info("Arquivo usuarios.json não encontrado - pulando seed de usuários")
+            return
+
+        logger.info("Importando usuários noivos do seed...")
+
+        with obter_conexao() as conexao:
+            cursor = conexao.cursor()
+
+            for user_data in usuarios_dados:
+                # Inserir usuário com ID explícito
+                cursor.execute(
+                    """INSERT INTO usuario (id, nome, cpf, data_nascimento, email, telefone, senha, perfil, ativo, token_redefinicao, data_token, data_cadastro)
+                       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
+                    (
+                        user_data['id'],
+                        user_data['nome'],
+                        user_data['cpf'],
+                        user_data['data_nascimento'],
+                        user_data['email'],
+                        user_data['telefone'],
+                        user_data['senha'],
+                        user_data['perfil'],
+                        1,  # ativo
+                        user_data.get('token_redefinicao'),
+                        user_data.get('data_token'),
+                        user_data.get('data_cadastro')
+                    )
+                )
+                logger.debug(f"Usuário ID {user_data['id']} '{user_data['nome']}' importado")
+
+        logger.info(f"{len(usuarios_dados)} usuários noivos importados com sucesso!")
+        logger.warning("IMPORTANTE: Altere as senhas padrão dos usuários de teste!")
+
+    except Exception as e:
+        logger.error(f"Erro ao importar usuários: {e}")
 
 def carregar_dados_json(nome_arquivo: str) -> dict:
     """
-    Carrega dados de um arquivo JSON na pasta data/.
+    Carrega dados de um arquivo JSON na pasta data/seeds/.
     """
     try:
-        caminho_arquivo = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'data', nome_arquivo)
+        caminho_arquivo = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'data', 'seeds', nome_arquivo)
         with open(caminho_arquivo, 'r', encoding='utf-8') as arquivo:
             return json.load(arquivo)
     except FileNotFoundError:
-        print(f"❌ Arquivo {nome_arquivo} não encontrado na pasta data/")
+        logger.error(f"Arquivo {nome_arquivo} não encontrado na pasta data/seeds/")
         return {}
     except json.JSONDecodeError:
-        print(f"❌ Erro ao decodificar JSON do arquivo {nome_arquivo}")
+        logger.error(f"Erro ao decodificar JSON do arquivo {nome_arquivo}")
         return {}
     except Exception as e:
-        print(f"❌ Erro ao carregar arquivo {nome_arquivo}: {e}")
+        logger.error(f"Erro ao carregar arquivo {nome_arquivo}: {e}")
         return {}
 
 def criar_categorias():
     """
     Cria categorias padrão para casamentos se não existirem no sistema.
-    Utiliza dados do arquivo data/categorias.json.
+    Utiliza dados do arquivo data/categorias.json com IDs explícitos.
     """
     try:
         # Verificar se já existem categorias
-        categorias_existentes = categoria_repo.obter_categorias()
+        categorias_existentes = categoria_repo.listar_todos()
         if categorias_existentes:
-            print("✅ Categorias já existem no sistema")
+            logger.info("Categorias já existem no sistema")
             return
 
         # Carregar dados das categorias do arquivo JSON
         dados_categorias = carregar_dados_json('categorias.json')
-        if not dados_categorias:
-            print("❌ Não foi possível carregar os dados das categorias")
+        if not dados_categorias or 'categorias' not in dados_categorias:
+            logger.error("Não foi possível carregar os dados das categorias")
             return
 
-        todas_categorias = []
+        lista_categorias = dados_categorias['categorias']
 
-        # Processar cada tipo de categoria
-        for tipo_categoria, lista_categorias in dados_categorias.items():
+        # Inserir categorias com IDs explícitos
+        from infrastructure.database import obter_conexao
+        from core.sql import categoria_sql
+
+        with obter_conexao() as conexao:
+            cursor = conexao.cursor()
+
             for cat_data in lista_categorias:
                 # Mapear string do tipo para enum
                 tipo_item = getattr(TipoFornecimento, cat_data['tipo'])
-                categoria = Categoria(
-                    id=0,
-                    nome=cat_data['nome'],
-                    tipo_fornecimento=tipo_item,
-                    descricao=cat_data['descricao']
+
+                # Inserir com ID explícito
+                cursor.execute(
+                    categoria_sql.INSERIR_COM_ID,
+                    (
+                        cat_data['id'],
+                        cat_data['nome'],
+                        tipo_item.value,
+                        cat_data['descricao'],
+                        1  # ativo
+                    )
                 )
-                todas_categorias.append(categoria)
+                logger.info(f"Categoria ID {cat_data['id']} '{cat_data['nome']}' criada com sucesso")
 
-        # Inserir todas as categorias
-        for categoria in todas_categorias:
-            categoria_id = categoria_repo.inserir_categoria(categoria)
-            if categoria_id:
-                print(f"✅ Categoria '{categoria.nome}' criada com sucesso")
-            else:
-                print(f"❌ Erro ao criar categoria '{categoria.nome}'")
-
-        print(f"✅ {len(todas_categorias)} categorias padrão criadas com sucesso!")
+        logger.info(f"{len(lista_categorias)} categorias padrão criadas com sucesso!")
 
     except Exception as e:
-        print(f"❌ Erro ao criar categorias padrão: {e}")
+        logger.error(f"Erro ao criar categorias padrão: {e}")
 
-def criar_fornecedores():
+def criar_fornecedores_seed():
     """
-    Cria fornecedores de teste com distribuição inteligente de itens por categoria.
-    Utiliza todos os itens disponíveis no JSON, distribuindo-os entre os fornecedores.
+    Importa fornecedores do arquivo seeds/fornecedores.json se não existirem.
+    Os dados de usuário do fornecedor são inseridos na tabela usuario primeiro.
     """
     try:
         # Verificar se já existem fornecedores
-        total_fornecedores = fornecedor_repo.contar_fornecedores()
+        total_fornecedores = fornecedor_repo.contar()
         if total_fornecedores >= 10:
-            print("✅ Fornecedores de teste já existem no sistema")
+            logger.info("Fornecedores já existem no sistema")
             return
 
-        # Obter categorias para associar aos itens
-        categorias = categoria_repo.obter_categorias()
-        if not categorias:
-            print("❌ Nenhuma categoria encontrada. Execute criar_categorias() primeiro.")
+        # Carregar dados dos fornecedores do arquivo JSON
+        fornecedores_dados = carregar_dados_json('fornecedores.json')
+        if not fornecedores_dados:
+            logger.error("Não foi possível carregar os dados dos fornecedores")
             return
 
-        # Obter templates de itens
-        itens_templates = criar_itens()
+        logger.info("Importando fornecedores do seed...")
 
-        print("🏢 Criando fornecedores com distribuição inteligente de itens...")
+        from infrastructure.database import obter_conexao
 
-        # Criar um mapeamento de categoria para seus itens
-        categoria_para_itens = {}
-        for categoria in categorias:
-            if categoria.nome in itens_templates:
-                categoria_para_itens[categoria.id] = itens_templates[categoria.nome]
+        with obter_conexao() as conexao:
+            cursor = conexao.cursor()
 
-        # Usar TODOS os itens disponíveis para cada categoria
-        itens_por_categoria = {}
-        for categoria_id, itens_disponiveis in categoria_para_itens.items():
-            # Usar todos os itens da categoria (não limitar a 1-4)
-            itens_por_categoria[categoria_id] = itens_disponiveis
+            for forn_data in fornecedores_dados:
+                # Primeiro, inserir ou atualizar na tabela usuario
+                cursor.execute(
+                    """INSERT OR REPLACE INTO usuario (id, nome, cpf, data_nascimento, email, telefone, senha, perfil, ativo, token_redefinicao, data_token, data_cadastro)
+                       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
+                    (
+                        forn_data['id'],
+                        forn_data['nome'],
+                        forn_data['cpf'],
+                        forn_data['data_nascimento'],
+                        forn_data['email'],
+                        forn_data['telefone'],
+                        forn_data['senha'],
+                        forn_data['perfil'],
+                        forn_data['ativo'],
+                        None,  # token_redefinicao
+                        None,  # data_token
+                        forn_data.get('data_cadastro')
+                    )
+                )
 
-        # Carregar fornecedores base do arquivo JSON
-        fornecedores_base = carregar_dados_json('fornecedores.json')
-        if not fornecedores_base:
-            print("❌ Não foi possível carregar os dados dos fornecedores básicos")
-            return
+                # Depois, inserir na tabela fornecedor
+                cursor.execute(
+                    """INSERT INTO fornecedor (id, nome_empresa, cnpj, descricao, verificado)
+                       VALUES (?, ?, ?, ?, ?)""",
+                    (
+                        forn_data['id'],
+                        forn_data['nome_empresa'],
+                        forn_data['cnpj'],
+                        forn_data['descricao'],
+                        forn_data['verificado']
+                    )
+                )
+                logger.debug(f"Fornecedor ID {forn_data['id']} '{forn_data['nome_empresa']}' importado")
 
-        # Distribuir categorias entre fornecedores
-        categorias_ids = list(itens_por_categoria.keys())
-        random.shuffle(categorias_ids)
-
-        categorias_por_fornecedor = []
-        for i in range(len(fornecedores_base)):
-            categorias_por_fornecedor.append([])
-
-        # Distribuir categorias garantindo que cada fornecedor tenha pelo menos uma
-        for i, categoria_id in enumerate(categorias_ids):
-            fornecedor_idx = i % len(fornecedores_base)
-            categorias_por_fornecedor[fornecedor_idx].append(categoria_id)
-
-        # Criar fornecedores e seus itens
-        for i, fornecedor_data in enumerate(fornecedores_base):
-            # Criar fornecedor
-            senha_hash = criar_hash_senha("1234aA@#")
-
-            fornecedor = Fornecedor(
-                id=0,
-                nome=fornecedor_data["nome"],
-                cpf=fornecedor_data.get("cpf"),
-                data_nascimento=fornecedor_data.get("data_nascimento"),
-                email=fornecedor_data["email"],
-                telefone=fornecedor_data["telefone"],
-                senha=senha_hash,
-                perfil=TipoUsuario.FORNECEDOR,
-                token_redefinicao=None,
-                data_token=None,
-                data_cadastro=None,
-                ativo=True,
-                nome_empresa=fornecedor_data["empresa"],
-                cnpj=fornecedor_data["cnpj"],
-                descricao=fornecedor_data["descricao"],
-                verificado=True
-            )
-
-            fornecedor_id = fornecedor_repo.inserir_fornecedor(fornecedor)
-
-            if fornecedor_id:
-                print(f"✅ Fornecedor '{fornecedor.nome_empresa}' criado com sucesso! ID: {fornecedor_id}")
-
-                # Criar itens para as categorias deste fornecedor
-                total_itens = 0
-                for categoria_id in categorias_por_fornecedor[i]:
-                    categoria = next((c for c in categorias if c.id == categoria_id), None)
-                    if categoria and categoria_id in itens_por_categoria:
-                        for item_data in itens_por_categoria[categoria_id]:
-                            item = Item(
-                                id=0,
-                                id_fornecedor=fornecedor_id,
-                                tipo=categoria.tipo_fornecimento,
-                                nome=item_data["nome"],
-                                descricao=item_data["descricao"],
-                                preco=item_data["preco"],
-                                id_categoria=categoria_id,
-                                observacoes=None,
-                                ativo=True,
-                                data_cadastro=None
-                            )
-
-                            item_id = item_repo.inserir_item(item)
-                            if item_id:
-                                print(f"  ✅ Item '{item.nome}' criado na categoria '{categoria.nome}' - R$ {item.preco:.2f}")
-                                total_itens += 1
-                            else:
-                                print(f"  ❌ Erro ao criar item '{item.nome}'")
-
-                print(f"  📦 Total de {total_itens} itens criados para {fornecedor.nome_empresa}")
-            else:
-                print(f"❌ Erro ao criar fornecedor '{fornecedor_data['empresa']}'")
-
-        print("✅ Fornecedores e itens criados com distribuição inteligente!")
+        logger.info(f"{len(fornecedores_dados)} fornecedores importados com sucesso!")
 
     except Exception as e:
-        print(f"❌ Erro ao criar fornecedores: {e}")
+        logger.error(f"Erro ao importar fornecedores: {e}")
 
 def criar_itens():
     """
@@ -264,114 +270,83 @@ def criar_itens():
     """
     return carregar_dados_json('itens.json')
 
-def criar_casais():
+def criar_casais_seed():
     """
-    Cria 10 casais fictícios para teste com dados realistas.
+    Importa casais do arquivo seeds/casais.json se não existirem.
     """
     try:
         # Verificar se já existem casais
-        casais_existentes = casal_repo.obter_casais_por_pagina(1, 20)
+        casais_existentes = casal_repo.obter_por_pagina(1, 20)
         if len(casais_existentes) >= 10:
-            print("✅ Casais de teste já existem no sistema")
+            logger.info("Casais já existem no sistema")
             return
 
         # Carregar dados dos casais do arquivo JSON
         casais_dados = carregar_dados_json('casais.json')
         if not casais_dados:
-            print("❌ Não foi possível carregar os dados dos casais")
+            logger.error("Não foi possível carregar os dados dos casais")
             return
 
-        print("💑 Criando casais de teste...")
+        logger.info("Importando casais do seed...")
 
-        for casal_data in casais_dados:
-            # Criar usuário noivo1
-            senha_hash = criar_hash_senha("1234aA@#")
+        from infrastructure.database import obter_conexao
 
-            noivo1 = Usuario(
-                id=0,
-                nome=casal_data["noivo1"]["nome"],
-                cpf=casal_data["noivo1"]["cpf"],
-                data_nascimento="1995-01-15",  # Data padrão
-                email=casal_data["noivo1"]["email"],
-                telefone=casal_data["noivo1"]["telefone"],
-                senha=senha_hash,
-                perfil=TipoUsuario.NOIVO,
-                token_redefinicao=None,
-                data_token=None,
-                data_cadastro=None
-            )
+        with obter_conexao() as conexao:
+            cursor = conexao.cursor()
 
-            noivo1_id = usuario_repo.inserir_usuario(noivo1)
+            for casal_data in casais_dados:
+                # Inserir casal com ID explícito
+                cursor.execute(
+                    """INSERT INTO casal (id, id_noivo1, id_noivo2, data_casamento, local_previsto, orcamento_estimado, numero_convidados, data_cadastro)
+                       VALUES (?, ?, ?, ?, ?, ?, ?, ?)""",
+                    (
+                        casal_data['id'],
+                        casal_data['id_noivo1'],
+                        casal_data['id_noivo2'],
+                        casal_data['data_casamento'],
+                        casal_data['local_previsto'],
+                        casal_data['orcamento_estimado'],
+                        casal_data['numero_convidados'],
+                        casal_data.get('data_cadastro')
+                    )
+                )
+                logger.debug(f"Casal ID {casal_data['id']} importado - {casal_data['data_casamento']}")
 
-            if not noivo1_id:
-                print(f"❌ Erro ao criar noivo {casal_data['noivo1']['nome']}")
-                continue
-
-            # Criar usuário noiva1 (noivo2)
-            noiva1 = Usuario(
-                id=0,
-                nome=casal_data["noiva1"]["nome"],
-                cpf=casal_data["noiva1"]["cpf"],
-                data_nascimento="1996-05-20",  # Data padrão
-                email=casal_data["noiva1"]["email"],
-                telefone=casal_data["noiva1"]["telefone"],
-                senha=senha_hash,
-                perfil=TipoUsuario.NOIVO,
-                token_redefinicao=None,
-                data_token=None,
-                data_cadastro=None
-            )
-
-            noiva1_id = usuario_repo.inserir_usuario(noiva1)
-
-            if not noiva1_id:
-                print(f"❌ Erro ao criar noiva {casal_data['noiva1']['nome']}")
-                continue
-
-            # Criar casal
-            casal = Casal(
-                id=0,
-                id_noivo1=noivo1_id,
-                id_noivo2=noiva1_id,
-                data_casamento=casal_data["data_casamento"],
-                local_previsto=casal_data["local_previsto"],
-                orcamento_estimado=casal_data["orcamento_estimado"],
-                numero_convidados=casal_data["numero_convidados"],
-                data_cadastro=None
-            )
-
-            casal_id = casal_repo.inserir_casal(casal)
-
-            if casal_id:
-                print(f"✅ Casal '{casal_data['noivo1']['nome']} & {casal_data['noiva1']['nome']}' criado com sucesso! ID: {casal_id}")
-                print(f"   📅 Casamento: {casal_data['data_casamento']} | 👥 Convidados: {casal_data['numero_convidados']} | 💰 Orçamento: {casal_data['orcamento_estimado']}")
-            else:
-                print(f"❌ Erro ao criar casal {casal_data['noivo1']['nome']} & {casal_data['noiva1']['nome']}")
-
-        print("✅ Casais de teste criados com sucesso!")
+        logger.info(f"{len(casais_dados)} casais importados com sucesso!")
 
     except Exception as e:
-        print(f"❌ Erro ao criar casais de teste: {e}")
+        logger.error(f"Erro ao importar casais: {e}")
 
 def inicializar_sistema():
     """
     Inicializa o sistema executando todas as verificações e configurações necessárias.
+
+    Ordem de execução:
+    1. Criar tabelas
+    2. Criar admin padrão (SEMPRE executa)
+    3. Criar categorias padrão
+    4. Importar usuários de teste (OPCIONAL - seeds/usuarios.json)
+    5. Importar fornecedores (OPCIONAL - seeds/fornecedores.json)
+    6. Importar casais (OPCIONAL - seeds/casais.json)
     """
-    print("🚀 Inicializando sistema CaseBem...")
+    logger.info("Inicializando sistema CaseBem...")
 
     # Criar todas as tabelas necessárias
     criar_tabelas_banco()
 
-    # Criar administrador padrão se necessário
+    # Criar administrador padrão (SEMPRE executa, independente de seeds)
     criar_admin_padrao()
 
     # Criar categorias padrão se necessário
     criar_categorias()
 
-    # Criar fornecedores de exemplo se necessário
-    criar_fornecedores()
+    # Importar usuários noivos de teste (OPCIONAL)
+    criar_usuarios_seed()
 
-    # Criar casais de teste se necessário
-    criar_casais()
+    # Importar fornecedores de exemplo (OPCIONAL)
+    criar_fornecedores_seed()
 
-    print("✅ Sistema inicializado com sucesso!")
+    # Importar casais de teste (OPCIONAL)
+    criar_casais_seed()
+
+    logger.info("Sistema inicializado com sucesso!")
