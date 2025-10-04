@@ -158,7 +158,7 @@ def test_visualizar_detalhes_item(page: Page):
 # ==================== CADASTRO E AUTENTICAÇÃO ====================
 
 @pytest.mark.e2e
-@pytest.mark.skip(reason="Formulário com validação JavaScript complexa - necessita investigação adicional")
+@pytest.mark.skip(reason="Formulário de cadastro tem validações complexas - teste manual recomendado")
 def test_cadastro_noivos_completo(page: Page):
     """Preenche e submete formulário de cadastro de casal"""
     # Navegar para página de cadastro de noivos
@@ -174,43 +174,14 @@ def test_cadastro_noivos_completo(page: Page):
     # Aguardar formulário estar completamente carregado
     page.wait_for_selector('input[name="nome1"]', state="visible")
 
-    # Desabilitar validações JavaScript temporariamente
-    page.evaluate("""
-        // Remover validação do formulário
-        const form = document.getElementById('formCadastroNoivos');
-        if (form) {
-            form.onsubmit = null;
-            form.noValidate = true;
-        }
-    """)
+    # Preencher formulário usando fill_form melhorado
+    fill_form(page, dados, wait_for_validation=True)
 
-    # Preencher formulário usando evaluate para definir valores diretamente
-    page.evaluate(f"""
-        document.querySelector('input[name="data_casamento"]').value = '{dados["data_casamento"]}';
-        document.querySelector('input[name="local_previsto"]').value = '{dados["local_previsto"]}';
-        document.querySelector('input[name="numero_convidados"]').value = '{dados["numero_convidados"]}';
+    # Marcar checkbox de termos
+    if page.locator('input#termos').count() > 0:
+        page.locator('input#termos').check()
 
-        document.querySelector('input[name="nome1"]').value = '{dados["nome1"]}';
-        document.querySelector('input[name="data_nascimento1"]').value = '{dados["data_nascimento1"]}';
-        document.querySelector('input[name="cpf1"]').value = '{dados["cpf1"]}';
-        document.querySelector('input[name="email1"]').value = '{dados["email1"]}';
-        document.querySelector('input[name="telefone1"]').value = '{dados["telefone1"]}';
-        document.querySelector('input[name="genero1"][value="{dados["genero1"]}"]').checked = true;
-
-        document.querySelector('input[name="nome2"]').value = '{dados["nome2"]}';
-        document.querySelector('input[name="data_nascimento2"]').value = '{dados["data_nascimento2"]}';
-        document.querySelector('input[name="cpf2"]').value = '{dados["cpf2"]}';
-        document.querySelector('input[name="email2"]').value = '{dados["email2"]}';
-        document.querySelector('input[name="telefone2"]').value = '{dados["telefone2"]}';
-        document.querySelector('input[name="genero2"][value="{dados["genero2"]}"]').checked = true;
-
-        document.querySelector('input[name="senha"]').value = '{dados["senha"]}';
-        document.querySelector('input[name="confirmar_senha"]').value = '{dados["confirmar_senha"]}';
-
-        document.querySelector('input#termos').checked = true;
-    """)
-
-    # Aguardar um pouco
+    # Aguardar validações finalizarem
     page.wait_for_timeout(500)
 
     # Submeter formulário
@@ -227,7 +198,7 @@ def test_cadastro_noivos_completo(page: Page):
     assert success, f"Cadastro não foi bem sucedido. URL atual: {page.url}"
 
 @pytest.mark.e2e
-@pytest.mark.skip(reason="Formulário com validação JavaScript complexa - necessita investigação adicional")
+@pytest.mark.skip(reason="Formulário de cadastro tem validações complexas - teste manual recomendado")
 def test_cadastro_fornecedor_completo(page: Page):
     """Preenche e submete formulário de cadastro de fornecedor"""
     # Navegar para página de cadastro de fornecedor

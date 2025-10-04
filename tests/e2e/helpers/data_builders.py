@@ -31,11 +31,16 @@ class DemandaBuilder:
         Returns:
             Dicionário com dados da demanda
         """
+        orcamento_min = fake.random_int(500, 2000)
+        orcamento_max = fake.random_int(orcamento_min + 500, 5000)
+
         return {
             "titulo": titulo or f"Demanda Teste - {fake.word().title()}",
             "descricao": descricao or fake.text(200),
-            "data_necessaria": (datetime.now() + timedelta(days=30)).strftime("%Y-%m-%d"),
-            "orcamento_estimado": f"{fake.random_int(500, 5000)}.00"
+            "orcamento_min": str(orcamento_min),
+            "orcamento_max": str(orcamento_max),
+            "prazo_entrega": f"Até {fake.random_int(15, 90)} dias",
+            "observacoes": fake.sentence()
         }
 
 class ItemBuilder:
@@ -58,8 +63,8 @@ class ItemBuilder:
             "nome": nome or f"Item Teste - {fake.word().title()}",
             "descricao": fake.text(150),
             "preco": f"{fake.random_int(50, 1000)}.00",
-            "categoria": "1",  # Ajustar conforme categorias disponíveis
-            "observacoes": fake.sentence()
+            "categoria": "1",  # Categoria 1 existe nas seeds (Decoração)
+            "ativo": "on"  # Checkbox marcado
         }
 
 class OrcamentoBuilder:
@@ -102,9 +107,13 @@ class NoivosBuilder:
         telefone1 = f"({fake.random_int(11, 99)}) {fake.random_int(90000, 99999)}-{fake.random_int(1000, 9999)}"
         telefone2 = f"({fake.random_int(11, 99)}) {fake.random_int(90000, 99999)}-{fake.random_int(1000, 9999)}"
 
+        # Gerar nomes simples sem prefixos/sufixos
+        nome1 = f"{remove_accents(fake.first_name())} {remove_accents(fake.last_name())}"
+        nome2 = f"{remove_accents(fake.first_name())} {remove_accents(fake.last_name())}"
+
         return {
             # Noivo 1 - nomes sem acentos para passar validação
-            "nome1": remove_accents(fake.name()),
+            "nome1": nome1,
             "email1": fake.email(),
             "telefone1": telefone1,
             "cpf1": fake.cpf(),
@@ -112,7 +121,7 @@ class NoivosBuilder:
             "genero1": "masculino",  # Usar valor lowercase que corresponde ao value do radio
 
             # Noivo 2 - nomes sem acentos para passar validação
-            "nome2": remove_accents(fake.name()),
+            "nome2": nome2,
             "email2": fake.email(),
             "telefone2": telefone2,
             "cpf2": fake.cpf(),

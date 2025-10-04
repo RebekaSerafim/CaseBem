@@ -154,7 +154,6 @@ def test_noivo_listar_demandas(page_noivo: Page):
     pytest.skip("Link de demandas não encontrado")
 
 @pytest.mark.e2e
-@pytest.mark.skip(reason="Formulário de demanda tem validação complexa - requer investigação")
 def test_noivo_criar_demanda(page_noivo: Page):
     """Cria uma nova demanda"""
     # Navegar para demandas
@@ -334,7 +333,6 @@ def test_noivo_visualizar_perfil(page_noivo: Page):
     assert page_noivo.locator('h1, h2, h3').count() > 0
 
 @pytest.mark.e2e
-@pytest.mark.skip(reason="Formulário de perfil tem validação complexa - requer investigação")
 def test_noivo_editar_perfil(page_noivo: Page):
     """Edita dados do perfil do casal"""
     # Ir para perfil

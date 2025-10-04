@@ -78,7 +78,6 @@ def test_fornecedor_listar_meus_itens(page_fornecedor: Page):
     pytest.skip("Link de itens não encontrado")
 
 @pytest.mark.e2e
-@pytest.mark.skip(reason="Formulário de item com validações complexas - necessita investigação")
 def test_fornecedor_criar_item(page_fornecedor: Page):
     """Cria novo item (produto/serviço/espaço)"""
     # Navegar para itens

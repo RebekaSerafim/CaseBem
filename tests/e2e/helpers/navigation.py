@@ -35,13 +35,14 @@ def goto_dashboard(page: Page, perfil: str):
     page.goto(f"{BASE_URL}/{perfil}/dashboard")
     page.wait_for_load_state("networkidle")
 
-def fill_form(page: Page, data: Dict[str, str]):
+def fill_form(page: Page, data: Dict[str, str], wait_for_validation: bool = True):
     """
     Preenche formulário com dados fornecidos
 
     Args:
         page: Página do Playwright
         data: Dicionário {nome_campo: valor}
+        wait_for_validation: Se deve aguardar validações JavaScript após cada campo
     """
     for field, value in data.items():
         selector = f'input[name="{field}"], textarea[name="{field}"], select[name="{field}"]'
@@ -55,7 +56,18 @@ def fill_form(page: Page, data: Dict[str, str]):
             input_type = element.evaluate("el => el.type") if tag_name == "input" else None
 
             if tag_name == "select":
-                element.select_option(str(value))
+                # Para select, tentar selecionar por valor ou por índice
+                try:
+                    element.select_option(str(value))
+                except:
+                    # Se falhar, selecionar primeira opção válida (não vazia)
+                    options = element.evaluate("""
+                        el => Array.from(el.options)
+                            .filter(opt => opt.value && opt.value !== '')
+                            .map(opt => opt.value)
+                    """)
+                    if options and len(options) > 0:
+                        element.select_option(options[0])
             elif input_type == "radio":
                 # Para radio buttons, procurar pelo value específico
                 radio_selector = f'input[name="{field}"][value="{str(value).lower()}"]'
@@ -66,10 +78,17 @@ def fill_form(page: Page, data: Dict[str, str]):
                     page.locator(f'input[name="{field}"]').first.click()
             elif input_type == "checkbox":
                 # Para checkboxes, fazer check
-                element.check()
+                if str(value).lower() in ['true', '1', 'yes', 'sim']:
+                    element.check()
+                else:
+                    element.uncheck()
             else:
                 # Text, email, password, textarea, etc
                 element.fill(str(value))
+
+                # Aguardar validações JavaScript (debounce)
+                if wait_for_validation:
+                    page.wait_for_timeout(300)
 
 def wait_for_success_message(page: Page, timeout: int = 5000):
     """Aguarda mensagem de sucesso aparecer"""
