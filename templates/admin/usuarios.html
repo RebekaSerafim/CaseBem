@@ -75,8 +75,8 @@
                             {% for usuario in usuarios %}
                             <tr>
                                 <td>
-                                    {% if usuario.foto_url %}
-                                    <img src="{{ usuario.foto_url }}" alt="Foto de {{ usuario.nome }}"
+                                    {% if avatar_existe(usuario.id) %}
+                                    <img src="{{ obter_avatar_ou_padrao(usuario.id) }}" alt="Foto de {{ usuario.nome }}"
                                          class="rounded-circle" style="width: 40px; height: 40px; object-fit: cover;">
                                     {% else %}
                                     <div class="rounded-circle bg-secondary d-flex align-items-center justify-content-center text-white"
