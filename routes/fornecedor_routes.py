@@ -540,23 +540,64 @@ async def listar_orcamentos(request: Request, status_filter: str = "", usuario_l
 @requer_autenticacao([TipoUsuario.FORNECEDOR.value])
 @tratar_erro_rota(template_erro="fornecedor/demandas.html")
 async def listar_demandas(request: Request, categoria: str = "", usuario_logado: dict = {}):
-    """Lista demandas disponíveis para o fornecedor"""
+    """Lista demandas disponíveis compatíveis com categorias do fornecedor (V2)"""
+    from core.repositories import item_demanda_repo, categoria_repo
+
+    id_fornecedor = usuario_logado["id"]
+
+    # Buscar categorias que o fornecedor oferece itens
+    categorias_fornecedor = item_repo.obter_categorias_do_fornecedor(id_fornecedor)
+
+    if not categorias_fornecedor:
+        logger.info("Fornecedor sem itens cadastrados", fornecedor_id=id_fornecedor)
+        return templates.TemplateResponse("fornecedor/demandas.html", {
+            "request": request,
+            "usuario_logado": usuario_logado,
+            "demandas": [],
+            "categorias": [],
+            "categoria_filter": categoria,
+            "mensagem": "Cadastre itens para visualizar demandas compatíveis."
+        })
+
     # Buscar todas as demandas ativas
     demandas = demanda_repo.obter_por_status(StatusDemanda.ATIVA.value)
 
-    # Filtrar por categoria se especificado
+    # Filtrar demandas que têm itens compatíveis (por tipo+categoria)
+    demandas_compativeis = []
+    for demanda in demandas:
+        # Buscar itens da demanda (com descrições livres)
+        itens_demanda = item_demanda_repo.obter_por_demanda(demanda.id)
+
+        # Verificar se algum item da demanda pertence às categorias do fornecedor
+        itens_compativeis = [
+            item for item in itens_demanda
+            if item.get("id_categoria") in categorias_fornecedor
+        ]
+
+        if itens_compativeis:
+            demandas_compativeis.append({
+                "demanda": demanda,
+                "itens_compativeis": itens_compativeis,
+                "total_itens": len(itens_demanda)
+            })
+
+    # Filtrar por categoria se especificado (agora filtra nos itens, não na demanda)
     if categoria:
         try:
             categoria_id = int(categoria)
-            demandas = [d for d in demandas if d.id_categoria == categoria_id]
+            demandas_filtradas = []
+            for d in demandas_compativeis:
+                # Verificar se algum item compatível é da categoria filtrada
+                if any(item.get("id_categoria") == categoria_id for item in d["itens_compativeis"]):
+                    demandas_filtradas.append(d)
+            demandas_compativeis = demandas_filtradas
         except ValueError:
             logger.warning("Categoria inválida no filtro", categoria=categoria)
-            # Se categoria não for um número válido, ignorar o filtro
-            pass
 
     # Enriquecer dados das demandas
     demandas_enriched = []
-    for demanda in demandas:
+    for dados in demandas_compativeis:
+        demanda = dados["demanda"]
         try:
             # Buscar dados do casal e noivo
             casal = casal_repo.obter_por_id(demanda.id_casal)
@@ -566,12 +607,15 @@ async def listar_demandas(request: Request, categoria: str = "", usuario_logado:
 
             # Verificar se já existe orçamento deste fornecedor para esta demanda
             orcamentos_existentes = orcamento_repo.obter_por_demanda(demanda.id)
-            ja_tem_orcamento = any(o.id_fornecedor_prestador == usuario_logado["id"] for o in orcamentos_existentes)
+            ja_tem_orcamento = any(o.id_fornecedor_prestador == id_fornecedor for o in orcamentos_existentes)
 
             demanda_data = {
                 "demanda": demanda,
                 "noivo": noivo,
-                "ja_tem_orcamento": ja_tem_orcamento
+                "casal": casal,
+                "ja_tem_orcamento": ja_tem_orcamento,
+                "itens_compativeis": dados["itens_compativeis"],
+                "total_itens": dados["total_itens"]
             }
             demandas_enriched.append(demanda_data)
         except Exception as e:
@@ -579,14 +623,21 @@ async def listar_demandas(request: Request, categoria: str = "", usuario_logado:
             demandas_enriched.append({
                 "demanda": demanda,
                 "noivo": None,
-                "ja_tem_orcamento": False
+                "casal": None,
+                "ja_tem_orcamento": False,
+                "itens_compativeis": dados["itens_compativeis"],
+                "total_itens": dados["total_itens"]
             })
 
-    logger.info("Demandas listadas", fornecedor_id=usuario_logado["id"], total=len(demandas_enriched))
+    # Buscar categorias para filtro
+    categorias = categoria_repo.buscar_categorias()
+
+    logger.info("Demandas listadas V2", fornecedor_id=id_fornecedor, total=len(demandas_enriched))
     return templates.TemplateResponse("fornecedor/demandas.html", {
         "request": request,
         "usuario_logado": usuario_logado,
         "demandas": demandas_enriched,
+        "categorias": categorias,
         "categoria_filter": categoria
     })
 
@@ -685,6 +736,165 @@ async def criar_orcamento(
         logger.error("Erro ao inserir orçamento no banco", demanda_id=id_demanda, fornecedor_id=usuario_logado["id"])
         informar_erro(request, "Erro ao criar orçamento!")
         return RedirectResponse(f"/fornecedor/demandas/{id_demanda}/propor", status_code=status.HTTP_303_SEE_OTHER)
+
+
+# ==================== ORÇAMENTO COM ITENS ====================
+
+@router.get("/fornecedor/demandas/{id_demanda}/orcamento/novo")
+@requer_autenticacao([TipoUsuario.FORNECEDOR.value])
+@tratar_erro_rota(redirect_erro="/fornecedor/demandas")
+async def novo_orcamento_com_itens_form(request: Request, id_demanda: int, usuario_logado: dict = {}):
+    """Formulário para criar orçamento detalhado com itens"""
+    from core.repositories import item_demanda_repo
+
+    # Buscar a demanda
+    demanda = demanda_repo.obter_por_id(id_demanda)
+    if not demanda:
+        logger.warning("Demanda não encontrada ao criar orçamento", demanda_id=id_demanda)
+        informar_erro(request, "Demanda não encontrada")
+        return RedirectResponse("/fornecedor/demandas", status_code=status.HTTP_303_SEE_OTHER)
+
+    # Buscar itens da demanda
+    itens_demanda = item_demanda_repo.obter_por_demanda(id_demanda)
+
+    # Buscar itens do fornecedor (para popular select)
+    meus_itens = item_repo.obter_por_fornecedor(usuario_logado["id"])
+
+    # Filtrar apenas itens ativos
+    meus_itens = [i for i in meus_itens if i.ativo]
+
+    # Buscar casal e noivo
+    casal = casal_repo.obter_por_id(demanda.id_casal)
+    noivo = None
+    if casal:
+        noivo = usuario_repo.obter_por_id(casal.id_noivo1)
+
+    logger.info("Formulário de orçamento com itens carregado", demanda_id=id_demanda, fornecedor_id=usuario_logado["id"])
+    return templates.TemplateResponse("fornecedor/orcamento_form.html", {
+        "request": request,
+        "usuario_logado": usuario_logado,
+        "demanda": demanda,
+        "itens_demanda": itens_demanda,
+        "meus_itens": meus_itens,
+        "noivo": noivo,
+        "orcamento": None
+    })
+
+
+@router.post("/fornecedor/demandas/{id_demanda}/orcamento")
+@requer_autenticacao([TipoUsuario.FORNECEDOR.value])
+@tratar_erro_rota(redirect_erro="/fornecedor/demandas")
+async def criar_orcamento_com_itens(
+    request: Request,
+    id_demanda: int,
+    prazo_entrega: str = Form(...),
+    desconto: float = Form(0),
+    observacoes: str = Form(""),
+    item_id: list = Form([]),
+    quantidade: list = Form([]),
+    preco_unitario: list = Form([]),
+    desconto_item: list = Form([]),
+    observacoes_item: list = Form([]),
+    usuario_logado: dict = {}
+):
+    """Cria orçamento com itens detalhados"""
+    from datetime import datetime
+    from core.models.orcamento_model import Orcamento
+    from core.repositories import item_orcamento_repo
+    from core.models.item_orcamento_model import ItemOrcamento
+
+    # Verificar se a demanda existe
+    demanda = demanda_repo.obter_por_id(id_demanda)
+    if not demanda:
+        logger.warning("Demanda não encontrada ao criar orçamento", demanda_id=id_demanda)
+        informar_erro(request, "Demanda não encontrada")
+        return RedirectResponse("/fornecedor/demandas", status_code=status.HTTP_303_SEE_OTHER)
+
+    # Verificar se já existe orçamento
+    orcamentos_existentes = orcamento_repo.obter_por_demanda(id_demanda)
+    ja_tem_orcamento = any(o.id_fornecedor_prestador == usuario_logado["id"] for o in orcamentos_existentes)
+
+    if ja_tem_orcamento:
+        logger.warning("Tentativa de criar orçamento duplicado", demanda_id=id_demanda, fornecedor_id=usuario_logado["id"])
+        informar_erro(request, "Você já enviou um orçamento para esta demanda")
+        return RedirectResponse("/fornecedor/demandas", status_code=status.HTTP_303_SEE_OTHER)
+
+    # Validar que pelo menos 1 item foi fornecido
+    if not item_id or len(item_id) == 0:
+        logger.warning("Tentativa de criar orçamento sem itens", demanda_id=id_demanda)
+        informar_erro(request, "Adicione pelo menos um item ao orçamento")
+        return RedirectResponse(f"/fornecedor/demandas/{id_demanda}/orcamento/novo", status_code=status.HTTP_303_SEE_OTHER)
+
+    # Calcular valor total
+    valor_total = 0.0
+    for i in range(len(item_id)):
+        try:
+            qtd = int(quantidade[i]) if i < len(quantidade) else 1
+            preco = float(preco_unitario[i]) if i < len(preco_unitario) else 0
+            desc_item = float(desconto_item[i]) if i < len(desconto_item) and desconto_item[i] else 0
+            subtotal = (qtd * preco) - desc_item
+            valor_total += subtotal
+        except (ValueError, TypeError):
+            pass
+
+    # Aplicar desconto geral
+    valor_total = valor_total * (1 - desconto / 100)
+
+    # Criar orçamento
+    novo_orcamento = Orcamento(
+        id=0,
+        id_demanda=id_demanda,
+        id_fornecedor_prestador=usuario_logado["id"],
+        data_hora_cadastro=datetime.now(),
+        data_hora_validade=None,  # Pode adicionar lógica de validade
+        status="PENDENTE",
+        observacoes=observacoes,
+        valor_total=valor_total
+    )
+
+    # Inserir orçamento no banco
+    id_orcamento = orcamento_repo.inserir(novo_orcamento)
+
+    if id_orcamento:
+        # Inserir itens do orçamento
+        itens_inseridos = 0
+        for i in range(len(item_id)):
+            try:
+                id_item_int = int(item_id[i]) if item_id[i] else 0
+                qtd = int(quantidade[i]) if i < len(quantidade) and quantidade[i] else 1
+                preco = float(preco_unitario[i]) if i < len(preco_unitario) and preco_unitario[i] else 0
+                desc_item = float(desconto_item[i]) if i < len(desconto_item) and desconto_item[i] else None
+                obs_item = observacoes_item[i] if i < len(observacoes_item) and observacoes_item[i] else None
+
+                if id_item_int > 0 and preco > 0:
+                    item_orcamento = ItemOrcamento(
+                        id_orcamento=id_orcamento,
+                        id_item=id_item_int,
+                        quantidade=qtd,
+                        preco_unitario=preco,
+                        observacoes=obs_item,
+                        desconto=desc_item
+                    )
+                    item_orcamento_repo.inserir(item_orcamento)
+                    itens_inseridos += 1
+            except Exception as e:
+                logger.error("Erro ao inserir item do orçamento", erro=e, orcamento_id=id_orcamento, item_index=i)
+
+        logger.info(
+            "Orçamento com itens criado com sucesso",
+            orcamento_id=id_orcamento,
+            demanda_id=id_demanda,
+            fornecedor_id=usuario_logado["id"],
+            total_itens=itens_inseridos,
+            valor_total=valor_total
+        )
+        informar_sucesso(request, f"Orçamento enviado com sucesso! {itens_inseridos} itens, valor total: R$ {valor_total:.2f}")
+        return RedirectResponse("/fornecedor/orcamentos", status_code=status.HTTP_303_SEE_OTHER)
+    else:
+        logger.error("Erro ao inserir orçamento no banco", demanda_id=id_demanda, fornecedor_id=usuario_logado["id"])
+        informar_erro(request, "Erro ao criar orçamento!")
+        return RedirectResponse(f"/fornecedor/demandas/{id_demanda}/orcamento/novo", status_code=status.HTTP_303_SEE_OTHER)
+
 
 # ==================== PERFIL ====================
 

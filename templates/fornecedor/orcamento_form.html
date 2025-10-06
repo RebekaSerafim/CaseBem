@@ -31,30 +31,97 @@
                 <h6 class="mb-0">Informações da Demanda</h6>
             </div>
             <div class="card-body">
-                <div class="row">
+                <div class="row mb-3">
                     <div class="col-md-8">
-                        <h5>{{ demanda.titulo }}</h5>
+                        <h6><i class="fas fa-align-left"></i> Descrição Geral</h6>
                         <p class="text-muted">{{ demanda.descricao }}</p>
                     </div>
                     <div class="col-md-4">
-                        {% if demanda.orcamento_min and demanda.orcamento_max %}
+                        {% if demanda.orcamento_total %}
                         <div class="alert alert-info mb-2">
                             <small>
-                                <strong>Faixa de Orçamento:</strong><br>
-                                {{ demanda.orcamento_min|moeda }} - {{ demanda.orcamento_max|moeda }}
+                                <strong>Orçamento Total:</strong><br>
+                                R$ {{ "%.2f"|format(demanda.orcamento_total) }}
                             </small>
                         </div>
                         {% endif %}
                         {% if demanda.prazo_entrega %}
                         <div class="alert alert-warning mb-0">
                             <small>
-                                <strong>Prazo Solicitado:</strong><br>
+                                <strong>Prazo Desejado:</strong><br>
                                 {{ demanda.prazo_entrega }}
                             </small>
                         </div>
                         {% endif %}
                     </div>
                 </div>
+
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <small class="text-muted d-block"><i class="fas fa-calendar"></i> Data do Casamento</small>
+                        <strong>{{ demanda.data_casamento or 'Não informada' }}</strong>
+                    </div>
+                    <div class="col-md-6">
+                        <small class="text-muted d-block"><i class="fas fa-map-marker-alt"></i> Cidade</small>
+                        <strong>{{ demanda.cidade_casamento or 'Não informada' }}</strong>
+                    </div>
+                </div>
+
+                <!-- Itens solicitados na demanda -->
+                {% if itens_demanda %}
+                <hr>
+                <div class="row mt-3">
+                    <div class="col-12">
+                        <h6><i class="fas fa-list"></i> Itens Solicitados pelo Noivo ({{ itens_demanda|length }})</h6>
+                        <div class="table-responsive">
+                            <table class="table table-sm table-hover">
+                                <thead>
+                                    <tr>
+                                        <th style="width: 15%;">Tipo/Categoria</th>
+                                        <th style="width: 45%;">Descrição do Item</th>
+                                        <th style="width: 10%;">Qtd</th>
+                                        <th style="width: 15%;">Preço Máximo</th>
+                                        <th style="width: 15%;">Observações</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for item in itens_demanda %}
+                                    <tr>
+                                        <td>
+                                            <span class="badge
+                                                {% if item.tipo == 'PRODUTO' %}bg-primary
+                                                {% elif item.tipo == 'SERVICO' %}bg-success
+                                                {% elif item.tipo == 'ESPACO' %}bg-info
+                                                {% else %}bg-secondary{% endif %}">
+                                                {{ item.tipo }}
+                                            </span>
+                                            <br>
+                                            <small class="text-muted">{{ item.categoria_nome or 'N/A' }}</small>
+                                        </td>
+                                        <td><strong>{{ item.descricao }}</strong></td>
+                                        <td class="text-center">{{ item.quantidade }}</td>
+                                        <td>
+                                            {% if item.preco_maximo %}
+                                                <strong class="text-success">R$ {{ "%.2f"|format(item.preco_maximo) }}</strong>
+                                            {% else %}
+                                                <span class="text-muted">-</span>
+                                            {% endif %}
+                                        </td>
+                                        <td><small class="text-muted">{{ item.observacoes or '-' }}</small></td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="alert alert-success mt-2">
+                            <small>
+                                <i class="fas fa-lightbulb"></i> <strong>Os itens acima são descrições livres do que o noivo precisa.</strong><br>
+                                Use-as como referência para selecionar itens do seu catálogo abaixo que atendam às necessidades descritas.
+                            </small>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
             </div>
         </div>
     </div>

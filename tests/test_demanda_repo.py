@@ -108,25 +108,21 @@ class TestDemandaRepo:
         # Arrange
         usuario_repo.criar_tabela()
         casal_repo.criar_tabela()
-        categoria_repo.criar_tabela()
         demanda_repo.criar_tabela()
-
-        # Inserir categoria
-        categoria = Categoria(0, "Categoria Teste", TipoFornecimento.PRODUTO, "Descrição", True)
-        categoria_repo.inserir(categoria)
 
         # Criar usuários e casal necessários para satisfazer foreign key
         for noivo in lista_noivos_exemplo[:2]:
             usuario_repo.inserir(noivo)
         casal = Casal(0, 1, 2)
         casal_repo.inserir(casal)
-        
+
         demanda = Demanda(
             id=999,
             id_casal=1,
-            id_categoria=1,
-            titulo="Demanda inexistente",
-            descricao="Teste de demanda inexistente"
+            descricao="Teste de demanda inexistente",
+            orcamento_total=5000.00,
+            data_casamento='2025-12-31',
+            cidade_casamento='Vitória'
         )
         # Act
         resultado = demanda_repo.atualizar(demanda)
@@ -181,12 +177,7 @@ class TestDemandaRepo:
         # Arrange
         usuario_repo.criar_tabela()
         casal_repo.criar_tabela()
-        categoria_repo.criar_tabela()
         demanda_repo.criar_tabela()
-
-        # Inserir categoria
-        categoria = Categoria(0, "Categoria Teste", TipoFornecimento.PRODUTO, "Descrição", True)
-        id_categoria = categoria_repo.inserir(categoria)
 
         # Inserir usuários e casais
         for usuario in lista_usuarios_exemplo[:10]:
@@ -197,15 +188,16 @@ class TestDemandaRepo:
             casal = Casal(0, i, i+1)
             casal_repo.inserir(casal)
 
-        # Inserir 5 demandas com categoria válida
+        # Inserir 5 demandas
         for i in range(5):
             casal_id = (i // 2) + 1  # Distribui entre os 5 casais
             demanda = Demanda(
                 id=0,
                 id_casal=casal_id,
-                id_categoria=id_categoria,
-                titulo=f"Demanda {i+1}",
-                descricao=f"Descrição da demanda {i+1}"
+                descricao=f"Descrição da demanda {i+1}",
+                orcamento_total=round((i+1) * 1000.0, 2),
+                data_casamento='2025-12-31',
+                cidade_casamento='Vitória'
             )
             demanda_repo.inserir(demanda)
 
@@ -221,53 +213,51 @@ class TestDemandaRepo:
         # Arrange
         usuario_repo.criar_tabela()
         casal_repo.criar_tabela()
-        categoria_repo.criar_tabela()
         demanda_repo.criar_tabela()
-
-        # Inserir categoria
-        categoria = Categoria(0, "Categoria Teste", TipoFornecimento.PRODUTO, "Descrição", True)
-        categoria_repo.inserir(categoria)
 
         # Inserir usuários e casal
         for noivo in lista_noivos_exemplo[:4]:
             usuario_repo.inserir(noivo)
-        
+
         from core.models.casal_model import Casal
         casal1 = Casal(0, 1, 2)
         casal2 = Casal(0, 3, 4)
         id_casal1 = casal_repo.inserir(casal1)
         id_casal2 = casal_repo.inserir(casal2)
-        
+
         # Inserir demandas para casal1
         demanda1 = Demanda(
             id=0,
             id_casal=id_casal1,
-            id_categoria=1,
-            titulo="Demanda 1",
-            descricao="Descrição da demanda 1"
+            descricao="Descrição da demanda 1",
+            orcamento_total=3000.00,
+            data_casamento='2025-12-31',
+            cidade_casamento='Vitória'
         )
         demanda2 = Demanda(
             id=0,
             id_casal=id_casal1,
-            id_categoria=1,
-            titulo="Demanda 2",
-            descricao="Descrição da demanda 2"
+            descricao="Descrição da demanda 2",
+            orcamento_total=5000.00,
+            data_casamento='2025-12-31',
+            cidade_casamento='Vila Velha'
         )
         demanda3 = Demanda(
             id=0,
             id_casal=id_casal2,
-            id_categoria=1,
-            titulo="Demanda 3",
-            descricao="Descrição da demanda 3"
+            descricao="Descrição da demanda 3",
+            orcamento_total=4000.00,
+            data_casamento='2026-01-15',
+            cidade_casamento='Serra'
         )
-        
+
         demanda_repo.inserir(demanda1)
         demanda_repo.inserir(demanda2)
         demanda_repo.inserir(demanda3)
-        
+
         # Act
         demandas_casal1 = demanda_repo.obter_por_casal(id_casal1)
-        
+
         # Assert
         assert len(demandas_casal1) == 2, "Deveria retornar 2 demandas para o casal1"
         assert all(d.id_casal == id_casal1 for d in demandas_casal1), "Todas as demandas devem pertencer ao casal1"

@@ -109,6 +109,22 @@ class OrcamentoRepo(BaseRepo):
         orcamentos, _ = self.obter_paginado(numero_pagina, tamanho_pagina)
         return orcamentos
 
+    def contar_por_demanda(self, id_demanda: int) -> int:
+        """Conta quantos orçamentos uma demanda possui"""
+        resultado = self.executar_consulta(
+            "SELECT COUNT(*) as total FROM orcamento WHERE id_demanda = ?",
+            (id_demanda,)
+        )
+        return resultado[0]["total"] if resultado else 0
+
+    def contar_por_demanda_e_status(self, id_demanda: int, status: str) -> int:
+        """Conta quantos orçamentos uma demanda possui com um status específico"""
+        resultado = self.executar_consulta(
+            "SELECT COUNT(*) as total FROM orcamento WHERE id_demanda = ? AND status = ?",
+            (id_demanda, status)
+        )
+        return resultado[0]["total"] if resultado else 0
+
 
 # Instância singleton do repositório
 orcamento_repo = OrcamentoRepo()

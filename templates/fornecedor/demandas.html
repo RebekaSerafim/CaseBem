@@ -20,35 +20,24 @@
         <div class="card">
             <div class="card-body">
                 <form method="get" class="row g-3">
-                    <div class="col-md-3">
-                        <label for="search" class="form-label">Buscar</label>
-                        <input type="text" class="form-control" id="search" name="search"
-                               value="{{ request.query_params.get('search', '') }}" placeholder="Título ou descrição">
-                    </div>
-                    <div class="col-md-2">
-                        <label for="categoria" class="form-label">Categoria</label>
+                    <div class="col-md-4">
+                        <label for="categoria" class="form-label">Filtrar por Categoria</label>
                         <select class="form-select" id="categoria" name="categoria">
-                            <option value="">Todas</option>
+                            <option value="">Todas as Categorias</option>
                             {% for categoria in categorias %}
                             <option value="{{ categoria.id }}" {% if request.query_params.get('categoria') == categoria.id|string %}selected{% endif %}>
-                                {{ categoria.nome }}
+                                {{ categoria.nome }} ({{ categoria.tipo_fornecimento.value }})
                             </option>
                             {% endfor %}
                         </select>
                     </div>
-                    <div class="col-md-2">
-                        <label for="orcamento_min" class="form-label">Orçamento Mínimo</label>
-                        <input type="number" class="form-control" id="orcamento_min" name="orcamento_min"
-                               value="{{ request.query_params.get('orcamento_min', '') }}" placeholder="R$ 0,00" step="0.01">
-                    </div>
-                    <div class="col-md-2">
-                        <label for="orcamento_max" class="form-label">Orçamento Máximo</label>
-                        <input type="number" class="form-control" id="orcamento_max" name="orcamento_max"
-                               value="{{ request.query_params.get('orcamento_max', '') }}" placeholder="R$ 0,00" step="0.01">
-                    </div>
-                    <div class="col-md-3 d-flex align-items-end gap-2">
-                        <button type="submit" class="btn btn-primary flex-fill">Filtrar</button>
-                        <a href="/fornecedor/demandas" class="btn btn-info flex-fill">Limpar</a>
+                    <div class="col-md-8 d-flex align-items-end gap-2">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-filter"></i> Filtrar
+                        </button>
+                        <a href="/fornecedor/demandas" class="btn btn-outline-secondary">
+                            <i class="fas fa-times"></i> Limpar
+                        </a>
                     </div>
                 </form>
             </div>
@@ -56,92 +45,160 @@
     </div>
 </div>
 
+{% if mensagem %}
+<div class="row">
+    <div class="col-12">
+        <div class="alert alert-info">
+            <i class="fas fa-info-circle"></i> {{ mensagem }}
+        </div>
+    </div>
+</div>
+{% endif %}
+
 {% if demandas %}
 <div class="row">
-    {% for demanda in demandas %}
+    {% for item in demandas %}
+    {% set demanda = item.demanda %}
+    {% set casal = item.casal %}
+    {% set noivo = item.noivo %}
     <div class="col-lg-6 col-xl-4 mb-4">
-        <div class="card h-100 shadow">
-            <div class="card-header d-flex justify-content-between align-items-center">
-                <h6 class="mb-0">{{ demanda.titulo }}</h6>
-                <span class="badge bg-success">{{ demanda.status }}</span>
+        <div class="card h-100 shadow-sm">
+            <div class="card-header bg-light">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                        <h6 class="mb-1">Demanda #{{ demanda.id }}</h6>
+                        <small class="text-muted">
+                            <i class="fas fa-user"></i> {{ noivo.nome if noivo else 'Noivo' }}
+                        </small>
+                    </div>
+                    <span class="badge bg-success">{{ demanda.status.value }}</span>
+                </div>
             </div>
             <div class="card-body">
-                <p class="card-text">{{ demanda.descricao[:100] }}{% if demanda.descricao|length > 100 %}...{% endif %}</p>
+                <!-- Descrição Geral -->
+                <p class="mb-3">
+                    <strong>Descrição:</strong><br>
+                    <small>{{ demanda.descricao[:120] }}{% if demanda.descricao|length > 120 %}...{% endif %}</small>
+                </p>
 
-                <div class="row text-center mb-3">
-                    <div class="col-4">
-                        <small class="text-muted">Itens</small>
-                        <div class="fw-bold">{{ demanda.itens_count or 0 }}</div>
+                <!-- Informações do Casamento -->
+                <div class="row mb-3">
+                    <div class="col-6">
+                        <small class="text-muted d-block">Orçamento Total</small>
+                        {% if demanda.orcamento_total %}
+                            <strong class="text-success">R$ {{ "%.2f"|format(demanda.orcamento_total) }}</strong>
+                        {% else %}
+                            <span class="text-muted">Não informado</span>
+                        {% endif %}
                     </div>
-                    <div class="col-4">
-                        <small class="text-muted">Prazo</small>
-                        <div class="fw-bold">{{ demanda.prazo_entrega or '-' }}</div>
-                    </div>
-                    <div class="col-4">
-                        <small class="text-muted">Orçamentos</small>
-                        <div class="fw-bold">{{ demanda.orcamentos_count or 0 }}</div>
+                    <div class="col-6">
+                        <small class="text-muted d-block">Data Casamento</small>
+                        <strong>{{ demanda.data_casamento or 'N/A' }}</strong>
                     </div>
                 </div>
 
-                {% if demanda.orcamento_min and demanda.orcamento_max %}
-                <div class="alert alert-info py-2 mb-3">
+                <div class="row mb-3">
+                    <div class="col-6">
+                        <small class="text-muted d-block">Cidade</small>
+                        <strong>{{ demanda.cidade_casamento or 'N/A' }}</strong>
+                    </div>
+                    <div class="col-6">
+                        <small class="text-muted d-block">Prazo</small>
+                        <strong>{{ demanda.prazo_entrega or 'N/A' }}</strong>
+                    </div>
+                </div>
+
+                <!-- Estatísticas de Itens -->
+                <div class="row text-center mb-3">
+                    <div class="col-6">
+                        <small class="text-muted">Itens Totais</small>
+                        <div class="fw-bold text-primary">{{ item.total_itens }}</div>
+                    </div>
+                    <div class="col-6">
+                        <small class="text-muted">Você Pode Fornecer</small>
+                        <div class="fw-bold text-success">{{ item.itens_compativeis|length }}</div>
+                    </div>
+                </div>
+
+                <!-- Itens Compatíveis -->
+                {% if item.itens_compativeis %}
+                <div class="alert alert-success py-2 mb-3">
+                    <strong class="d-block mb-1">
+                        <i class="fas fa-check-circle"></i> Itens que você pode fornecer:
+                    </strong>
                     <small>
-                        <strong>Faixa de Orçamento:</strong>
-                        {{ demanda.orcamento_min|moeda }} - {{ demanda.orcamento_max|moeda }}
+                        {% for item_comp in item.itens_compativeis[:3] %}
+                        <div class="mb-1">
+                            <span class="badge
+                                {% if item_comp.tipo == 'PRODUTO' %}bg-primary
+                                {% elif item_comp.tipo == 'SERVIÇO' %}bg-success
+                                {% elif item_comp.tipo == 'ESPAÇO' %}bg-info
+                                {% else %}bg-secondary{% endif %}">
+                                {{ item_comp.tipo }}
+                            </span>
+                            <strong>{{ item_comp.categoria_nome or 'Categoria' }}:</strong>
+                            {{ item_comp.descricao[:60] }}{% if item_comp.descricao|length > 60 %}...{% endif %}
+                        </div>
+                        {% endfor %}
+                        {% if item.itens_compativeis|length > 3 %}
+                        <em class="text-muted">+ {{ item.itens_compativeis|length - 3 }} outro(s) item(ns)</em>
+                        {% endif %}
                     </small>
                 </div>
                 {% endif %}
 
+                <!-- Observações -->
+                {% if demanda.observacoes %}
                 <div class="mb-3">
-                    <small class="text-muted">Criada em: {{ demanda.data_criacao or 'Data não definida' }}</small>
-                </div>
-
-                <!-- Local do casamento se disponível -->
-                {% if demanda.local_evento %}
-                <div class="mb-3">
-                    <small class="text-muted">
-                        <i class="fas fa-map-marker-alt"></i> {{ demanda.local_evento }}
-                    </small>
+                    <small class="text-muted d-block">Observações:</small>
+                    <small>{{ demanda.observacoes[:100] }}{% if demanda.observacoes|length > 100 %}...{% endif %}</small>
                 </div>
                 {% endif %}
             </div>
-            <div class="card-footer bg-white border-top-0">
-                <div class="d-grid gap-2">
-                    <a href="/fornecedor/demanda/{{ demanda.id }}" class="btn btn-outline-primary btn-sm">
-                        <i class="fas fa-eye"></i> Ver Detalhes
-                    </a>
-                    {% if demanda.pode_fazer_orcamento %}
-                    <a href="/fornecedor/orcamento/novo/{{ demanda.id }}" class="btn btn-success btn-sm">
-                        <i class="fas fa-plus"></i> Fazer Orçamento
-                    </a>
-                    {% else %}
-                    <button class="btn btn-secondary btn-sm" disabled>
-                        <i class="fas fa-check"></i> Orçamento Enviado
-                    </button>
-                    {% endif %}
+
+            <!-- Ações -->
+            <div class="card-footer bg-white border-top">
+                {% if item.ja_tem_orcamento %}
+                <div class="alert alert-info mb-0 py-2">
+                    <small><i class="fas fa-info-circle"></i> Você já enviou um orçamento para esta demanda</small>
                 </div>
+                {% else %}
+                <a href="/fornecedor/demandas/{{ demanda.id }}/orcamento/novo" class="btn btn-primary w-100">
+                    <i class="fas fa-plus"></i> Fazer Orçamento
+                </a>
+                {% endif %}
             </div>
         </div>
     </div>
     {% endfor %}
 </div>
 
-<!-- Paginação -->
-<!-- Paginação será implementada futuramente -->
+<!-- Paginação (se necessário) -->
+{% if demandas|length > 12 %}
+<div class="row">
+    <div class="col-12 text-center">
+        <small class="text-muted">Mostrando {{ demandas|length }} demandas compatíveis</small>
+    </div>
+</div>
+{% endif %}
 
 {% else %}
 <div class="row">
     <div class="col-12">
-        <div class="card shadow">
+        <div class="card shadow-sm">
             <div class="card-body text-center py-5">
-                <i class="fas fa-search fa-4x text-gray-300 mb-4"></i>
-                <h4>Nenhuma demanda encontrada</h4>
-                {% if request.query_params.get('search') or request.query_params.get('categoria') or request.query_params.get('orcamento_min') or request.query_params.get('orcamento_max') %}
-                <p class="text-muted">Nenhuma demanda corresponde aos filtros aplicados.</p>
-                <a href="/fornecedor/demandas" class="btn btn-outline-secondary">Limpar Filtros</a>
-                {% else %}
-                <p class="text-muted">Não há demandas ativas disponíveis no momento. Volte mais tarde!</p>
-                {% endif %}
+                <i class="fas fa-inbox fa-3x text-gray-300 mb-3"></i>
+                <h5>Nenhuma demanda compatível encontrada</h5>
+                <p class="text-muted">
+                    {% if mensagem %}
+                        {{ mensagem }}
+                    {% else %}
+                        Não há demandas disponíveis que correspondam aos seus itens cadastrados no momento.
+                    {% endif %}
+                </p>
+                <a href="/fornecedor/itens" class="btn btn-primary mt-2">
+                    <i class="fas fa-box"></i> Gerenciar Meus Itens
+                </a>
             </div>
         </div>
     </div>

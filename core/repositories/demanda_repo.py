@@ -17,11 +17,10 @@ class DemandaRepo(BaseRepo):
         """Prepara dados da demanda para inserção"""
         return (
             demanda.id_casal,
-            demanda.id_categoria,
-            demanda.titulo,
             demanda.descricao,
-            demanda.orcamento_min,
-            demanda.orcamento_max,
+            demanda.orcamento_total,
+            demanda.data_casamento,
+            demanda.cidade_casamento,
             demanda.prazo_entrega,
             demanda.observacoes,
         )
@@ -29,10 +28,10 @@ class DemandaRepo(BaseRepo):
     def _objeto_para_tupla_update(self, demanda: Demanda) -> tuple:
         """Prepara dados da demanda para atualização"""
         return (
-            demanda.titulo,
             demanda.descricao,
-            demanda.orcamento_min,
-            demanda.orcamento_max,
+            demanda.orcamento_total,
+            demanda.data_casamento,
+            demanda.cidade_casamento,
             demanda.prazo_entrega,
             demanda.observacoes,
             demanda.id,
@@ -43,15 +42,14 @@ class DemandaRepo(BaseRepo):
         return Demanda(
             id=linha["id"],
             id_casal=linha["id_casal"],
-            id_categoria=linha["id_categoria"],
-            titulo=linha["titulo"],
             descricao=linha["descricao"],
-            orcamento_min=linha["orcamento_min"],
-            orcamento_max=linha["orcamento_max"],
-            prazo_entrega=linha["prazo_entrega"],
+            orcamento_total=self._safe_get(linha, "orcamento_total"),
+            data_casamento=self._safe_get(linha, "data_casamento"),
+            cidade_casamento=self._safe_get(linha, "cidade_casamento"),
+            prazo_entrega=self._safe_get(linha, "prazo_entrega"),
             status=linha["status"],
-            data_criacao=linha["data_criacao"],
-            observacoes=linha["observacoes"],
+            data_criacao=self._safe_get(linha, "data_criacao"),
+            observacoes=self._safe_get(linha, "observacoes"),
         )
 
     def atualizar_status(self, id_demanda: int, status: StatusDemanda) -> bool:
@@ -108,6 +106,17 @@ class DemandaRepo(BaseRepo):
         """Obtém demandas com paginação"""
         demandas, _ = self.obter_paginado(numero_pagina, tamanho_pagina)
         return demandas
+
+    def obter_por_cidade(self, cidade: str) -> List[Demanda]:
+        """
+        Obtém todas as demandas ativas de uma cidade específica.
+
+        Útil para fornecedores que atendem regiões específicas.
+        """
+        resultados = self.executar_consulta(
+            demanda_sql.OBTER_DEMANDAS_POR_CIDADE, (cidade,)
+        )
+        return [self._linha_para_objeto(row) for row in resultados]
 
 
 # Instância singleton do repositório

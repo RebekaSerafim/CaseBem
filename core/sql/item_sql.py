@@ -161,3 +161,20 @@ WHERE (? = '' OR nome LIKE ? OR descricao LIKE ? OR observacoes LIKE ?)
   AND (? = '' OR (? = 'ativo' AND ativo = 1) OR (? = 'inativo' AND ativo = 0))
   AND (? = '' OR id_categoria = ?);
 """
+
+# ==============================================================================
+# QUERIES ESPECÍFICAS PARA DEMANDA (item_demanda)
+# ==============================================================================
+
+OBTER_ITENS_ATIVOS_POR_CATEGORIA = """
+SELECT id, nome, descricao, preco, id_fornecedor, tipo
+FROM item
+WHERE id_categoria = ? AND ativo = 1
+ORDER BY nome ASC;
+"""
+
+OBTER_CATEGORIAS_DO_FORNECEDOR = """
+SELECT DISTINCT id_categoria
+FROM item
+WHERE id_fornecedor = ? AND ativo = 1;
+"""

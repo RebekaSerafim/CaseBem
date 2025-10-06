@@ -16,7 +16,7 @@ sys.path.insert(0, project_root)
 from tests.factories import (
     UsuarioFactory, FornecedorFactory, CategoriaFactory,
     ItemFactory, CasalFactory, DemandaFactory, OrcamentoFactory, ChatFactory,
-    FornecedorItemFactory, ItemDemandaFactory, ItemOrcamentoFactory, TestDataBuilder
+    ItemDemandaFactory, ItemOrcamentoFactory, TestDataBuilder
 )
 
 
@@ -165,12 +165,6 @@ def orcamento_factory():
 def chat_factory():
     """Factory para criar mensagens de chat nos testes"""
     return ChatFactory
-
-
-@pytest.fixture
-def fornecedor_item_factory():
-    """Factory para criar associações fornecedor-item nos testes"""
-    return FornecedorItemFactory
 
 
 @pytest.fixture

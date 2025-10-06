@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Request, Form, status
-from fastapi.responses import RedirectResponse
+from fastapi.responses import RedirectResponse, JSONResponse
 from fastapi.templating import Jinja2Templates
 from infrastructure.security import requer_autenticacao
 from core.models.usuario_model import TipoUsuario
@@ -281,9 +281,25 @@ async def listar_demandas(
             or search.lower() in d.descricao.lower()
         ]
 
+    # Enriquecer demandas com contagens de itens e orçamentos
+    from core.repositories import item_demanda_repo, orcamento_repo
+    demandas_com_contagens = []
+    for demanda in demandas:
+        # Adicionar atributos de contagem ao objeto demanda
+        demanda.itens_count = item_demanda_repo.contar_por_demanda(demanda.id)
+        demanda.orcamentos_count = orcamento_repo.contar_por_demanda(demanda.id)
+        demanda.orcamentos_pendentes = orcamento_repo.contar_por_demanda_e_status(
+            demanda.id, "PENDENTE"
+        )
+        demandas_com_contagens.append(demanda)
+
     return templates.TemplateResponse(
         "noivo/demandas.html",
-        {"request": request, "usuario_logado": usuario_logado, "demandas": demandas},
+        {
+            "request": request,
+            "usuario_logado": usuario_logado,
+            "demandas": demandas_com_contagens,
+        },
     )
 
 
@@ -291,9 +307,31 @@ async def listar_demandas(
 @requer_autenticacao([TipoUsuario.NOIVO.value])
 async def nova_demanda_form(request: Request, usuario_logado: dict = {}):
     """Formulário para criar nova demanda"""
+    from core.repositories import categoria_repo
+    from core.models.tipo_fornecimento_model import TipoFornecimento
+
+    id_noivo = usuario_logado["id"]
+
+    # Buscar casal do noivo
+    casal = casal_repo.obter_por_noivo(id_noivo)
+
+    # Buscar categorias ativas agrupadas por tipo
+    categorias = categoria_repo.buscar_categorias()
+    categorias_por_tipo = {
+        "PRODUTO": [{"id": c.id, "nome": c.nome} for c in categorias if c.ativo and c.tipo_fornecimento == TipoFornecimento.PRODUTO],
+        "SERVICO": [{"id": c.id, "nome": c.nome} for c in categorias if c.ativo and c.tipo_fornecimento == TipoFornecimento.SERVICO],
+        "ESPACO": [{"id": c.id, "nome": c.nome} for c in categorias if c.ativo and c.tipo_fornecimento == TipoFornecimento.ESPACO],
+    }
+
     return templates.TemplateResponse(
         "noivo/demanda_form.html",
-        {"request": request, "usuario_logado": usuario_logado, "acao": "criar"},
+        {
+            "request": request,
+            "usuario_logado": usuario_logado,
+            "acao": "criar",
+            "categorias_por_tipo": categorias_por_tipo,
+            "casal": casal,
+        },
     )
 
 
@@ -302,69 +340,331 @@ async def nova_demanda_form(request: Request, usuario_logado: dict = {}):
 @tratar_erro_rota(template_erro="noivo/demanda_form.html")
 async def criar_demanda(
     request: Request,
-    titulo: str = Form(...),
     descricao: str = Form(...),
-    id_categoria: int = Form(...),
-    orcamento_min: float = Form(None),
-    orcamento_max: float = Form(None),
+    orcamento_total: float = Form(None),
+    data_casamento: str = Form(""),
+    cidade_casamento: str = Form(""),
     prazo_entrega: str = Form(""),
     observacoes: str = Form(""),
+    tipo: list = Form([]),
+    id_categoria: list = Form([]),
+    descricao_item: list = Form([]),
+    quantidade: list = Form([]),
+    preco_maximo: list = Form([]),
+    observacoes_item: list = Form([]),
     usuario_logado: dict = {},
 ):
-    """Cria uma nova demanda"""
+    """Cria uma nova demanda com itens (descrições livres)"""
+    from core.repositories import item_demanda_repo
+    from core.models.item_demanda_model import ItemDemanda
+
     id_noivo = usuario_logado["id"]
-    logger.info("Criando nova demanda", noivo_id=id_noivo, titulo=titulo)
+    logger.info("Criando nova demanda", noivo_id=id_noivo)
 
     # Buscar casal do noivo
     casal = casal_repo.obter_por_noivo(id_noivo)
     if not casal:
         logger.warning("Casal não encontrado ao criar demanda", noivo_id=id_noivo)
-        return templates.TemplateResponse(
-            "noivo/demanda_form.html",
-            {
-                "request": request,
-                "usuario_logado": usuario_logado,
-                "erro": "Casal não encontrado",
-                "acao": "criar",
-            },
-        )
+        informar_erro(request, "Casal não encontrado. Cadastre um casal antes de criar demandas.")
+        return RedirectResponse("/noivo/demandas", status_code=status.HTTP_303_SEE_OTHER)
+
+    # Validar que pelo menos um item foi fornecido
+    if not tipo or len(tipo) == 0:
+        logger.warning("Tentativa de criar demanda sem itens", noivo_id=id_noivo)
+        informar_erro(request, "Adicione pelo menos um item à demanda")
+        return RedirectResponse("/noivo/demandas/nova", status_code=status.HTTP_303_SEE_OTHER)
 
     # Criar nova demanda
     nova_demanda = Demanda(
         id=0,  # Será definido pelo banco
         id_casal=casal.id,
-        id_categoria=id_categoria,
-        titulo=titulo,
         descricao=descricao,
-        orcamento_min=orcamento_min if orcamento_min else None,
-        orcamento_max=orcamento_max if orcamento_max else None,
+        orcamento_total=orcamento_total if orcamento_total else None,
+        data_casamento=data_casamento if data_casamento else casal.data_casamento,
+        cidade_casamento=cidade_casamento if cidade_casamento else casal.local_previsto,
         prazo_entrega=prazo_entrega if prazo_entrega else None,
         observacoes=observacoes if observacoes else None,
     )
 
-    # Inserir no banco
+    # Inserir demanda no banco
     id_demanda = demanda_repo.inserir(nova_demanda)
 
     if id_demanda:
+        # Inserir itens da demanda (descrições livres)
+        itens_inseridos = 0
+        for i in range(len(tipo)):
+            try:
+                # Validar e converter valores
+                tipo_valor = tipo[i] if i < len(tipo) else None
+                id_cat = int(id_categoria[i]) if i < len(id_categoria) and id_categoria[i] else None
+                desc_item = descricao_item[i] if i < len(descricao_item) else None
+                qtd = int(quantidade[i]) if i < len(quantidade) and quantidade[i] else 1
+                preco_max = float(preco_maximo[i]) if i < len(preco_maximo) and preco_maximo[i] else None
+                obs_item = observacoes_item[i] if i < len(observacoes_item) and observacoes_item[i] else None
+
+                if tipo_valor and id_cat and desc_item:
+                    item_demanda = ItemDemanda(
+                        id=0,  # Será definido pelo banco
+                        id_demanda=id_demanda,
+                        tipo=tipo_valor,
+                        id_categoria=id_cat,
+                        descricao=desc_item,
+                        quantidade=qtd,
+                        preco_maximo=preco_max,
+                        observacoes=obs_item
+                    )
+                    item_demanda_repo.inserir(item_demanda)
+                    itens_inseridos += 1
+            except Exception as e:
+                logger.error("Erro ao inserir item da demanda", erro=e, demanda_id=id_demanda, item_index=i)
+
         logger.info(
-            "Demanda criada com sucesso", demanda_id=id_demanda, casal_id=casal.id
+            "Demanda criada com sucesso",
+            demanda_id=id_demanda,
+            casal_id=casal.id,
+            total_itens=itens_inseridos
         )
+        informar_sucesso(request, f"Demanda criada com sucesso! {itens_inseridos} itens adicionados.")
         return RedirectResponse(
             "/noivo/demandas", status_code=status.HTTP_303_SEE_OTHER
         )
     else:
         logger.error(
-            "Falha ao inserir demanda no banco", casal_id=casal.id, titulo=titulo
+            "Falha ao inserir demanda no banco", casal_id=casal.id
         )
-        return templates.TemplateResponse(
-            "noivo/demanda_form.html",
-            {
-                "request": request,
-                "usuario_logado": usuario_logado,
-                "erro": "Erro ao criar demanda no banco de dados",
-                "acao": "criar",
-            },
+        informar_erro(request, "Erro ao criar demanda no banco de dados")
+        return RedirectResponse("/noivo/demandas/nova", status_code=status.HTTP_303_SEE_OTHER)
+
+
+@router.get("/noivo/demanda/{id_demanda}")
+@requer_autenticacao([TipoUsuario.NOIVO.value])
+@tratar_erro_rota(redirect_erro="/noivo/demandas")
+async def visualizar_demanda(
+    request: Request, id_demanda: int, usuario_logado: dict = {}
+):
+    """Visualiza detalhes de uma demanda com seus itens"""
+    from core.repositories import item_demanda_repo, orcamento_repo
+
+    id_noivo = usuario_logado["id"]
+    logger.info("Visualizando demanda", noivo_id=id_noivo, demanda_id=id_demanda)
+
+    # Buscar demanda
+    demanda = demanda_repo.obter_por_id(id_demanda)
+    if not demanda:
+        logger.warning("Demanda não encontrada", demanda_id=id_demanda)
+        informar_erro(request, "Demanda não encontrada")
+        return RedirectResponse("/noivo/demandas", status_code=status.HTTP_303_SEE_OTHER)
+
+    # Buscar casal do noivo
+    casal = casal_repo.obter_por_noivo(id_noivo)
+
+    # Verificar se a demanda pertence ao casal do noivo
+    if not casal or demanda.id_casal != casal.id:
+        logger.warning(
+            "Acesso negado à demanda",
+            demanda_id=id_demanda,
+            noivo_id=id_noivo,
+            demanda_casal_id=demanda.id_casal,
+            casal_id=casal.id if casal else None,
         )
+        informar_erro(request, "Acesso negado")
+        return RedirectResponse("/noivo/demandas", status_code=status.HTTP_303_SEE_OTHER)
+
+    # Buscar itens da demanda
+    itens_demanda = item_demanda_repo.obter_por_demanda(id_demanda)
+
+    # Buscar orçamentos da demanda
+    orcamentos = orcamento_repo.obter_por_demanda(id_demanda)
+
+    # Buscar categoria
+    from core.repositories import categoria_repo
+    categoria = categoria_repo.obter_por_id(demanda.id_categoria)
+
+    return templates.TemplateResponse(
+        "noivo/demanda_detalhes.html",
+        {
+            "request": request,
+            "usuario_logado": usuario_logado,
+            "demanda": demanda,
+            "itens": itens_demanda,
+            "orcamentos": orcamentos,
+            "categoria": categoria,
+        },
+    )
+
+
+@router.get("/noivo/demanda/editar/{id_demanda}")
+@requer_autenticacao([TipoUsuario.NOIVO.value])
+@tratar_erro_rota(redirect_erro="/noivo/demandas")
+async def editar_demanda_form(
+    request: Request, id_demanda: int, usuario_logado: dict = {}
+):
+    """Formulário para editar demanda"""
+    from core.repositories import item_demanda_repo, categoria_repo
+
+    id_noivo = usuario_logado["id"]
+    logger.info("Editando demanda", noivo_id=id_noivo, demanda_id=id_demanda)
+
+    # Buscar demanda
+    demanda = demanda_repo.obter_por_id(id_demanda)
+    if not demanda:
+        logger.warning("Demanda não encontrada para edição", demanda_id=id_demanda)
+        informar_erro(request, "Demanda não encontrada")
+        return RedirectResponse("/noivo/demandas", status_code=status.HTTP_303_SEE_OTHER)
+
+    # Buscar casal do noivo
+    casal = casal_repo.obter_por_noivo(id_noivo)
+
+    # Verificar se a demanda pertence ao casal do noivo
+    if not casal or demanda.id_casal != casal.id:
+        logger.warning(
+            "Acesso negado para editar demanda",
+            demanda_id=id_demanda,
+            noivo_id=id_noivo,
+        )
+        informar_erro(request, "Acesso negado")
+        return RedirectResponse("/noivo/demandas", status_code=status.HTTP_303_SEE_OTHER)
+
+    # Verificar se demanda pode ser editada
+    if demanda.status.value != 'ATIVA':
+        logger.warning(
+            "Tentativa de editar demanda não ativa",
+            demanda_id=id_demanda,
+            status=demanda.status.value,
+        )
+        informar_erro(request, "Apenas demandas ativas podem ser editadas")
+        return RedirectResponse("/noivo/demandas", status_code=status.HTTP_303_SEE_OTHER)
+
+    # Buscar itens da demanda
+    itens_demanda = item_demanda_repo.obter_por_demanda(id_demanda)
+
+    # Buscar categorias agrupadas por tipo
+    from core.models.tipo_fornecimento_model import TipoFornecimento
+    categorias = categoria_repo.buscar_categorias()
+    categorias_por_tipo = {
+        "PRODUTO": [{"id": c.id, "nome": c.nome} for c in categorias if c.ativo and c.tipo_fornecimento == TipoFornecimento.PRODUTO],
+        "SERVICO": [{"id": c.id, "nome": c.nome} for c in categorias if c.ativo and c.tipo_fornecimento == TipoFornecimento.SERVICO],
+        "ESPACO": [{"id": c.id, "nome": c.nome} for c in categorias if c.ativo and c.tipo_fornecimento == TipoFornecimento.ESPACO],
+    }
+
+    return templates.TemplateResponse(
+        "noivo/demanda_form.html",
+        {
+            "request": request,
+            "usuario_logado": usuario_logado,
+            "acao": "editar",
+            "demanda": demanda,
+            "itens_demanda": itens_demanda,
+            "categorias_por_tipo": categorias_por_tipo,
+            "casal": casal,
+        },
+    )
+
+
+@router.post("/noivo/demanda/editar/{id_demanda}")
+@requer_autenticacao([TipoUsuario.NOIVO.value])
+@tratar_erro_rota(template_erro="noivo/demanda_form.html")
+async def atualizar_demanda(
+    request: Request,
+    id_demanda: int,
+    descricao: str = Form(...),
+    orcamento_total: float = Form(None),
+    data_casamento: str = Form(""),
+    cidade_casamento: str = Form(""),
+    prazo_entrega: str = Form(""),
+    observacoes: str = Form(""),
+    tipo: list = Form([]),
+    id_categoria: list = Form([]),
+    descricao_item: list = Form([]),
+    quantidade: list = Form([]),
+    preco_maximo: list = Form([]),
+    observacoes_item: list = Form([]),
+    usuario_logado: dict = {},
+):
+    """Atualiza uma demanda existente com itens (descrições livres)"""
+    from core.repositories import item_demanda_repo
+    from core.models.item_demanda_model import ItemDemanda
+
+    id_noivo = usuario_logado["id"]
+    logger.info("Atualizando demanda", noivo_id=id_noivo, demanda_id=id_demanda)
+
+    # Buscar demanda
+    demanda = demanda_repo.obter_por_id(id_demanda)
+    if not demanda:
+        logger.warning("Demanda não encontrada para atualização", demanda_id=id_demanda)
+        informar_erro(request, "Demanda não encontrada")
+        return RedirectResponse("/noivo/demandas", status_code=status.HTTP_303_SEE_OTHER)
+
+    # Buscar casal do noivo
+    casal = casal_repo.obter_por_noivo(id_noivo)
+
+    # Verificar permissão
+    if not casal or demanda.id_casal != casal.id:
+        logger.warning("Acesso negado para atualizar demanda", demanda_id=id_demanda)
+        informar_erro(request, "Acesso negado")
+        return RedirectResponse("/noivo/demandas", status_code=status.HTTP_303_SEE_OTHER)
+
+    # Validar que pelo menos um item foi fornecido
+    if not tipo or len(tipo) == 0:
+        logger.warning("Tentativa de atualizar demanda sem itens", demanda_id=id_demanda)
+        informar_erro(request, "Adicione pelo menos um item à demanda")
+        return RedirectResponse(f"/noivo/demanda/editar/{id_demanda}", status_code=status.HTTP_303_SEE_OTHER)
+
+    # Atualizar dados da demanda
+    demanda.descricao = descricao
+    demanda.orcamento_total = orcamento_total if orcamento_total else None
+    demanda.data_casamento = data_casamento if data_casamento else casal.data_casamento
+    demanda.cidade_casamento = cidade_casamento if cidade_casamento else casal.local_previsto
+    demanda.prazo_entrega = prazo_entrega if prazo_entrega else None
+    demanda.observacoes = observacoes if observacoes else None
+
+    # Atualizar demanda no banco
+    sucesso = demanda_repo.atualizar(demanda)
+
+    if sucesso:
+        # Excluir itens antigos
+        item_demanda_repo.excluir_por_demanda(id_demanda)
+
+        # Inserir novos itens (descrições livres)
+        itens_inseridos = 0
+        for i in range(len(tipo)):
+            try:
+                tipo_valor = tipo[i] if i < len(tipo) else None
+                id_cat = int(id_categoria[i]) if i < len(id_categoria) and id_categoria[i] else None
+                desc_item = descricao_item[i] if i < len(descricao_item) else None
+                qtd = int(quantidade[i]) if i < len(quantidade) and quantidade[i] else 1
+                preco_max = float(preco_maximo[i]) if i < len(preco_maximo) and preco_maximo[i] else None
+                obs_item = observacoes_item[i] if i < len(observacoes_item) and observacoes_item[i] else None
+
+                if tipo_valor and id_cat and desc_item:
+                    item_demanda = ItemDemanda(
+                        id=0,  # Será definido pelo banco
+                        id_demanda=id_demanda,
+                        tipo=tipo_valor,
+                        id_categoria=id_cat,
+                        descricao=desc_item,
+                        quantidade=qtd,
+                        preco_maximo=preco_max,
+                        observacoes=obs_item
+                    )
+                    item_demanda_repo.inserir(item_demanda)
+                    itens_inseridos += 1
+            except Exception as e:
+                logger.error("Erro ao inserir item da demanda", erro=e, demanda_id=id_demanda, item_index=i)
+
+        logger.info(
+            "Demanda atualizada com sucesso",
+            demanda_id=id_demanda,
+            total_itens=itens_inseridos
+        )
+        informar_sucesso(request, f"Demanda atualizada com sucesso! {itens_inseridos} itens salvos.")
+        return RedirectResponse(
+            f"/noivo/demanda/{id_demanda}", status_code=status.HTTP_303_SEE_OTHER
+        )
+    else:
+        logger.error("Falha ao atualizar demanda no banco", demanda_id=id_demanda)
+        informar_erro(request, "Erro ao atualizar demanda no banco de dados")
+        return RedirectResponse(f"/noivo/demanda/editar/{id_demanda}", status_code=status.HTTP_303_SEE_OTHER)
 
 
 # ==================== ORÇAMENTOS ====================
@@ -512,34 +812,24 @@ async def visualizar_orcamento(
     # Buscar fornecedor
     fornecedor = fornecedor_repo.obter_por_id(orcamento.id_fornecedor)
 
-    # Buscar itens do orçamento
+    # Buscar itens do orçamento (query já faz JOIN com item, traz nome, descricao, tipo)
     itens_orcamento = item_orcamento_repo.obter_por_orcamento(orcamento.id)
 
-    # Enriquecer itens com dados do item
+    # Enriquecer itens com dados do item (dados já vêm da query via JOIN)
     itens_enriched = []
     for item_orc in itens_orcamento:
-        try:
-            item_data = item_repo.obter_por_id(item_orc["id_item"])
-            item_dict = {
-                "id_item": item_orc["id_item"],
-                "nome_item": item_data.nome if item_data else "Item não encontrado",
-                "descricao_item": item_data.descricao if item_data else "",
-                "tipo_item": item_data.tipo.value if item_data else "",
-                "quantidade": item_orc["quantidade"],
-                "preco_unitario": item_orc["preco_unitario"],
-                "desconto": item_orc.get("desconto", 0) or 0,
-                "preco_total": item_orc["preco_total"],
-                "observacoes": item_orc.get("observacoes"),
-            }
-            itens_enriched.append(item_dict)
-        except Exception as e:
-            logger.error(
-                "Erro ao enriquecer item do orçamento",
-                orcamento_id=id_orcamento,
-                item_id=item_orc.get("id_item"),
-                erro=e,
-            )
-            continue
+        item_dict = {
+            "id_item": item_orc["id_item"],
+            "nome_item": item_orc.get("nome", "Item não encontrado"),
+            "descricao_item": item_orc.get("descricao", ""),
+            "tipo_item": item_orc.get("tipo", ""),
+            "quantidade": item_orc["quantidade"],
+            "preco_unitario": item_orc["preco_unitario"],
+            "desconto": item_orc.get("desconto", 0) or 0,
+            "preco_total": item_orc["preco_total"],
+            "observacoes": item_orc.get("observacoes"),
+        }
+        itens_enriched.append(item_dict)
 
     # Criar objeto orçamento enriquecido
     orcamento_enriched = {
@@ -932,3 +1222,8 @@ async def checklist(request: Request, usuario_logado: dict = {}):
                 "progresso": 0,
             },
         )
+
+
+# ==================== API ENDPOINTS (AJAX) ====================
+# Removido: /api/itens/categoria/{id_categoria}
+# Não é mais necessário - ItemDemanda agora usa descrições livres, não itens do catálogo

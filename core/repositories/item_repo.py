@@ -336,6 +336,30 @@ class ItemRepo(BaseRepo):
 
         return itens, total
 
+    def obter_itens_ativos_por_categoria(self, id_categoria: int) -> List[Dict[str, Any]]:
+        """Busca itens ativos de uma categoria específica (para AJAX/API)"""
+        resultados = self.executar_consulta(
+            item_sql.OBTER_ITENS_ATIVOS_POR_CATEGORIA, (id_categoria,)
+        )
+        return [
+            {
+                "id": r["id"],
+                "nome": r["nome"],
+                "descricao": r["descricao"],
+                "preco": float(r["preco"]),
+                "id_fornecedor": r["id_fornecedor"],
+                "tipo": r["tipo"]
+            }
+            for r in resultados
+        ]
+
+    def obter_categorias_do_fornecedor(self, id_fornecedor: int) -> List[int]:
+        """Retorna lista de IDs de categorias que o fornecedor oferece itens ativos"""
+        resultados = self.executar_consulta(
+            item_sql.OBTER_CATEGORIAS_DO_FORNECEDOR, (id_fornecedor,)
+        )
+        return [r["id_categoria"] for r in resultados]
+
 
 # Instância singleton do repositório
 item_repo = ItemRepo()

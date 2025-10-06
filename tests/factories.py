@@ -19,7 +19,6 @@ from core.models.casal_model import Casal
 from core.models.demanda_model import Demanda, StatusDemanda
 from core.models.orcamento_model import Orcamento
 from core.models.chat_model import Chat
-from core.models.fornecedor_item_model import FornecedorItem
 from core.models.item_demanda_model import ItemDemanda
 from core.models.item_orcamento_model import ItemOrcamento
 
@@ -317,18 +316,17 @@ class TestDataBuilder:
 
 
 class DemandaFactory(BaseFactory[Demanda]):
-    """Factory para criar demandas de teste"""
+    """Factory para criar demandas de teste (V2: com descrição livre, sem id_categoria)"""
 
     @classmethod
     def _dados_padrao(cls) -> Dict[str, Any]:
         return {
             'id': 0,
             'id_casal': 1,
-            'id_categoria': 1,
-            'titulo': fake.sentence(nb_words=4).replace('.', ''),
             'descricao': fake.text(max_nb_chars=200),
-            'orcamento_min': round(random.uniform(500, 2000), 2),
-            'orcamento_max': round(random.uniform(2000, 5000), 2),
+            'orcamento_total': round(random.uniform(1000, 10000), 2),
+            'data_casamento': fake.future_date(end_date='+365d').strftime('%Y-%m-%d'),
+            'cidade_casamento': fake.city(),
             'prazo_entrega': fake.future_date(end_date='+30d').strftime('%Y-%m-%d'),
             'status': StatusDemanda.ATIVA,
             'data_criacao': datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
@@ -342,8 +340,8 @@ class DemandaFactory(BaseFactory[Demanda]):
         return {
             'id': indice + 1,
             'id_casal': (indice % 5) + 1,
-            'id_categoria': (indice % 10) + 1,
-            'titulo': fake.sentence(nb_words=4).replace('.', ''),
+            'descricao': fake.text(max_nb_chars=200),
+            'cidade_casamento': fake.city(),
             'status': status_list[indice % len(status_list)]
         }
 
@@ -414,51 +412,32 @@ class ChatFactory(BaseFactory[Chat]):
         return Chat(**dados)
 
 
-class FornecedorItemFactory(BaseFactory[FornecedorItem]):
-    """Factory para criar associações fornecedor-item de teste"""
-
-    @classmethod
-    def _dados_padrao(cls) -> Dict[str, Any]:
-        return {
-            'id_fornecedor': 1,
-            'id_item': 1,
-            'observacoes': fake.text(max_nb_chars=100) if random.choice([True, False]) else None,
-            'preco_personalizado': round(random.uniform(50, 500), 2),
-            'disponivel': True
-        }
-
-    @classmethod
-    def _variar_dados(cls, indice: int) -> Dict[str, Any]:
-        return {
-            'id_fornecedor': (indice % 3) + 1,
-            'id_item': (indice % 5) + 1,
-            'preco_personalizado': round(random.uniform(50 + indice*10, 500 + indice*10), 2),
-            'disponivel': indice % 2 == 0
-        }
-
-    @classmethod
-    def _construir_objeto(cls, dados: Dict[str, Any]) -> FornecedorItem:
-        return FornecedorItem(**dados)
-
-
 class ItemDemandaFactory(BaseFactory[ItemDemanda]):
-    """Factory para criar associações item-demanda de teste"""
+    """Factory para criar itens de demanda de teste (V2: descrição livre, sem id_item)"""
 
     @classmethod
     def _dados_padrao(cls) -> Dict[str, Any]:
+        tipos = list(TipoFornecimento)
         return {
+            'id': 0,
             'id_demanda': 1,
-            'id_item': 1,
+            'tipo': random.choice(tipos),
+            'id_categoria': 1,
+            'descricao': fake.text(max_nb_chars=150),
             'quantidade': random.randint(1, 10),
-            'observacoes': fake.text(max_nb_chars=100) if random.choice([True, False]) else None,
-            'preco_maximo': round(random.uniform(50, 500), 2) if random.choice([True, False]) else None
+            'preco_maximo': round(random.uniform(50, 500), 2) if random.choice([True, False]) else None,
+            'observacoes': fake.text(max_nb_chars=100) if random.choice([True, False]) else None
         }
 
     @classmethod
     def _variar_dados(cls, indice: int) -> Dict[str, Any]:
+        tipos = list(TipoFornecimento)
         return {
+            'id': indice + 1,
             'id_demanda': (indice % 3) + 1,
-            'id_item': (indice % 5) + 1,
+            'tipo': tipos[indice % len(tipos)],
+            'id_categoria': (indice % 10) + 1,
+            'descricao': fake.text(max_nb_chars=150),
             'quantidade': indice + 1,
             'preco_maximo': round(random.uniform(100 + indice*20, 500 + indice*20), 2)
         }

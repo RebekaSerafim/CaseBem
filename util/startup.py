@@ -5,7 +5,7 @@ from core.models.usuario_model import Usuario, TipoUsuario
 from core.models.tipo_fornecimento_model import TipoFornecimento
 from core.models.fornecedor_model import Fornecedor
 from core.models.casal_model import Casal
-from core.repositories import usuario_repo, fornecedor_repo, casal_repo, item_repo, categoria_repo, fornecedor_item_repo, item_demanda_repo, item_orcamento_repo, demanda_repo, orcamento_repo, favorito_repo, chat_repo
+from core.repositories import usuario_repo, fornecedor_repo, casal_repo, item_repo, categoria_repo, item_demanda_repo, item_orcamento_repo, demanda_repo, orcamento_repo, favorito_repo, chat_repo
 from infrastructure.security import criar_hash_senha
 from infrastructure.logging import logger
 
@@ -18,7 +18,6 @@ def criar_tabelas_banco():
     casal_repo.criar_tabela()
     item_repo.criar_tabela()
     categoria_repo.criar_tabela()
-    fornecedor_item_repo.criar_tabela()
     demanda_repo.criar_tabela()
     orcamento_repo.criar_tabela()
     item_demanda_repo.criar_tabela()
@@ -116,7 +115,7 @@ def criar_usuarios_seed():
                         user_data['data_nascimento'],
                         user_data['email'],
                         user_data['telefone'],
-                        user_data['senha'],
+                        criar_hash_senha("1234aA@#"),
                         user_data['perfil'],
                         1,  # ativo
                         user_data.get('token_redefinicao'),
@@ -127,6 +126,7 @@ def criar_usuarios_seed():
                 logger.debug(f"Usuário ID {user_data['id']} '{user_data['nome']}' importado")
 
         logger.info(f"{len(usuarios_dados)} usuários noivos importados com sucesso!")
+        logger.info("Senha padrão para todos os usuários: 1234aA@#")
         logger.warning("IMPORTANTE: Altere as senhas padrão dos usuários de teste!")
 
     except Exception as e:
@@ -236,7 +236,7 @@ def criar_fornecedores_seed():
                         forn_data['data_nascimento'],
                         forn_data['email'],
                         forn_data['telefone'],
-                        forn_data['senha'],
+                        criar_hash_senha("1234aA@#"),
                         forn_data['perfil'],
                         forn_data['ativo'],
                         None,  # token_redefinicao
@@ -260,6 +260,7 @@ def criar_fornecedores_seed():
                 logger.debug(f"Fornecedor ID {forn_data['id']} '{forn_data['nome_empresa']}' importado")
 
         logger.info(f"{len(fornecedores_dados)} fornecedores importados com sucesso!")
+        logger.info("Senha padrão para todos os fornecedores: 1234aA@#")
 
     except Exception as e:
         logger.error(f"Erro ao importar fornecedores: {e}")
