@@ -11,14 +11,16 @@ Testa todas as funcionalidades disponíveis para administradores:
 """
 import pytest
 from playwright.sync_api import Page
-from tests.e2e.helpers.navigation import login_as, fill_form, goto_dashboard
+from tests.e2e.helpers.navigation import login_as, fill_form, goto_dashboard, goto_url
 from tests.e2e.helpers.assertions import (
     assert_url_contains,
     assert_text_visible,
     assert_element_visible,
-    assert_heading_visible
+    assert_heading_visible,
+    assert_at_base_url
 )
 from tests.e2e.helpers.data_builders import CategoriaBuilder
+from tests.e2e.conftest import BASE_URL
 
 # ==================== DASHBOARD E NAVEGAÇÃO ====================
 
@@ -387,13 +389,12 @@ def test_admin_fazer_logout(page_admin: Page):
                 page_admin.wait_for_load_state("networkidle")
 
                 # Verificar redirecionamento
-                assert page_admin.url in ["http://localhost:8000/", "http://localhost:8000"] or \
+                assert page_admin.url in [f"{BASE_URL}/", BASE_URL] or \
                        "/login" in page_admin.url
                 return
             except:
                 pass
 
     # Fallback: ir direto para /logout
-    page_admin.goto("http://localhost:8000/logout")
-    page_admin.wait_for_load_state("networkidle")
-    assert page_admin.url in ["http://localhost:8000/", "http://localhost:8000"]
+    goto_url(page_admin, "/logout")
+    assert_at_base_url(page_admin)

@@ -10,13 +10,15 @@ Testa todas as funcionalidades disponíveis para fornecedores:
 """
 import pytest
 from playwright.sync_api import Page
-from tests.e2e.helpers.navigation import fill_form
+from tests.e2e.helpers.navigation import fill_form, goto_url
 from tests.e2e.helpers.assertions import (
     assert_url_contains,
     assert_text_visible,
-    assert_element_visible
+    assert_element_visible,
+    assert_at_base_url
 )
 from tests.e2e.helpers.data_builders import ItemBuilder, OrcamentoBuilder
+from tests.e2e.conftest import BASE_URL
 
 # ==================== DASHBOARD ====================
 
@@ -418,7 +420,7 @@ def test_fornecedor_visualizar_perfil(page_fornecedor: Page):
 
     # Fallback: ir direto para /fornecedor/perfil
     try:
-        page_fornecedor.goto("http://localhost:8000/fornecedor/perfil")
+        goto_url(page_fornecedor, "/fornecedor/perfil")
         page_fornecedor.wait_for_load_state("networkidle")
 
         assert_url_contains(page_fornecedor, "/fornecedor")
@@ -432,7 +434,7 @@ def test_fornecedor_visualizar_perfil(page_fornecedor: Page):
 def test_fornecedor_editar_perfil(page_fornecedor: Page):
     """Edita dados do perfil do fornecedor"""
     # Ir direto para página de perfil
-    page_fornecedor.goto("http://localhost:8000/fornecedor/perfil")
+    goto_url(page_fornecedor, "/fornecedor/perfil")
     page_fornecedor.wait_for_load_state("networkidle")
 
     # Procurar botão de editar
@@ -488,7 +490,7 @@ def test_fornecedor_menu_navegacao(page_fornecedor: Page):
 def test_fornecedor_acessar_itens_rapido(page_fornecedor: Page):
     """Acesso rápido à página de itens"""
     # Ir direto para a URL de itens
-    page_fornecedor.goto("http://localhost:8000/fornecedor/itens")
+    goto_url(page_fornecedor, "/fornecedor/itens")
     page_fornecedor.wait_for_load_state("networkidle")
 
     assert_url_contains(page_fornecedor, "/fornecedor")
@@ -531,7 +533,7 @@ def test_fornecedor_buscar_item(page_fornecedor: Page):
 def test_fornecedor_visualizar_estatisticas_dashboard(page_fornecedor: Page):
     """Verifica visualização detalhada de estatísticas"""
     # Voltar ao dashboard
-    page_fornecedor.goto("http://localhost:8000/fornecedor/dashboard")
+    goto_url(page_fornecedor, "/fornecedor/dashboard")
     page_fornecedor.wait_for_load_state("networkidle")
 
     # Verificar presença de cards/widgets
@@ -564,7 +566,7 @@ def test_fornecedor_filtrar_itens_ativos(page_fornecedor: Page):
 def test_fornecedor_acessar_demandas_rapido(page_fornecedor: Page):
     """Acesso rápido à página de demandas"""
     # Ir direto para a URL de demandas
-    page_fornecedor.goto("http://localhost:8000/fornecedor/demandas")
+    goto_url(page_fornecedor, "/fornecedor/demandas")
     page_fornecedor.wait_for_load_state("networkidle")
 
     assert_url_contains(page_fornecedor, "/fornecedor")
@@ -576,7 +578,7 @@ def test_fornecedor_filtrar_demandas_por_status(page_fornecedor: Page):
     """Filtra demandas por status"""
     # Navegar para demandas
     if page_fornecedor.locator('a:has-text("Demandas")').count() == 0:
-        page_fornecedor.goto("http://localhost:8000/fornecedor/demandas")
+        goto_url(page_fornecedor, "/fornecedor/demandas")
         page_fornecedor.wait_for_load_state("networkidle")
     else:
         page_fornecedor.click('a:has-text("Demandas")')
@@ -609,7 +611,7 @@ def test_fornecedor_filtrar_demandas_por_status(page_fornecedor: Page):
 def test_fornecedor_visualizar_orcamentos_enviados(page_fornecedor: Page):
     """Visualiza lista de orçamentos enviados"""
     # Ir direto para orçamentos
-    page_fornecedor.goto("http://localhost:8000/fornecedor/orcamentos")
+    goto_url(page_fornecedor, "/fornecedor/orcamentos")
     page_fornecedor.wait_for_load_state("networkidle")
 
     assert_url_contains(page_fornecedor, "/fornecedor")
@@ -622,7 +624,7 @@ def test_fornecedor_visualizar_orcamentos_enviados(page_fornecedor: Page):
 def test_fornecedor_filtrar_orcamentos_por_status(page_fornecedor: Page):
     """Filtra orçamentos por status (pendente/aceito/rejeitado)"""
     # Navegar para orçamentos
-    page_fornecedor.goto("http://localhost:8000/fornecedor/orcamentos")
+    goto_url(page_fornecedor, "/fornecedor/orcamentos")
     page_fornecedor.wait_for_load_state("networkidle")
 
     # Procurar filtros
@@ -654,22 +656,22 @@ def test_fornecedor_navegar_entre_paginas(page_fornecedor: Page):
     # Testar navegação Dashboard -> Itens -> Demandas -> Orçamentos
 
     # Dashboard
-    page_fornecedor.goto("http://localhost:8000/fornecedor/dashboard")
+    goto_url(page_fornecedor, "/fornecedor/dashboard")
     page_fornecedor.wait_for_load_state("networkidle")
     assert_url_contains(page_fornecedor, "/fornecedor")
 
     # Itens
-    page_fornecedor.goto("http://localhost:8000/fornecedor/itens")
+    goto_url(page_fornecedor, "/fornecedor/itens")
     page_fornecedor.wait_for_load_state("networkidle")
     assert_url_contains(page_fornecedor, "/fornecedor")
 
     # Demandas
-    page_fornecedor.goto("http://localhost:8000/fornecedor/demandas")
+    goto_url(page_fornecedor, "/fornecedor/demandas")
     page_fornecedor.wait_for_load_state("networkidle")
     assert_url_contains(page_fornecedor, "/fornecedor")
 
     # Orçamentos
-    page_fornecedor.goto("http://localhost:8000/fornecedor/orcamentos")
+    goto_url(page_fornecedor, "/fornecedor/orcamentos")
     page_fornecedor.wait_for_load_state("networkidle")
     assert_url_contains(page_fornecedor, "/fornecedor")
 
@@ -707,13 +709,13 @@ def test_fornecedor_fazer_logout(page_fornecedor: Page):
                 page_fornecedor.locator(selector).first.click(timeout=5000)
                 page_fornecedor.wait_for_load_state("networkidle")
 
-                assert page_fornecedor.url in ["http://localhost:8000/", "http://localhost:8000"] or \
+                assert page_fornecedor.url in [f"{BASE_URL}/", BASE_URL] or \
                        "/login" in page_fornecedor.url
                 return
             except:
                 pass
 
     # Fallback
-    page_fornecedor.goto("http://localhost:8000/logout")
+    goto_url(page_fornecedor, "/logout")
     page_fornecedor.wait_for_load_state("networkidle")
-    assert page_fornecedor.url in ["http://localhost:8000/", "http://localhost:8000"]
+    assert page_fornecedor.url in [f"{BASE_URL}/", BASE_URL]

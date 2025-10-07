@@ -7,21 +7,25 @@ from typing import Generator
 import os
 
 # URLs base
-BASE_URL = os.getenv("E2E_BASE_URL", "http://localhost:8000")
+# Para configurar uma URL customizada, defina a variável de ambiente E2E_BASE_URL
+# Exemplo: export E2E_BASE_URL="http://localhost:3000"
+# Exemplo: export E2E_BASE_URL="https://staging.casebem.com"
+BASE_URL = os.getenv("E2E_BASE_URL", "http://localhost:8001")
 
 # Credenciais de teste
+# IMPORTANTE: Estes usuários devem existir no banco de dados (via seeds ou criação manual)
 USUARIOS_TESTE = {
     "admin": {
         "email": "admin@casebem.com",
         "senha": "1234aA@#"
     },
     "fornecedor": {
-        "email": "fornecedor@teste.com",
-        "senha": "teste123"
+        "email": "ana@casamentosperfeitos.com",  # Fornecedor ID 2 do seed
+        "senha": "1234aA@#"
     },
     "noivo": {
-        "email": "noivo@teste.com",
-        "senha": "teste123"
+        "email": "joao.silva@email.com",  # Noivo ID 12 do seed
+        "senha": "1234aA@#"
     }
 }
 

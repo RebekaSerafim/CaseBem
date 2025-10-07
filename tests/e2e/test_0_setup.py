@@ -5,11 +5,11 @@ Este arquivo contém testes básicos para validar que o setup E2E está funciona
 """
 import pytest
 from playwright.sync_api import Page
-from tests.e2e.helpers.navigation import login_as, goto_dashboard, logout
+from tests.e2e.helpers.navigation import login_as, logout, goto_url
 from tests.e2e.helpers.assertions import (
     assert_url_contains,
-    assert_text_visible,
-    assert_element_visible
+    assert_element_visible,
+    assert_at_base_url
 )
 
 @pytest.mark.e2e
@@ -17,7 +17,7 @@ def test_home_page_loads(page: Page):
     """Valida que a página inicial carrega corretamente"""
     # A página já foi navegada para a home pelo fixture
     assert page.title(), "Página deve ter um título"
-    assert_url_contains(page, "localhost:8000")
+    assert_at_base_url(page)
 
 @pytest.mark.e2e
 def test_can_navigate_to_login(page: Page):
@@ -63,10 +63,10 @@ def test_logout_functionality(page: Page):
 
     # Fazer logout
     logout(page)
-    assert_url_contains(page, "localhost:8000")
+    assert_at_base_url(page)
 
     # Tentar acessar área restrita deve redirecionar para login
-    page.goto("http://localhost:8000/admin/dashboard")
+    goto_url(page, "/admin/dashboard")
     # Deve redirecionar para login (com ou sem redirect parameter)
     assert "/login" in page.url, f"Deveria redirecionar para login, mas está em: {page.url}"
 

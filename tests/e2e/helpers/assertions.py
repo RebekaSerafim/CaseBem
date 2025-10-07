@@ -4,6 +4,12 @@ Asserções customizadas para testes E2E
 from typing import Optional
 from playwright.sync_api import Page
 
+# Import BASE_URL from conftest
+import sys
+import os
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
+from conftest import BASE_URL  # type: ignore[import-not-found]
+
 def assert_url_contains(page: Page, text: str):
     """Valida que URL atual contém texto"""
     assert text in page.url, f"URL '{page.url}' não contém '{text}'"
@@ -62,3 +68,30 @@ def assert_heading_visible(page: Page, text: str):
     """Valida que cabeçalho com texto está visível"""
     selector = f'h1:has-text("{text}"), h2:has-text("{text}"), h3:has-text("{text}")'
     assert page.locator(selector).count() > 0, f"Cabeçalho '{text}' não encontrado"
+
+def assert_at_url(page: Page, path: str):
+    """
+    Valida que está em uma URL específica (BASE_URL + path)
+
+    Args:
+        page: Página do Playwright
+        path: Caminho relativo (ex: "/login", "/admin/dashboard")
+    """
+    # Garantir que path começa com / se não for vazio
+    if path and not path.startswith("/"):
+        path = f"/{path}"
+
+    expected_url = f"{BASE_URL}{path}"
+
+    # Aceitar tanto com / final quanto sem
+    current_url = page.url.rstrip("/")
+    expected_url_normalized = expected_url.rstrip("/")
+
+    assert current_url == expected_url_normalized or page.url == expected_url, \
+        f"Esperado '{expected_url}', mas está em '{page.url}'"
+
+def assert_at_base_url(page: Page):
+    """Valida que está na URL base (home)"""
+    # Aceitar tanto BASE_URL quanto BASE_URL/
+    assert page.url == BASE_URL or page.url == f"{BASE_URL}/", \
+        f"Esperado estar em '{BASE_URL}', mas está em '{page.url}'"

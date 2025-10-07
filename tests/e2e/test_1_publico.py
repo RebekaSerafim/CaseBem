@@ -9,14 +9,16 @@ Testa todas as funcionalidades disponíveis para usuários não autenticados:
 """
 import pytest
 from playwright.sync_api import Page
-from tests.e2e.helpers.navigation import fill_form, wait_for_success_message
+from tests.e2e.helpers.navigation import fill_form, wait_for_success_message, goto_url
 from tests.e2e.helpers.assertions import (
     assert_url_contains,
     assert_text_visible,
     assert_element_visible,
-    assert_heading_visible
+    assert_heading_visible,
+    assert_at_base_url
 )
 from tests.e2e.helpers.data_builders import NoivosBuilder, FornecedorBuilder
+from tests.e2e.conftest import BASE_URL, USUARIOS_TESTE
 
 # ==================== NAVEGAÇÃO E VISUALIZAÇÃO ====================
 
@@ -162,8 +164,7 @@ def test_visualizar_detalhes_item(page: Page):
 def test_cadastro_noivos_completo(page: Page):
     """Preenche e submete formulário de cadastro de casal"""
     # Navegar para página de cadastro de noivos
-    page.goto("http://localhost:8000/cadastro-noivos")
-    page.wait_for_load_state("networkidle")
+    goto_url(page, "/cadastro-noivos")
 
     # Verificar se estamos na página correta
     assert_url_contains(page, "/cadastro-noivos")
@@ -193,7 +194,7 @@ def test_cadastro_noivos_completo(page: Page):
     success = "/login" in page.url or \
               "/noivo" in page.url or \
               page.locator('.alert-success, .toast-success, [class*="success"]').count() > 0 or \
-              page.url != "http://localhost:8000/cadastro-noivos"  # Saiu da página de cadastro
+              page.url != f"{BASE_URL}/cadastro-noivos"  # Saiu da página de cadastro
 
     assert success, f"Cadastro não foi bem sucedido. URL atual: {page.url}"
 
@@ -202,7 +203,7 @@ def test_cadastro_noivos_completo(page: Page):
 def test_cadastro_fornecedor_completo(page: Page):
     """Preenche e submete formulário de cadastro de fornecedor"""
     # Navegar para página de cadastro de fornecedor
-    page.goto("http://localhost:8000/cadastro-fornecedor")
+    goto_url(page, "/cadastro-fornecedor")
 
     # Verificar se estamos na página correta
     assert_url_contains(page, "/cadastro-fornecedor")
@@ -228,17 +229,17 @@ def test_cadastro_fornecedor_completo(page: Page):
     success = "/login" in page.url or \
               "/fornecedor" in page.url or \
               page.locator('.alert-success, .toast-success, [class*="success"]').count() > 0 or \
-              page.url != "http://localhost:8000/cadastro-fornecedor"  # Saiu da página de cadastro
+              page.url != f"{BASE_URL}/cadastro-fornecedor"  # Saiu da página de cadastro
 
     assert success, f"Cadastro não foi bem sucedido. URL atual: {page.url}"
 
 @pytest.mark.e2e
 def test_login_como_admin(page: Page):
     """Login com credenciais de administrador"""
-    page.goto("http://localhost:8000/login")
+    goto_url(page, "/login")
 
-    page.fill('input[name="email"]', "admin@casebem.com")
-    page.fill('input[name="senha"]', "1234aA@#")
+    page.fill('input[name="email"]', USUARIOS_TESTE["admin"]["email"])
+    page.fill('input[name="senha"]', USUARIOS_TESTE["admin"]["senha"])
     page.click('button[type="submit"]')
 
     # Aguardar redirecionamento
@@ -248,10 +249,10 @@ def test_login_como_admin(page: Page):
 @pytest.mark.e2e
 def test_login_como_fornecedor(page: Page):
     """Login com credenciais de fornecedor"""
-    page.goto("http://localhost:8000/login")
+    goto_url(page, "/login")
 
-    page.fill('input[name="email"]', "fornecedor@teste.com")
-    page.fill('input[name="senha"]', "teste123")
+    page.fill('input[name="email"]', USUARIOS_TESTE["fornecedor"]["email"])
+    page.fill('input[name="senha"]', USUARIOS_TESTE["fornecedor"]["senha"])
     page.click('button[type="submit"]')
 
     # Aguardar redirecionamento
@@ -261,10 +262,10 @@ def test_login_como_fornecedor(page: Page):
 @pytest.mark.e2e
 def test_login_como_noivo(page: Page):
     """Login com credenciais de noivo"""
-    page.goto("http://localhost:8000/login")
+    goto_url(page, "/login")
 
-    page.fill('input[name="email"]', "noivo@teste.com")
-    page.fill('input[name="senha"]', "teste123")
+    page.fill('input[name="email"]', USUARIOS_TESTE["noivo"]["email"])
+    page.fill('input[name="senha"]', USUARIOS_TESTE["noivo"]["senha"])
     page.click('button[type="submit"]')
 
     # Aguardar redirecionamento
@@ -277,33 +278,31 @@ def test_login_como_noivo(page: Page):
 def test_redirecionamento_pos_login(page: Page):
     """Verifica redirecionamento correto por perfil após login"""
     # Testar admin
-    page.goto("http://localhost:8000/login")
-    page.fill('input[name="email"]', "admin@casebem.com")
-    page.fill('input[name="senha"]', "1234aA@#")
+    goto_url(page, "/login")
+    page.fill('input[name="email"]', USUARIOS_TESTE["admin"]["email"])
+    page.fill('input[name="senha"]', USUARIOS_TESTE["admin"]["senha"])
     page.click('button[type="submit"]')
     page.wait_for_load_state("networkidle")
     assert "/admin" in page.url, "Admin deve redirecionar para /admin"
 
     # Logout
-    page.goto("http://localhost:8000/logout")
-    page.wait_for_load_state("networkidle")
+    goto_url(page, "/logout")
 
     # Testar fornecedor
-    page.goto("http://localhost:8000/login")
-    page.fill('input[name="email"]', "fornecedor@teste.com")
-    page.fill('input[name="senha"]', "teste123")
+    goto_url(page, "/login")
+    page.fill('input[name="email"]', USUARIOS_TESTE["fornecedor"]["email"])
+    page.fill('input[name="senha"]', USUARIOS_TESTE["fornecedor"]["senha"])
     page.click('button[type="submit"]')
     page.wait_for_load_state("networkidle")
     assert "/fornecedor" in page.url, "Fornecedor deve redirecionar para /fornecedor"
 
     # Logout
-    page.goto("http://localhost:8000/logout")
-    page.wait_for_load_state("networkidle")
+    goto_url(page, "/logout")
 
     # Testar noivo
-    page.goto("http://localhost:8000/login")
-    page.fill('input[name="email"]', "noivo@teste.com")
-    page.fill('input[name="senha"]', "teste123")
+    goto_url(page, "/login")
+    page.fill('input[name="email"]', USUARIOS_TESTE["noivo"]["email"])
+    page.fill('input[name="senha"]', USUARIOS_TESTE["noivo"]["senha"])
     page.click('button[type="submit"]')
     page.wait_for_load_state("networkidle")
     assert "/noivo" in page.url, "Noivo deve redirecionar para /noivo"
@@ -312,22 +311,20 @@ def test_redirecionamento_pos_login(page: Page):
 def test_logout(page: Page):
     """Testa funcionalidade de logout"""
     # Login primeiro
-    page.goto("http://localhost:8000/login")
-    page.fill('input[name="email"]', "admin@casebem.com")
-    page.fill('input[name="senha"]', "1234aA@#")
+    goto_url(page, "/login")
+    page.fill('input[name="email"]', USUARIOS_TESTE["admin"]["email"])
+    page.fill('input[name="senha"]', USUARIOS_TESTE["admin"]["senha"])
     page.click('button[type="submit"]')
     page.wait_for_load_state("networkidle")
 
     # Fazer logout
-    page.goto("http://localhost:8000/logout")
-    page.wait_for_load_state("networkidle")
+    goto_url(page, "/logout")
 
     # Verificar redirecionamento para home
-    assert page.url == "http://localhost:8000/" or page.url == "http://localhost:8000"
+    assert_at_base_url(page)
 
     # Tentar acessar área restrita
-    page.goto("http://localhost:8000/admin/dashboard")
-    page.wait_for_load_state("networkidle")
+    goto_url(page, "/admin/dashboard")
 
     # Deve redirecionar para login
     assert "/login" in page.url, "Deve redirecionar para login ao acessar área restrita"

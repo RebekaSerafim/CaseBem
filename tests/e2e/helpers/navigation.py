@@ -10,6 +10,23 @@ import os
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
 from conftest import USUARIOS_TESTE, BASE_URL  # type: ignore[import-not-found]
 
+def goto_url(page: Page, path: str = ""):
+    """
+    Navega para uma URL relativa à BASE_URL configurada
+
+    Args:
+        page: Página do Playwright
+        path: Caminho relativo (ex: "/login", "/admin/dashboard")
+              Se vazio, navega para a home
+    """
+    # Garantir que path começa com / se não for vazio
+    if path and not path.startswith("/"):
+        path = f"/{path}"
+
+    url = f"{BASE_URL}{path}"
+    page.goto(url)
+    page.wait_for_load_state("networkidle")
+
 def login_as(page: Page, perfil: str, email: Optional[str] = None, senha: Optional[str] = None):
     """
     Faz login com perfil específico
@@ -24,7 +41,7 @@ def login_as(page: Page, perfil: str, email: Optional[str] = None, senha: Option
     email = email or creds["email"]
     senha = senha or creds["senha"]
 
-    page.goto(f"{BASE_URL}/login")
+    goto_url(page, "/login")
     page.fill('input[name="email"]', email)
     page.fill('input[name="senha"]', senha)
     page.click('button[type="submit"]')
@@ -32,8 +49,7 @@ def login_as(page: Page, perfil: str, email: Optional[str] = None, senha: Option
 
 def goto_dashboard(page: Page, perfil: str):
     """Navega para o dashboard do perfil"""
-    page.goto(f"{BASE_URL}/{perfil}/dashboard")
-    page.wait_for_load_state("networkidle")
+    goto_url(page, f"/{perfil}/dashboard")
 
 def fill_form(page: Page, data: Dict[str, str], wait_for_validation: bool = True):
     """
@@ -100,5 +116,5 @@ def wait_for_error_message(page: Page, timeout: int = 5000):
 
 def logout(page: Page):
     """Faz logout do sistema"""
-    page.goto(f"{BASE_URL}/logout")
+    goto_url(page, "/logout")
     page.wait_for_url(f"{BASE_URL}/")

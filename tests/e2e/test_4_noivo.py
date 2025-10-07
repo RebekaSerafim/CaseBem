@@ -19,6 +19,7 @@ from tests.e2e.helpers import (
     fill_form,
     DemandaBuilder,
 )
+from tests.e2e.helpers.navigation import goto_url
 
 # ==================== DASHBOARD ====================
 
@@ -35,7 +36,7 @@ def test_noivo_acessar_dashboard(page_noivo: Page):
 def test_noivo_visualizar_estatisticas(page_noivo: Page):
     """Verifica visualização de estatísticas no dashboard"""
     # Ir para dashboard
-    page_noivo.goto("http://localhost:8000/noivo/dashboard")
+    goto_url(page_noivo, "/noivo/dashboard")
     page_noivo.wait_for_load_state("networkidle")
 
     # Verificar presença de cards/estatísticas
@@ -48,7 +49,7 @@ def test_noivo_visualizar_estatisticas(page_noivo: Page):
 def test_noivo_listar_produtos(page_noivo: Page):
     """Lista produtos disponíveis"""
     # Ir direto para produtos
-    page_noivo.goto("http://localhost:8000/noivo/produtos")
+    goto_url(page_noivo, "/noivo/produtos")
     page_noivo.wait_for_load_state("networkidle")
 
     assert_url_contains(page_noivo, "/noivo")
@@ -59,7 +60,7 @@ def test_noivo_listar_produtos(page_noivo: Page):
 def test_noivo_listar_servicos(page_noivo: Page):
     """Lista serviços disponíveis"""
     # Ir direto para serviços
-    page_noivo.goto("http://localhost:8000/noivo/servicos")
+    goto_url(page_noivo, "/noivo/servicos")
     page_noivo.wait_for_load_state("networkidle")
 
     assert_url_contains(page_noivo, "/noivo")
@@ -70,7 +71,7 @@ def test_noivo_listar_servicos(page_noivo: Page):
 def test_noivo_listar_espacos(page_noivo: Page):
     """Lista espaços disponíveis"""
     # Ir direto para espaços
-    page_noivo.goto("http://localhost:8000/noivo/espacos")
+    goto_url(page_noivo, "/noivo/espacos")
     page_noivo.wait_for_load_state("networkidle")
 
     assert_url_contains(page_noivo, "/noivo")
@@ -81,7 +82,7 @@ def test_noivo_listar_espacos(page_noivo: Page):
 def test_noivo_buscar_itens(page_noivo: Page):
     """Busca itens"""
     # Ir para página de busca
-    page_noivo.goto("http://localhost:8000/noivo/buscar")
+    goto_url(page_noivo, "/noivo/buscar")
     page_noivo.wait_for_load_state("networkidle")
 
     # Procurar campo de busca
@@ -110,7 +111,7 @@ def test_noivo_buscar_itens(page_noivo: Page):
 def test_noivo_visualizar_item(page_noivo: Page):
     """Visualiza detalhes de um item"""
     # Ir para produtos primeiro
-    page_noivo.goto("http://localhost:8000/noivo/produtos")
+    goto_url(page_noivo, "/noivo/produtos")
     page_noivo.wait_for_load_state("networkidle")
 
     # Procurar link de item
@@ -157,7 +158,7 @@ def test_noivo_listar_demandas(page_noivo: Page):
 def test_noivo_criar_demanda(page_noivo: Page):
     """Cria uma nova demanda"""
     # Navegar para demandas
-    page_noivo.goto("http://localhost:8000/noivo/demandas")
+    goto_url(page_noivo, "/noivo/demandas")
     page_noivo.wait_for_load_state("networkidle")
 
     # Procurar botão de criar demanda
@@ -219,7 +220,7 @@ def test_noivo_listar_orcamentos(page_noivo: Page):
 def test_noivo_visualizar_orcamento(page_noivo: Page):
     """Visualiza detalhes de um orçamento"""
     # Ir para orçamentos
-    page_noivo.goto("http://localhost:8000/noivo/orcamentos")
+    goto_url(page_noivo, "/noivo/orcamentos")
     page_noivo.wait_for_load_state("networkidle")
 
     # Procurar link de orçamento
@@ -244,7 +245,7 @@ def test_noivo_visualizar_orcamento(page_noivo: Page):
 def test_noivo_filtrar_orcamentos_por_status(page_noivo: Page):
     """Filtra orçamentos por status"""
     # Ir para orçamentos
-    page_noivo.goto("http://localhost:8000/noivo/orcamentos")
+    goto_url(page_noivo, "/noivo/orcamentos")
     page_noivo.wait_for_load_state("networkidle")
 
     # Procurar filtro de status
@@ -276,7 +277,7 @@ def test_noivo_filtrar_orcamentos_por_status(page_noivo: Page):
 def test_noivo_listar_favoritos(page_noivo: Page):
     """Lista itens favoritos"""
     # Ir para favoritos
-    page_noivo.goto("http://localhost:8000/noivo/favoritos")
+    goto_url(page_noivo, "/noivo/favoritos")
     page_noivo.wait_for_load_state("networkidle")
 
     assert_url_contains(page_noivo, "/noivo")
@@ -287,7 +288,7 @@ def test_noivo_listar_favoritos(page_noivo: Page):
 def test_noivo_adicionar_favorito(page_noivo: Page):
     """Adiciona item aos favoritos"""
     # Ir para produtos
-    page_noivo.goto("http://localhost:8000/noivo/produtos")
+    goto_url(page_noivo, "/noivo/produtos")
     page_noivo.wait_for_load_state("networkidle")
 
     # Procurar botão de favoritar
@@ -312,7 +313,7 @@ def test_noivo_adicionar_favorito(page_noivo: Page):
 def test_noivo_listar_fornecedores(page_noivo: Page):
     """Lista fornecedores disponíveis"""
     # Ir para fornecedores
-    page_noivo.goto("http://localhost:8000/noivo/fornecedores")
+    goto_url(page_noivo, "/noivo/fornecedores")
     page_noivo.wait_for_load_state("networkidle")
 
     assert_url_contains(page_noivo, "/noivo")
@@ -325,7 +326,7 @@ def test_noivo_listar_fornecedores(page_noivo: Page):
 def test_noivo_visualizar_perfil(page_noivo: Page):
     """Visualiza perfil do casal"""
     # Ir direto para perfil
-    page_noivo.goto("http://localhost:8000/noivo/perfil")
+    goto_url(page_noivo, "/noivo/perfil")
     page_noivo.wait_for_load_state("networkidle")
 
     assert_url_contains(page_noivo, "/noivo")
@@ -336,7 +337,7 @@ def test_noivo_visualizar_perfil(page_noivo: Page):
 def test_noivo_editar_perfil(page_noivo: Page):
     """Edita dados do perfil do casal"""
     # Ir para perfil
-    page_noivo.goto("http://localhost:8000/noivo/perfil")
+    goto_url(page_noivo, "/noivo/perfil")
     page_noivo.wait_for_load_state("networkidle")
 
     # Procurar botão de editar
@@ -371,7 +372,7 @@ def test_noivo_editar_perfil(page_noivo: Page):
 def test_noivo_acessar_checklist(page_noivo: Page):
     """Acessa checklist de planejamento"""
     # Ir para checklist
-    page_noivo.goto("http://localhost:8000/noivo/checklist")
+    goto_url(page_noivo, "/noivo/checklist")
     page_noivo.wait_for_load_state("networkidle")
 
     assert_url_contains(page_noivo, "/noivo")
@@ -404,22 +405,22 @@ def test_noivo_menu_navegacao(page_noivo: Page):
 def test_noivo_navegar_entre_paginas(page_noivo: Page):
     """Navega entre diferentes páginas do noivo"""
     # Dashboard
-    page_noivo.goto("http://localhost:8000/noivo/dashboard")
+    goto_url(page_noivo, "/noivo/dashboard")
     page_noivo.wait_for_load_state("networkidle")
     assert_url_contains(page_noivo, "/noivo")
 
     # Produtos
-    page_noivo.goto("http://localhost:8000/noivo/produtos")
+    goto_url(page_noivo, "/noivo/produtos")
     page_noivo.wait_for_load_state("networkidle")
     assert_url_contains(page_noivo, "/noivo")
 
     # Demandas
-    page_noivo.goto("http://localhost:8000/noivo/demandas")
+    goto_url(page_noivo, "/noivo/demandas")
     page_noivo.wait_for_load_state("networkidle")
     assert_url_contains(page_noivo, "/noivo")
 
     # Orçamentos
-    page_noivo.goto("http://localhost:8000/noivo/orcamentos")
+    goto_url(page_noivo, "/noivo/orcamentos")
     page_noivo.wait_for_load_state("networkidle")
     assert_url_contains(page_noivo, "/noivo")
 
