@@ -27,7 +27,7 @@ env/
 ENV/
 
 # IDEs
-.vscode/
+# .vscode/
 .idea/
 *.swp
 *.swo
@@ -39,6 +39,12 @@ ENV/
 htmlcov/
 .tox/
 .nox/
+
+# Lint
+.mypy_cache/
+.dmypy.json
+.pyre/
+.pytype/
 
 # Database
 *.db
