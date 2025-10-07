@@ -62,7 +62,7 @@ class CategoriaService:
             tipo=categoria.tipo_fornecimento.value
         )
 
-        return id_categoria
+        return id_categoria  # type: ignore[no-any-return]
 
     def listar_categorias_ativas(self, tipo_fornecimento: Optional[TipoFornecimento] = None) -> List[Categoria]:
         """
@@ -98,7 +98,7 @@ class CategoriaService:
         if categoria_id <= 0:
             raise ValidacaoError("ID da categoria deve ser positivo", "categoria_id", categoria_id)
 
-        return self.repo.obter_por_id(categoria_id)
+        return self.repo.obter_por_id(categoria_id)  # type: ignore[no-any-return]
 
     def atualizar_categoria(self, categoria_id: int, dados: dict) -> bool:
         """
@@ -146,7 +146,7 @@ class CategoriaService:
                 nome=categoria.nome
             )
 
-        return resultado
+        return resultado  # type: ignore[no-any-return]
 
     def desativar_categoria(self, categoria_id: int, admin_id: int) -> bool:
         """
@@ -180,7 +180,7 @@ class CategoriaService:
                 admin_id=admin_id
             )
 
-        return resultado
+        return resultado  # type: ignore[no-any-return]
 
     def _categoria_nome_tipo_existe(self, nome: str, tipo: TipoFornecimento, exceto_id: Optional[int] = None) -> bool:
         """
@@ -214,7 +214,7 @@ class CategoriaService:
         try:
             from core.repositories.item_repo import item_repo
             count = item_repo.contar_registros("id_categoria = ? AND ativo = 1", (categoria_id,))
-            return count > 0
+            return count > 0  # type: ignore[no-any-return]
         except Exception as e:
             # Se erro, assumir que tem itens por segurança
             logger.error("Erro ao verificar itens ativos da categoria",

@@ -15,7 +15,7 @@ class ItemDemandaRepo(BaseRepo):
     Representa descrições livres do que o noivo quer, não itens específicos.
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__(
             nome_tabela="item_demanda",
             model_class=ItemDemanda,
@@ -55,8 +55,8 @@ class ItemDemandaRepo(BaseRepo):
             id_categoria=linha["id_categoria"],
             descricao=linha["descricao"],
             quantidade=linha["quantidade"],
-            preco_maximo=linha.get("preco_maximo"),
-            observacoes=linha.get("observacoes"),
+            preco_maximo=self._safe_get(linha, "preco_maximo"),
+            observacoes=self._safe_get(linha, "observacoes"),
         )
 
     def obter_por_demanda(self, id_demanda: int) -> List[Dict[str, Any]]:
@@ -105,7 +105,7 @@ class ItemDemandaRepo(BaseRepo):
         )
 
         # Executar query para cada tipo de fornecimento
-        ids_demandas = set()
+        ids_demandas: set[int] = set()
         for tipo in TipoFornecimento:
             params = [tipo.value] + categorias_fornecedor
             resultados = self.executar_consulta(query, tuple(params))
@@ -115,7 +115,7 @@ class ItemDemandaRepo(BaseRepo):
 
     def excluir_por_demanda(self, id_demanda: int) -> bool:
         """Exclui todos os itens de uma demanda"""
-        return self.executar_comando(
+        return self.executar_comando(  # type: ignore[no-any-return]
             item_demanda_sql.EXCLUIR_ITENS_POR_DEMANDA, (id_demanda,)
         )
 

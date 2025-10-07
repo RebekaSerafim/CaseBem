@@ -12,7 +12,7 @@ from core.repositories import usuario_repo
 class FornecedorRepo(BaseRepo):
     """Repositório para operações com fornecedores"""
 
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__("fornecedor", Fornecedor, fornecedor_sql)
 
     def _linha_para_objeto(self, linha: dict) -> Fornecedor:
@@ -70,7 +70,7 @@ class FornecedorRepo(BaseRepo):
         Lógica especial: insere primeiro em Usuario, depois em Fornecedor.
         """
         # Primeiro inserir na tabela usuario
-        usuario_id = usuario_repo.inserir(fornecedor)
+        usuario_id = usuario_repo.inserir(fornecedor)  # type: ignore[attr-defined]
 
         if usuario_id:
             # Atualizar ID do fornecedor com o ID do usuário
@@ -82,7 +82,7 @@ class FornecedorRepo(BaseRepo):
                 valores = self._objeto_para_tupla_insert(fornecedor)
                 cursor.execute(self.sql.INSERIR, valores)
                 logger.info(f"Fornecedor inserido", fornecedor_id=usuario_id)
-                return usuario_id
+                return usuario_id  # type: ignore[no-any-return]
         return None
 
     def atualizar(self, fornecedor: Fornecedor) -> bool:
@@ -92,7 +92,7 @@ class FornecedorRepo(BaseRepo):
         Lógica especial: atualiza Usuario E Fornecedor.
         """
         # Atualizar dados de usuario
-        usuario_repo.atualizar(fornecedor)
+        usuario_repo.atualizar(fornecedor)  # type: ignore[attr-defined]
 
         # Atualizar dados específicos de fornecedor
         with obter_conexao() as conexao:
@@ -151,7 +151,7 @@ class FornecedorRepo(BaseRepo):
             logger.warning(
                 f"Nenhum fornecedor foi rejeitado", fornecedor_id=id_fornecedor
             )
-        return sucesso
+        return sucesso  # type: ignore[no-any-return]
 
     def obter_fornecedor_por_cnpj(self, cnpj: str) -> Optional[Fornecedor]:
         """Busca um fornecedor pelo CNPJ"""

@@ -37,7 +37,7 @@ class DemandaService:
         id_demanda = self.repo.inserir(demanda)
 
         logger.info(f"Demanda criada: {id_demanda}")
-        return id_demanda
+        return id_demanda  # type: ignore[no-any-return]
 
     def atualizar_demanda(self, id_demanda: int, dados: dict) -> bool:
         """Atualiza uma demanda"""
@@ -51,7 +51,7 @@ class DemandaService:
         sucesso = self.repo.atualizar(demanda)
         if sucesso:
             logger.info(f"Demanda atualizada: {id_demanda}")
-        return sucesso
+        return sucesso  # type: ignore[no-any-return]
 
     def atualizar_status(self, id_demanda: int, status: StatusDemanda) -> bool:
         """Atualiza o status de uma demanda"""
@@ -62,7 +62,7 @@ class DemandaService:
 
     def obter_demanda(self, id_demanda: int) -> Demanda:
         """Obtém uma demanda por ID"""
-        return self.repo.obter_por_id(id_demanda)
+        return self.repo.obter_por_id(id_demanda)  # type: ignore[no-any-return]
 
     def listar_demandas(self, pagina: int = 1, tamanho: int = 10,
                        id_casal: Optional[int] = None,
@@ -84,7 +84,7 @@ class DemandaService:
         sucesso = self.repo.excluir(id_demanda)
         if sucesso:
             logger.info(f"Demanda excluída: {id_demanda}")
-        return sucesso
+        return sucesso  # type: ignore[no-any-return]
 
 
 demanda_service = DemandaService()

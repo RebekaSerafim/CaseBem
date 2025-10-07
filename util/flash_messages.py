@@ -54,7 +54,7 @@ def get_flashed_messages(request: Request) -> List[Dict[str, Any]]:
         Lista de mensagens flash
     """
     messages = request.session.pop("flash_messages", [])
-    return messages
+    return messages  # type: ignore[no-any-return]
 
 def has_flashed_messages(request: Request) -> bool:
     """

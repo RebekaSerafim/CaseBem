@@ -30,7 +30,7 @@ class LoginDTO(BaseDTO):
             lambda valor, campo: validar_senha(valor, min_chars=1, obrigatorio=True),
             "Senha"
         )
-        return validador(v)
+        return validador(v)  # type: ignore[return-value]
 
     @classmethod
     def criar_exemplo_json(cls, **overrides) -> dict:
@@ -61,7 +61,7 @@ class AlterarSenhaDTO(BaseDTO):
             lambda valor, campo: validar_senha(valor, min_chars=1, obrigatorio=True),
             "Senha atual"
         )
-        return validador(v)
+        return validador(v)  # type: ignore[return-value]
 
     @field_validator('nova_senha')
     @classmethod
@@ -75,7 +75,7 @@ class AlterarSenhaDTO(BaseDTO):
         # Verificar se a nova senha é diferente da atual
         if 'senha_atual' in info.data and v == info.data['senha_atual']:
             raise ValueError('A nova senha deve ser diferente da senha atual')
-        return senha_validada
+        return senha_validada  # type: ignore[return-value]
 
     @field_validator('confirmar_senha')
     @classmethod

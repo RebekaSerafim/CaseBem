@@ -16,7 +16,7 @@ def validar_categoria_para_tipo(tipo: TipoFornecimento, id_categoria: int) -> bo
     categoria = categoria_repo.obter_por_id(id_categoria)
     if not categoria:
         return False
-    return categoria.tipo_fornecimento == tipo
+    return categoria.tipo_fornecimento == tipo  # type: ignore[no-any-return]
 
 
 class ItemRepo(BaseRepo):
@@ -34,7 +34,7 @@ class ItemRepo(BaseRepo):
             )
 
         # Chama o método base
-        return super().inserir(item)
+        return super().inserir(item)  # type: ignore[no-any-return]
 
     def atualizar(self, item: Item) -> bool:
         """Atualiza um item com validação de categoria (override do BaseRepo)"""
@@ -45,11 +45,11 @@ class ItemRepo(BaseRepo):
             )
 
         # Chama o método base
-        return super().atualizar(item)
+        return super().atualizar(item)  # type: ignore[no-any-return]
 
     def excluir_item_fornecedor(self, id_item: int, id_fornecedor: int) -> bool:
         """Exclui um item (apenas o próprio fornecedor pode excluir)"""
-        return self.executar_comando(item_sql.EXCLUIR_ITEM, (id_item, id_fornecedor))
+        return self.executar_comando(item_sql.EXCLUIR_ITEM, (id_item, id_fornecedor))  # type: ignore[no-any-return]
 
     def _objeto_para_tupla_insert(self, item: Item) -> tuple:
         """Prepara dados do item para inserção"""
@@ -116,7 +116,7 @@ class ItemRepo(BaseRepo):
     ) -> List[Item]:
         """Obtém itens com paginação"""
         itens, _ = self.obter_paginado(numero_pagina, tamanho_pagina)
-        return itens
+        return itens  # type: ignore[no-any-return]
 
     def buscar_itens(
         self, termo_busca: str, numero_pagina: int = 1, tamanho_pagina: int = 20
@@ -151,21 +151,21 @@ class ItemRepo(BaseRepo):
 
     def contar_por_fornecedor(self, id_fornecedor: int) -> int:
         """Conta itens ativos de um fornecedor"""
-        return self.contar_registros(
+        return self.contar_registros(  # type: ignore[no-any-return]
             "id_fornecedor = ? AND ativo = 1", (id_fornecedor,)
         )
 
     def obter_estatisticas_itens(self) -> List[Dict[str, Any]]:
         """Obtém estatísticas de itens por tipo"""
-        return self.executar_consulta(item_sql.OBTER_ESTATISTICAS_ITENS)
+        return self.executar_consulta(item_sql.OBTER_ESTATISTICAS_ITENS)  # type: ignore[no-any-return]
 
     def contar_itens(self) -> int:
         """Conta total de itens"""
-        return self.contar_registros()
+        return self.contar_registros()  # type: ignore[no-any-return]
 
     def contar_itens_por_tipo(self, tipo: TipoFornecimento) -> int:
         """Conta itens de um tipo específico"""
-        return self.contar_registros("tipo = ?", (tipo.value,))
+        return self.contar_registros("tipo = ?", (tipo.value,))  # type: ignore[no-any-return]
 
     def obter_itens_publicos(
         self,
@@ -262,28 +262,28 @@ class ItemRepo(BaseRepo):
     def ativar_item(self, id_item: int, id_fornecedor: int) -> bool:
         """Ativa um item (validando fornecedor)"""
         sql = "UPDATE item SET ativo = 1 WHERE id = ? AND id_fornecedor = ?"
-        return self.executar_comando(sql, (id_item, id_fornecedor))
+        return self.executar_comando(sql, (id_item, id_fornecedor))  # type: ignore[no-any-return]
 
     def desativar_item(self, id_item: int, id_fornecedor: int) -> bool:
         """Desativa um item (soft delete) (validando fornecedor)"""
         sql = "UPDATE item SET ativo = 0 WHERE id = ? AND id_fornecedor = ?"
-        return self.executar_comando(sql, (id_item, id_fornecedor))
+        return self.executar_comando(sql, (id_item, id_fornecedor))  # type: ignore[no-any-return]
 
     def ativar_item_admin(self, id_item: int) -> bool:
         """Ativa um item sem validar fornecedor (uso exclusivo do admin)"""
         sql = "UPDATE item SET ativo = 1 WHERE id = ?"
-        return self.executar_comando(sql, (id_item,))
+        return self.executar_comando(sql, (id_item,))  # type: ignore[no-any-return]
 
     def desativar_item_admin(self, id_item: int) -> bool:
         """Desativa um item sem validar fornecedor (uso exclusivo do admin)"""
         sql = "UPDATE item SET ativo = 0 WHERE id = ?"
-        return self.executar_comando(sql, (id_item,))
+        return self.executar_comando(sql, (id_item,))  # type: ignore[no-any-return]
 
     def obter_paginado_itens(
         self, pagina: int, tamanho_pagina: int
     ) -> tuple[List[Item], int]:
         """Obtém itens paginados com total"""
-        return self.obter_paginado(pagina, tamanho_pagina)
+        return self.obter_paginado(pagina, tamanho_pagina)  # type: ignore[no-any-return]
 
     def buscar_paginado(
         self,

@@ -277,8 +277,7 @@ async def listar_demandas(
         demandas = [
             d
             for d in demandas
-            if search.lower() in d.titulo.lower()
-            or search.lower() in d.descricao.lower()
+            if search.lower() in d.descricao.lower()
         ]
 
     # Enriquecer demandas com contagens de itens e orçamentos
@@ -286,9 +285,9 @@ async def listar_demandas(
     demandas_com_contagens = []
     for demanda in demandas:
         # Adicionar atributos de contagem ao objeto demanda
-        demanda.itens_count = item_demanda_repo.contar_por_demanda(demanda.id)
-        demanda.orcamentos_count = orcamento_repo.contar_por_demanda(demanda.id)
-        demanda.orcamentos_pendentes = orcamento_repo.contar_por_demanda_e_status(
+        demanda.itens_count = item_demanda_repo.contar_por_demanda(demanda.id)  # type: ignore[attr-defined]
+        demanda.orcamentos_count = orcamento_repo.contar_por_demanda(demanda.id)  # type: ignore[attr-defined]
+        demanda.orcamentos_pendentes = orcamento_repo.contar_por_demanda_e_status(  # type: ignore[attr-defined]
             demanda.id, "PENDENTE"
         )
         demandas_com_contagens.append(demanda)
@@ -1187,7 +1186,7 @@ async def checklist(request: Request, usuario_logado: dict = {}):
         logger.info("Carregando checklist do noivo", noivo_id=id_noivo)
 
         # Checklist vazio (feature futura)
-        categorias = []
+        categorias: list[dict] = []
         total_tarefas = 0
         tarefas_concluidas = 0
         tarefas_pendentes = 0

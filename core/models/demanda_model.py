@@ -30,6 +30,6 @@ class Demanda:
     data_criacao: Optional[str] = None
     observacoes: Optional[str] = None  # Observações adicionais
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         if isinstance(self.status, str):
             self.status = StatusDemanda(self.status)

@@ -39,7 +39,7 @@ class ChatService:
         if sucesso:
             logger.info(f"Mensagem enviada de {dados['id_remetente']} para {dados['id_destinatario']}")
 
-        return sucesso
+        return sucesso  # type: ignore[no-any-return]
 
     def obter_mensagens(self, id_usuario: int, pagina: int = 1, tamanho: int = 50) -> List[Chat]:
         """Obtém mensagens de um usuário"""

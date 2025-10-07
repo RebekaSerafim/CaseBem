@@ -124,7 +124,7 @@ class ItemService:
         Returns:
             Item encontrado
         """
-        return self.repo.obter_por_id(id_item)
+        return self.repo.obter_por_id(id_item)  # type: ignore[no-any-return]
 
     def listar_itens(self, pagina: int = 1, tamanho: int = 10,
                      id_fornecedor: Optional[int] = None,
@@ -218,7 +218,7 @@ class ItemService:
         if sucesso:
             logger.info(f"Item excluído: {id_item}")
 
-        return sucesso
+        return sucesso  # type: ignore[no-any-return]
 
 
 # Instância singleton do serviço

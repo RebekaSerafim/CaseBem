@@ -872,17 +872,17 @@ async def exportar_relatorios(request: Request, formato: str = "json", usuario_l
             csv_content = "Categoria,Subcategoria,Valor\n"
 
             # Dados do sistema
-            for chave, valor in dados["sistema"].items():
+            for chave, valor in dados["sistema"].items():  # type: ignore[attr-defined]
                 csv_content += f"Sistema,{chave.replace('_', ' ').title()},{valor}\n"
 
             # Dados de itens
-            for chave, valor in dados["itens"].items():
+            for chave, valor in dados["itens"].items():  # type: ignore[attr-defined]
                 if chave != "detalhes":
                     csv_content += f"Itens,{chave.replace('_', ' ').title()},{valor}\n"
 
             # Detalhes dos itens
-            if dados["itens"]["detalhes"]:
-                for item in dados["itens"]["detalhes"]:
+            if dados["itens"]["detalhes"]:  # type: ignore[index]
+                for item in dados["itens"]["detalhes"]:  # type: ignore[index]
                     csv_content += f"Detalhes Itens,{item['tipo']},{item['quantidade']}\n"
                     csv_content += f"Detalhes Preços,{item['tipo']} - Médio,{item['preco_medio']}\n"
                     csv_content += f"Detalhes Preços,{item['tipo']} - Mínimo,{item['preco_minimo']}\n"

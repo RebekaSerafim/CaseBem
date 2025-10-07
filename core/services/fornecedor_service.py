@@ -144,7 +144,7 @@ class FornecedorService:
         Returns:
             Fornecedor encontrado
         """
-        return self.repo.obter_por_id(id_fornecedor)
+        return self.repo.obter_por_id(id_fornecedor)  # type: ignore[no-any-return]
 
     def listar_fornecedores(self, pagina: int = 1, tamanho: int = 10,
                            verificado: Optional[bool] = None) -> List[Fornecedor]:

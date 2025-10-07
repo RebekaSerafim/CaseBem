@@ -14,20 +14,11 @@ class UsuarioRepo(BaseRepo):
         """
         Cria a tabela de usuários no banco de dados.
 
-        Inclui lógica específica para adicionar a coluna 'ativo' em versões
-        antigas do banco que não possuem esta coluna.
-
         Returns:
             bool: True se tabela criada/atualizada com sucesso, False caso contrário
         """
         try:
-            result = super().criar_tabela()
-            if result:
-                try:
-                    self.executar_comando(usuario_sql.ADICIONAR_COLUNA_ATIVO)
-                except Exception:
-                    pass  # Coluna já existe
-            return result
+            return super().criar_tabela()  # type: ignore[no-any-return]
         except Exception as e:
             from infrastructure.logging.logger import CaseBemLogger
 
@@ -77,7 +68,7 @@ class UsuarioRepo(BaseRepo):
 
     def atualizar_senha_usuario(self, id: int, senha_hash: str) -> bool:
         """Atualiza apenas a senha de um usuário"""
-        return self.executar_comando(
+        return self.executar_comando(  # type: ignore[no-any-return]
             usuario_sql.ATUALIZAR_SENHA_USUARIO, (senha_hash, id)
         )
 
@@ -111,11 +102,11 @@ class UsuarioRepo(BaseRepo):
 
     def contar_usuarios(self) -> int:
         """Conta o total de usuários no sistema"""
-        return self.contar_registros()
+        return self.contar_registros()  # type: ignore[no-any-return]
 
     def contar_usuarios_por_tipo(self, tipo: TipoUsuario) -> int:
         """Conta o total de usuários de um tipo específico"""
-        return self.contar_registros("perfil = ?", (tipo.value,))
+        return self.contar_registros("perfil = ?", (tipo.value,))  # type: ignore[no-any-return]
 
     def buscar_usuarios(
         self,
@@ -146,17 +137,17 @@ class UsuarioRepo(BaseRepo):
 
     def bloquear_usuario(self, id_usuario: int) -> bool:
         """Bloqueia (desativa) um usuário"""
-        return self.desativar(id_usuario)
+        return self.desativar(id_usuario)  # type: ignore[no-any-return]
 
     def ativar_usuario(self, id_usuario: int) -> bool:
         """Ativa um usuário"""
-        return self.ativar(id_usuario)
+        return self.ativar(id_usuario)  # type: ignore[no-any-return]
 
     def obter_paginado_usuarios(
         self, pagina: int, tamanho_pagina: int
     ) -> tuple[List[Usuario], int]:
         """Obtém usuários paginados e retorna lista de usuários e total"""
-        return self.obter_paginado(pagina, tamanho_pagina)
+        return self.obter_paginado(pagina, tamanho_pagina)  # type: ignore[no-any-return]
 
     def buscar_paginado(
         self,

@@ -55,7 +55,7 @@ class ItemFornecedorDTO(BaseDTO):
             lambda valor, campo: validar_valor_monetario(valor, campo, obrigatorio=True),
             "Preço"
         )
-        return validador(v)
+        return validador(v)  # type: ignore[return-value]
 
     @field_validator('categoria_id')
     @classmethod
@@ -84,7 +84,7 @@ class ItemFornecedorDTO(BaseDTO):
             lambda valor, campo: validar_enum_valor(valor, TipoFornecimento, campo),
             "Tipo do item"
         )
-        return validador(v)
+        return validador(v)  # type: ignore[no-any-return]
 
     @classmethod
     def criar_exemplo_json(cls, **overrides) -> dict:
@@ -214,7 +214,7 @@ class CadastroFornecedorDTO(BaseDTO):
             lambda valor, campo: validar_senha(valor, min_chars=8, obrigatorio=True),
             "Senha"
         )
-        return validador(v)
+        return validador(v)  # type: ignore[return-value]
 
     @field_validator('confirmar_senha')
     @classmethod

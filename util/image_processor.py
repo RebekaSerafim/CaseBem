@@ -69,7 +69,7 @@ class ImageProcessor:
 
             # Converter para RGB se necessário (RGBA ou P precisam ser convertidos)
             if imagem.mode in ("RGBA", "P"):
-                imagem = imagem.convert("RGB")
+                imagem = imagem.convert("RGB")  # type: ignore[assignment]
 
             # Redimensionar mantendo proporção
             imagem.thumbnail(tamanho, Image.Resampling.LANCZOS)

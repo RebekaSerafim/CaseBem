@@ -61,7 +61,7 @@ def destruir_sessao(request: Request) -> None:
         request.session.clear()
 
 
-def requer_autenticacao(perfis_autorizados: List[str] = None):
+def requer_autenticacao(perfis_autorizados: Optional[List[str]] = None):
     """
     Decorator para proteger rotas que requerem autenticação
     

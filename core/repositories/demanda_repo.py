@@ -10,7 +10,7 @@ from core.models.demanda_model import Demanda, StatusDemanda
 class DemandaRepo(BaseRepo):
     """Repositório para operações com demandas"""
 
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__("demanda", Demanda, demanda_sql)
 
     def _objeto_para_tupla_insert(self, demanda: Demanda) -> tuple:
@@ -54,7 +54,7 @@ class DemandaRepo(BaseRepo):
 
     def atualizar_status(self, id_demanda: int, status: StatusDemanda) -> bool:
         """Atualiza o status de uma demanda"""
-        return self.executar_comando(
+        return self.executar_comando(  # type: ignore[no-any-return]
             demanda_sql.ATUALIZAR_STATUS_DEMANDA, (status.value, id_demanda)
         )
 
@@ -105,7 +105,7 @@ class DemandaRepo(BaseRepo):
     ) -> List[Demanda]:
         """Obtém demandas com paginação"""
         demandas, _ = self.obter_paginado(numero_pagina, tamanho_pagina)
-        return demandas
+        return demandas  # type: ignore[no-any-return]
 
     def obter_por_cidade(self, cidade: str) -> List[Demanda]:
         """

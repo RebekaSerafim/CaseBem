@@ -79,7 +79,7 @@ class ChatRepo(BaseRepoChaveComposta):
                 remetente_id=id_remetente,
                 destinatario_id=id_destinatario,
             )
-        return sucesso
+        return sucesso  # type: ignore[no-any-return]
 
 
 # Instância singleton do repositório

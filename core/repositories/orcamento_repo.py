@@ -50,26 +50,26 @@ class OrcamentoRepo(BaseRepo):
 
     def atualizar_status(self, id_orcamento: int, status: str) -> bool:
         """Atualiza o status de um orçamento"""
-        return self.executar_comando(
+        return self.executar_comando(  # type: ignore[no-any-return]
             orcamento_sql.ATUALIZAR_STATUS_ORCAMENTO, (status, id_orcamento)
         )
 
     def atualizar_valor_total(self, id_orcamento: int, valor_total: float) -> bool:
         """Atualiza o valor total de um orçamento"""
-        return self.executar_comando(
+        return self.executar_comando(  # type: ignore[no-any-return]
             orcamento_sql.ATUALIZAR_VALOR_TOTAL_ORCAMENTO, (valor_total, id_orcamento)
         )
 
     def aceitar_e_rejeitar_outros(self, id_orcamento: int, id_demanda: int) -> bool:
         """Aceita um orçamento e rejeita os outros da mesma demanda"""
-        return self.executar_comando(
+        return self.executar_comando(  # type: ignore[no-any-return]
             orcamento_sql.ACEITAR_ORCAMENTO_E_REJEITAR_OUTROS,
             (id_orcamento, id_demanda),
         )
 
     def rejeitar(self, id_orcamento: int) -> bool:
         """Rejeita um orçamento"""
-        return self.executar_comando(orcamento_sql.REJEITAR_ORCAMENTO, (id_orcamento,))
+        return self.executar_comando(orcamento_sql.REJEITAR_ORCAMENTO, (id_orcamento,))  # type: ignore[no-any-return]
 
     def obter_por_demanda(self, id_demanda: int) -> List[Orcamento]:
         """Obtém todos os orçamentos de uma demanda"""
@@ -107,7 +107,7 @@ class OrcamentoRepo(BaseRepo):
     ) -> List[Orcamento]:
         """Obtém orçamentos com paginação"""
         orcamentos, _ = self.obter_paginado(numero_pagina, tamanho_pagina)
-        return orcamentos
+        return orcamentos  # type: ignore[no-any-return]
 
     def contar_por_demanda(self, id_demanda: int) -> int:
         """Conta quantos orçamentos uma demanda possui"""

@@ -77,7 +77,7 @@ class UsuarioService:
             perfil=dados.get('perfil', TipoUsuario.NOIVO).value if isinstance(dados.get('perfil'), TipoUsuario) else str(dados.get('perfil'))
         )
 
-        return id_usuario
+        return id_usuario  # type: ignore[no-any-return]
 
     def autenticar_usuario(self, email: str, senha: str) -> Optional[Usuario]:
         """
@@ -132,7 +132,7 @@ class UsuarioService:
         if user_id <= 0:
             raise ValidacaoError("ID do usuário deve ser um número positivo", "user_id", user_id)
 
-        return self.repo.obter_por_id(user_id)
+        return self.repo.obter_por_id(user_id)  # type: ignore[no-any-return]
 
     def listar_usuarios_ativos(self, pagina: int = 1, por_pagina: int = 10) -> List[Usuario]:
         """
@@ -201,7 +201,7 @@ class UsuarioService:
                 admin_id=admin_id
             )
 
-        return resultado
+        return resultado  # type: ignore[no-any-return]
 
     def _email_ja_existe(self, email: str) -> bool:
         """
@@ -251,7 +251,7 @@ class UsuarioService:
                 campos_atualizados=list(dados.keys())
             )
 
-        return resultado
+        return resultado  # type: ignore[no-any-return]
 
 
 # Instância global do serviço

@@ -4,8 +4,10 @@ Fornece configurações padrão e métodos de validação comuns.
 """
 
 from pydantic import BaseModel, ConfigDict, field_validator
-from typing import Optional, Dict, Any
+from typing import Optional, Dict, Any, Callable, TypeVar
 from util.validacoes_dto import ValidacaoError
+
+T = TypeVar('T')
 
 
 class BaseDTO(BaseModel):
@@ -47,7 +49,7 @@ class BaseDTO(BaseModel):
         return {"exemplo": "Sobrescrever na classe filha", **overrides}
 
     @classmethod
-    def validar_campo_wrapper(cls, validador_func, campo_nome: str = ""):
+    def validar_campo_wrapper(cls, validador_func: Callable[..., T], campo_nome: str = "") -> Callable[..., T]:
         """
         Wrapper para padronizar o tratamento de erros de validação.
         Evita repetir try/except em cada field_validator.
@@ -59,7 +61,7 @@ class BaseDTO(BaseModel):
         Returns:
             Função wrapper que trata os erros automaticamente
         """
-        def wrapper(valor, **kwargs):
+        def wrapper(valor: Any, **kwargs: Any) -> T:
             try:
                 if campo_nome:
                     return validador_func(valor, campo_nome, **kwargs)

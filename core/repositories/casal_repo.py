@@ -10,7 +10,7 @@ from core.models.casal_model import Casal
 class CasalRepo(BaseRepo):
     """Repositório para operações com casais"""
 
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__("casal", Casal, casal_sql)
 
     def _objeto_para_tupla_insert(self, casal: Casal) -> tuple:
@@ -55,10 +55,10 @@ class CasalRepo(BaseRepo):
             # Usa _linha_para_objeto para criar o objeto base
             casal = self._linha_para_objeto(resultado)
             # Adiciona os objetos Usuario dos noivos
-            casal.noivo1 = usuario_repo.obter_por_id(
+            casal.noivo1 = usuario_repo.obter_por_id(  # type: ignore[attr-defined]
                 resultado["id_noivo1"]
             )
-            casal.noivo2 = usuario_repo.obter_por_id(
+            casal.noivo2 = usuario_repo.obter_por_id(  # type: ignore[attr-defined]
                 resultado["id_noivo2"]
             )
             return casal
@@ -67,7 +67,7 @@ class CasalRepo(BaseRepo):
     def obter_por_pagina(self, numero_pagina: int, tamanho_pagina: int) -> List[Casal]:
         """Obtém casais com paginação"""
         casais, _ = self.obter_paginado(numero_pagina, tamanho_pagina)
-        return casais
+        return casais  # type: ignore[no-any-return]
 
     def obter_por_noivo(self, id_noivo: int) -> Optional[Casal]:
         """Obtém casal pelo ID de um dos noivos"""

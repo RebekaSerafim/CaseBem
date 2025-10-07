@@ -26,7 +26,7 @@ USUARIOS_TESTE = {
 }
 
 @pytest.fixture(scope="session")
-def browser(playwright) -> Browser:
+def browser(playwright) -> Generator[Browser, None, None]:
     """Browser compartilhado para toda a sessão de testes"""
     browser = playwright.chromium.launch(
         headless=True,  # Mudar para False para ver o navegador

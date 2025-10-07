@@ -2,15 +2,15 @@
 Helpers de navegação para testes E2E
 """
 from playwright.sync_api import Page
-from typing import Dict
+from typing import Dict, Optional
 
 # Import conftest constants
 import sys
 import os
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
-from conftest import USUARIOS_TESTE, BASE_URL
+from conftest import USUARIOS_TESTE, BASE_URL  # type: ignore[import-not-found]
 
-def login_as(page: Page, perfil: str, email: str = None, senha: str = None):
+def login_as(page: Page, perfil: str, email: Optional[str] = None, senha: Optional[str] = None):
     """
     Faz login com perfil específico
 

@@ -51,7 +51,7 @@ class ItemOrcamentoRepo(BaseRepoChaveComposta):
 
     def obter(self, id_orcamento: int, id_item: int) -> ItemOrcamento:
         """Obtém um item específico de um orçamento"""
-        return self.obter_por_chave(id_orcamento, id_item)
+        return self.obter_por_chave(id_orcamento, id_item)  # type: ignore[no-any-return]
 
     def obter_por_orcamento(self, id_orcamento: int) -> List[dict]:
         """Obtém todos os itens de um orçamento"""
@@ -66,12 +66,12 @@ class ItemOrcamentoRepo(BaseRepoChaveComposta):
             item_orcamento_sql.OBTER_TOTAL_ORCAMENTO, (id_orcamento,)
         )
         if resultados and resultados[0]["total"]:
-            return resultados[0]["total"]
+            return resultados[0]["total"]  # type: ignore[no-any-return]
         return 0.0
 
     def excluir_por_orcamento(self, id_orcamento: int) -> bool:
         """Exclui todos os itens de um orçamento"""
-        return self.executar_comando(
+        return self.executar_comando(  # type: ignore[no-any-return]
             item_orcamento_sql.EXCLUIR_ITENS_POR_ORCAMENTO, (id_orcamento,)
         )
 

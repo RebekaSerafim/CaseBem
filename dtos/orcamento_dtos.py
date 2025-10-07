@@ -161,7 +161,7 @@ class PropostaOrcamentoDTO(BaseDTO):
             lambda valor, campo: validar_valor_monetario(valor, campo, obrigatorio=True, min_valor=Decimal('0.01')),
             "Valor total"
         )
-        return validador(v)
+        return validador(v)  # type: ignore[return-value]
 
     @field_validator('prazo_entrega')
     @classmethod
@@ -170,7 +170,7 @@ class PropostaOrcamentoDTO(BaseDTO):
             lambda valor, campo: validar_numero_inteiro(valor, campo, obrigatorio=True, min_valor=1, max_valor=365),
             "Prazo de entrega"
         )
-        return validador(v)
+        return validador(v)  # type: ignore[return-value]
 
     @field_validator('observacoes')
     @classmethod
@@ -192,7 +192,7 @@ class PropostaOrcamentoDTO(BaseDTO):
             lambda valor, campo: validar_enum_valor(valor, FormaPagamentoEnum, campo),
             "Forma de pagamento"
         )
-        return validador(v)
+        return validador(v)  # type: ignore[no-any-return]
 
     @classmethod
     def criar_exemplo_json(cls, **overrides) -> dict:

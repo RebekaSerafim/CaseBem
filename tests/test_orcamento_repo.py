@@ -52,8 +52,6 @@ class TestOrcamentoRepo:
         demanda = Demanda(
             id=0,
             id_casal=1,
-            id_categoria=1,
-            titulo="Demanda de teste",
             descricao="Descrição da demanda de teste"
         )
         id_demanda = demanda_repo.inserir(demanda)
@@ -111,8 +109,6 @@ class TestOrcamentoRepo:
         demanda = Demanda(
             id=0,
             id_casal=1,
-            id_categoria=1,
-            titulo="Demanda de teste",
             descricao="Descrição da demanda de teste"
         )
         id_demanda = demanda_repo.inserir(demanda)
@@ -165,8 +161,6 @@ class TestOrcamentoRepo:
         demanda = Demanda(
             id=0,
             id_casal=1,
-            id_categoria=1,
-            titulo="Demanda de teste",
             descricao="Descrição da demanda de teste"
         )
         id_demanda = demanda_repo.inserir(demanda)
@@ -211,8 +205,6 @@ class TestOrcamentoRepo:
         demanda = Demanda(
             id=0,
             id_casal=1,
-            id_categoria=1,
-            titulo="Demanda de teste",
             descricao="Descrição da demanda de teste"
         )
         id_demanda = demanda_repo.inserir(demanda)
@@ -259,8 +251,6 @@ class TestOrcamentoRepo:
         demanda = Demanda(
             id=0,
             id_casal=1,
-            id_categoria=1,
-            titulo="Demanda de teste",
             descricao="Descrição da demanda de teste"
         )
         id_demanda = demanda_repo.inserir(demanda)
@@ -317,8 +307,6 @@ class TestOrcamentoRepo:
         demanda = Demanda(
             id=0,
             id_casal=1,
-            id_categoria=1,
-            titulo="Demanda de teste",
             descricao="Descrição da demanda de teste"
         )
         id_demanda = demanda_repo.inserir(demanda)
@@ -377,8 +365,6 @@ class TestOrcamentoRepo:
         demanda = Demanda(
             id=0,
             id_casal=1,
-            id_categoria=1,
-            titulo="Demanda de teste",
             descricao="Descrição da demanda de teste"
         )
         id_demanda = demanda_repo.inserir(demanda)
@@ -433,8 +419,6 @@ class TestOrcamentoRepo:
             demanda = Demanda(
                 id=0,
                 id_casal=1,
-                id_categoria=1,
-                titulo="Demanda de teste",
                 descricao="Descrição da demanda de teste"
             )
             ids_demandas.append(demanda_repo.inserir(demanda))
@@ -484,8 +468,6 @@ class TestOrcamentoRepo:
         demanda = Demanda(
             id=0,
             id_casal=1,
-            id_categoria=1,
-            titulo="Demanda de teste",
             descricao="Descrição da demanda de teste"
         )
         id_demanda = demanda_repo.inserir(demanda)
@@ -538,8 +520,6 @@ class TestOrcamentoRepo:
         demanda = Demanda(
             id=0,
             id_casal=1,
-            id_categoria=1,
-            titulo="Demanda de teste",
             descricao="Descrição da demanda de teste"
         )
         id_demanda = demanda_repo.inserir(demanda)

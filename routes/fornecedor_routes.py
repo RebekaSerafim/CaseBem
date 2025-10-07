@@ -588,7 +588,8 @@ async def listar_demandas(request: Request, categoria: str = "", usuario_logado:
             demandas_filtradas = []
             for d in demandas_compativeis:
                 # Verificar se algum item compatível é da categoria filtrada
-                if any(item.get("id_categoria") == categoria_id for item in d["itens_compativeis"]):
+                itens = d.get("itens_compativeis") or []
+                if any(item.get("id_categoria") == categoria_id for item in itens):  # type: ignore[attr-defined]
                     demandas_filtradas.append(d)
             demandas_compativeis = demandas_filtradas
         except ValueError:
@@ -597,7 +598,7 @@ async def listar_demandas(request: Request, categoria: str = "", usuario_logado:
     # Enriquecer dados das demandas
     demandas_enriched = []
     for dados in demandas_compativeis:
-        demanda = dados["demanda"]
+        demanda = dados["demanda"]  # type: ignore[assignment]
         try:
             # Buscar dados do casal e noivo
             casal = casal_repo.obter_por_id(demanda.id_casal)
@@ -758,7 +759,7 @@ async def novo_orcamento_com_itens_form(request: Request, id_demanda: int, usuar
     itens_demanda = item_demanda_repo.obter_por_demanda(id_demanda)
 
     # Buscar itens do fornecedor (para popular select)
-    meus_itens = item_repo.obter_por_fornecedor(usuario_logado["id"])
+    meus_itens = item_repo.obter_itens_por_fornecedor(usuario_logado["id"])
 
     # Filtrar apenas itens ativos
     meus_itens = [i for i in meus_itens if i.ativo]
@@ -863,7 +864,7 @@ async def criar_orcamento_com_itens(
                 id_item_int = int(item_id[i]) if item_id[i] else 0
                 qtd = int(quantidade[i]) if i < len(quantidade) and quantidade[i] else 1
                 preco = float(preco_unitario[i]) if i < len(preco_unitario) and preco_unitario[i] else 0
-                desc_item = float(desconto_item[i]) if i < len(desconto_item) and desconto_item[i] else None
+                desc_item = float(desconto_item[i]) if i < len(desconto_item) and desconto_item[i] else None  # type: ignore[assignment]
                 obs_item = observacoes_item[i] if i < len(observacoes_item) and observacoes_item[i] else None
 
                 if id_item_int > 0 and preco > 0:

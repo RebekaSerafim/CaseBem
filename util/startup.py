@@ -139,7 +139,7 @@ def carregar_dados_json(nome_arquivo: str) -> dict:
     try:
         caminho_arquivo = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'data', 'seeds', nome_arquivo)
         with open(caminho_arquivo, 'r', encoding='utf-8') as arquivo:
-            return json.load(arquivo)
+            return json.load(arquivo)  # type: ignore[no-any-return]
     except FileNotFoundError:
         logger.error(f"Arquivo {nome_arquivo} não encontrado na pasta data/seeds/")
         return {}

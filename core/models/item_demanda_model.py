@@ -21,7 +21,7 @@ class ItemDemanda:
     preco_maximo: Optional[float] = None
     observacoes: Optional[str] = None
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         """Converte tipo de string para enum se necessário"""
         if isinstance(self.tipo, str):
             self.tipo = TipoFornecimento(self.tipo)

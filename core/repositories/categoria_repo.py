@@ -57,7 +57,7 @@ class CategoriaRepo(BaseRepo):
 
     def contar_categorias(self) -> int:
         """Conta o total de categorias no sistema"""
-        return self.contar_registros()
+        return self.contar_registros()  # type: ignore[no-any-return]
 
     def obter_por_nome(
         self, nome: str, tipo_fornecimento: TipoFornecimento
@@ -90,17 +90,17 @@ class CategoriaRepo(BaseRepo):
 
     def ativar_categoria(self, id: int) -> bool:
         """Ativa uma categoria"""
-        return self.ativar(id)
+        return self.ativar(id)  # type: ignore[no-any-return]
 
     def desativar_categoria(self, id: int) -> bool:
         """Desativa uma categoria"""
-        return self.desativar(id)
+        return self.desativar(id)  # type: ignore[no-any-return]
 
     def obter_paginado_categorias(
         self, pagina: int, tamanho_pagina: int
     ) -> tuple[List[Categoria], int]:
         """Obtém categorias paginadas e retorna lista de categorias e total"""
-        return self.obter_paginado(pagina, tamanho_pagina)
+        return self.obter_paginado(pagina, tamanho_pagina)  # type: ignore[no-any-return]
 
     def buscar_paginado(
         self,

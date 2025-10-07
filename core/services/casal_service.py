@@ -86,7 +86,7 @@ class CasalService:
             'id_noivo2': id_noivo2
         })
 
-        return id_casal
+        return id_casal  # type: ignore[no-any-return]
 
     def atualizar_casal(self, id_casal: int, dados: dict) -> bool:
         """
@@ -122,7 +122,7 @@ class CasalService:
         if sucesso:
             logger.info(f"Casal atualizado: {id_casal}")
 
-        return sucesso
+        return sucesso  # type: ignore[no-any-return]
 
     def obter_casal(self, id_casal: int) -> Casal:
         """
@@ -134,7 +134,7 @@ class CasalService:
         Returns:
             Casal encontrado
         """
-        return self.repo.obter_por_id(id_casal)
+        return self.repo.obter_por_id(id_casal)  # type: ignore[no-any-return]
 
     def obter_casal_por_noivo(self, id_noivo: int) -> Optional[Casal]:
         """
@@ -180,7 +180,7 @@ class CasalService:
         if sucesso:
             logger.info(f"Casal excluído: {id_casal}")
 
-        return sucesso
+        return sucesso  # type: ignore[no-any-return]
 
 
 # Instância singleton do serviço

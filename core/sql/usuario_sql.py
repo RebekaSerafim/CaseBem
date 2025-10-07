@@ -78,10 +78,6 @@ ORDER BY nome ASC
 LIMIT ? OFFSET ?;
 """
 
-ADICIONAR_COLUNA_ATIVO = """
-ALTER TABLE usuario ADD COLUMN ativo BOOLEAN NOT NULL DEFAULT 1;
-"""
-
 BUSCAR_USUARIOS = """
 SELECT id, nome, cpf, data_nascimento, email, telefone, senha, perfil, token_redefinicao, data_token, data_cadastro, ativo
 FROM usuario

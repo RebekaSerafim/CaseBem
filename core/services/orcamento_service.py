@@ -36,7 +36,7 @@ class OrcamentoService:
         id_orcamento = self.repo.inserir(orcamento)
 
         logger.info(f"Orçamento criado: {id_orcamento}")
-        return id_orcamento
+        return id_orcamento  # type: ignore[no-any-return]
 
     def atualizar_orcamento(self, id_orcamento: int, dados: dict) -> bool:
         """Atualiza um orçamento"""
@@ -53,11 +53,11 @@ class OrcamentoService:
         sucesso = self.repo.atualizar(orcamento)
         if sucesso:
             logger.info(f"Orçamento atualizado: {id_orcamento}")
-        return sucesso
+        return sucesso  # type: ignore[no-any-return]
 
     def obter_orcamento(self, id_orcamento: int) -> Orcamento:
         """Obtém um orçamento por ID"""
-        return self.repo.obter_por_id(id_orcamento)
+        return self.repo.obter_por_id(id_orcamento)  # type: ignore[no-any-return]
 
     def listar_orcamentos(self, id_demanda: Optional[int] = None,
                          id_fornecedor: Optional[int] = None,
@@ -75,7 +75,7 @@ class OrcamentoService:
         sucesso = self.repo.excluir(id_orcamento)
         if sucesso:
             logger.info(f"Orçamento excluído: {id_orcamento}")
-        return sucesso
+        return sucesso  # type: ignore[no-any-return]
 
 
 orcamento_service = OrcamentoService()

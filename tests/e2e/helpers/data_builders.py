@@ -2,6 +2,7 @@
 Builders de dados para testes E2E
 """
 from datetime import datetime, timedelta
+from typing import Optional
 from faker import Faker
 import unicodedata
 
@@ -20,7 +21,7 @@ class DemandaBuilder:
     """Builder para criar dados de demanda"""
 
     @staticmethod
-    def build(titulo: str = None, descricao: str = None) -> dict:
+    def build(titulo: Optional[str] = None, descricao: Optional[str] = None) -> dict:
         """
         Cria dados de demanda para testes
 
@@ -47,7 +48,7 @@ class ItemBuilder:
     """Builder para criar dados de item"""
 
     @staticmethod
-    def build(tipo: str = "PRODUTO", nome: str = None) -> dict:
+    def build(tipo: str = "PRODUTO", nome: Optional[str] = None) -> dict:
         """
         Cria dados de item para testes
 
@@ -71,7 +72,7 @@ class OrcamentoBuilder:
     """Builder para criar dados de orçamento"""
 
     @staticmethod
-    def build(valor: float = None, descricao: str = None) -> dict:
+    def build(valor: Optional[float] = None, descricao: Optional[str] = None) -> dict:
         """
         Cria dados de orçamento para testes
 
@@ -171,7 +172,7 @@ class CategoriaBuilder:
     """Builder para criação de categorias"""
 
     @staticmethod
-    def build(tipo: str = "PRODUTO", nome: str = None) -> dict:
+    def build(tipo: str = "PRODUTO", nome: Optional[str] = None) -> dict:
         """
         Cria dados de categoria para testes
 

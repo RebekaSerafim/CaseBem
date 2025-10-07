@@ -1,6 +1,7 @@
 """
 Asserções customizadas para testes E2E
 """
+from typing import Optional
 from playwright.sync_api import Page
 
 def assert_url_contains(page: Page, text: str):
@@ -24,23 +25,23 @@ def assert_element_count(page: Page, selector: str, count: int):
     actual_count = page.locator(selector).count()
     assert actual_count == count, f"Esperado {count} elementos, encontrado {actual_count}"
 
-def assert_success_message(page: Page, message: str = None):
+def assert_success_message(page: Page, message: Optional[str] = None):
     """Valida presença de mensagem de sucesso"""
     selector = '.alert-success, .toast-success, [class*="success"]'
     assert page.is_visible(selector), "Mensagem de sucesso não encontrada"
 
     if message:
         content = page.text_content(selector)
-        assert message in content, f"Mensagem '{message}' não encontrada em '{content}'"
+        assert content is not None and message in content, f"Mensagem '{message}' não encontrada em '{content}'"
 
-def assert_error_message(page: Page, message: str = None):
+def assert_error_message(page: Page, message: Optional[str] = None):
     """Valida presença de mensagem de erro"""
     selector = '.alert-danger, .toast-error, [class*="error"]'
     assert page.is_visible(selector), "Mensagem de erro não encontrada"
 
     if message:
         content = page.text_content(selector)
-        assert message in content, f"Mensagem '{message}' não encontrada em '{content}'"
+        assert content is not None and message in content, f"Mensagem '{message}' não encontrada em '{content}'"
 
 def assert_table_row_count(page: Page, selector: str, count: int):
     """Valida número de linhas em tabela"""
@@ -50,7 +51,7 @@ def assert_table_row_count(page: Page, selector: str, count: int):
 def assert_table_has_text(page: Page, selector: str, text: str):
     """Valida que tabela contém texto"""
     content = page.text_content(selector)
-    assert text in content, f"Texto '{text}' não encontrado na tabela"
+    assert content is not None and text in content, f"Texto '{text}' não encontrado na tabela"
 
 def assert_text_visible(page: Page, text: str):
     """Valida que texto está visível na página"""

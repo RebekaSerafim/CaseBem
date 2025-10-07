@@ -2,7 +2,7 @@ import sqlite3
 import os
 from infrastructure.database.adapters import register_adapters
 
-def obter_conexao():
+def obter_conexao() -> sqlite3.Connection:
     # Registra os adaptadores customizados para datetime
     register_adapters()
     # Obtém o caminho do banco de dados a partir da variável de ambiente de testes ou usa o padrão

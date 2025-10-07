@@ -38,7 +38,7 @@ class FavoritoRepo(BaseRepo):
 
     def remover(self, id_noivo: int, id_item: int) -> bool:
         """Remove um item dos favoritos do noivo"""
-        return self.executar_comando(favorito_sql.EXCLUIR_FAVORITO, (id_noivo, id_item))
+        return self.executar_comando(favorito_sql.EXCLUIR_FAVORITO, (id_noivo, id_item))  # type: ignore[no-any-return]
 
     def obter_por_noivo(self, id_noivo: int) -> List[dict]:
         """Obtém todos os favoritos de um noivo com dados dos itens"""
@@ -56,7 +56,7 @@ class FavoritoRepo(BaseRepo):
 
     def contar_por_noivo(self, id_noivo: int) -> int:
         """Conta o total de favoritos de um noivo"""
-        return self.contar_registros("id_noivo = ?", (id_noivo,))
+        return self.contar_registros("id_noivo = ?", (id_noivo,))  # type: ignore[no-any-return]
 
 
 # Instância singleton do repositório

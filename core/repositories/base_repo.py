@@ -154,7 +154,7 @@ class BaseRepo:
             return [self._linha_para_objeto(row) for row in resultados]
 
     @tratar_erro_banco_dados("execução de consulta")
-    def executar_consulta(self, sql: str, params: tuple = ()) -> List[Dict]:
+    def executar_consulta(self, sql: str, params: tuple = ()) -> List[Dict[str, Any]]:
         """Executa uma consulta customizada"""
         with obter_conexao() as conexao:
             cursor = conexao.cursor()
@@ -204,7 +204,7 @@ class BaseRepo:
             sql = f"SELECT COUNT(*) as total FROM {self.nome_tabela}"
 
         resultados = self.executar_consulta(sql, parametros)
-        total = resultados[0]["total"] if resultados else 0
+        total: int = int(resultados[0]["total"]) if resultados else 0
         logger.info(
             f"Contagem realizada em {self.nome_tabela}",
             total_registros=total,
@@ -239,7 +239,7 @@ class BaseRepo:
         Returns:
             int: Total de registros na tabela
         """
-        return self.contar_registros()
+        return self.contar_registros()  # type: ignore[no-any-return]
 
     @tratar_erro_banco_dados("ativação de registro")
     def ativar(self, id: int, campo: str = "ativo") -> bool:
@@ -257,7 +257,7 @@ class BaseRepo:
         sucesso = self.executar_comando(sql, (id,))
         if sucesso:
             logger.info(f"Registro ativado em {self.nome_tabela}", id=id, campo=campo)
-        return sucesso
+        return sucesso  # type: ignore[no-any-return]
 
     @tratar_erro_banco_dados("desativação de registro")
     def desativar(self, id: int, campo: str = "ativo") -> bool:
@@ -277,7 +277,7 @@ class BaseRepo:
             logger.info(
                 f"Registro desativado em {self.nome_tabela}", id=id, campo=campo
             )
-        return sucesso
+        return sucesso  # type: ignore[no-any-return]
 
 
 class BaseRepoChaveComposta(BaseRepo):
@@ -367,4 +367,4 @@ class BaseRepoChaveComposta(BaseRepo):
 
     def listar_todos(self) -> List[Any]:
         """Lista todos os registros (override para remover parâmetro ativo)"""
-        return super().listar_todos(ativo=None)
+        return super().listar_todos(ativo=None)  # type: ignore[no-any-return]
