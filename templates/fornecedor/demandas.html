@@ -93,30 +93,38 @@
                     </div>
                     <div class="col-6">
                         <small class="text-muted d-block">Data Casamento</small>
-                        <strong>{{ demanda.data_casamento or 'N/A' }}</strong>
+                        <strong>{{ demanda.data_casamento|formatar_data if demanda.data_casamento else 'N/A' }}</strong>
                     </div>
                 </div>
 
                 <div class="row mb-3">
                     <div class="col-6">
-                        <small class="text-muted d-block">Cidade</small>
+                        <small class="text-muted d-block">Local</small>
                         <strong>{{ demanda.cidade_casamento or 'N/A' }}</strong>
                     </div>
                     <div class="col-6">
                         <small class="text-muted d-block">Prazo</small>
-                        <strong>{{ demanda.prazo_entrega or 'N/A' }}</strong>
+                        <strong>{{ demanda.prazo_entrega|formatar_data if demanda.prazo_entrega else 'N/A' }}</strong>
                     </div>
                 </div>
 
                 <!-- Estatísticas de Itens -->
-                <div class="row text-center mb-3">
+                <div class="row mb-3 g-2">
                     <div class="col-6">
-                        <small class="text-muted">Itens Totais</small>
-                        <div class="fw-bold text-primary">{{ item.total_itens }}</div>
+                        <div class="card bg-primary text-white text-center py-2">
+                            <div class="card-body p-2">
+                                <small class="d-block opacity-75">Itens Totais</small>
+                                <div class="h3 mb-0 fw-bold">{{ item.total_itens }}</div>
+                            </div>
+                        </div>
                     </div>
                     <div class="col-6">
-                        <small class="text-muted">Você Pode Fornecer</small>
-                        <div class="fw-bold text-success">{{ item.itens_compativeis|length }}</div>
+                        <div class="card bg-success text-white text-center py-2">
+                            <div class="card-body p-2">
+                                <small class="d-block opacity-75">Você Pode Fornecer</small>
+                                <div class="h3 mb-0 fw-bold">{{ item.itens_compativeis|length }}</div>
+                            </div>
+                        </div>
                     </div>
                 </div>
 

@@ -307,7 +307,7 @@
                     <table class="table table-hover">
                         <thead>
                             <tr>
-                                <th>Título</th>
+                                <th>Descrição</th>
                                 <th>Status</th>
                                 <th>Orçamentos</th>
                                 <th>Data Criação</th>
@@ -317,21 +317,32 @@
                         <tbody>
                             {% for demanda in demandas_recentes %}
                             <tr>
-                                <td>{{ demanda.titulo }}</td>
+                                <td>{{ demanda.descricao[:50] }}{% if demanda.descricao|length > 50 %}...{% endif %}</td>
                                 <td>
                                     <span class="badge
-                                        {% if demanda.status == 'ATIVA' %}bg-success
-                                        {% elif demanda.status == 'PENDENTE' %}bg-warning
+                                        {% if demanda.status.value == 'ATIVA' %}bg-success
+                                        {% elif demanda.status.value == 'PENDENTE' %}bg-warning
                                         {% else %}bg-secondary{% endif %}">
-                                        {{ demanda.status }}
+                                        {{ demanda.status.value }}
                                     </span>
                                 </td>
-                                <td>{{ demanda.orcamentos_count or 0 }}</td>
+                                <td>
+                                    {% if demanda.orcamentos_count > 0 %}
+                                        <span class="badge bg-info">{{ demanda.orcamentos_count }}</span>
+                                    {% else %}
+                                        {{ demanda.orcamentos_count or 0 }}
+                                    {% endif %}
+                                </td>
                                 <td>{{ demanda.data_criacao | formatar_data }}</td>
                                 <td>
-                                    <a href="/noivo/demanda/{{ demanda.id }}" class="btn btn-sm btn-outline-primary">
+                                    <a href="/noivo/demanda/{{ demanda.id }}" class="btn btn-sm btn-outline-primary me-1">
                                         Ver Detalhes
                                     </a>
+                                    {% if demanda.orcamentos_count > 0 %}
+                                    <a href="/noivo/orcamentos?demanda={{ demanda.id }}" class="btn btn-sm btn-outline-success">
+                                        <i class="fas fa-file-invoice-dollar"></i> Orçamentos
+                                    </a>
+                                    {% endif %}
                                 </td>
                             </tr>
                             {% endfor %}

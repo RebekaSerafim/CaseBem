@@ -98,30 +98,13 @@
                 {% endif %}
 
                 {% if fornecedor.descricao %}
-                <div class="row mb-3">
+                <div class="row">
                     <div class="col-12">
                         <small class="text-muted">Sobre:</small>
                         <div>{{ fornecedor.descricao }}</div>
                     </div>
                 </div>
                 {% endif %}
-
-                <div class="row">
-                    <div class="col-12">
-                        <small class="text-muted">Tipos de Serviço:</small>
-                        <div class="mt-1">
-                            {% if fornecedor.prestador %}
-                                <span class="badge bg-info me-1">Prestador de Serviços</span>
-                            {% endif %}
-                            {% if fornecedor.vendedor %}
-                                <span class="badge bg-success me-1">Vendedor de Produtos</span>
-                            {% endif %}
-                            {% if fornecedor.locador %}
-                                <span class="badge bg-warning me-1">Locador de Espaços</span>
-                            {% endif %}
-                        </div>
-                    </div>
-                </div>
             </div>
         </div>
     </div>
@@ -133,8 +116,7 @@
                 <h6 class="m-0 font-weight-bold text-primary">Informações da Demanda</h6>
             </div>
             <div class="card-body">
-                <h5>{{ demanda.titulo }}</h5>
-                <p class="text-muted">{{ demanda.descricao }}</p>
+                <p class="mb-3">{{ demanda.descricao }}</p>
 
                 <div class="row mb-3">
                     <div class="col-6">
@@ -144,7 +126,7 @@
                     <div class="col-6">
                         <small class="text-muted">Status:</small>
                         <div>
-                            <span class="badge bg-success">{{ demanda.status }}</span>
+                            <span class="badge bg-success">{{ demanda.status.value }}</span>
                         </div>
                     </div>
                 </div>
@@ -158,7 +140,7 @@
                 </div>
                 {% endif %}
 
-                <div class="text-end">
+                <div class="text-start">
                     <a href="/noivo/demanda/{{ demanda.id }}" class="btn btn-sm btn-outline-success">
                         Ver Demanda Completa
                     </a>
@@ -177,21 +159,17 @@
             </div>
             <div class="card-body">
                 <div class="row">
-                    <div class="col-md-3">
+                    <div class="col-md-4">
                         <small class="text-muted">Data de Envio:</small>
                         <div class="fw-bold">{{ orcamento.data_envio | formatar_data_hora }}</div>
                     </div>
-                    <div class="col-md-3">
-                        <small class="text-muted">Prazo de Entrega:</small>
-                        <div class="fw-bold">{{ orcamento.prazo_entrega or 'Não informado' }}</div>
-                    </div>
-                    <div class="col-md-3">
+                    <div class="col-md-4">
                         {% if orcamento.desconto > 0 %}
                         <small class="text-muted">Desconto Oferecido:</small>
                         <div class="fw-bold text-success">{{ orcamento.desconto }}%</div>
                         {% endif %}
                     </div>
-                    <div class="col-md-3">
+                    <div class="col-md-4">
                         <small class="text-muted">Valor Total:</small>
                         <div class="h4 text-success mb-0">{{ orcamento.valor_total|moeda }}</div>
                     </div>
@@ -230,7 +208,8 @@
                                 <th>Preço Unit.</th>
                                 <th>Desconto</th>
                                 <th>Total</th>
-                                <th>Observações</th>
+                                <th>Status</th>
+                                <th>Ações</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -260,10 +239,32 @@
                                     </strong>
                                 </td>
                                 <td>
-                                    {% if item.observacoes %}
-                                        <small>{{ item.observacoes }}</small>
-                                    {% else %}
-                                        <small class="text-muted">-</small>
+                                    <span class="badge
+                                        {% if item.status == 'PENDENTE' %}bg-warning text-dark
+                                        {% elif item.status == 'ACEITO' %}bg-success
+                                        {% elif item.status == 'REJEITADO' %}bg-danger
+                                        {% else %}bg-secondary{% endif %}">
+                                        {{ item.status }}
+                                    </span>
+                                </td>
+                                <td>
+                                    {% if item.status == 'PENDENTE' %}
+                                    <div class="btn-group" role="group">
+                                        <button type="button" class="btn btn-sm btn-success"
+                                                onclick="aceitarItem({{ orcamento.id }}, {{ item.id_item_orcamento }})"
+                                                title="Aceitar este item">
+                                            <i class="fas fa-check"></i>
+                                        </button>
+                                        <button type="button" class="btn btn-sm btn-danger"
+                                                onclick="rejeitarItem({{ orcamento.id }}, {{ item.id_item_orcamento }})"
+                                                title="Rejeitar este item">
+                                            <i class="fas fa-times"></i>
+                                        </button>
+                                    </div>
+                                    {% elif item.status == 'ACEITO' %}
+                                    <span class="text-success"><i class="fas fa-check-circle"></i> Aceito</span>
+                                    {% elif item.status == 'REJEITADO' %}
+                                    <span class="text-danger"><i class="fas fa-times-circle"></i> Rejeitado</span>
                                     {% endif %}
                                 </td>
                             </tr>
@@ -271,9 +272,9 @@
                         </tbody>
                         <tfoot>
                             <tr class="table-success">
-                                <th colspan="4">Total Geral</th>
+                                <th colspan="4">Total Geral (Itens Aceitos)</th>
                                 <th class="text-success">{{ orcamento.valor_total|moeda }}</th>
-                                <th></th>
+                                <th colspan="2"></th>
                             </tr>
                         </tfoot>
                     </table>
@@ -291,30 +292,7 @@
 </div>
 
 <!-- Ações -->
-{% if orcamento.status == 'PENDENTE' %}
-<div class="row mt-4">
-    <div class="col-12">
-        <div class="card shadow">
-            <div class="card-body">
-                <div class="d-flex justify-content-between align-items-center">
-                    <div>
-                        <h6>Tomar Decisão</h6>
-                        <p class="text-muted mb-0">Analise cuidadosamente a proposta antes de tomar sua decisão.</p>
-                    </div>
-                    <div>
-                        <button type="button" class="btn btn-success me-2" onclick="aceitarOrcamento({{ orcamento.id }})">
-                            <i class="fas fa-check"></i> Aceitar Orçamento
-                        </button>
-                        <button type="button" class="btn btn-outline-danger" onclick="rejeitarOrcamento({{ orcamento.id }})">
-                            <i class="fas fa-times"></i> Rejeitar Orçamento
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-{% elif orcamento.status == 'ACEITO' %}
+{% if orcamento.status == 'ACEITO' or orcamento.status == 'PARCIALMENTE_ACEITO' %}
 <div class="row mt-4">
     <div class="col-12">
         <div class="card border-success shadow">
@@ -358,28 +336,28 @@
 </style>
 
 <script>
-function aceitarOrcamento(id) {
+function aceitarItem(idOrcamento, idItemOrcamento) {
     mostrarModalConfirmacao({
-        titulo: 'Aceitar Orçamento',
-        texto: 'Tem certeza que deseja aceitar este orçamento?',
-        subtexto: 'Esta ação irá rejeitar automaticamente todos os outros orçamentos desta demanda.',
+        titulo: 'Aceitar Item',
+        texto: 'Tem certeza que deseja aceitar este item?',
+        subtexto: 'Você não poderá aceitar outro orçamento para este mesmo item da demanda.',
         tipo: 'success',
-        textoBotao: 'Aceitar Orçamento',
+        textoBotao: 'Aceitar Item',
         onConfirmar: function() {
-            window.location.href = `/noivo/orcamento/${id}/aceitar`;
+            window.location.href = `/noivo/orcamentos/${idOrcamento}/item/${idItemOrcamento}/aceitar`;
         }
     });
 }
 
-function rejeitarOrcamento(id) {
+function rejeitarItem(idOrcamento, idItemOrcamento) {
     mostrarModalConfirmacao({
-        titulo: 'Rejeitar Orçamento',
-        texto: 'Tem certeza que deseja rejeitar este orçamento?',
+        titulo: 'Rejeitar Item',
+        texto: 'Tem certeza que deseja rejeitar este item?',
         subtexto: 'Esta ação não pode ser desfeita.',
         tipo: 'danger',
-        textoBotao: 'Rejeitar Orçamento',
+        textoBotao: 'Rejeitar Item',
         onConfirmar: function() {
-            window.location.href = `/noivo/orcamento/${id}/rejeitar`;
+            window.location.href = `/noivo/orcamentos/${idOrcamento}/item/${idItemOrcamento}/rejeitar`;
         }
     });
 }

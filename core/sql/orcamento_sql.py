@@ -93,7 +93,8 @@ SELECT o.id, o.id_demanda, o.id_fornecedor_prestador, o.data_hora_cadastro,
        o.data_hora_validade, o.status, o.observacoes, o.valor_total
 FROM orcamento o
 INNER JOIN demanda d ON o.id_demanda = d.id
-WHERE d.id_noivo = ?
+INNER JOIN casal c ON d.id_casal = c.id
+WHERE c.id_noivo1 = ? OR c.id_noivo2 = ?
 ORDER BY o.data_hora_cadastro DESC;
 """
 

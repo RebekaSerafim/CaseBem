@@ -56,10 +56,10 @@
                     </div>
                     <div class="col-md-4">
                         <h6><i class="fas fa-calendar"></i> Data do Casamento</h6>
-                        <p>{{ demanda.data_casamento or 'Não informada' }}</p>
+                        <p>{{ (demanda.data_casamento | formatar_data) or 'Não informada' }}</p>
                     </div>
                     <div class="col-md-4">
-                        <h6><i class="fas fa-map-marker-alt"></i> Cidade</h6>
+                        <h6><i class="fas fa-map-marker-alt"></i> Local</h6>
                         <p>{{ demanda.cidade_casamento or 'Não informada' }}</p>
                     </div>
                 </div>
@@ -85,7 +85,7 @@
                 <div class="row">
                     <div class="col-12">
                         <small class="text-muted">
-                            <i class="fas fa-info-circle"></i> Criada em: {{ demanda.data_criacao or 'N/A' }}
+                            <i class="fas fa-info-circle"></i> Criada em: {{ (demanda.data_criacao | formatar_data) or 'N/A' }}
                         </small>
                     </div>
                 </div>
@@ -214,7 +214,7 @@
                     <a href="/noivo/orcamento/{{ orcamento.id }}" class="list-group-item list-group-item-action">
                         <div class="d-flex w-100 justify-content-between">
                             <h6 class="mb-1">{{ orcamento.fornecedor_nome or 'Fornecedor' }}</h6>
-                            <small class="text-muted">{{ orcamento.data_criacao }}</small>
+                            <small class="text-muted">{{ orcamento.data_criacao | formatar_data }}</small>
                         </div>
                         <p class="mb-1">
                             <strong class="text-success">R$ {{ "%.2f"|format(orcamento.valor_total) }}</strong>

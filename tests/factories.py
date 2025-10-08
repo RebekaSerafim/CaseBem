@@ -448,12 +448,14 @@ class ItemDemandaFactory(BaseFactory[ItemDemanda]):
 
 
 class ItemOrcamentoFactory(BaseFactory[ItemOrcamento]):
-    """Factory para criar associações item-orçamento de teste"""
+    """Factory para criar associações item-orçamento de teste (V2: com id_item_demanda)"""
 
     @classmethod
     def _dados_padrao(cls) -> Dict[str, Any]:
         return {
+            'id': 0,  # Será gerado automaticamente pelo banco
             'id_orcamento': 1,
+            'id_item_demanda': 1,
             'id_item': 1,
             'quantidade': random.randint(1, 10),
             'preco_unitario': round(random.uniform(50, 500), 2),
@@ -464,7 +466,9 @@ class ItemOrcamentoFactory(BaseFactory[ItemOrcamento]):
     @classmethod
     def _variar_dados(cls, indice: int) -> Dict[str, Any]:
         return {
+            'id': 0,  # Será gerado automaticamente
             'id_orcamento': (indice % 3) + 1,
+            'id_item_demanda': (indice % 5) + 1,
             'id_item': (indice % 5) + 1,
             'quantidade': indice + 1,
             'preco_unitario': round(random.uniform(50 + indice*10, 500 + indice*10), 2),

@@ -493,8 +493,11 @@ async def get_cadastro_confirmacao(request: Request):
 
 @router.get("/login")
 @tratar_erro_rota(template_erro="publico/login.html")
-async def get_login(request: Request):
-    return render_template_with_user(request, "publico/login.html")
+async def get_login(request: Request, redirect: Optional[str] = None):
+    context = {}
+    if redirect:
+        context["redirect"] = redirect
+    return render_template_with_user(request, "publico/login.html", context)
 
 
 @router.post("/login")

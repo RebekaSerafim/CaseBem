@@ -16,3 +16,9 @@ class Orcamento:
     valor_total: Optional[float] = None
     demanda: Optional[Demanda] = None
     fornecedor_prestador: Optional[Usuario] = None
+    # Campos para enriquecimento de dados na listagem
+    itens_count: Optional[int] = None
+    data_envio: Optional[str] = None
+    demanda_titulo: Optional[str] = None
+    total_itens: Optional[int] = None
+    itens: Optional[list] = None

@@ -73,7 +73,12 @@ async def dashboard_noivo(request: Request, usuario_logado: dict = {}):
         if casal:
             demandas_casal = demanda_repo.obter_por_casal(casal.id)
             demandas_ativas = [d for d in demandas_casal if d.status.value == "ATIVA"]
-            demandas_recentes = demandas_casal[:5]
+
+            # Enriquecer demandas recentes com contagem de orçamentos
+            demandas_recentes = []
+            for demanda in demandas_casal[:5]:
+                demanda.orcamentos_count = orcamento_repo.contar_por_demanda(demanda.id)  # type: ignore[attr-defined]
+                demandas_recentes.append(demanda)
         else:
             demandas_casal = []
             demandas_ativas = []
@@ -316,6 +321,7 @@ async def nova_demanda_form(request: Request, usuario_logado: dict = {}):
 
     # Buscar categorias ativas agrupadas por tipo
     categorias = categoria_repo.buscar_categorias()
+    # Usar chaves SEM acento para compatibilidade com JavaScript normalize()
     categorias_por_tipo = {
         "PRODUTO": [{"id": c.id, "nome": c.nome} for c in categorias if c.ativo and c.tipo_fornecimento == TipoFornecimento.PRODUTO],
         "SERVICO": [{"id": c.id, "nome": c.nome} for c in categorias if c.ativo and c.tipo_fornecimento == TipoFornecimento.SERVICO],
@@ -340,17 +346,17 @@ async def nova_demanda_form(request: Request, usuario_logado: dict = {}):
 async def criar_demanda(
     request: Request,
     descricao: str = Form(...),
-    orcamento_total: float = Form(None),
+    orcamento_total: str = Form(""),
     data_casamento: str = Form(""),
     cidade_casamento: str = Form(""),
     prazo_entrega: str = Form(""),
     observacoes: str = Form(""),
-    tipo: list = Form([]),
-    id_categoria: list = Form([]),
-    descricao_item: list = Form([]),
-    quantidade: list = Form([]),
-    preco_maximo: list = Form([]),
-    observacoes_item: list = Form([]),
+    tipo: list = Form([], alias="tipo[]"),
+    id_categoria: list = Form([], alias="id_categoria[]"),
+    descricao_item: list = Form([], alias="descricao_item[]"),
+    quantidade: list = Form([], alias="quantidade[]"),
+    preco_maximo: list = Form([], alias="preco_maximo[]"),
+    observacoes_item: list = Form([], alias="observacoes_item[]"),
     usuario_logado: dict = {},
 ):
     """Cria uma nova demanda com itens (descrições livres)"""
@@ -358,7 +364,7 @@ async def criar_demanda(
     from core.models.item_demanda_model import ItemDemanda
 
     id_noivo = usuario_logado["id"]
-    logger.info("Criando nova demanda", noivo_id=id_noivo)
+    logger.info("Criando nova demanda", noivo_id=id_noivo, total_itens=len(tipo))
 
     # Buscar casal do noivo
     casal = casal_repo.obter_por_noivo(id_noivo)
@@ -373,12 +379,20 @@ async def criar_demanda(
         informar_erro(request, "Adicione pelo menos um item à demanda")
         return RedirectResponse("/noivo/demandas/nova", status_code=status.HTTP_303_SEE_OTHER)
 
+    # Converter orcamento_total de string para float
+    orcamento_total_valor = None
+    if orcamento_total and orcamento_total.strip():
+        try:
+            orcamento_total_valor = float(orcamento_total)
+        except (ValueError, TypeError):
+            logger.warning("Valor de orçamento total inválido", valor=orcamento_total)
+
     # Criar nova demanda
     nova_demanda = Demanda(
         id=0,  # Será definido pelo banco
         id_casal=casal.id,
         descricao=descricao,
-        orcamento_total=orcamento_total if orcamento_total else None,
+        orcamento_total=orcamento_total_valor,
         data_casamento=data_casamento if data_casamento else casal.data_casamento,
         cidade_casamento=cidade_casamento if cidade_casamento else casal.local_previsto,
         prazo_entrega=prazo_entrega if prazo_entrega else None,
@@ -416,7 +430,6 @@ async def criar_demanda(
                     itens_inseridos += 1
             except Exception as e:
                 logger.error("Erro ao inserir item da demanda", erro=e, demanda_id=id_demanda, item_index=i)
-
         logger.info(
             "Demanda criada com sucesso",
             demanda_id=id_demanda,
@@ -475,10 +488,6 @@ async def visualizar_demanda(
     # Buscar orçamentos da demanda
     orcamentos = orcamento_repo.obter_por_demanda(id_demanda)
 
-    # Buscar categoria
-    from core.repositories import categoria_repo
-    categoria = categoria_repo.obter_por_id(demanda.id_categoria)
-
     return templates.TemplateResponse(
         "noivo/demanda_detalhes.html",
         {
@@ -487,9 +496,70 @@ async def visualizar_demanda(
             "demanda": demanda,
             "itens": itens_demanda,
             "orcamentos": orcamentos,
-            "categoria": categoria,
         },
     )
+
+
+@router.post("/noivo/demanda/{id_demanda}/excluir")
+@requer_autenticacao([TipoUsuario.NOIVO.value])
+@tratar_erro_rota(redirect_erro="/noivo/demandas")
+async def excluir_demanda(
+    request: Request, id_demanda: int, usuario_logado: dict = {}
+):
+    """Exclui uma demanda e seus itens e orçamentos relacionados"""
+    from core.repositories import item_demanda_repo, orcamento_repo, item_orcamento_repo
+
+    id_noivo = usuario_logado["id"]
+    logger.info("Excluindo demanda", noivo_id=id_noivo, demanda_id=id_demanda)
+
+    # Buscar demanda
+    demanda = demanda_repo.obter_por_id(id_demanda)
+    if not demanda:
+        logger.warning("Demanda não encontrada para exclusão", demanda_id=id_demanda)
+        informar_erro(request, "Demanda não encontrada")
+        return RedirectResponse("/noivo/demandas", status_code=status.HTTP_303_SEE_OTHER)
+
+    # Buscar casal do noivo
+    casal = casal_repo.obter_por_noivo(id_noivo)
+
+    # Verificar se a demanda pertence ao casal do noivo
+    if not casal or demanda.id_casal != casal.id:
+        logger.warning(
+            "Acesso negado para excluir demanda",
+            demanda_id=id_demanda,
+            noivo_id=id_noivo,
+        )
+        informar_erro(request, "Acesso negado")
+        return RedirectResponse("/noivo/demandas", status_code=status.HTTP_303_SEE_OTHER)
+
+    # Buscar orçamentos da demanda para excluir seus itens
+    orcamentos = orcamento_repo.obter_por_demanda(id_demanda)
+
+    # Excluir itens de cada orçamento
+    for orcamento in orcamentos:
+        item_orcamento_repo.excluir_por_orcamento(orcamento.id)
+
+    # Excluir orçamentos
+    for orcamento in orcamentos:
+        orcamento_repo.excluir(orcamento.id)
+
+    # Buscar e excluir itens da demanda
+    itens = item_demanda_repo.obter_por_demanda(id_demanda)
+    for item in itens:
+        item_demanda_repo.excluir(item['id'])
+
+    # Excluir a demanda
+    demanda_repo.excluir(id_demanda)
+
+    logger.info(
+        "Demanda excluída com sucesso",
+        demanda_id=id_demanda,
+        total_itens=len(itens),
+        total_orcamentos=len(orcamentos),
+    )
+
+    informar_sucesso(request, "Demanda excluída com sucesso")
+    return RedirectResponse("/noivo/demandas", status_code=status.HTTP_303_SEE_OTHER)
 
 
 @router.get("/noivo/demanda/editar/{id_demanda}")
@@ -540,6 +610,7 @@ async def editar_demanda_form(
     # Buscar categorias agrupadas por tipo
     from core.models.tipo_fornecimento_model import TipoFornecimento
     categorias = categoria_repo.buscar_categorias()
+    # Usar chaves SEM acento para compatibilidade com JavaScript normalize()
     categorias_por_tipo = {
         "PRODUTO": [{"id": c.id, "nome": c.nome} for c in categorias if c.ativo and c.tipo_fornecimento == TipoFornecimento.PRODUTO],
         "SERVICO": [{"id": c.id, "nome": c.nome} for c in categorias if c.ativo and c.tipo_fornecimento == TipoFornecimento.SERVICO],
@@ -567,17 +638,17 @@ async def atualizar_demanda(
     request: Request,
     id_demanda: int,
     descricao: str = Form(...),
-    orcamento_total: float = Form(None),
+    orcamento_total: str = Form(""),
     data_casamento: str = Form(""),
     cidade_casamento: str = Form(""),
     prazo_entrega: str = Form(""),
     observacoes: str = Form(""),
-    tipo: list = Form([]),
-    id_categoria: list = Form([]),
-    descricao_item: list = Form([]),
-    quantidade: list = Form([]),
-    preco_maximo: list = Form([]),
-    observacoes_item: list = Form([]),
+    tipo: list = Form([], alias="tipo[]"),
+    id_categoria: list = Form([], alias="id_categoria[]"),
+    descricao_item: list = Form([], alias="descricao_item[]"),
+    quantidade: list = Form([], alias="quantidade[]"),
+    preco_maximo: list = Form([], alias="preco_maximo[]"),
+    observacoes_item: list = Form([], alias="observacoes_item[]"),
     usuario_logado: dict = {},
 ):
     """Atualiza uma demanda existente com itens (descrições livres)"""
@@ -609,9 +680,17 @@ async def atualizar_demanda(
         informar_erro(request, "Adicione pelo menos um item à demanda")
         return RedirectResponse(f"/noivo/demanda/editar/{id_demanda}", status_code=status.HTTP_303_SEE_OTHER)
 
+    # Converter orcamento_total de string para float
+    orcamento_total_valor = None
+    if orcamento_total and orcamento_total.strip():
+        try:
+            orcamento_total_valor = float(orcamento_total)
+        except (ValueError, TypeError):
+            logger.warning("Valor de orçamento total inválido na atualização", valor=orcamento_total)
+
     # Atualizar dados da demanda
     demanda.descricao = descricao
-    demanda.orcamento_total = orcamento_total if orcamento_total else None
+    demanda.orcamento_total = orcamento_total_valor
     demanda.data_casamento = data_casamento if data_casamento else casal.data_casamento
     demanda.cidade_casamento = cidade_casamento if cidade_casamento else casal.local_previsto
     demanda.prazo_entrega = prazo_entrega if prazo_entrega else None
@@ -742,8 +821,8 @@ async def listar_orcamentos(
                 "data_envio": orcamento.data_hora_cadastro,
                 "prazo_entrega": orcamento.data_hora_validade,
                 "observacoes": orcamento.observacoes,
-                "demanda_titulo": (
-                    demanda_data.titulo if demanda_data else "Demanda não encontrada"
+                "demanda_descricao": (
+                    demanda_data.descricao if demanda_data else "Demanda não encontrada"
                 ),
                 "fornecedor_nome": (
                     fornecedor_data.nome
@@ -809,7 +888,7 @@ async def visualizar_orcamento(
         )
 
     # Buscar fornecedor
-    fornecedor = fornecedor_repo.obter_por_id(orcamento.id_fornecedor)
+    fornecedor = fornecedor_repo.obter_por_id(orcamento.id_fornecedor_prestador)
 
     # Buscar itens do orçamento (query já faz JOIN com item, traz nome, descricao, tipo)
     itens_orcamento = item_orcamento_repo.obter_por_orcamento(orcamento.id)
@@ -818,15 +897,17 @@ async def visualizar_orcamento(
     itens_enriched = []
     for item_orc in itens_orcamento:
         item_dict = {
+            "id_item_orcamento": item_orc["id"],  # ID do item_orcamento (necessário para aceitar/rejeitar)
             "id_item": item_orc["id_item"],
-            "nome_item": item_orc.get("nome", "Item não encontrado"),
-            "descricao_item": item_orc.get("descricao", ""),
-            "tipo_item": item_orc.get("tipo", ""),
+            "nome_item": item_orc.get("item_nome", "Item não encontrado"),
+            "descricao_item": item_orc.get("item_descricao", ""),
+            "tipo_item": item_orc.get("item_tipo", ""),
             "quantidade": item_orc["quantidade"],
             "preco_unitario": item_orc["preco_unitario"],
             "desconto": item_orc.get("desconto", 0) or 0,
             "preco_total": item_orc["preco_total"],
             "observacoes": item_orc.get("observacoes"),
+            "status": item_orc.get("status", "PENDENTE"),
         }
         itens_enriched.append(item_dict)
 
@@ -857,7 +938,7 @@ async def visualizar_orcamento(
     )
 
 
-@router.post("/noivo/orcamentos/{id_orcamento}/aceitar")
+@router.get("/noivo/orcamentos/{id_orcamento}/aceitar")
 @requer_autenticacao([TipoUsuario.NOIVO.value])
 @tratar_erro_rota(redirect_erro="/noivo/orcamentos")
 async def aceitar_orcamento(
@@ -900,7 +981,7 @@ async def aceitar_orcamento(
     return RedirectResponse("/noivo/orcamentos", status_code=status.HTTP_303_SEE_OTHER)
 
 
-@router.post("/noivo/orcamentos/{id_orcamento}/rejeitar")
+@router.get("/noivo/orcamentos/{id_orcamento}/rejeitar")
 @requer_autenticacao([TipoUsuario.NOIVO.value])
 @tratar_erro_rota(redirect_erro="/noivo/orcamentos")
 async def rejeitar_orcamento(
@@ -922,6 +1003,172 @@ async def rejeitar_orcamento(
         informar_erro(request, "Erro ao rejeitar orçamento!")
 
     return RedirectResponse("/noivo/orcamentos", status_code=status.HTTP_303_SEE_OTHER)
+
+
+@router.get("/noivo/orcamentos/{id_orcamento}/item/{id_item_orcamento}/aceitar")
+@requer_autenticacao([TipoUsuario.NOIVO.value])
+@tratar_erro_rota(redirect_erro="/noivo/orcamentos")
+async def aceitar_item_orcamento(
+    request: Request,
+    id_orcamento: int,
+    id_item_orcamento: int,
+    usuario_logado: dict = {},
+):
+    """Aceita um item individual do orçamento"""
+    logger.info(
+        "Aceitando item de orçamento",
+        noivo_id=usuario_logado["id"],
+        orcamento_id=id_orcamento,
+        item_orcamento_id=id_item_orcamento,
+    )
+
+    from core.repositories.item_orcamento_repo import item_orcamento_repo
+
+    # Buscar o item do orçamento
+    item_orcamento = item_orcamento_repo.obter_por_id(id_item_orcamento)
+    if not item_orcamento:
+        logger.warning(
+            "Item de orçamento não encontrado", item_orcamento_id=id_item_orcamento
+        )
+        informar_erro(request, "Item de orçamento não encontrado!")
+        return RedirectResponse(
+            f"/noivo/orcamentos/{id_orcamento}", status_code=status.HTTP_303_SEE_OTHER
+        )
+
+    # Verificar se o item pertence ao orçamento correto
+    if item_orcamento.id_orcamento != id_orcamento:
+        logger.warning(
+            "Item não pertence ao orçamento",
+            item_orcamento_id=id_item_orcamento,
+            orcamento_esperado=id_orcamento,
+            orcamento_real=item_orcamento.id_orcamento,
+        )
+        informar_erro(request, "Item não pertence a este orçamento!")
+        return RedirectResponse(
+            f"/noivo/orcamentos/{id_orcamento}", status_code=status.HTTP_303_SEE_OTHER
+        )
+
+    # Verificar se já existe um item aceito para o mesmo item_demanda
+    # REGRA: Não pode aceitar dois orçamentos para o mesmo item_demanda
+    if item_orcamento_repo.verificar_item_demanda_ja_aceito(
+        item_orcamento.id_item_demanda
+    ):
+        logger.warning(
+            "Já existe item aceito para este item_demanda",
+            item_demanda_id=item_orcamento.id_item_demanda,
+        )
+        informar_erro(
+            request,
+            "Já existe um item aceito para esta solicitação! "
+            "Você não pode aceitar dois orçamentos para o mesmo item.",
+        )
+        return RedirectResponse(
+            f"/noivo/orcamentos/{id_orcamento}", status_code=status.HTTP_303_SEE_OTHER
+        )
+
+    # Aceitar o item
+    sucesso = item_orcamento_repo.atualizar_status_item(id_item_orcamento, "ACEITO")
+
+    if sucesso:
+        logger.info(
+            "Item de orçamento aceito com sucesso",
+            item_orcamento_id=id_item_orcamento,
+            orcamento_id=id_orcamento,
+        )
+
+        # Atualizar status derivado do orçamento
+        orcamento_repo.atualizar_status_derivado(id_orcamento)
+
+        # Atualizar valor total do orçamento (soma apenas itens aceitos)
+        valor_total = item_orcamento_repo.obter_total_orcamento(id_orcamento)
+        orcamento_repo.atualizar_valor_total(id_orcamento, valor_total)
+
+        informar_sucesso(request, "Item aceito com sucesso!")
+    else:
+        logger.error(
+            "Falha ao aceitar item de orçamento",
+            item_orcamento_id=id_item_orcamento,
+            orcamento_id=id_orcamento,
+        )
+        informar_erro(request, "Erro ao aceitar item!")
+
+    return RedirectResponse(
+        f"/noivo/orcamentos/{id_orcamento}", status_code=status.HTTP_303_SEE_OTHER
+    )
+
+
+@router.get("/noivo/orcamentos/{id_orcamento}/item/{id_item_orcamento}/rejeitar")
+@requer_autenticacao([TipoUsuario.NOIVO.value])
+@tratar_erro_rota(redirect_erro="/noivo/orcamentos")
+async def rejeitar_item_orcamento(
+    request: Request,
+    id_orcamento: int,
+    id_item_orcamento: int,
+    usuario_logado: dict = {},
+):
+    """Rejeita um item individual do orçamento"""
+    logger.info(
+        "Rejeitando item de orçamento",
+        noivo_id=usuario_logado["id"],
+        orcamento_id=id_orcamento,
+        item_orcamento_id=id_item_orcamento,
+    )
+
+    from core.repositories.item_orcamento_repo import item_orcamento_repo
+
+    # Buscar o item do orçamento
+    item_orcamento = item_orcamento_repo.obter_por_id(id_item_orcamento)
+    if not item_orcamento:
+        logger.warning(
+            "Item de orçamento não encontrado", item_orcamento_id=id_item_orcamento
+        )
+        informar_erro(request, "Item de orçamento não encontrado!")
+        return RedirectResponse(
+            f"/noivo/orcamentos/{id_orcamento}", status_code=status.HTTP_303_SEE_OTHER
+        )
+
+    # Verificar se o item pertence ao orçamento correto
+    if item_orcamento.id_orcamento != id_orcamento:
+        logger.warning(
+            "Item não pertence ao orçamento",
+            item_orcamento_id=id_item_orcamento,
+            orcamento_esperado=id_orcamento,
+            orcamento_real=item_orcamento.id_orcamento,
+        )
+        informar_erro(request, "Item não pertence a este orçamento!")
+        return RedirectResponse(
+            f"/noivo/orcamentos/{id_orcamento}", status_code=status.HTTP_303_SEE_OTHER
+        )
+
+    # Rejeitar o item
+    sucesso = item_orcamento_repo.atualizar_status_item(id_item_orcamento, "REJEITADO")
+
+    if sucesso:
+        logger.info(
+            "Item de orçamento rejeitado com sucesso",
+            item_orcamento_id=id_item_orcamento,
+            orcamento_id=id_orcamento,
+        )
+
+        # Atualizar status derivado do orçamento
+        orcamento_repo.atualizar_status_derivado(id_orcamento)
+
+        # Atualizar valor total do orçamento (soma apenas itens aceitos)
+        valor_total = item_orcamento_repo.obter_total_orcamento(id_orcamento)
+        orcamento_repo.atualizar_valor_total(id_orcamento, valor_total)
+
+        informar_sucesso(request, "Item rejeitado com sucesso!")
+    else:
+        logger.error(
+            "Falha ao rejeitar item de orçamento",
+            item_orcamento_id=id_item_orcamento,
+            orcamento_id=id_orcamento,
+        )
+        informar_erro(request, "Erro ao rejeitar item!")
+
+    return RedirectResponse(
+        f"/noivo/orcamentos/{id_orcamento}", status_code=status.HTTP_303_SEE_OTHER
+    )
 
 
 # ==================== PERFIL E CASAL ====================

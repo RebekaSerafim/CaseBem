@@ -123,7 +123,7 @@
                     <div id="itens-container">
                         {% if itens_demanda %}
                             {% for item in itens_demanda %}
-                            <div class="item-row border rounded p-3 mb-3" data-index="{{ loop.index0 }}">
+                            <div class="item-row border rounded p-3 mb-3" data-index="{{ loop.index0 }}" data-categoria-id="{{ item.id_categoria }}">
                                 <div class="d-flex justify-content-between mb-2">
                                     <strong>Item #{{ loop.index }}</strong>
                                     <button type="button" class="btn btn-sm btn-outline-danger" onclick="removerItem(this)">
@@ -137,8 +137,8 @@
                                         <select class="form-select tipo-select" name="tipo[]" required onchange="carregarCategoriasPorTipo(this)">
                                             <option value="">Selecione o tipo</option>
                                             <option value="PRODUTO" {% if item.tipo == 'PRODUTO' %}selected{% endif %}>Produto</option>
-                                            <option value="SERVICO" {% if item.tipo == 'SERVICO' %}selected{% endif %}>Serviço</option>
-                                            <option value="ESPACO" {% if item.tipo == 'ESPACO' %}selected{% endif %}>Espaço</option>
+                                            <option value="SERVIÇO" {% if item.tipo == 'SERVIÇO' %}selected{% endif %}>Serviço</option>
+                                            <option value="ESPAÇO" {% if item.tipo == 'ESPAÇO' %}selected{% endif %}>Espaço</option>
                                         </select>
                                     </div>
                                     <div class="col-md-4 mb-2">
@@ -223,8 +223,13 @@ function carregarCategoriasPorTipo(selectTipo) {
     // Limpar opções
     selectCategoria.innerHTML = '<option value="">Selecione uma categoria</option>';
 
-    if (tipo && categoriasPorTipo[tipo]) {
-        categoriasPorTipo[tipo].forEach(cat => {
+    // Normalizar o tipo (remover acentos para buscar no categoriasPorTipo)
+    // Backend envia com chaves sem acento (PRODUTO, SERVICO, ESPACO)
+    // mas formulário agora envia com acento (SERVIÇO, ESPAÇO)
+    const tipoNormalizado = tipo.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+
+    if (tipo && categoriasPorTipo[tipoNormalizado]) {
+        categoriasPorTipo[tipoNormalizado].forEach(cat => {
             const option = document.createElement('option');
             option.value = cat.id;
             option.textContent = cat.nome;
@@ -248,7 +253,7 @@ function adicionarItem() {
     const itemHtml = `
         <div class="item-row border rounded p-3 mb-3" data-index="${contadorItens}">
             <div class="d-flex justify-content-between mb-2">
-                <strong>Item #${contadorItens + 1}</strong>
+                <strong>Item #${contadorItens}</strong>
                 <button type="button" class="btn btn-sm btn-outline-danger" onclick="removerItem(this)">
                     <i class="fas fa-trash"></i> Remover
                 </button>
@@ -260,8 +265,8 @@ function adicionarItem() {
                     <select class="form-select tipo-select" name="tipo[]" required onchange="carregarCategoriasPorTipo(this)">
                         <option value="">Selecione o tipo</option>
                         <option value="PRODUTO">Produto</option>
-                        <option value="SERVICO">Serviço</option>
-                        <option value="ESPACO">Espaço</option>
+                        <option value="SERVIÇO">Serviço</option>
+                        <option value="ESPAÇO">Espaço</option>
                     </select>
                 </div>
                 <div class="col-md-4 mb-2">

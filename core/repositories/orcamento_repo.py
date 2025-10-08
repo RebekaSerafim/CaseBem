@@ -91,7 +91,7 @@ class OrcamentoRepo(BaseRepo):
     def obter_por_noivo(self, id_noivo: int) -> List[Orcamento]:
         """Obtém todos os orçamentos relacionados a um noivo"""
         resultados = self.executar_consulta(
-            orcamento_sql.OBTER_ORCAMENTOS_POR_NOIVO, (id_noivo,)
+            orcamento_sql.OBTER_ORCAMENTOS_POR_NOIVO, (id_noivo, id_noivo)
         )
         return [self._linha_para_objeto(row) for row in resultados]
 
@@ -124,6 +124,61 @@ class OrcamentoRepo(BaseRepo):
             (id_demanda, status)
         )
         return resultado[0]["total"] if resultado else 0
+
+    def calcular_status_derivado(self, id_orcamento: int) -> str:
+        """
+        Calcula o status do orçamento baseado nos status dos seus itens.
+
+        Regras:
+        - PENDENTE: Todos os itens estão pendentes
+        - ACEITO: Todos os itens estão aceitos
+        - REJEITADO: Todos os itens estão rejeitados
+        - PARCIALMENTE_ACEITO: Alguns itens aceitos, outros pendentes ou rejeitados
+
+        Returns:
+            str: Status calculado do orçamento
+        """
+        from core.repositories.item_orcamento_repo import item_orcamento_repo
+
+        # Contar itens por status
+        total_aceitos = item_orcamento_repo.contar_por_status(id_orcamento, "ACEITO")
+        total_rejeitados = item_orcamento_repo.contar_por_status(id_orcamento, "REJEITADO")
+        total_pendentes = item_orcamento_repo.contar_por_status(id_orcamento, "PENDENTE")
+
+        total_itens = total_aceitos + total_rejeitados + total_pendentes
+
+        # Se não há itens, mantém como PENDENTE
+        if total_itens == 0:
+            return "PENDENTE"
+
+        # Todos aceitos
+        if total_aceitos == total_itens:
+            return "ACEITO"
+
+        # Todos rejeitados
+        if total_rejeitados == total_itens:
+            return "REJEITADO"
+
+        # Todos pendentes
+        if total_pendentes == total_itens:
+            return "PENDENTE"
+
+        # Pelo menos um aceito e outros não aceitos
+        if total_aceitos > 0:
+            return "PARCIALMENTE_ACEITO"
+
+        # Padrão: PENDENTE
+        return "PENDENTE"
+
+    def atualizar_status_derivado(self, id_orcamento: int) -> bool:
+        """
+        Atualiza o status do orçamento baseado nos status dos seus itens.
+
+        Returns:
+            bool: True se atualizou com sucesso
+        """
+        novo_status = self.calcular_status_derivado(id_orcamento)
+        return self.atualizar_status(id_orcamento, novo_status)
 
 
 # Instância singleton do repositório

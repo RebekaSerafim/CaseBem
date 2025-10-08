@@ -32,10 +32,11 @@
   "typeCheckingMode": "basic",
   "reportMissingImports": "warning",
   "reportMissingTypeStubs": false,
-  "reportGeneralTypeIssues": false,
-  "reportOptionalMemberAccess": false,
-  "reportOptionalSubscript": false,
+  "reportGeneralTypeIssues": "warning",
+  "reportOptionalMemberAccess": "warning",
+  "reportOptionalSubscript": "warning",
   "reportPrivateImportUsage": false,
+  "reportIndexIssue": "error",
   "stubPath": "",
   "useLibraryCodeForTypes": true
 }

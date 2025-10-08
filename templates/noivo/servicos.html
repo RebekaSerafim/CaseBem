@@ -37,7 +37,7 @@
                 <p class="card-text text-muted small">{{ servico.descricao[:100] }}{% if servico.descricao|length > 100 %}...{% endif %}</p>
                 <div class="d-flex justify-content-between align-items-center mb-2">
                     <span class="text-primary fw-bold fs-5">R$ {{ "%.2f"|format(servico.preco) }}</span>
-                    <span class="badge bg-info">{{ servico.tipo }}</span>
+                    <span class="badge bg-info">{{ servico.tipo.value }}</span>
                 </div>
                 {% if servico.nome_fornecedor %}
                 <small class="text-muted">
