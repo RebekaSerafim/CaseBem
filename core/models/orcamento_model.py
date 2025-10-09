@@ -1,8 +1,18 @@
 from dataclasses import dataclass
 from datetime import datetime
-from typing import Optional
+from typing import Optional, Union
+from enum import Enum
 from core.models.demanda_model import Demanda
 from core.models.usuario_model import Usuario
+
+
+class StatusOrcamento(Enum):
+    """Status possíveis de um orçamento (derivado dos itens)"""
+    PENDENTE = "PENDENTE"
+    ACEITO = "ACEITO"
+    REJEITADO = "REJEITADO"
+    PARCIALMENTE_ACEITO = "PARCIALMENTE_ACEITO"
+
 
 @dataclass
 class Orcamento:
@@ -11,7 +21,7 @@ class Orcamento:
     id_fornecedor_prestador: int
     data_hora_cadastro: datetime
     data_hora_validade: Optional[datetime] = None
-    status: str = "PENDENTE"  # PENDENTE, ACEITO, REJEITADO
+    status: Union[str, StatusOrcamento] = "PENDENTE"  # Status derivado (pode ser string ou Enum)
     observacoes: Optional[str] = None
     valor_total: Optional[float] = None
     demanda: Optional[Demanda] = None

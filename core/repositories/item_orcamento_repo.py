@@ -31,6 +31,7 @@ class ItemOrcamentoRepo(BaseRepo):
             item_orcamento.observacoes,
             item_orcamento.desconto,
             item_orcamento.status,
+            item_orcamento.motivo_rejeicao,
         )
 
     def _objeto_para_tupla_update(self, item_orcamento: ItemOrcamento) -> tuple:
@@ -43,6 +44,7 @@ class ItemOrcamentoRepo(BaseRepo):
             item_orcamento.observacoes,
             item_orcamento.desconto,
             item_orcamento.status,
+            item_orcamento.motivo_rejeicao,
             item_orcamento.id,
         )
 
@@ -57,7 +59,8 @@ class ItemOrcamentoRepo(BaseRepo):
             preco_unitario=linha["preco_unitario"],
             observacoes=self._safe_get(linha, "observacoes"),
             desconto=self._safe_get(linha, "desconto"),
-            status=linha.get("status", "PENDENTE"),
+            status=self._safe_get(linha, "status", "PENDENTE"),
+            motivo_rejeicao=self._safe_get(linha, "motivo_rejeicao"),
         )
 
     def obter_por_orcamento(self, id_orcamento: int) -> List[dict]:
@@ -124,11 +127,29 @@ class ItemOrcamentoRepo(BaseRepo):
             item_orcamento_sql.EXCLUIR_ITENS_POR_ORCAMENTO, (id_orcamento,)
         )
 
-    def atualizar_status_item(self, id_item_orcamento: int, status: str) -> bool:
-        """Atualiza o status de um item do orçamento"""
-        return self.executar_comando(  # type: ignore[no-any-return]
-            item_orcamento_sql.ATUALIZAR_STATUS_ITEM, (status, id_item_orcamento)
-        )
+    def atualizar_status_item(self, id_item_orcamento: int, status: str, motivo_rejeicao: Optional[str] = None) -> bool:
+        """
+        Atualiza o status de um item do orçamento.
+
+        Args:
+            id_item_orcamento: ID do item
+            status: Novo status (PENDENTE, ACEITO, REJEITADO)
+            motivo_rejeicao: Motivo da rejeição (obrigatório se status = REJEITADO)
+
+        Returns:
+            bool: True se atualizado com sucesso
+        """
+        if motivo_rejeicao:
+            # Atualizar com motivo
+            return self.executar_comando(  # type: ignore[no-any-return]
+                item_orcamento_sql.ATUALIZAR_STATUS_COM_MOTIVO,
+                (status, motivo_rejeicao, id_item_orcamento)
+            )
+        else:
+            # Atualizar apenas status
+            return self.executar_comando(  # type: ignore[no-any-return]
+                item_orcamento_sql.ATUALIZAR_STATUS_ITEM, (status, id_item_orcamento)
+            )
 
     def obter_por_status(self, id_orcamento: int, status: str) -> List[dict]:
         """Obtém todos os itens de um orçamento com status específico"""
@@ -141,6 +162,14 @@ class ItemOrcamentoRepo(BaseRepo):
         """Conta quantos itens de um orçamento têm um status específico"""
         resultados = self.executar_consulta(
             item_orcamento_sql.CONTAR_ITENS_POR_STATUS, (id_orcamento, status)
+        )
+        return resultados[0]["total"] if resultados else 0
+
+    def contar_por_item_demanda(self, id_item_demanda: int) -> int:
+        """Conta quantos item_orcamento existem para um item_demanda específico"""
+        resultados = self.executar_consulta(
+            "SELECT COUNT(*) as total FROM item_orcamento WHERE id_item_demanda = ?",
+            (id_item_demanda,)
         )
         return resultados[0]["total"] if resultados else 0
 

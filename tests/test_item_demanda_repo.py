@@ -55,14 +55,23 @@ class TestItemDemandaRepo:
         assert item_demanda_db.id_categoria == item_demanda.id_categoria
         assert item_demanda_db.descricao == item_demanda.descricao
 
-    def test_obter_item_demanda_existente(self, test_db, item_demanda_factory, demanda_factory, categoria_factory):
+    def test_obter_item_demanda_existente(self, test_db, item_demanda_factory, demanda_factory, categoria_factory, usuario_factory):
         # Arrange
+        usuario_repo.criar_tabela()
+        casal_repo.criar_tabela()
         demanda_repo.criar_tabela()
         categoria_repo.criar_tabela()
         item_demanda_repo.criar_tabela()
+        # Criar usuários e casal (foreign keys)
+        usuario1 = usuario_factory.criar()
+        id_usuario1 = usuario_repo.inserir(usuario1)
+        usuario2 = usuario_factory.criar()
+        id_usuario2 = usuario_repo.inserir(usuario2)
+        casal = Casal(0, id_usuario1, id_usuario2)
+        id_casal = casal_repo.inserir(casal)
         categoria = categoria_factory.criar()
         id_categoria = categoria_repo.inserir(categoria)
-        demanda = demanda_factory.criar()
+        demanda = demanda_factory.criar(id_casal=id_casal)
         id_demanda = demanda_repo.inserir(demanda)
         item_demanda = item_demanda_factory.criar(id_demanda=id_demanda, id_categoria=id_categoria, quantidade=2)
         id_inserido = item_demanda_repo.inserir(item_demanda)
@@ -81,14 +90,23 @@ class TestItemDemandaRepo:
         with pytest.raises(RecursoNaoEncontradoError):
             item_demanda_repo.obter_por_id(999)
 
-    def test_atualizar_item_demanda(self, test_db, item_demanda_factory, demanda_factory, categoria_factory):
+    def test_atualizar_item_demanda(self, test_db, item_demanda_factory, demanda_factory, categoria_factory, usuario_factory):
         # Arrange
+        usuario_repo.criar_tabela()
+        casal_repo.criar_tabela()
         demanda_repo.criar_tabela()
         categoria_repo.criar_tabela()
         item_demanda_repo.criar_tabela()
+        # Criar usuários e casal (foreign keys)
+        usuario1 = usuario_factory.criar()
+        id_usuario1 = usuario_repo.inserir(usuario1)
+        usuario2 = usuario_factory.criar()
+        id_usuario2 = usuario_repo.inserir(usuario2)
+        casal = Casal(0, id_usuario1, id_usuario2)
+        id_casal = casal_repo.inserir(casal)
         categoria = categoria_factory.criar()
         id_categoria = categoria_repo.inserir(categoria)
-        demanda = demanda_factory.criar()
+        demanda = demanda_factory.criar(id_casal=id_casal)
         id_demanda = demanda_repo.inserir(demanda)
         item_demanda = item_demanda_factory.criar(id_demanda=id_demanda, id_categoria=id_categoria)
         id_inserido = item_demanda_repo.inserir(item_demanda)
@@ -103,14 +121,23 @@ class TestItemDemandaRepo:
         assert item_demanda_db.quantidade == 5
         assert item_demanda_db.preco_maximo == 200.0
 
-    def test_excluir_item_demanda(self, test_db, item_demanda_factory, demanda_factory, categoria_factory):
+    def test_excluir_item_demanda(self, test_db, item_demanda_factory, demanda_factory, categoria_factory, usuario_factory):
         # Arrange
+        usuario_repo.criar_tabela()
+        casal_repo.criar_tabela()
         demanda_repo.criar_tabela()
         categoria_repo.criar_tabela()
         item_demanda_repo.criar_tabela()
+        # Criar usuários e casal (foreign keys)
+        usuario1 = usuario_factory.criar()
+        id_usuario1 = usuario_repo.inserir(usuario1)
+        usuario2 = usuario_factory.criar()
+        id_usuario2 = usuario_repo.inserir(usuario2)
+        casal = Casal(0, id_usuario1, id_usuario2)
+        id_casal = casal_repo.inserir(casal)
         categoria = categoria_factory.criar()
         id_categoria = categoria_repo.inserir(categoria)
-        demanda = demanda_factory.criar()
+        demanda = demanda_factory.criar(id_casal=id_casal)
         id_demanda = demanda_repo.inserir(demanda)
         item_demanda = item_demanda_factory.criar(id_demanda=id_demanda, id_categoria=id_categoria)
         id_inserido = item_demanda_repo.inserir(item_demanda)
@@ -121,17 +148,26 @@ class TestItemDemandaRepo:
         with pytest.raises(RecursoNaoEncontradoError):
             item_demanda_repo.obter_por_id(id_inserido)
 
-    def test_obter_itens_por_demanda(self, test_db, item_demanda_factory, demanda_factory, categoria_factory):
+    def test_obter_itens_por_demanda(self, test_db, item_demanda_factory, demanda_factory, categoria_factory, usuario_factory):
         # Arrange
+        usuario_repo.criar_tabela()
+        casal_repo.criar_tabela()
         demanda_repo.criar_tabela()
         categoria_repo.criar_tabela()
         item_demanda_repo.criar_tabela()
+        # Criar usuários e casal (foreign keys)
+        usuario1 = usuario_factory.criar()
+        id_usuario1 = usuario_repo.inserir(usuario1)
+        usuario2 = usuario_factory.criar()
+        id_usuario2 = usuario_repo.inserir(usuario2)
+        casal = Casal(0, id_usuario1, id_usuario2)
+        id_casal = casal_repo.inserir(casal)
         categoria = categoria_factory.criar()
         id_categoria = categoria_repo.inserir(categoria)
         # Criar 2 demandas
-        demanda1 = demanda_factory.criar()
+        demanda1 = demanda_factory.criar(id_casal=id_casal)
         id_demanda1 = demanda_repo.inserir(demanda1)
-        demanda2 = demanda_factory.criar()
+        demanda2 = demanda_factory.criar(id_casal=id_casal)
         id_demanda2 = demanda_repo.inserir(demanda2)
         # Criar 3 itens para demanda 1
         for i in range(3):
@@ -147,14 +183,23 @@ class TestItemDemandaRepo:
         assert len(itens_demanda1) == 3
         assert all(item['id_demanda'] == id_demanda1 for item in itens_demanda1)
 
-    def test_contar_itens_por_demanda(self, test_db, item_demanda_factory, demanda_factory, categoria_factory):
+    def test_contar_itens_por_demanda(self, test_db, item_demanda_factory, demanda_factory, categoria_factory, usuario_factory):
         # Arrange
+        usuario_repo.criar_tabela()
+        casal_repo.criar_tabela()
         demanda_repo.criar_tabela()
         categoria_repo.criar_tabela()
         item_demanda_repo.criar_tabela()
+        # Criar usuários e casal (foreign keys)
+        usuario1 = usuario_factory.criar()
+        id_usuario1 = usuario_repo.inserir(usuario1)
+        usuario2 = usuario_factory.criar()
+        id_usuario2 = usuario_repo.inserir(usuario2)
+        casal = Casal(0, id_usuario1, id_usuario2)
+        id_casal = casal_repo.inserir(casal)
         categoria = categoria_factory.criar()
         id_categoria = categoria_repo.inserir(categoria)
-        demanda = demanda_factory.criar()
+        demanda = demanda_factory.criar(id_casal=id_casal)
         id_demanda = demanda_repo.inserir(demanda)
         # Criar 5 itens para demanda 1
         for i in range(5):
@@ -165,14 +210,23 @@ class TestItemDemandaRepo:
         # Assert
         assert total == 5
 
-    def test_excluir_itens_por_demanda(self, test_db, item_demanda_factory, demanda_factory, categoria_factory):
+    def test_excluir_itens_por_demanda(self, test_db, item_demanda_factory, demanda_factory, categoria_factory, usuario_factory):
         # Arrange
+        usuario_repo.criar_tabela()
+        casal_repo.criar_tabela()
         demanda_repo.criar_tabela()
         categoria_repo.criar_tabela()
         item_demanda_repo.criar_tabela()
+        # Criar usuários e casal (foreign keys)
+        usuario1 = usuario_factory.criar()
+        id_usuario1 = usuario_repo.inserir(usuario1)
+        usuario2 = usuario_factory.criar()
+        id_usuario2 = usuario_repo.inserir(usuario2)
+        casal = Casal(0, id_usuario1, id_usuario2)
+        id_casal = casal_repo.inserir(casal)
         categoria = categoria_factory.criar()
         id_categoria = categoria_repo.inserir(categoria)
-        demanda = demanda_factory.criar()
+        demanda = demanda_factory.criar(id_casal=id_casal)
         id_demanda = demanda_repo.inserir(demanda)
         # Criar 3 itens para demanda 1
         for i in range(3):

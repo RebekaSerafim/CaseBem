@@ -21,17 +21,19 @@ class DemandaService:
         self.categoria_repo: CategoriaRepo = categoria_repo
 
     def criar_demanda(self, dados: dict) -> int:
-        """Cria uma nova demanda"""
+        """
+        Cria uma nova demanda.
+
+        IMPORTANTE: Demanda V2 não vincula mais categoria ou itens diretamente.
+        Itens são criados separadamente via ItemDemanda.
+        """
         # Validar casal existe
         self.casal_repo.obter_por_id(dados['id_casal'])
 
-        # Validar categoria existe
-        self.categoria_repo.obter_por_id(dados['id_categoria'])
-
-        # Validar orçamentos
-        if dados.get('orcamento_min') and dados.get('orcamento_max'):
-            if dados['orcamento_min'] > dados['orcamento_max']:
-                raise RegraDeNegocioError("Orçamento mínimo não pode ser maior que o máximo")
+        # Validar orçamento_total se fornecido
+        if dados.get('orcamento_total') is not None:
+            if dados['orcamento_total'] < 0:
+                raise RegraDeNegocioError("Orçamento total não pode ser negativo")
 
         demanda = Demanda(**dados)
         id_demanda = self.repo.inserir(demanda)
@@ -40,10 +42,22 @@ class DemandaService:
         return id_demanda  # type: ignore[no-any-return]
 
     def atualizar_demanda(self, id_demanda: int, dados: dict) -> bool:
-        """Atualiza uma demanda"""
+        """
+        Atualiza uma demanda.
+
+        Campos atualizáveis (V2): descricao, orcamento_total, data_casamento,
+        cidade_casamento, prazo_entrega, observacoes
+        """
         demanda = self.repo.obter_por_id(id_demanda)
 
-        campos_atualizaveis = ['titulo', 'descricao', 'orcamento_min', 'orcamento_max', 'prazo_entrega', 'observacoes']
+        campos_atualizaveis = [
+            'descricao',
+            'orcamento_total',
+            'data_casamento',
+            'cidade_casamento',
+            'prazo_entrega',
+            'observacoes'
+        ]
         for campo in campos_atualizaveis:
             if campo in dados:
                 setattr(demanda, campo, dados[campo])

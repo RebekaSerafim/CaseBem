@@ -13,7 +13,6 @@ from core.repositories.casal_repo import casal_repo
 from core.repositories.demanda_repo import demanda_repo
 from core.repositories.orcamento_repo import orcamento_repo
 from core.repositories.chat_repo import chat_repo
-from core.repositories.favorito_repo import favorito_repo
 from core.repositories.item_demanda_repo import item_demanda_repo
 from core.repositories.item_orcamento_repo import item_orcamento_repo
 
@@ -26,7 +25,6 @@ __all__ = [
     'demanda_repo',
     'orcamento_repo',
     'chat_repo',
-    'favorito_repo',
     'item_demanda_repo',
     'item_orcamento_repo'
 ]

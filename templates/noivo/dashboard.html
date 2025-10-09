@@ -112,45 +112,6 @@
         </div>
     </div>
 
-    <div class="col-xl-2 col-lg-4 col-sm-6 col-12 mb-4">
-        <div class="card border-left-danger shadow h-100 py-2">
-            <div class="card-body">
-                <div class="row g-0 align-items-center">
-                    <div class="col mr-2">
-                        <div class="text-xs font-weight-bold text-danger text-uppercase mb-1 text-center">
-                            Favoritos
-                        </div>
-                        <div class="h3 mb-0 font-weight-bold text-gray-800 text-center">
-                            {{ stats.favoritos or 0 }}
-                        </div>
-                    </div>
-                    <div class="col-auto">
-                        <i class="fas fa-heart fa-2x text-gray-300"></i>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="col-xl-2 col-lg-4 col-sm-6 col-12 mb-4">
-        <div class="card border-left-dark shadow h-100 py-2">
-            <div class="card-body">
-                <div class="row g-0 align-items-center">
-                    <div class="col mr-2">
-                        <div class="text-xs font-weight-bold text-dark text-uppercase mb-1 text-center">
-                            Fornecedores
-                        </div>
-                        <div class="h3 mb-0 font-weight-bold text-gray-800 text-center">
-                            {{ stats.total_fornecedores or 0 }}
-                        </div>
-                    </div>
-                    <div class="col-auto">
-                        <i class="fas fa-store fa-2x text-gray-300"></i>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
 </div>
 
 <div class="row">
@@ -178,12 +139,6 @@
                         <div>
                             <strong>Orçamentos Recebidos</strong>
                             <small class="d-block text-muted">Analisar propostas dos fornecedores</small>
-                        </div>
-                    </a>
-                    <a href="/noivo/favoritos" class="list-group-item list-group-item-action">
-                        <div>
-                            <strong>Meus Favoritos</strong>
-                            <small class="d-block text-muted">Ver produtos e serviços salvos</small>
                         </div>
                     </a>
                     <a href="/noivo/perfil" class="list-group-item list-group-item-action">
@@ -236,22 +191,16 @@
                     </div>
                     <div class="card-body">
                         <div class="row">
-                            <div class="col-4 text-center">
+                            <div class="col-6 text-center">
                                 <div class="border-end pe-3">
                                     <h3 class="text-primary mb-1">{{ stats.total_demandas or 0 }}</h3>
-                                    <small class="text-muted">Demandas</small>
+                                    <small class="text-muted">Total de Demandas</small>
                                 </div>
                             </div>
-                            <div class="col-4 text-center">
-                                <div class="border-end pe-3">
-                                    <h3 class="text-danger mb-1">{{ stats.favoritos or 0 }}</h3>
-                                    <small class="text-muted">Favoritos</small>
-                                </div>
-                            </div>
-                            <div class="col-4 text-center">
+                            <div class="col-6 text-center">
                                 <div>
-                                    <h3 class="text-dark mb-1">{{ stats.total_fornecedores or 0 }}</h3>
-                                    <small class="text-muted">Fornecedores</small>
+                                    <h3 class="text-success mb-1">{{ stats.demandas_ativas or 0 }}</h3>
+                                    <small class="text-muted">Demandas Ativas</small>
                                 </div>
                             </div>
                         </div>

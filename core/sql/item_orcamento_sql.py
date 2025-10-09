@@ -9,6 +9,7 @@ CREATE TABLE IF NOT EXISTS item_orcamento (
     observacoes TEXT,
     desconto REAL DEFAULT 0,
     status TEXT NOT NULL DEFAULT 'PENDENTE',
+    motivo_rejeicao TEXT,
     FOREIGN KEY (id_orcamento) REFERENCES orcamento(id) ON DELETE CASCADE,
     FOREIGN KEY (id_item_demanda) REFERENCES item_demanda(id) ON DELETE CASCADE,
     FOREIGN KEY (id_item) REFERENCES item(id) ON DELETE CASCADE,
@@ -20,13 +21,13 @@ CREATE TABLE IF NOT EXISTS item_orcamento (
 CRIAR_TABELA = CRIAR_TABELA_ITEM_ORCAMENTO
 
 INSERIR = """
-INSERT INTO item_orcamento (id_orcamento, id_item_demanda, id_item, quantidade, preco_unitario, observacoes, desconto, status)
-VALUES (?, ?, ?, ?, ?, ?, ?, ?);
+INSERT INTO item_orcamento (id_orcamento, id_item_demanda, id_item, quantidade, preco_unitario, observacoes, desconto, status, motivo_rejeicao)
+VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?);
 """
 
 ATUALIZAR = """
 UPDATE item_orcamento
-SET id_item_demanda = ?, id_item = ?, quantidade = ?, preco_unitario = ?, observacoes = ?, desconto = ?, status = ?
+SET id_item_demanda = ?, id_item = ?, quantidade = ?, preco_unitario = ?, observacoes = ?, desconto = ?, status = ?, motivo_rejeicao = ?
 WHERE id = ?;
 """
 
@@ -36,13 +37,13 @@ WHERE id = ?;
 """
 
 OBTER_POR_ID = """
-SELECT id, id_orcamento, id_item_demanda, id_item, quantidade, preco_unitario, observacoes, desconto, status
+SELECT id, id_orcamento, id_item_demanda, id_item, quantidade, preco_unitario, observacoes, desconto, status, motivo_rejeicao
 FROM item_orcamento
 WHERE id = ?;
 """
 
 LISTAR_TODOS = """
-SELECT id, id_orcamento, id_item_demanda, id_item, quantidade, preco_unitario, observacoes, desconto, status
+SELECT id, id_orcamento, id_item_demanda, id_item, quantidade, preco_unitario, observacoes, desconto, status, motivo_rejeicao
 FROM item_orcamento
 ORDER BY id_orcamento, id_item_demanda, id;
 """
@@ -59,6 +60,7 @@ SELECT
     io.observacoes,
     io.desconto,
     io.status,
+    io.motivo_rejeicao,
     i.nome as item_nome,
     i.descricao as item_descricao,
     i.preco as item_preco,
@@ -88,6 +90,7 @@ SELECT
     io.observacoes,
     io.desconto,
     io.status,
+    io.motivo_rejeicao,
     i.nome as item_nome,
     (io.quantidade * io.preco_unitario - COALESCE(io.desconto, 0)) as preco_total
 FROM item_orcamento io
@@ -126,6 +129,12 @@ SET status = ?
 WHERE id = ?;
 """
 
+ATUALIZAR_STATUS_COM_MOTIVO = """
+UPDATE item_orcamento
+SET status = ?, motivo_rejeicao = ?
+WHERE id = ?;
+"""
+
 OBTER_ITENS_POR_STATUS = """
 SELECT
     io.id,
@@ -137,6 +146,7 @@ SELECT
     io.observacoes,
     io.desconto,
     io.status,
+    io.motivo_rejeicao,
     i.nome as item_nome,
     i.descricao as item_descricao,
     i.tipo as item_tipo,

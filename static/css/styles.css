@@ -643,3 +643,9 @@ body .btn-action.btn-sm i[class*="bi-"] {
     background-size: cover;
     position: relative;
 }
+
+/* Alinhamento vertical centralizado para células de tabelas nas áreas administrativas */
+.table td,
+.table th {
+    vertical-align: middle !important;
+}

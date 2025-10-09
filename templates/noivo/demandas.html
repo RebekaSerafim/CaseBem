@@ -50,7 +50,7 @@
     <div class="col-lg-6 col-xl-4 mb-4">
         <div class="card h-100 shadow">
             <div class="card-header d-flex justify-content-between align-items-center">
-                <h6 class="mb-0">{{ demanda.titulo }}</h6>
+                <h6 class="mb-0">Demanda #{{ demanda.id }}</h6>
                 <span class="badge
                     {% if demanda.status.value == 'ATIVA' %}bg-success
                     {% elif demanda.status.value == 'FINALIZADA' %}bg-primary
@@ -72,8 +72,33 @@
                         <div class="fw-bold">{{ demanda.itens_count or 0 }}</div>
                     </div>
                     <div class="col-4">
-                        <small class="text-muted">Prazo</small>
-                        <div class="fw-bold">{{ demanda.prazo_entrega or '-' }}</div>
+                        <small class="text-muted">Atendidos</small>
+                        <div class="fw-bold">{{ demanda.itens_atendidos or 0 }}</div>
+                    </div>
+                </div>
+
+                <!-- Barra de progresso de atendimento -->
+                <div class="mb-3">
+                    <div class="d-flex justify-content-between align-items-center mb-1">
+                        <small class="text-muted">Progresso de Atendimento</small>
+                        <small class="fw-bold
+                            {% if demanda.percentual_atendimento == 100 %}text-success
+                            {% elif demanda.percentual_atendimento > 0 %}text-warning
+                            {% else %}text-muted{% endif %}">
+                            {{ demanda.percentual_atendimento }}%
+                        </small>
+                    </div>
+                    <div class="progress" style="height: 8px;">
+                        <div class="progress-bar
+                            {% if demanda.percentual_atendimento == 100 %}bg-success
+                            {% elif demanda.percentual_atendimento > 0 %}bg-warning
+                            {% else %}bg-secondary{% endif %}"
+                            role="progressbar"
+                            style="width: {{ demanda.percentual_atendimento }}%"
+                            aria-valuenow="{{ demanda.percentual_atendimento }}"
+                            aria-valuemin="0"
+                            aria-valuemax="100">
+                        </div>
                     </div>
                 </div>
 
@@ -86,20 +111,27 @@
                 </div>
                 {% endif %}
 
-                <div class="d-flex justify-content-between">
+                <div class="d-flex justify-content-between align-items-center">
                     <small class="text-muted">{{ demanda.data_criacao | formatar_data }}</small>
-                    {% if demanda.orcamentos_pendentes > 0 %}
-                    <span class="badge bg-warning rounded-pill">{{ demanda.orcamentos_pendentes }} novos</span>
-                    {% endif %}
+                    <div>
+                        {% if demanda.percentual_atendimento == 100 %}
+                        <span class="badge bg-success rounded-pill me-1">Atendida</span>
+                        {% elif demanda.percentual_atendimento > 0 %}
+                        <span class="badge bg-warning rounded-pill me-1">Parcial</span>
+                        {% endif %}
+                        {% if demanda.orcamentos_pendentes > 0 %}
+                        <span class="badge bg-info rounded-pill">{{ demanda.orcamentos_pendentes }} novos</span>
+                        {% endif %}
+                    </div>
                 </div>
             </div>
             <div class="card-footer bg-white border-top-0">
                 <div class="d-grid gap-2">
-                    <a href="/noivo/demanda/{{ demanda.id }}" class="btn btn-primary btn-sm">
+                    <a href="/noivo/demandas/{{ demanda.id }}" class="btn btn-primary btn-sm">
                         <i class="fas fa-eye"></i> Ver Detalhes
                     </a>
                     {% if demanda.status.value == 'ATIVA' %}
-                    <a href="/noivo/demanda/editar/{{ demanda.id }}" class="btn btn-outline-secondary btn-sm">
+                    <a href="/noivo/demandas/editar/{{ demanda.id }}" class="btn btn-outline-secondary btn-sm">
                         <i class="fas fa-edit"></i> Alterar
                     </a>
                     {% endif %}
@@ -153,7 +185,7 @@ function excluirDemanda(id) {
             // Criar formulário para enviar POST
             const form = document.createElement('form');
             form.method = 'POST';
-            form.action = `/noivo/demanda/${id}/excluir`;
+            form.action = `/noivo/demandas/${id}/excluir`;
             document.body.appendChild(form);
             form.submit();
         }

@@ -5,7 +5,7 @@ from core.models.usuario_model import Usuario, TipoUsuario
 from core.models.tipo_fornecimento_model import TipoFornecimento
 from core.models.fornecedor_model import Fornecedor
 from core.models.casal_model import Casal
-from core.repositories import usuario_repo, fornecedor_repo, casal_repo, item_repo, categoria_repo, item_demanda_repo, item_orcamento_repo, demanda_repo, orcamento_repo, favorito_repo, chat_repo
+from core.repositories import usuario_repo, fornecedor_repo, casal_repo, item_repo, categoria_repo, item_demanda_repo, item_orcamento_repo, demanda_repo, orcamento_repo, chat_repo
 from infrastructure.security import criar_hash_senha
 from infrastructure.logging import logger
 
@@ -22,7 +22,6 @@ def criar_tabelas_banco():
     orcamento_repo.criar_tabela()
     item_demanda_repo.criar_tabela()
     item_orcamento_repo.criar_tabela()
-    favorito_repo.criar_tabela()
     chat_repo.criar_tabela()
 
 def criar_admin_padrao() -> Optional[int]:

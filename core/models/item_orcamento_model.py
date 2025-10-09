@@ -22,6 +22,13 @@ class ItemOrcamento:
     - REJEITADO: Noivo rejeitou este item
 
     O status do orçamento é derivado dos status dos itens.
+
+    FLEXIBILIDADE DE QUANTIDADE (Decisão de Negócio):
+    - ItemDemanda pede X unidades (quantidade solicitada)
+    - ItemOrcamento pode oferecer Y unidades (quantidade oferecida)
+    - NÃO há validação rígida: fornecedor pode oferecer mais ou menos
+    - Cabe ao noivo decidir se a quantidade oferecida atende suas necessidades
+    - Exemplo: Noivo pede 100 convites, fornecedor pode oferecer pacote de 150
     """
     id: int
     id_orcamento: int
@@ -32,6 +39,7 @@ class ItemOrcamento:
     observacoes: Optional[str] = None
     desconto: Optional[float] = None
     status: str = "PENDENTE"  # PENDENTE, ACEITO, REJEITADO
+    motivo_rejeicao: Optional[str] = None  # Motivo quando status = REJEITADO
 
     @property
     def preco_total(self) -> float:

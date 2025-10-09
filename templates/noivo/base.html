@@ -33,20 +33,12 @@
                                {% if get_active_page_from_url(request) == 'dashboard' %}aria-current="page"{% endif %} href="/noivo/dashboard">Início</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link text-white {% if get_active_page_from_url(request) == 'fornecedores' %}active{% endif %}"
-                               {% if get_active_page_from_url(request) == 'fornecedores' %}aria-current="page"{% endif %} href="/noivo/fornecedores">Fornecedores</a>
-                        </li>
-                        <li class="nav-item">
                             <a class="nav-link text-white {% if get_active_page_from_url(request) == 'demandas' %}active{% endif %}"
                                {% if get_active_page_from_url(request) == 'demandas' %}aria-current="page"{% endif %} href="/noivo/demandas">Minhas Demandas</a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link text-white {% if get_active_page_from_url(request) == 'orcamentos' %}active{% endif %}"
                                {% if get_active_page_from_url(request) == 'orcamentos' %}aria-current="page"{% endif %} href="/noivo/orcamentos">Orçamentos</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-white {% if get_active_page_from_url(request) == 'checklist' %}active{% endif %}"
-                               {% if get_active_page_from_url(request) == 'checklist' %}aria-current="page"{% endif %} href="/noivo/checklist">Checklist</a>
                         </li>
                     </ul>
                     <ul class="navbar-nav">

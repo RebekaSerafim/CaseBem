@@ -1,10 +1,71 @@
 import pytest
 from core.models.item_orcamento_model import ItemOrcamento
+from core.models.categoria_model import Categoria, TipoFornecimento
+from core.models.usuario_model import Usuario, TipoUsuario
+from core.models.fornecedor_model import Fornecedor
+from core.models.casal_model import Casal
+from core.models.demanda_model import Demanda
+from core.models.orcamento_model import Orcamento
+from core.models.item_model import Item
 from core.repositories.item_orcamento_repo import item_orcamento_repo
 from core.repositories.orcamento_repo import orcamento_repo
 from core.repositories.item_repo import item_repo
 from core.repositories.item_demanda_repo import item_demanda_repo
 from core.repositories.demanda_repo import demanda_repo
+from core.repositories.categoria_repo import categoria_repo
+from core.repositories.usuario_repo import usuario_repo
+from core.repositories.casal_repo import casal_repo
+from core.repositories.fornecedor_repo import fornecedor_repo
+from datetime import datetime
+
+
+def setup_test_data():
+    """Helper para criar dados de teste com todas as FK necessárias"""
+    # Criar tabelas
+    usuario_repo.criar_tabela()
+    fornecedor_repo.criar_tabela()
+    casal_repo.criar_tabela()
+    categoria_repo.criar_tabela()
+    demanda_repo.criar_tabela()
+    item_repo.criar_tabela()
+    item_demanda_repo.criar_tabela()
+    orcamento_repo.criar_tabela()
+    item_orcamento_repo.criar_tabela()
+
+    # Criar dados
+    usuario = Usuario(id=0, nome="Noivo Teste", cpf=None, data_nascimento=None, email="noivo@test.com", telefone="", senha="hash", perfil=TipoUsuario.NOIVO, token_redefinicao=None, data_token=None, data_cadastro=None)
+    id_usuario = usuario_repo.inserir(usuario)
+
+    usuario2 = Usuario(id=0, nome="Noivo2 Teste", cpf=None, data_nascimento=None, email="noivo2@test.com", telefone="", senha="hash", perfil=TipoUsuario.NOIVO, token_redefinicao=None, data_token=None, data_cadastro=None)
+    id_usuario2 = usuario_repo.inserir(usuario2)
+
+    fornecedor = Fornecedor(id=0, nome="Fornecedor Teste", cpf=None, data_nascimento=None, email="forn@test.com", telefone="", senha="hash", perfil=TipoUsuario.FORNECEDOR, token_redefinicao=None, data_token=None, data_cadastro=None, nome_empresa="Empresa Teste", cnpj=None)
+    id_fornecedor = fornecedor_repo.inserir(fornecedor)
+
+    casal = Casal(id=0, id_noivo1=id_usuario, id_noivo2=id_usuario2)
+    id_casal = casal_repo.inserir(casal)
+
+    categoria = Categoria(id=1, nome="Decoração", tipo_fornecimento=TipoFornecimento.PRODUTO)
+    categoria_repo.inserir(categoria)
+
+    demanda = Demanda(id=0, id_casal=id_casal, descricao="Demanda Teste")
+    id_demanda = demanda_repo.inserir(demanda)
+
+    item = Item(id=0, id_fornecedor=id_fornecedor, id_categoria=1, nome="Item Teste", descricao="Descrição do item teste", tipo=TipoFornecimento.PRODUTO, preco=100.0)
+    id_item = item_repo.inserir(item)
+
+    orcamento = Orcamento(id=0, id_demanda=id_demanda, id_fornecedor_prestador=id_fornecedor, data_hora_cadastro=datetime.now())
+    id_orcamento = orcamento_repo.inserir(orcamento)
+
+    return {
+        "id_usuario": id_usuario,
+        "id_fornecedor": id_fornecedor,
+        "id_casal": id_casal,
+        "id_demanda": id_demanda,
+        "id_item": id_item,
+        "id_orcamento": id_orcamento,
+    }
+
 
 class TestItemOrcamentoRepo:
     def test_criar_tabela_item_orcamento(self, test_db):
@@ -20,17 +81,15 @@ class TestItemOrcamentoRepo:
 
     def test_inserir_item_orcamento(self, test_db, item_orcamento_factory, item_demanda_factory):
         # Arrange
-        orcamento_repo.criar_tabela()
-        item_repo.criar_tabela()
-        demanda_repo.criar_tabela()
-        item_demanda_repo.criar_tabela()
-        item_orcamento_repo.criar_tabela()
+        dados = setup_test_data()
+        item_demanda = item_demanda_factory.criar(id=0, id_demanda=dados["id_demanda"], id_categoria=1)
+        id_item_demanda = item_demanda_repo.inserir(item_demanda)
 
-        # Criar item_demanda primeiro
-        item_demanda = item_demanda_factory.criar(id=1, id_demanda=1, id_categoria=1)
-        item_demanda_repo.inserir(item_demanda)
-
-        item_orcamento = item_orcamento_factory.criar(id_orcamento=1, id_item_demanda=1, id_item=1)
+        item_orcamento = item_orcamento_factory.criar(
+            id_orcamento=dados["id_orcamento"],
+            id_item_demanda=id_item_demanda,
+            id_item=dados["id_item"]
+        )
         # Act
         id_inserido = item_orcamento_repo.inserir(item_orcamento)
         # Assert
@@ -40,19 +99,16 @@ class TestItemOrcamentoRepo:
 
     def test_obter_item_orcamento_existente(self, test_db, item_orcamento_factory, item_demanda_factory):
         # Arrange
-        orcamento_repo.criar_tabela()
-        item_repo.criar_tabela()
-        demanda_repo.criar_tabela()
-        item_demanda_repo.criar_tabela()
-        item_orcamento_repo.criar_tabela()
-
-        # Criar item_demanda primeiro
-        item_demanda = item_demanda_factory.criar(id=1, id_demanda=1, id_categoria=1)
-        item_demanda_repo.inserir(item_demanda)
+        dados = setup_test_data()
+        item_demanda = item_demanda_factory.criar(id=0, id_demanda=dados["id_demanda"], id_categoria=1)
+        id_item_demanda = item_demanda_repo.inserir(item_demanda)
 
         item_orcamento = item_orcamento_factory.criar(
-            id_orcamento=1, id_item_demanda=1, id_item=1,
-            quantidade=2, preco_unitario=50.0
+            id_orcamento=dados["id_orcamento"],
+            id_item_demanda=id_item_demanda,
+            id_item=dados["id_item"],
+            quantidade=2,
+            preco_unitario=50.0
         )
         id_inserido = item_orcamento_repo.inserir(item_orcamento)
         # Act
@@ -75,17 +131,15 @@ class TestItemOrcamentoRepo:
 
     def test_atualizar_item_orcamento(self, test_db, item_orcamento_factory, item_demanda_factory):
         # Arrange
-        orcamento_repo.criar_tabela()
-        item_repo.criar_tabela()
-        demanda_repo.criar_tabela()
-        item_demanda_repo.criar_tabela()
-        item_orcamento_repo.criar_tabela()
+        dados = setup_test_data()
+        item_demanda = item_demanda_factory.criar(id=0, id_demanda=dados["id_demanda"], id_categoria=1)
+        id_item_demanda = item_demanda_repo.inserir(item_demanda)
 
-        # Criar item_demanda primeiro
-        item_demanda = item_demanda_factory.criar(id=1, id_demanda=1, id_categoria=1)
-        item_demanda_repo.inserir(item_demanda)
-
-        item_orcamento = item_orcamento_factory.criar(id_orcamento=1, id_item_demanda=1, id_item=1)
+        item_orcamento = item_orcamento_factory.criar(
+            id_orcamento=dados["id_orcamento"],
+            id_item_demanda=id_item_demanda,
+            id_item=dados["id_item"]
+        )
         id_inserido = item_orcamento_repo.inserir(item_orcamento)
         item_orcamento.id = id_inserido
         item_orcamento.quantidade = 3
@@ -102,17 +156,15 @@ class TestItemOrcamentoRepo:
 
     def test_excluir_item_orcamento(self, test_db, item_orcamento_factory, item_demanda_factory):
         # Arrange
-        orcamento_repo.criar_tabela()
-        item_repo.criar_tabela()
-        demanda_repo.criar_tabela()
-        item_demanda_repo.criar_tabela()
-        item_orcamento_repo.criar_tabela()
+        dados = setup_test_data()
+        item_demanda = item_demanda_factory.criar(id=0, id_demanda=dados["id_demanda"], id_categoria=1)
+        id_item_demanda = item_demanda_repo.inserir(item_demanda)
 
-        # Criar item_demanda primeiro
-        item_demanda = item_demanda_factory.criar(id=1, id_demanda=1, id_categoria=1)
-        item_demanda_repo.inserir(item_demanda)
-
-        item_orcamento = item_orcamento_factory.criar(id_orcamento=1, id_item_demanda=1, id_item=1)
+        item_orcamento = item_orcamento_factory.criar(
+            id_orcamento=dados["id_orcamento"],
+            id_item_demanda=id_item_demanda,
+            id_item=dados["id_item"]
+        )
         id_inserido = item_orcamento_repo.inserir(item_orcamento)
         # Act
         resultado = item_orcamento_repo.excluir(id_inserido)

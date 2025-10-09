@@ -13,7 +13,6 @@ from core.services.casal_service import casal_service, CasalService
 from core.services.demanda_service import demanda_service, DemandaService
 from core.services.orcamento_service import orcamento_service, OrcamentoService
 from core.services.chat_service import chat_service, ChatService
-from core.services.favorito_service import favorito_service, FavoritoService
 
 __all__ = [
     'usuario_service', 'UsuarioService',
@@ -24,5 +23,4 @@ __all__ = [
     'demanda_service', 'DemandaService',
     'orcamento_service', 'OrcamentoService',
     'chat_service', 'ChatService',
-    'favorito_service', 'FavoritoService',
 ]

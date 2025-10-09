@@ -682,6 +682,7 @@ async def visualizar_orcamento_fornecedor(request: Request, id_orcamento: int, u
             "desconto": item_orc.get("desconto", 0) or 0,
             "preco_total": item_orc["preco_total"],
             "observacoes": item_orc.get("observacoes"),
+            "status": item_orc.get("status", "PENDENTE"),
         }
         itens_enriched.append(item_dict)
 

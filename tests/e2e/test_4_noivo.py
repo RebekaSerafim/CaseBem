@@ -7,7 +7,6 @@ Cobertura:
 - Navegação e busca de itens (produtos, serviços, espaços)
 - Gestão de demandas
 - Gestão de orçamentos
-- Favoritos
 - Perfil
 - Checklist
 """
@@ -270,55 +269,6 @@ def test_noivo_filtrar_orcamentos_por_status(page_noivo: Page):
             return
 
     pytest.skip("Filtro de status não encontrado")
-
-# ==================== FAVORITOS ====================
-
-@pytest.mark.e2e
-def test_noivo_listar_favoritos(page_noivo: Page):
-    """Lista itens favoritos"""
-    # Ir para favoritos
-    goto_url(page_noivo, "/noivo/favoritos")
-    page_noivo.wait_for_load_state("networkidle")
-
-    assert_url_contains(page_noivo, "/noivo")
-    # Verificar que a página carregou
-    assert page_noivo.locator('h1, h2, h3').count() > 0
-
-@pytest.mark.e2e
-def test_noivo_adicionar_favorito(page_noivo: Page):
-    """Adiciona item aos favoritos"""
-    # Ir para produtos
-    goto_url(page_noivo, "/noivo/produtos")
-    page_noivo.wait_for_load_state("networkidle")
-
-    # Procurar botão de favoritar
-    botoes_favorito = [
-        'button:has-text("Favoritar")',
-        'a:has-text("Favoritar")',
-        'i.fa-heart',
-        'button[class*="favorite"]'
-    ]
-
-    for botao in botoes_favorito:
-        if page_noivo.locator(botao).count() > 0:
-            page_noivo.locator(botao).first.click()
-            page_noivo.wait_for_timeout(1000)
-            return
-
-    pytest.skip("Botão de favoritar não encontrado")
-
-# ==================== FORNECEDORES ====================
-
-@pytest.mark.e2e
-def test_noivo_listar_fornecedores(page_noivo: Page):
-    """Lista fornecedores disponíveis"""
-    # Ir para fornecedores
-    goto_url(page_noivo, "/noivo/fornecedores")
-    page_noivo.wait_for_load_state("networkidle")
-
-    assert_url_contains(page_noivo, "/noivo")
-    # Verificar que a página carregou
-    assert page_noivo.locator('h1, h2, h3').count() > 0
 
 # ==================== PERFIL ====================
 

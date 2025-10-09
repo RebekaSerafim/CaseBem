@@ -12,7 +12,7 @@
                     <i class="fas fa-arrow-left"></i> Voltar
                 </a>
                 {% if demanda.status.value == 'ATIVA' %}
-                <a href="/noivo/demanda/editar/{{ demanda.id }}" class="btn btn-primary">
+                <a href="/noivo/demandas/editar/{{ demanda.id }}" class="btn btn-primary">
                     <i class="fas fa-edit"></i> Editar
                 </a>
                 {% endif %}
@@ -109,11 +109,7 @@
                         <div class="h4 mb-0 text-success">{{ orcamentos|length }}</div>
                     </div>
                 </div>
-                {% if orcamentos %}
-                <a href="/noivo/demanda/{{ demanda.id }}/orcamentos" class="btn btn-primary w-100 mb-2">
-                    <i class="fas fa-file-invoice-dollar"></i> Ver Todos os Orçamentos
-                </a>
-                {% else %}
+                {% if orcamentos|length == 0 %}
                 <div class="alert alert-info mb-0">
                     <small><i class="fas fa-info-circle"></i> Nenhum orçamento recebido ainda</small>
                 </div>
@@ -136,11 +132,13 @@
                     <table class="table table-hover">
                         <thead>
                             <tr>
-                                <th style="width: 15%;">Tipo/Categoria</th>
-                                <th style="width: 45%;">Descrição do Item</th>
-                                <th style="width: 10%;">Qtd</th>
-                                <th style="width: 15%;">Preço Máximo</th>
-                                <th style="width: 15%;">Observações</th>
+                                <th style="width: 12%;">Tipo/Categoria</th>
+                                <th style="width: 35%;">Descrição do Item</th>
+                                <th style="width: 8%;">Qtd</th>
+                                <th style="width: 12%;">Preço Máximo</th>
+                                <th style="width: 10%;">Orçamentos</th>
+                                <th style="width: 10%;">Situação</th>
+                                <th style="width: 13%;">Observações</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -168,6 +166,20 @@
                                         <span class="text-muted">-</span>
                                     {% endif %}
                                 </td>
+                                <td class="text-center">
+                                    {% if item.total_orcamentos > 0 %}
+                                        <span class="badge bg-info">{{ item.total_orcamentos }}</span>
+                                    {% else %}
+                                        <span class="text-muted">0</span>
+                                    {% endif %}
+                                </td>
+                                <td class="text-center">
+                                    {% if item.esta_atendido %}
+                                        <span class="badge bg-success">Atendido</span>
+                                    {% else %}
+                                        <span class="badge bg-warning text-dark">Pendente</span>
+                                    {% endif %}
+                                </td>
                                 <td>
                                     {% if item.observacoes %}
                                         <small>{{ item.observacoes }}</small>
@@ -186,7 +198,7 @@
                     <h6>Nenhum item solicitado</h6>
                     <p class="text-muted">Esta demanda não possui itens cadastrados.</p>
                     {% if demanda.status.value == 'ATIVA' %}
-                    <a href="/noivo/demanda/editar/{{ demanda.id }}" class="btn btn-primary">
+                    <a href="/noivo/demandas/editar/{{ demanda.id }}" class="btn btn-primary">
                         <i class="fas fa-plus"></i> Adicionar Itens
                     </a>
                     {% endif %}
@@ -196,47 +208,4 @@
         </div>
     </div>
 </div>
-
-<!-- Orçamentos Recebidos (Preview) -->
-{% if orcamentos %}
-<div class="row mt-4">
-    <div class="col-12">
-        <div class="card shadow">
-            <div class="card-header d-flex justify-content-between align-items-center">
-                <h6 class="mb-0"><i class="fas fa-file-invoice-dollar"></i> Orçamentos Recebidos ({{ orcamentos|length }})</h6>
-                <a href="/noivo/demanda/{{ demanda.id }}/orcamentos" class="btn btn-sm btn-primary">
-                    Ver Todos
-                </a>
-            </div>
-            <div class="card-body">
-                <div class="list-group">
-                    {% for orcamento in orcamentos[:3] %}
-                    <a href="/noivo/orcamento/{{ orcamento.id }}" class="list-group-item list-group-item-action">
-                        <div class="d-flex w-100 justify-content-between">
-                            <h6 class="mb-1">{{ orcamento.fornecedor_nome or 'Fornecedor' }}</h6>
-                            <small class="text-muted">{{ orcamento.data_criacao | formatar_data }}</small>
-                        </div>
-                        <p class="mb-1">
-                            <strong class="text-success">R$ {{ "%.2f"|format(orcamento.valor_total) }}</strong>
-                            <span class="badge
-                                {% if orcamento.status == 'PENDENTE' %}bg-warning
-                                {% elif orcamento.status == 'ACEITO' %}bg-success
-                                {% elif orcamento.status == 'REJEITADO' %}bg-danger
-                                {% else %}bg-secondary{% endif %} ms-2">
-                                {{ orcamento.status }}
-                            </span>
-                        </p>
-                    </a>
-                    {% endfor %}
-                </div>
-                {% if orcamentos|length > 3 %}
-                <div class="text-center mt-3">
-                    <small class="text-muted">Mostrando 3 de {{ orcamentos|length }} orçamentos</small>
-                </div>
-                {% endif %}
-            </div>
-        </div>
-    </div>
-</div>
-{% endif %}
 {% endblock %}

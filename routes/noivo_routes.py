@@ -10,7 +10,6 @@ from core.repositories import (
     demanda_repo,
     orcamento_repo,
     casal_repo,
-    favorito_repo,
     fornecedor_repo,
     item_orcamento_repo,
 )
@@ -110,8 +109,6 @@ async def dashboard_noivo(request: Request, usuario_logado: dict = {}):
         "demandas_ativas": len(demandas_ativas),
         "orcamentos_recebidos": len(orcamentos_recebidos),
         "orcamentos_pendentes": len(orcamentos_pendentes),
-        "favoritos": favorito_repo.contar_por_noivo(id_noivo),
-        "total_fornecedores": fornecedor_repo.contar(),
     }
 
     return templates.TemplateResponse(
@@ -286,15 +283,56 @@ async def listar_demandas(
         ]
 
     # Enriquecer demandas com contagens de itens e orçamentos
-    from core.repositories import item_demanda_repo, orcamento_repo
+    from core.repositories import item_demanda_repo
     demandas_com_contagens = []
     for demanda in demandas:
-        # Adicionar atributos de contagem ao objeto demanda
-        demanda.itens_count = item_demanda_repo.contar_por_demanda(demanda.id)  # type: ignore[attr-defined]
-        demanda.orcamentos_count = orcamento_repo.contar_por_demanda(demanda.id)  # type: ignore[attr-defined]
-        demanda.orcamentos_pendentes = orcamento_repo.contar_por_demanda_e_status(  # type: ignore[attr-defined]
-            demanda.id, "PENDENTE"
-        )
+        try:
+            # Adicionar atributos de contagem ao objeto demanda
+            total_itens = item_demanda_repo.contar_por_demanda(demanda.id)
+            demanda.itens_count = total_itens  # type: ignore[attr-defined]
+            demanda.orcamentos_count = orcamento_repo.contar_por_demanda(demanda.id)  # type: ignore[attr-defined]
+            demanda.orcamentos_pendentes = orcamento_repo.contar_por_demanda_e_status(  # type: ignore[attr-defined]
+                demanda.id, "PENDENTE"
+            )
+
+            # Calcular quantos itens foram atendidos (têm item_orcamento aceito)
+            itens_demanda = item_demanda_repo.obter_por_demanda(demanda.id)
+            itens_atendidos = 0
+            for item_demanda in itens_demanda:
+                try:
+                    # Verificar se este item_demanda tem algum item_orcamento ACEITO
+                    if item_orcamento_repo.verificar_item_demanda_ja_aceito(item_demanda.get("id")):
+                        itens_atendidos += 1
+                except Exception as e:
+                    logger.warning(
+                        "Erro ao verificar item_demanda aceito",
+                        demanda_id=demanda.id,
+                        item_demanda_id=item_demanda.get("id"),
+                        erro=str(e)
+                    )
+                    continue
+
+            demanda.itens_atendidos = itens_atendidos  # type: ignore[attr-defined]
+
+            # Calcular percentual de atendimento
+            if total_itens > 0:
+                demanda.percentual_atendimento = int((itens_atendidos / total_itens) * 100)  # type: ignore[attr-defined]
+            else:
+                demanda.percentual_atendimento = 0  # type: ignore[attr-defined]
+
+        except Exception as e:
+            logger.error(
+                "Erro ao enriquecer demanda com dados de atendimento",
+                demanda_id=demanda.id,
+                erro=str(e)
+            )
+            # Garantir que os atributos existam mesmo em caso de erro
+            demanda.itens_count = 0  # type: ignore[attr-defined]
+            demanda.orcamentos_count = 0  # type: ignore[attr-defined]
+            demanda.orcamentos_pendentes = 0  # type: ignore[attr-defined]
+            demanda.itens_atendidos = 0  # type: ignore[attr-defined]
+            demanda.percentual_atendimento = 0  # type: ignore[attr-defined]
+
         demandas_com_contagens.append(demanda)
 
     return templates.TemplateResponse(
@@ -448,7 +486,7 @@ async def criar_demanda(
         return RedirectResponse("/noivo/demandas/nova", status_code=status.HTTP_303_SEE_OTHER)
 
 
-@router.get("/noivo/demanda/{id_demanda}")
+@router.get("/noivo/demandas/{id_demanda}")
 @requer_autenticacao([TipoUsuario.NOIVO.value])
 @tratar_erro_rota(redirect_erro="/noivo/demandas")
 async def visualizar_demanda(
@@ -485,6 +523,20 @@ async def visualizar_demanda(
     # Buscar itens da demanda
     itens_demanda = item_demanda_repo.obter_por_demanda(id_demanda)
 
+    # Enriquecer itens com informações de orçamentos
+    itens_enriched = []
+    for item in itens_demanda:
+        # Contar quantos item_orcamento existem para este item_demanda
+        total_orcamentos = item_orcamento_repo.contar_por_item_demanda(item["id"])
+
+        # Verificar se o item está atendido (tem item_orcamento aceito)
+        esta_atendido = item_orcamento_repo.verificar_item_demanda_ja_aceito(item["id"])
+
+        item_dict = dict(item)
+        item_dict["total_orcamentos"] = total_orcamentos
+        item_dict["esta_atendido"] = esta_atendido
+        itens_enriched.append(item_dict)
+
     # Buscar orçamentos da demanda
     orcamentos = orcamento_repo.obter_por_demanda(id_demanda)
 
@@ -494,13 +546,13 @@ async def visualizar_demanda(
             "request": request,
             "usuario_logado": usuario_logado,
             "demanda": demanda,
-            "itens": itens_demanda,
+            "itens": itens_enriched,
             "orcamentos": orcamentos,
         },
     )
 
 
-@router.post("/noivo/demanda/{id_demanda}/excluir")
+@router.post("/noivo/demandas/{id_demanda}/excluir")
 @requer_autenticacao([TipoUsuario.NOIVO.value])
 @tratar_erro_rota(redirect_erro="/noivo/demandas")
 async def excluir_demanda(
@@ -562,7 +614,7 @@ async def excluir_demanda(
     return RedirectResponse("/noivo/demandas", status_code=status.HTTP_303_SEE_OTHER)
 
 
-@router.get("/noivo/demanda/editar/{id_demanda}")
+@router.get("/noivo/demandas/editar/{id_demanda}")
 @requer_autenticacao([TipoUsuario.NOIVO.value])
 @tratar_erro_rota(redirect_erro="/noivo/demandas")
 async def editar_demanda_form(
@@ -631,7 +683,7 @@ async def editar_demanda_form(
     )
 
 
-@router.post("/noivo/demanda/editar/{id_demanda}")
+@router.post("/noivo/demandas/editar/{id_demanda}")
 @requer_autenticacao([TipoUsuario.NOIVO.value])
 @tratar_erro_rota(template_erro="noivo/demanda_form.html")
 async def atualizar_demanda(
@@ -678,7 +730,7 @@ async def atualizar_demanda(
     if not tipo or len(tipo) == 0:
         logger.warning("Tentativa de atualizar demanda sem itens", demanda_id=id_demanda)
         informar_erro(request, "Adicione pelo menos um item à demanda")
-        return RedirectResponse(f"/noivo/demanda/editar/{id_demanda}", status_code=status.HTTP_303_SEE_OTHER)
+        return RedirectResponse(f"/noivo/demandas/editar/{id_demanda}", status_code=status.HTTP_303_SEE_OTHER)
 
     # Converter orcamento_total de string para float
     orcamento_total_valor = None
@@ -737,12 +789,12 @@ async def atualizar_demanda(
         )
         informar_sucesso(request, f"Demanda atualizada com sucesso! {itens_inseridos} itens salvos.")
         return RedirectResponse(
-            f"/noivo/demanda/{id_demanda}", status_code=status.HTTP_303_SEE_OTHER
+            f"/noivo/demandas/{id_demanda}", status_code=status.HTTP_303_SEE_OTHER
         )
     else:
         logger.error("Falha ao atualizar demanda no banco", demanda_id=id_demanda)
         informar_erro(request, "Erro ao atualizar demanda no banco de dados")
-        return RedirectResponse(f"/noivo/demanda/editar/{id_demanda}", status_code=status.HTTP_303_SEE_OTHER)
+        return RedirectResponse(f"/noivo/demandas/editar/{id_demanda}", status_code=status.HTTP_303_SEE_OTHER)
 
 
 # ==================== ORÇAMENTOS ====================
@@ -938,71 +990,12 @@ async def visualizar_orcamento(
     )
 
 
-@router.get("/noivo/orcamentos/{id_orcamento}/aceitar")
-@requer_autenticacao([TipoUsuario.NOIVO.value])
-@tratar_erro_rota(redirect_erro="/noivo/orcamentos")
-async def aceitar_orcamento(
-    request: Request, id_orcamento: int, usuario_logado: dict = {}
-):
-    """Aceita um orçamento"""
-    logger.info(
-        "Aceitando orçamento", noivo_id=usuario_logado["id"], orcamento_id=id_orcamento
-    )
-
-    # Buscar o orçamento para obter o id_demanda
-    orcamento = orcamento_repo.obter_por_id(id_orcamento)
-    if not orcamento:
-        logger.warning("Orçamento não encontrado ao aceitar", orcamento_id=id_orcamento)
-        informar_erro(request, "Orçamento não encontrado!")
-        return RedirectResponse(
-            "/noivo/orcamentos", status_code=status.HTTP_303_SEE_OTHER
-        )
-
-    # Aceitar este orçamento e rejeitar os outros da mesma demanda
-    sucesso = orcamento_repo.aceitar_e_rejeitar_outros(
-        id_orcamento, orcamento.id_demanda
-    )
-
-    if sucesso:
-        logger.info(
-            "Orçamento aceito com sucesso",
-            orcamento_id=id_orcamento,
-            demanda_id=orcamento.id_demanda,
-        )
-        informar_sucesso(request, "Orçamento aceito com sucesso!")
-    else:
-        logger.error(
-            "Falha ao aceitar orçamento",
-            orcamento_id=id_orcamento,
-            demanda_id=orcamento.id_demanda,
-        )
-        informar_erro(request, "Erro ao aceitar orçamento!")
-
-    return RedirectResponse("/noivo/orcamentos", status_code=status.HTTP_303_SEE_OTHER)
-
-
-@router.get("/noivo/orcamentos/{id_orcamento}/rejeitar")
-@requer_autenticacao([TipoUsuario.NOIVO.value])
-@tratar_erro_rota(redirect_erro="/noivo/orcamentos")
-async def rejeitar_orcamento(
-    request: Request, id_orcamento: int, usuario_logado: dict = {}
-):
-    """Rejeita um orçamento"""
-    logger.info(
-        "Rejeitando orçamento", noivo_id=usuario_logado["id"], orcamento_id=id_orcamento
-    )
-
-    # Rejeitar o orçamento
-    sucesso = orcamento_repo.rejeitar(id_orcamento)
-
-    if sucesso:
-        logger.info("Orçamento rejeitado com sucesso", orcamento_id=id_orcamento)
-        informar_sucesso(request, "Orçamento rejeitado com sucesso!")
-    else:
-        logger.error("Falha ao rejeitar orçamento", orcamento_id=id_orcamento)
-        informar_erro(request, "Erro ao rejeitar orçamento!")
-
-    return RedirectResponse("/noivo/orcamentos", status_code=status.HTTP_303_SEE_OTHER)
+# ==================== ROTAS ANTIGAS (DEPRECATED) ====================
+# NOTA: As rotas abaixo são da versão antiga (V2) onde o orçamento inteiro
+# era aceito/rejeitado de uma vez. Na V3, trabalhamos com status POR ITEM.
+# Essas rotas foram REMOVIDAS pois conflitam com o novo modelo de negócio.
+# Use as rotas /item/{id}/aceitar e /item/{id}/rejeitar para aceitar/rejeitar
+# itens individualmente.
 
 
 @router.get("/noivo/orcamentos/{id_orcamento}/item/{id_item_orcamento}/aceitar")
@@ -1097,21 +1090,23 @@ async def aceitar_item_orcamento(
     )
 
 
-@router.get("/noivo/orcamentos/{id_orcamento}/item/{id_item_orcamento}/rejeitar")
+@router.post("/noivo/orcamentos/{id_orcamento}/item/{id_item_orcamento}/rejeitar")
 @requer_autenticacao([TipoUsuario.NOIVO.value])
 @tratar_erro_rota(redirect_erro="/noivo/orcamentos")
 async def rejeitar_item_orcamento(
     request: Request,
     id_orcamento: int,
     id_item_orcamento: int,
+    motivo_rejeicao: str = Form(""),
     usuario_logado: dict = {},
 ):
-    """Rejeita um item individual do orçamento"""
+    """Rejeita um item individual do orçamento com motivo opcional"""
     logger.info(
         "Rejeitando item de orçamento",
         noivo_id=usuario_logado["id"],
         orcamento_id=id_orcamento,
         item_orcamento_id=id_item_orcamento,
+        motivo=motivo_rejeicao or "Não informado",
     )
 
     from core.repositories.item_orcamento_repo import item_orcamento_repo
@@ -1140,8 +1135,11 @@ async def rejeitar_item_orcamento(
             f"/noivo/orcamentos/{id_orcamento}", status_code=status.HTTP_303_SEE_OTHER
         )
 
-    # Rejeitar o item
-    sucesso = item_orcamento_repo.atualizar_status_item(id_item_orcamento, "REJEITADO")
+    # Rejeitar o item com motivo (se fornecido)
+    motivo = motivo_rejeicao.strip() if motivo_rejeicao else None
+    sucesso = item_orcamento_repo.atualizar_status_item(
+        id_item_orcamento, "REJEITADO", motivo
+    )
 
     if sucesso:
         logger.info(
@@ -1264,161 +1262,6 @@ async def atualizar_perfil_noivo(
                 "erro": "Erro ao atualizar perfil",
             },
         )
-
-
-# ==================== FORNECEDORES ====================
-
-
-@router.get("/noivo/fornecedores")
-@requer_autenticacao([TipoUsuario.NOIVO.value])
-async def listar_fornecedores(request: Request, usuario_logado: dict = {}):
-    """Lista fornecedores verificados para os noivos"""
-    try:
-        # Parâmetros de filtro
-        search = request.query_params.get("search", "").strip()
-        tipo = request.query_params.get("tipo", "").strip()
-        page = PaginationHelper.get_page_number(request)
-
-        # Buscar todos os fornecedores verificados
-        todos_fornecedores = fornecedor_repo.obter_fornecedores_verificados()
-
-        # Aplicar filtros
-        fornecedores = todos_fornecedores
-        if search:
-            fornecedores = [
-                f
-                for f in fornecedores
-                if search.lower() in f.nome.lower()
-                or (f.nome_empresa and search.lower() in f.nome_empresa.lower())
-                or (f.descricao and search.lower() in f.descricao.lower())
-            ]
-
-        # Enriquecer fornecedores com contagem de itens
-        fornecedores_enriched = []
-        for fornecedor in fornecedores:
-            fornecedor_dict = {
-                "id": fornecedor.id,
-                "nome": fornecedor.nome,
-                "nome_empresa": fornecedor.nome_empresa,
-                "descricao": fornecedor.descricao,
-                "telefone": fornecedor.telefone,
-                "email": fornecedor.email,
-                "verificado": fornecedor.verificado,
-                "total_itens": item_repo.contar_por_fornecedor(fornecedor.id),
-            }
-            fornecedores_enriched.append(fornecedor_dict)
-
-        # Aplicar paginação
-        total = len(fornecedores_enriched)
-        start = (page - 1) * PaginationHelper.PUBLIC_PAGE_SIZE
-        end = start + PaginationHelper.PUBLIC_PAGE_SIZE
-        fornecedores_paginados = fornecedores_enriched[start:end]
-
-        page_info = PaginationHelper.paginate(
-            fornecedores_paginados,
-            total,
-            page,
-            PaginationHelper.PUBLIC_PAGE_SIZE
-        )
-
-        return templates.TemplateResponse(
-            "noivo/fornecedores.html",
-            {
-                "request": request,
-                "usuario_logado": usuario_logado,
-                "fornecedores": page_info.items,
-                "pagina_atual": page_info.current_page,
-                "total_pages": page_info.total_pages,
-                "total": page_info.total_items,
-            },
-        )
-    except Exception as e:
-        logger.error("Erro ao listar fornecedores", erro=e)
-        return templates.TemplateResponse(
-            "noivo/fornecedores.html",
-            {
-                "request": request,
-                "usuario_logado": usuario_logado,
-                "fornecedores": [],
-                "erro": "Erro ao carregar fornecedores",
-                "pagina_atual": 1,
-                "total_pages": 1,
-                "total": 0,
-            },
-        )
-
-
-# ==================== FAVORITOS ====================
-
-
-@router.get("/noivo/favoritos")
-@requer_autenticacao([TipoUsuario.NOIVO.value])
-@tratar_erro_rota(template_erro="noivo/favoritos.html")
-async def listar_favoritos(request: Request, usuario_logado: dict = {}):
-    """Lista itens favoritos do noivo"""
-    id_noivo = usuario_logado["id"]
-    logger.info("Listando favoritos do noivo", noivo_id=id_noivo)
-
-    favoritos = favorito_repo.obter_por_noivo(id_noivo)
-
-    return templates.TemplateResponse(
-        "noivo/favoritos.html",
-        {"request": request, "usuario_logado": usuario_logado, "favoritos": favoritos},
-    )
-
-
-@router.post("/noivo/favoritos/adicionar/{id_item}")
-@requer_autenticacao([TipoUsuario.NOIVO.value])
-async def adicionar_favorito(request: Request, id_item: int, usuario_logado: dict = {}):
-    """Adiciona um item aos favoritos"""
-    id_noivo = usuario_logado["id"]
-    logger.info("Adicionando item aos favoritos", noivo_id=id_noivo, item_id=id_item)
-
-    try:
-        sucesso = favorito_repo.adicionar(id_noivo, id_item)
-
-        if sucesso:
-            logger.info(
-                "Favorito adicionado com sucesso", noivo_id=id_noivo, item_id=id_item
-            )
-            return {"success": True, "message": "Item adicionado aos favoritos"}
-        else:
-            logger.warning(
-                "Falha ao adicionar favorito", noivo_id=id_noivo, item_id=id_item
-            )
-            return {"success": False, "message": "Erro ao adicionar favorito"}
-    except Exception as e:
-        logger.error(
-            "Erro ao adicionar favorito", noivo_id=id_noivo, item_id=id_item, erro=e
-        )
-        return {"success": False, "message": "Erro interno"}
-
-
-@router.post("/noivo/favoritos/remover/{id_item}")
-@requer_autenticacao([TipoUsuario.NOIVO.value])
-async def remover_favorito(request: Request, id_item: int, usuario_logado: dict = {}):
-    """Remove um item dos favoritos"""
-    id_noivo = usuario_logado["id"]
-    logger.info("Removendo item dos favoritos", noivo_id=id_noivo, item_id=id_item)
-
-    try:
-        sucesso = favorito_repo.remover(id_noivo, id_item)
-
-        if sucesso:
-            logger.info(
-                "Favorito removido com sucesso", noivo_id=id_noivo, item_id=id_item
-            )
-            return {"success": True, "message": "Item removido dos favoritos"}
-        else:
-            logger.warning(
-                "Falha ao remover favorito", noivo_id=id_noivo, item_id=id_item
-            )
-            return {"success": False, "message": "Erro ao remover favorito"}
-    except Exception as e:
-        logger.error(
-            "Erro ao remover favorito", noivo_id=id_noivo, item_id=id_item, erro=e
-        )
-        return {"success": False, "message": "Erro interno"}
 
 
 # ==================== CHECKLIST ====================

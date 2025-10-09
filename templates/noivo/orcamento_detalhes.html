@@ -350,14 +350,40 @@ function aceitarItem(idOrcamento, idItemOrcamento) {
 }
 
 function rejeitarItem(idOrcamento, idItemOrcamento) {
+    // Criar formulário dinamicamente
+    const form = document.createElement('form');
+    form.method = 'POST';
+    form.action = `/noivo/orcamentos/${idOrcamento}/item/${idItemOrcamento}/rejeitar`;
+
+    const motivoHtml = `
+        <div class="mb-3">
+            <label for="motivo_rejeicao" class="form-label">Motivo da rejeição (opcional):</label>
+            <textarea
+                class="form-control"
+                id="motivo_rejeicao"
+                name="motivo_rejeicao"
+                rows="3"
+                placeholder="Informe o motivo da rejeição para feedback ao fornecedor..."
+            ></textarea>
+            <small class="text-muted">Este motivo será enviado ao fornecedor para melhorar futuras propostas.</small>
+        </div>
+    `;
+
     mostrarModalConfirmacao({
         titulo: 'Rejeitar Item',
         texto: 'Tem certeza que deseja rejeitar este item?',
-        subtexto: 'Esta ação não pode ser desfeita.',
+        subtexto: motivoHtml,
         tipo: 'danger',
         textoBotao: 'Rejeitar Item',
         onConfirmar: function() {
-            window.location.href = `/noivo/orcamentos/${idOrcamento}/item/${idItemOrcamento}/rejeitar`;
+            const motivo = document.getElementById('motivo_rejeicao').value;
+            const input = document.createElement('input');
+            input.type = 'hidden';
+            input.name = 'motivo_rejeicao';
+            input.value = motivo;
+            form.appendChild(input);
+            document.body.appendChild(form);
+            form.submit();
         }
     });
 }
