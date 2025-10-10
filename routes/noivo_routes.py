@@ -6,7 +6,6 @@ from core.models.usuario_model import TipoUsuario
 from core.models.demanda_model import Demanda
 from core.repositories import (
     usuario_repo,
-    item_repo,
     demanda_repo,
     orcamento_repo,
     casal_repo,
@@ -120,119 +119,6 @@ async def dashboard_noivo(request: Request, usuario_logado: dict = {}):
             "casal": casal,
             "stats": stats,
             "demandas_recentes": demandas_recentes,
-        },
-    )
-
-
-# ==================== EXPLORAR ITENS ====================
-
-
-@router.get("/noivo/produtos")
-@requer_autenticacao([TipoUsuario.NOIVO.value])
-@tratar_erro_rota(template_erro="noivo/produtos.html")
-async def listar_produtos(request: Request, usuario_logado: dict = {}):
-    """Lista produtos disponíveis"""
-    logger.info("Listando produtos", noivo_id=usuario_logado["id"])
-    produtos = item_repo.obter_produtos()
-
-    return templates.TemplateResponse(
-        "noivo/produtos.html",
-        {"request": request, "usuario_logado": usuario_logado, "produtos": produtos},
-    )
-
-
-@router.get("/noivo/servicos")
-@requer_autenticacao([TipoUsuario.NOIVO.value])
-@tratar_erro_rota(template_erro="noivo/servicos.html")
-async def listar_servicos(request: Request, usuario_logado: dict = {}):
-    """Lista serviços disponíveis"""
-    logger.info("Listando serviços", noivo_id=usuario_logado["id"])
-    servicos = item_repo.obter_servicos()
-
-    return templates.TemplateResponse(
-        "noivo/servicos.html",
-        {"request": request, "usuario_logado": usuario_logado, "servicos": servicos},
-    )
-
-
-@router.get("/noivo/espacos")
-@requer_autenticacao([TipoUsuario.NOIVO.value])
-@tratar_erro_rota(template_erro="noivo/espacos.html")
-async def listar_espacos(request: Request, usuario_logado: dict = {}):
-    """Lista espaços disponíveis"""
-    logger.info("Listando espaços", noivo_id=usuario_logado["id"])
-    espacos = item_repo.obter_espacos()
-
-    return templates.TemplateResponse(
-        "noivo/espacos.html",
-        {"request": request, "usuario_logado": usuario_logado, "espacos": espacos},
-    )
-
-
-@router.get("/noivo/buscar")
-@requer_autenticacao([TipoUsuario.NOIVO.value])
-@tratar_erro_rota(template_erro="noivo/buscar.html")
-async def buscar_itens(request: Request, q: str = "", usuario_logado: dict = {}):
-    """Busca itens por termo"""
-    logger.info("Buscando itens", noivo_id=usuario_logado["id"], termo=q)
-
-    resultados = []
-    if q.strip():
-        resultados = item_repo.buscar_itens(q.strip())
-
-    return templates.TemplateResponse(
-        "noivo/buscar.html",
-        {
-            "request": request,
-            "usuario_logado": usuario_logado,
-            "resultados": resultados,
-            "termo_busca": q,
-        },
-    )
-
-
-# ==================== DETALHES DE ITENS ====================
-
-
-@router.get("/noivo/item/{id_item}")
-@requer_autenticacao([TipoUsuario.NOIVO.value])
-@tratar_erro_rota(template_erro="noivo/item_nao_encontrado.html")
-async def visualizar_item(request: Request, id_item: int, usuario_logado: dict = {}):
-    """Visualiza detalhes de um item"""
-    logger.info("Visualizando item", noivo_id=usuario_logado["id"], item_id=id_item)
-
-    item = item_repo.obter_por_id(id_item)
-
-    if not item or not item.ativo:
-        logger.warning(
-            "Item não encontrado ou inativo",
-            item_id=id_item,
-            ativo=item.ativo if item else None,
-        )
-        return templates.TemplateResponse(
-            "noivo/item_nao_encontrado.html",
-            {"request": request, "usuario_logado": usuario_logado},
-        )
-
-    # Buscar dados do fornecedor
-    fornecedor = None
-    try:
-        fornecedor = fornecedor_repo.obter_por_id(item.id_fornecedor)
-    except Exception as e:
-        logger.error(
-            "Erro ao buscar fornecedor do item",
-            item_id=id_item,
-            fornecedor_id=item.id_fornecedor,
-            erro=e,
-        )
-
-    return templates.TemplateResponse(
-        "noivo/item_detalhes.html",
-        {
-            "request": request,
-            "usuario_logado": usuario_logado,
-            "item": item,
-            "fornecedor": fornecedor,
         },
     )
 

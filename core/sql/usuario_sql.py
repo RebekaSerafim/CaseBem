@@ -63,6 +63,12 @@ FROM usuario
 WHERE email = ?;
 """
 
+OBTER_USUARIO_POR_TOKEN = """
+SELECT id, nome, cpf, data_nascimento, email, telefone, senha, perfil, token_redefinicao, data_token, data_cadastro, ativo
+FROM usuario
+WHERE token_redefinicao = ?;
+"""
+
 OBTER_USUARIOS_POR_PAGINA = """
 SELECT id, nome, cpf, data_nascimento, email, telefone, senha, perfil, token_redefinicao, data_token, data_cadastro, ativo
 FROM usuario

@@ -1,0 +1,51 @@
+{% extends "publico/base.html" %}
+{% block conteudo %}
+<div class="container d-flex align-items-center justify-content-center flex-grow-1 py-4">
+    <div class="col-md-6 col-lg-4">
+        <div class="card shadow border-0 auth-card">
+            <div class="card-body p-4">
+                <div class="text-center mb-4">
+                    <h3>Recuperar Senha</h3>
+                    <small class="text-muted">Digite seu e-mail para receber instruções</small>
+                </div>
+                    {% if erro %}
+                    <div class="alert alert-danger" role="alert">
+                        {{ erro }}
+                    </div>
+                    {% endif %}
+
+                {% if sucesso %}
+                <div class="alert alert-success" role="alert">
+                    {{ sucesso }}
+                </div>
+                {% else %}
+
+                <form method="POST" action="/esqueci-senha">
+                    <div class="mb-3">
+                        <label for="email" class="form-label">E-mail</label>
+                        <input
+                            type="email"
+                            class="form-control"
+                            id="email"
+                            name="email"
+                            required
+                            placeholder="seu@email.com"
+                        >
+                    </div>
+
+                    <div class="d-grid mb-3">
+                        <button type="submit" class="btn btn-primary btn-lg">
+                            Enviar Link de Recuperação
+                        </button>
+                    </div>
+                </form>
+                {% endif %}
+
+                <div class="text-center">
+                    <small><a href="/login" class="text-decoration-none">Voltar para o Login</a></small>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

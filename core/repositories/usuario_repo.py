@@ -79,6 +79,13 @@ class UsuarioRepo(BaseRepo):
         )
         return self._linha_para_objeto(resultados[0]) if resultados else None
 
+    def obter_usuario_por_token(self, token: str) -> Optional[Usuario]:
+        """Busca um usuário pelo token de redefinição de senha"""
+        resultados = self.executar_consulta(
+            usuario_sql.OBTER_USUARIO_POR_TOKEN, (token,)
+        )
+        return self._linha_para_objeto(resultados[0]) if resultados else None
+
     def obter_usuarios_por_pagina(
         self, numero_pagina: int, tamanho_pagina: int
     ) -> List[Usuario]:

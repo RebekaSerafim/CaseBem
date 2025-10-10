@@ -121,16 +121,6 @@
 </style>
 
 <script>
-    // Validação de tipos de fornecimento
-    function validarPerfis() {
-        const checkboxes = document.querySelectorAll('input[name="perfis"]:checked');
-        if (checkboxes.length === 0) {
-            alert('Selecione pelo menos um tipo de fornecimento.');
-            return false;
-        }
-        return true;
-    }
-
     // Medidor de força de senha
     document.getElementById("senha").addEventListener("input", function() {
         let senha = this.value;
@@ -156,12 +146,6 @@
 
     // Validação de confirmação de senha
     document.getElementById("formCadastro").addEventListener("submit", function(e) {
-        // Validar perfis selecionados
-        if (!validarPerfis()) {
-            e.preventDefault();
-            return;
-        }
-
         let senha = document.getElementById("senha");
         let confirmarSenha = document.getElementById("confirmarSenha");
 

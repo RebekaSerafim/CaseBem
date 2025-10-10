@@ -1167,13 +1167,3 @@ async def desativar_categoria(request: Request, id_categoria: int, usuario_logad
         logger.error("Erro ao desativar categoria: ", erro=e)
         return RedirectResponse("/admin/categorias", status_code=status.HTTP_303_SEE_OTHER)
 
-# ==================== CONFIGURAÇÕES ====================
-
-@router.get("/admin/configuracoes")
-@requer_autenticacao([TipoUsuario.ADMIN.value])
-async def configuracoes(request: Request, usuario_logado: dict = {}):
-    """Página de configurações do sistema"""
-    return templates.TemplateResponse("admin/configuracoes.html", {
-        "request": request,
-        "usuario_logado": usuario_logado
-    })

@@ -115,26 +115,8 @@
 <script src="/static/js/scripts.js"></script>
 <script>
     document.addEventListener('DOMContentLoaded', function () {
-        // Validação de tipos de fornecimento
-        function validarPerfis() {
-            const prestador = document.querySelector('input[name="prestador"]:checked');
-            const vendedor = document.querySelector('input[name="vendedor"]:checked');
-            const locador = document.querySelector('input[name="locador"]:checked');
-
-            if (!prestador && !vendedor && !locador) {
-                alert('Selecione pelo menos um tipo de fornecimento.');
-                return false;
-            }
-            return true;
-        }
-
         // Validação no envio do formulário
         document.getElementById('formPerfil').addEventListener('submit', function (e) {
-            if (!validarPerfis()) {
-                e.preventDefault();
-                return;
-            }
-
             // Remover máscaras antes do envio (usa função do scripts.js)
             removerMascaras();
         });
