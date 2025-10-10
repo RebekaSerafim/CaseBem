@@ -344,7 +344,12 @@ function aceitarItem(idOrcamento, idItemOrcamento) {
         tipo: 'success',
         textoBotao: 'Aceitar Item',
         onConfirmar: function() {
-            window.location.href = `/noivo/orcamentos/${idOrcamento}/item/${idItemOrcamento}/aceitar`;
+            // Criar formulário POST para segurança CSRF
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = `/noivo/orcamentos/${idOrcamento}/item/${idItemOrcamento}/aceitar`;
+            document.body.appendChild(form);
+            form.submit();
         }
     });
 }

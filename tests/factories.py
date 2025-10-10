@@ -18,7 +18,6 @@ from core.models.tipo_fornecimento_model import TipoFornecimento
 from core.models.casal_model import Casal
 from core.models.demanda_model import Demanda, StatusDemanda
 from core.models.orcamento_model import Orcamento
-from core.models.chat_model import Chat
 from core.models.item_demanda_model import ItemDemanda
 from core.models.item_orcamento_model import ItemOrcamento
 
@@ -383,33 +382,6 @@ class OrcamentoFactory(BaseFactory[Orcamento]):
     @classmethod
     def _construir_objeto(cls, dados: Dict[str, Any]) -> Orcamento:
         return Orcamento(**dados)
-
-
-class ChatFactory(BaseFactory[Chat]):
-    """Factory para criar mensagens de chat de teste"""
-
-    @classmethod
-    def _dados_padrao(cls) -> Dict[str, Any]:
-        return {
-            'id_remetente': 1,
-            'id_destinatario': 2,
-            'data_hora_envio': datetime.now(),
-            'mensagem': fake.sentence(),
-            'data_hora_leitura': None
-        }
-
-    @classmethod
-    def _variar_dados(cls, indice: int) -> Dict[str, Any]:
-        """Cria variações nos dados para listas"""
-        return {
-            'id_remetente': (indice % 3) + 1,
-            'id_destinatario': ((indice + 1) % 3) + 1,
-            'mensagem': f"Mensagem {indice + 1}: {fake.sentence()}"
-        }
-
-    @classmethod
-    def _construir_objeto(cls, dados: Dict[str, Any]) -> Chat:
-        return Chat(**dados)
 
 
 class ItemDemandaFactory(BaseFactory[ItemDemanda]):

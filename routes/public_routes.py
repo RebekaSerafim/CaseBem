@@ -665,42 +665,6 @@ async def locais_redirect():
     return RedirectResponse("/itens?tipo=espaco", status_code=status.HTTP_302_FOUND)
 
 
-@router.get("/fornecedores")
-async def get_fornecedores(request: Request):
-    response = templates.TemplateResponse("publico/fornecedores.html", {"request": request})
-    return response
-
-
-@router.get("/prestadores")
-async def get_prestadores(request: Request):
-    response = templates.TemplateResponse("publico/prestadores.html", {"request": request})
-    return response
-
-
-@router.get("/locais/{id}")
-async def get_local_detalhes(request: Request, id: int):
-    response = templates.TemplateResponse(
-        "publico/detalhes_local.html", {"request": request, "id": id}
-    )
-    return response
-
-
-@router.get("/fornecedores/{id}")
-async def get_fornecedor_detalhes(request: Request, id: int):
-    response = templates.TemplateResponse(
-        "publico/detalhes_fornecedor.html", {"request": request, "id": id}
-    )
-    return response
-
-
-@router.get("/prestadores/{id}")
-async def get_prestador_detalhes(request: Request, id: int):
-    response = templates.TemplateResponse(
-        "publico/detalhes_prestador.html", {"request": request, "id": id}
-    )
-    return response
-
-
 @router.get("/item/{id}")
 @tratar_erro_rota(template_erro="publico/item_detalhes.html")
 async def detalhes_item_publico(request: Request, id: int):

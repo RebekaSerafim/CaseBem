@@ -998,7 +998,7 @@ async def visualizar_orcamento(
 # itens individualmente.
 
 
-@router.get("/noivo/orcamentos/{id_orcamento}/item/{id_item_orcamento}/aceitar")
+@router.post("/noivo/orcamentos/{id_orcamento}/item/{id_item_orcamento}/aceitar")
 @requer_autenticacao([TipoUsuario.NOIVO.value])
 @tratar_erro_rota(redirect_erro="/noivo/orcamentos")
 async def aceitar_item_orcamento(
@@ -1007,7 +1007,7 @@ async def aceitar_item_orcamento(
     id_item_orcamento: int,
     usuario_logado: dict = {},
 ):
-    """Aceita um item individual do orçamento"""
+    """Aceita um item individual do orçamento (POST para segurança CSRF)"""
     logger.info(
         "Aceitando item de orçamento",
         noivo_id=usuario_logado["id"],
@@ -1260,55 +1260,6 @@ async def atualizar_perfil_noivo(
                 "usuario_logado": usuario_logado,
                 "noivo": noivo,
                 "erro": "Erro ao atualizar perfil",
-            },
-        )
-
-
-# ==================== CHECKLIST ====================
-
-
-@router.get("/noivo/checklist")
-@requer_autenticacao([TipoUsuario.NOIVO.value])
-async def checklist(request: Request, usuario_logado: dict = {}):
-    """Exibe o checklist do casamento"""
-    try:
-        id_noivo = usuario_logado["id"]
-        logger.info("Carregando checklist do noivo", noivo_id=id_noivo)
-
-        # Checklist vazio (feature futura)
-        categorias: list[dict] = []
-        total_tarefas = 0
-        tarefas_concluidas = 0
-        tarefas_pendentes = 0
-        progresso = 0
-
-        return templates.TemplateResponse(
-            "noivo/checklist.html",
-            {
-                "request": request,
-                "usuario_logado": usuario_logado,
-                "categorias": categorias,
-                "total_tarefas": total_tarefas,
-                "tarefas_concluidas": tarefas_concluidas,
-                "tarefas_pendentes": tarefas_pendentes,
-                "progresso": progresso,
-            },
-        )
-    except Exception as e:
-        logger.error(
-            "Erro ao carregar checklist", noivo_id=usuario_logado["id"], erro=e
-        )
-        return templates.TemplateResponse(
-            "noivo/checklist.html",
-            {
-                "request": request,
-                "usuario_logado": usuario_logado,
-                "erro": "Erro ao carregar checklist",
-                "categorias": [],
-                "total_tarefas": 0,
-                "tarefas_concluidas": 0,
-                "tarefas_pendentes": 0,
-                "progresso": 0,
             },
         )
 

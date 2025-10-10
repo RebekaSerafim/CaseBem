@@ -3,29 +3,28 @@
 [![Python](https://img.shields.io/badge/Python-3.11+-blue.svg)](https://python.org)
 [![FastAPI](https://img.shields.io/badge/FastAPI-Latest-green.svg)](https://fastapi.tiangolo.com)
 [![SQLite](https://img.shields.io/badge/SQLite-3-lightgrey.svg)](https://sqlite.org)
-[![Tests](https://img.shields.io/badge/Tests-126/126_Pass-brightgreen.svg)](#testes)
-[![Coverage](https://img.shields.io/badge/Coverage-36%25-yellow.svg)](#testes)
+[![Tests](https://img.shields.io/badge/Tests-120/120_Pass-brightgreen.svg)](#testes)
+[![Coverage](https://img.shields.io/badge/Coverage-35%25-yellow.svg)](#testes)
 
 Sistema web moderno para conectar noivos e fornecedores de serviços para casamentos, desenvolvido com arquitetura limpa e boas práticas de programação.
 
 ## 🎯 Características Principais
 
-- **🏗️ Clean Architecture**: Separação clara entre camadas (Core, Routes, Infrastructure)
-- **📋 Código Organizado**: Estrutura modular com repositories, services e DTOs
-- **🧪 Testes Automatizados**: 126 testes unitários com 100% de aprovação
+- **🏗️ Arquitetura em Camadas**: Separação clara entre camadas (Core, Routes, Infrastructure)
+- **📋 Código Organizado**: Estrutura modular com repositories e DTOs
+- **🧪 Testes Automatizados**: 120 testes unitários com 100% de aprovação
 - **📊 Logs Estruturados**: Sistema de logging para debugging e monitoramento
 - **✅ Validações Robustas**: DTOs com Pydantic e validações centralizadas
 - **🚨 Exception Handling**: Sistema de exceções tipadas e padronizado
-- **🔧 Padrões de Projeto**: Repository, Factory, Service Layer implementados
+- **🔧 Padrões de Projeto**: Repository e Factory implementados
 
 ## 🏗️ Arquitetura do Projeto
 
 ```
 📁 CaseBem/
 ├── 📁 core/                    # 🎯 Núcleo do sistema
-│   ├── 📁 models/             # 📋 14 modelos de domínio
-│   ├── 📁 repositories/       # 💾 14 repositórios (BaseRepo)
-│   ├── 📁 services/           # 🧠 10 serviços de negócio
+│   ├── 📁 models/             # 📋 11 modelos de domínio
+│   ├── 📁 repositories/       # 💾 9 repositórios (BaseRepo)
 │   ├── 📁 sql/                # 📄 Queries SQL organizadas
 │   └── 📁 validators/         # ✅ Validadores de negócio
 ├── 📁 infrastructure/          # ⚙️ Infraestrutura
@@ -43,7 +42,7 @@ Sistema web moderno para conectar noivos e fornecedores de serviços para casame
 ├── 📁 util/                   # 🔧 13 utilitários
 ├── 📁 data/                   # 💾 Dados e seeds
 │   └── 📁 seeds/              # 📦 10 arquivos JSON para seed
-├── 📁 tests/                  # 🧪 126 testes automatizados
+├── 📁 tests/                  # 🧪 120 testes automatizados
 │   ├── 📄 factories.py        # 🏭 Factories para testes
 │   ├── 📄 test_helpers.py     # 🛠️  Helpers de asserção
 │   ├── 📄 conftest.py         # ⚙️  Fixtures compartilhadas
@@ -91,7 +90,7 @@ Abra o navegador em: `http://localhost:8000`
 
 ### 🧪 Executar Testes
 ```bash
-# Todos os testes unitários (126 testes)
+# Todos os testes unitários (120 testes)
 pytest tests/ --ignore=tests/e2e
 
 # Com cobertura detalhada
@@ -119,11 +118,10 @@ pytest tests/ --ignore=tests/e2e -v
 | Métrica | Valor | Status |
 |---------|-------|--------|
 | **📏 Linhas de código** | ~21.000 | ✅ Organizado |
-| **🧪 Testes** | 126/126 passando | ✅ 100% |
-| **📈 Cobertura** | 36% | 🟡 Em crescimento |
-| **🏭 Serviços** | 10 implementados | ✅ Completo |
-| **📦 Repositórios** | 14 padronizados | ✅ BaseRepo |
-| **📋 Modelos** | 14 modelos | ✅ Completo |
+| **🧪 Testes** | 120/120 passando | ✅ 100% |
+| **📈 Cobertura** | 35% | 🟡 Em crescimento |
+| **📦 Repositórios** | 9 padronizados | ✅ BaseRepo |
+| **📋 Modelos** | 11 modelos | ✅ Completo |
 | **🛣️  Routers** | 5 routers | ✅ Organizados |
 | **🏷️ Type Hints** | 100% coverage | ✅ Total |
 | **⚠️ Exception Handling** | Padronizado | ✅ Consistente |
@@ -132,11 +130,9 @@ pytest tests/ --ignore=tests/e2e -v
 
 ### Para Noivos
 - ✅ Cadastro e gerenciamento de perfil de casal
-- ✅ Busca de fornecedores por categoria e tipo
 - ✅ Criação e gestão de demandas de casamento
 - ✅ Recebimento e análise de orçamentos
-- ✅ Sistema de favoritos para itens/fornecedores
-- ✅ Chat integrado com fornecedores
+- ✅ Aceitação/rejeição individual de itens em orçamentos
 
 ### Para Fornecedores
 - ✅ Cadastro diferenciado por tipo (produtos/serviços)
@@ -187,18 +183,14 @@ pytest tests/ --ignore=tests/e2e -v
 ### 🧱 Padrões de Projeto (Design Patterns)
 - **🏭 Repository Pattern**: Abstração do acesso a dados com `BaseRepo`
 - **🔨 Factory Pattern**: Criação flexível de objetos para testes
-- **⚙️ Service Layer**: Lógica de negócio centralizada (10 serviços)
 - **📝 DTO Pattern**: Transferência segura de dados com Pydantic
 
 ### 🏗️ Arquitetura e Princípios
 - **🔄 Separation of Concerns**: Cada camada tem responsabilidade específica
-- **💉 Dependency Injection**: Baixo acoplamento entre componentes
-- **🧹 Clean Architecture**: Independência entre camadas
 - **🎯 SOLID Principles**: Single Responsibility, Open/Closed, etc.
 
 ### 🧪 Testes e Qualidade
-- **🔬 Unit Tests**: 126 testes testando componentes isoladamente
-- **🔗 Integration Tests**: Testando fluxos completos
+- **🔬 Unit Tests**: 120 testes testando componentes isoladamente
 - **🏭 Test Factories**: Criação de dados de teste flexíveis
 - **🌐 E2E Tests**: Testes end-to-end com Playwright
 
@@ -243,16 +235,15 @@ Usamos [Conventional Commits](https://www.conventionalcommits.org/):
 ### ✅ Concluído
 - [x] Sistema de autenticação completo
 - [x] CRUD de todas entidades
-- [x] Sistema de orçamentos
-- [x] Chat entre noivos e fornecedores
-- [x] Sistema de favoritos
+- [x] Sistema de demandas e orçamentos
+- [x] Aceitação/rejeição individual de itens em orçamentos
 - [x] Painel administrativo
-- [x] 126 testes unitários
+- [x] 120 testes unitários
 
 ### 🚧 Em Desenvolvimento
 - [ ] Testes de integração completos
 - [ ] Testes E2E completos
-- [ ] Sistema de notificações em tempo real
+- [ ] Sistema de notificações
 - [ ] Upload de múltiplas imagens
 
 ### 📋 Planejado
