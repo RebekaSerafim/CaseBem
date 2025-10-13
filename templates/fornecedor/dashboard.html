@@ -39,19 +39,13 @@
     <!-- Cards de Estatísticas -->
     <div class="col-xl-2 col-lg-4 col-sm-6 col-12 mb-4">
         <div class="card border-left-primary shadow h-100 py-2">
-            <div class="card-body">
-                <div class="row g-0 align-items-center">
-                    <div class="col mr-2">
-                        <div class="text-xs font-weight-bold text-primary text-uppercase mb-1 text-center">
-                            Total de Itens
-                        </div>
-                        <div class="h3 mb-0 font-weight-bold text-gray-800 text-center">
-                            {{ stats.total_itens }}
-                        </div>
-                    </div>
-                    <div class="col-auto">
-                        <i class="fas fa-box fa-2x text-gray-300"></i>
-                    </div>
+            <div class="card-body text-center">
+                <i class="fas fa-box fa-2x text-gray-300 mb-2"></i>
+                <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                    Total de Itens
+                </div>
+                <div class="h3 mb-0 font-weight-bold text-gray-800">
+                    {{ stats.total_itens }}
                 </div>
             </div>
         </div>
@@ -59,19 +53,13 @@
 
     <div class="col-xl-2 col-lg-4 col-sm-6 col-12 mb-4">
         <div class="card border-left-success shadow h-100 py-2">
-            <div class="card-body">
-                <div class="row g-0 align-items-center">
-                    <div class="col mr-2">
-                        <div class="text-xs font-weight-bold text-success text-uppercase mb-1 text-center">
-                            Produtos
-                        </div>
-                        <div class="h3 mb-0 font-weight-bold text-gray-800 text-center">
-                            {{ stats.total_produtos }}
-                        </div>
-                    </div>
-                    <div class="col-auto">
-                        <i class="fas fa-shopping-bag fa-2x text-gray-300"></i>
-                    </div>
+            <div class="card-body text-center">
+                <i class="fas fa-shopping-bag fa-2x text-gray-300 mb-2"></i>
+                <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                    Produtos
+                </div>
+                <div class="h3 mb-0 font-weight-bold text-gray-800">
+                    {{ stats.total_produtos }}
                 </div>
             </div>
         </div>
@@ -79,19 +67,13 @@
 
     <div class="col-xl-2 col-lg-4 col-sm-6 col-12 mb-4">
         <div class="card border-left-info shadow h-100 py-2">
-            <div class="card-body">
-                <div class="row g-0 align-items-center">
-                    <div class="col mr-2">
-                        <div class="text-xs font-weight-bold text-info text-uppercase mb-1 text-center">
-                            Serviços
-                        </div>
-                        <div class="h3 mb-0 font-weight-bold text-gray-800 text-center">
-                            {{ stats.total_servicos }}
-                        </div>
-                    </div>
-                    <div class="col-auto">
-                        <i class="fas fa-tools fa-2x text-gray-300"></i>
-                    </div>
+            <div class="card-body text-center">
+                <i class="fas fa-tools fa-2x text-gray-300 mb-2"></i>
+                <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
+                    Serviços
+                </div>
+                <div class="h3 mb-0 font-weight-bold text-gray-800">
+                    {{ stats.total_servicos }}
                 </div>
             </div>
         </div>
@@ -99,19 +81,13 @@
 
     <div class="col-xl-2 col-lg-4 col-sm-6 col-12 mb-4">
         <div class="card border-left-warning shadow h-100 py-2">
-            <div class="card-body">
-                <div class="row g-0 align-items-center">
-                    <div class="col mr-2">
-                        <div class="text-xs font-weight-bold text-warning text-uppercase mb-1 text-center">
-                            Espaços
-                        </div>
-                        <div class="h3 mb-0 font-weight-bold text-gray-800 text-center">
-                            {{ stats.total_espacos }}
-                        </div>
-                    </div>
-                    <div class="col-auto">
-                        <i class="fas fa-building fa-2x text-gray-300"></i>
-                    </div>
+            <div class="card-body text-center">
+                <i class="fas fa-building fa-2x text-gray-300 mb-2"></i>
+                <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
+                    Espaços
+                </div>
+                <div class="h3 mb-0 font-weight-bold text-gray-800">
+                    {{ stats.total_espacos }}
                 </div>
             </div>
         </div>
@@ -119,19 +95,13 @@
 
     <div class="col-xl-2 col-lg-4 col-sm-6 col-12 mb-4">
         <div class="card border-left-danger shadow h-100 py-2">
-            <div class="card-body">
-                <div class="row g-0 align-items-center">
-                    <div class="col mr-2">
-                        <div class="text-xs font-weight-bold text-danger text-uppercase mb-1 text-center">
-                            Orçamentos
-                        </div>
-                        <div class="h3 mb-0 font-weight-bold text-gray-800 text-center">
-                            {{ stats.total_orcamentos or 0 }}
-                        </div>
-                    </div>
-                    <div class="col-auto">
-                        <i class="fas fa-file-invoice-dollar fa-2x text-gray-300"></i>
-                    </div>
+            <div class="card-body text-center">
+                <i class="fas fa-file-invoice-dollar fa-2x text-gray-300 mb-2"></i>
+                <div class="text-xs font-weight-bold text-danger text-uppercase mb-1">
+                    Orçamentos
+                </div>
+                <div class="h3 mb-0 font-weight-bold text-gray-800">
+                    {{ stats.total_orcamentos or 0 }}
                 </div>
             </div>
         </div>
@@ -139,19 +109,13 @@
 
     <div class="col-xl-2 col-lg-4 col-sm-6 col-12 mb-4">
         <div class="card border-left-dark shadow h-100 py-2">
-            <div class="card-body">
-                <div class="row g-0 align-items-center">
-                    <div class="col mr-2">
-                        <div class="text-xs font-weight-bold text-dark text-uppercase mb-1 text-center">
-                            Demandas
-                        </div>
-                        <div class="h3 mb-0 font-weight-bold text-gray-800 text-center">
-                            {{ stats.total_demandas or 0 }}
-                        </div>
-                    </div>
-                    <div class="col-auto">
-                        <i class="fas fa-clipboard-list fa-2x text-gray-300"></i>
-                    </div>
+            <div class="card-body text-center">
+                <i class="fas fa-clipboard-list fa-2x text-gray-300 mb-2"></i>
+                <div class="text-xs font-weight-bold text-dark text-uppercase mb-1">
+                    Demandas
+                </div>
+                <div class="h3 mb-0 font-weight-bold text-gray-800">
+                    {{ stats.total_demandas or 0 }}
                 </div>
             </div>
         </div>

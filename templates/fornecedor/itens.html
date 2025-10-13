@@ -105,13 +105,15 @@
                     </form>
                     {% endif %}
 
-                    <button type="button" class="btn btn-outline-danger btn-sm"
-                            onclick="confirmarExclusao('o item &quot;{{ item.nome }}&quot;', function() {
-                                document.getElementById('formExcluir{{ item.id }}').submit();
-                            })">
-                        <i class="fas fa-trash"></i> Excluir
-                    </button>
-                    <form id="formExcluir{{ item.id }}" method="post" action="/fornecedor/itens/{{ item.id }}/excluir" style="display: none;"></form>
+                    <form method="post" action="/fornecedor/itens/{{ item.id }}/excluir" class="d-inline" id="formExcluir{{ item.id }}">
+                        <input type="hidden" name="confirmar" value="1">
+                        <button type="button" class="btn btn-outline-danger btn-sm"
+                                onclick="confirmarExclusao('o item &quot;{{ item.nome }}&quot;', function() {
+                                    document.getElementById('formExcluir{{ item.id }}').submit();
+                                })">
+                            <i class="fas fa-trash"></i> Excluir
+                        </button>
+                    </form>
                 </div>
             </div>
         </div>

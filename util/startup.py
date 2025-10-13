@@ -385,6 +385,218 @@ def criar_casais_seed():
     except Exception as e:
         logger.error(f"Erro ao importar casais: {e}")
 
+def criar_demandas_seed():
+    """
+    Importa demandas do arquivo seeds/demandas.json se não existirem.
+    """
+    try:
+        # Verificar se já existem demandas
+        from infrastructure.database import obter_conexao
+
+        with obter_conexao() as conexao:
+            cursor = conexao.cursor()
+            cursor.execute("SELECT COUNT(*) FROM demanda")
+            total_demandas = cursor.fetchone()[0]
+
+            if total_demandas >= 20:
+                logger.info(f"Demandas já existem no sistema ({total_demandas} registros)")
+                return
+
+        # Carregar dados das demandas do arquivo JSON
+        demandas_dados = carregar_dados_json('demandas.json')
+        if not demandas_dados:
+            logger.info("Arquivo demandas.json não encontrado - pulando seed de demandas")
+            return
+
+        logger.info(f"Importando {len(demandas_dados)} demandas do seed...")
+
+        with obter_conexao() as conexao:
+            cursor = conexao.cursor()
+
+            for demanda_data in demandas_dados:
+                # Inserir demanda com ID explícito
+                cursor.execute(
+                    """INSERT INTO demanda (id, id_casal, descricao, orcamento_total, data_casamento, cidade_casamento, prazo_entrega, status, data_criacao, observacoes)
+                       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
+                    (
+                        demanda_data['id'],
+                        demanda_data['id_casal'],
+                        demanda_data['descricao'],
+                        demanda_data.get('orcamento_total'),
+                        demanda_data.get('data_casamento'),
+                        demanda_data.get('cidade_casamento'),
+                        demanda_data.get('prazo_entrega'),
+                        demanda_data.get('status', 'ATIVA'),
+                        demanda_data.get('data_criacao'),
+                        demanda_data.get('observacoes')
+                    )
+                )
+                logger.debug(f"Demanda ID {demanda_data['id']} importada - Casal {demanda_data['id_casal']}")
+
+        logger.info(f"{len(demandas_dados)} demandas importadas com sucesso!")
+
+    except Exception as e:
+        logger.error(f"Erro ao importar demandas: {e}")
+
+def criar_item_demanda_seed():
+    """
+    Importa itens de demanda do arquivo seeds/item_demanda.json se não existirem.
+    """
+    try:
+        # Verificar se já existem itens de demanda
+        from infrastructure.database import obter_conexao
+
+        with obter_conexao() as conexao:
+            cursor = conexao.cursor()
+            cursor.execute("SELECT COUNT(*) FROM item_demanda")
+            total_itens = cursor.fetchone()[0]
+
+            if total_itens >= 100:
+                logger.info(f"Itens de demanda já existem no sistema ({total_itens} registros)")
+                return
+
+        # Carregar dados dos itens de demanda do arquivo JSON
+        itens_dados = carregar_dados_json('item_demanda.json')
+        if not itens_dados:
+            logger.info("Arquivo item_demanda.json não encontrado - pulando seed de itens de demanda")
+            return
+
+        logger.info(f"Importando {len(itens_dados)} itens de demanda do seed...")
+
+        with obter_conexao() as conexao:
+            cursor = conexao.cursor()
+
+            for item_data in itens_dados:
+                # Inserir item de demanda com ID explícito
+                cursor.execute(
+                    """INSERT INTO item_demanda (id, id_demanda, tipo, id_categoria, descricao, quantidade, preco_maximo, observacoes)
+                       VALUES (?, ?, ?, ?, ?, ?, ?, ?)""",
+                    (
+                        item_data['id'],
+                        item_data['id_demanda'],
+                        item_data['tipo'],
+                        item_data['id_categoria'],
+                        item_data['descricao'],
+                        item_data['quantidade'],
+                        item_data.get('preco_maximo'),
+                        item_data.get('observacoes')
+                    )
+                )
+                logger.debug(f"Item demanda ID {item_data['id']} importado - Demanda {item_data['id_demanda']}")
+
+        logger.info(f"{len(itens_dados)} itens de demanda importados com sucesso!")
+
+    except Exception as e:
+        logger.error(f"Erro ao importar itens de demanda: {e}")
+
+def criar_orcamentos_seed():
+    """
+    Importa orçamentos do arquivo seeds/orcamentos.json se não existirem.
+    """
+    try:
+        # Verificar se já existem orçamentos
+        from infrastructure.database import obter_conexao
+
+        with obter_conexao() as conexao:
+            cursor = conexao.cursor()
+            cursor.execute("SELECT COUNT(*) FROM orcamento")
+            total_orcamentos = cursor.fetchone()[0]
+
+            if total_orcamentos >= 50:
+                logger.info(f"Orçamentos já existem no sistema ({total_orcamentos} registros)")
+                return
+
+        # Carregar dados dos orçamentos do arquivo JSON
+        orcamentos_dados = carregar_dados_json('orcamentos.json')
+        if not orcamentos_dados:
+            logger.info("Arquivo orcamentos.json não encontrado - pulando seed de orçamentos")
+            return
+
+        logger.info(f"Importando {len(orcamentos_dados)} orçamentos do seed...")
+
+        with obter_conexao() as conexao:
+            cursor = conexao.cursor()
+
+            for orcamento_data in orcamentos_dados:
+                # Inserir orçamento com ID explícito
+                cursor.execute(
+                    """INSERT INTO orcamento (id, id_demanda, id_fornecedor_prestador, data_hora_cadastro, data_hora_validade, status, observacoes, valor_total)
+                       VALUES (?, ?, ?, ?, ?, ?, ?, ?)""",
+                    (
+                        orcamento_data['id'],
+                        orcamento_data['id_demanda'],
+                        orcamento_data['id_fornecedor_prestador'],
+                        orcamento_data.get('data_hora_cadastro'),
+                        orcamento_data.get('data_hora_validade'),
+                        orcamento_data.get('status', 'PENDENTE'),
+                        orcamento_data.get('observacoes'),
+                        orcamento_data.get('valor_total')
+                    )
+                )
+                logger.debug(f"Orçamento ID {orcamento_data['id']} importado - Demanda {orcamento_data['id_demanda']}")
+
+        logger.info(f"{len(orcamentos_dados)} orçamentos importados com sucesso!")
+
+    except Exception as e:
+        logger.error(f"Erro ao importar orçamentos: {e}")
+
+def criar_item_orcamento_seed():
+    """
+    Importa itens de orçamento do arquivo seeds/item_orcamento.json se não existirem.
+    """
+    try:
+        # Verificar se já existem itens de orçamento
+        from infrastructure.database import obter_conexao
+
+        with obter_conexao() as conexao:
+            cursor = conexao.cursor()
+            cursor.execute("SELECT COUNT(*) FROM item_orcamento")
+            total_itens = cursor.fetchone()[0]
+
+            if total_itens >= 100:
+                logger.info(f"Itens de orçamento já existem no sistema ({total_itens} registros)")
+                return
+
+        # Carregar dados dos itens de orçamento do arquivo JSON
+        itens_dados = carregar_dados_json('item_orcamento.json')
+        if not itens_dados:
+            logger.info("Arquivo item_orcamento.json vazio ou não encontrado - pulando seed de itens de orçamento")
+            return
+
+        if len(itens_dados) == 0:
+            logger.info("Nenhum item de orçamento para importar")
+            return
+
+        logger.info(f"Importando {len(itens_dados)} itens de orçamento do seed...")
+
+        with obter_conexao() as conexao:
+            cursor = conexao.cursor()
+
+            for item_data in itens_dados:
+                # Inserir item de orçamento com ID explícito
+                cursor.execute(
+                    """INSERT INTO item_orcamento (id, id_orcamento, id_item_demanda, id_item, quantidade, preco_unitario, observacoes, desconto, status, motivo_rejeicao)
+                       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
+                    (
+                        item_data['id'],
+                        item_data['id_orcamento'],
+                        item_data['id_item_demanda'],
+                        item_data['id_item'],
+                        item_data['quantidade'],
+                        item_data['preco_unitario'],
+                        item_data.get('observacoes'),
+                        item_data.get('desconto', 0),
+                        item_data.get('status', 'PENDENTE'),
+                        item_data.get('motivo_rejeicao')
+                    )
+                )
+                logger.debug(f"Item orçamento ID {item_data['id']} importado - Orçamento {item_data['id_orcamento']}")
+
+        logger.info(f"{len(itens_dados)} itens de orçamento importados com sucesso!")
+
+    except Exception as e:
+        logger.error(f"Erro ao importar itens de orçamento: {e}")
+
 def inicializar_sistema():
     """
     Inicializa o sistema executando todas as verificações e configurações necessárias.
@@ -397,6 +609,10 @@ def inicializar_sistema():
     5. Importar fornecedores (OPCIONAL - seeds/fornecedores.json)
     6. Importar itens (OPCIONAL - seeds/itens.json)
     7. Importar casais (OPCIONAL - seeds/casais.json)
+    8. Importar demandas (OPCIONAL - seeds/demandas.json)
+    9. Importar itens de demanda (OPCIONAL - seeds/item_demanda.json)
+    10. Importar orçamentos (OPCIONAL - seeds/orcamentos.json)
+    11. Importar itens de orçamento (OPCIONAL - seeds/item_orcamento.json)
     """
     logger.info("Inicializando sistema CaseBem...")
 
@@ -420,5 +636,17 @@ def inicializar_sistema():
 
     # Importar casais de teste (OPCIONAL)
     criar_casais_seed()
+
+    # Importar demandas de teste (OPCIONAL - após casais)
+    criar_demandas_seed()
+
+    # Importar itens de demanda (OPCIONAL - após demandas)
+    criar_item_demanda_seed()
+
+    # Importar orçamentos de teste (OPCIONAL - após demandas e fornecedores)
+    criar_orcamentos_seed()
+
+    # Importar itens de orçamento (OPCIONAL - após orçamentos e itens)
+    criar_item_orcamento_seed()
 
     logger.info("Sistema inicializado com sucesso!")

@@ -1,0 +1,947 @@
+-- ========================================
+-- POPULAR DEMANDAS E ORÇAMENTOS
+-- ========================================
+-- Este script cria:
+-- - 21 novas demandas (2-3 por casal)
+-- - 140 itens de demanda (3-9 por demanda)
+-- - 70 orçamentos (50% dos itens)
+-- - Itens de orçamento vinculados
+-- ========================================
+
+BEGIN TRANSACTION;
+
+-- ========================================
+-- FASE 1: DEMANDAS
+-- ========================================
+
+-- Casal 1: João Silva & Maria Santos (já tem demanda ID 7, adicionar mais 2)
+INSERT INTO demanda (id_casal, descricao, orcamento_total, data_casamento, cidade_casamento, prazo_entrega, status, observacoes)
+VALUES
+(1, 'Casamento intimista ao ar livre com cerimônia no jardim', 28000.00, '2025-06-20', 'Vitória, ES', '20 dias antes', 'ATIVA', 'Preferimos tons pastéis e decoração delicada'),
+(1, 'Recepção elegante com jantar servido e música ao vivo', 42000.00, '2025-06-20', 'Vitória, ES', '30 dias antes', 'ATIVA', 'Queremos surpreender nossos convidados');
+
+-- Casal 2: Pedro Oliveira & Ana Costa
+INSERT INTO demanda (id_casal, descricao, orcamento_total, data_casamento, cidade_casamento, prazo_entrega, status, observacoes)
+VALUES
+(2, 'Casamento clássico em igreja com recepção em salão de festas', 55000.00, '2025-04-12', 'Vila Velha, ES', '45 dias antes', 'ATIVA', 'Cerimônia religiosa tradicional, recepção elegante'),
+(2, 'Decoração completa e buffet sofisticado para 150 convidados', 38000.00, '2025-04-12', 'Vila Velha, ES', '30 dias antes', 'ATIVA', 'Cores: dourado e branco. Estilo clássico'),
+(2, 'Fotografia profissional e filmagem do casamento', 18000.00, '2025-04-12', 'Vila Velha, ES', '15 dias antes', 'ATIVA', 'Queremos drone e álbum premium');
+
+-- Casal 3: Carlos Mendes & Julia Ferreira
+INSERT INTO demanda (id_casal, descricao, orcamento_total, data_casamento, cidade_casamento, prazo_entrega, status, observacoes)
+VALUES
+(3, 'Casamento rústico em sítio com cerimônia ao pôr do sol', 45000.00, '2025-08-15', 'Serra, ES', '60 dias antes', 'ATIVA', 'Estilo rústico-chique, muitas flores do campo'),
+(3, 'Buffet completo com estações de comida e bar premium', 32000.00, '2025-08-15', 'Serra, ES', '30 dias antes', 'ATIVA', 'Menu variado, incluir opções vegetarianas');
+
+-- Casal 4: Rafael Lima & Camila Rodrigues
+INSERT INTO demanda (id_casal, descricao, orcamento_total, data_casamento, cidade_casamento, prazo_entrega, status, observacoes)
+VALUES
+(4, 'Casamento de luxo com cerimônia e recepção em hotel 5 estrelas', 80000.00, '2025-11-22', 'Guarapari, ES', '90 dias antes', 'ATIVA', 'Alto padrão, sem economia. Queremos o melhor'),
+(4, 'Decoração sofisticada com flores importadas e iluminação especial', 28000.00, '2025-11-22', 'Guarapari, ES', '45 dias antes', 'ATIVA', 'Estilo glamouroso, cores: rosa e dourado'),
+(4, 'Transporte de luxo e hospedagem VIP para convidados especiais', 22000.00, '2025-11-22', 'Guarapari, ES', '30 dias antes', 'ATIVA', 'Limousine para noivos, vans para convidados');
+
+-- Casal 5: Gabriel Souza & Isabela Martins
+INSERT INTO demanda (id_casal, descricao, orcamento_total, data_casamento, cidade_casamento, prazo_entrega, status, observacoes)
+VALUES
+(5, 'Casamento moderno e descontraído em espaço urbano', 35000.00, '2025-03-08', 'Vitória, ES', '30 dias antes', 'ATIVA', 'Estilo industrial-moderno, DJ e iluminação LED'),
+(5, 'Mini wedding para 50 pessoas com buffet gourmet', 25000.00, '2025-03-08', 'Vitória, ES', '20 dias antes', 'ATIVA', 'Evento intimista e sofisticado');
+
+-- Casal 6: Thiago Alves & Fernanda Castro
+INSERT INTO demanda (id_casal, descricao, orcamento_total, data_casamento, cidade_casamento, prazo_entrega, status, observacoes)
+VALUES
+(6, 'Casamento na praia ao entardecer com decoração tropical', 40000.00, '2025-09-27', 'Guarapari, ES', '45 dias antes', 'ATIVA', 'Pés na areia, cores vibrantes, muito tropical'),
+(6, 'Estrutura completa para casamento na praia: tendas, som, iluminação', 30000.00, '2025-09-27', 'Guarapari, ES', '60 dias antes', 'ATIVA', 'Precisa de tenda grande e gerador de energia'),
+(6, 'Fotografia e filmagem especializada em casamento de praia', 15000.00, '2025-09-27', 'Guarapari, ES', '15 dias antes', 'ATIVA', 'Fotos no pôr do sol obrigatórias');
+
+-- Casal 7: Bruno Pereira & Larissa Gomes
+INSERT INTO demanda (id_casal, descricao, orcamento_total, data_casamento, cidade_casamento, prazo_entrega, status, observacoes)
+VALUES
+(7, 'Casamento tradicional com cerimônia religiosa e festa completa', 50000.00, '2025-07-19', 'Vila Velha, ES', '60 dias antes', 'ATIVA', 'Família grande, precisamos de espaço para 200 pessoas'),
+(7, 'Decoração clássica e elegante com muitas flores brancas', 25000.00, '2025-07-19', 'Vila Velha, ES', '30 dias antes', 'ATIVA', 'Todo branco, com toques de verde');
+
+-- Casal 8: Diego Santos & Natália Silva
+INSERT INTO demanda (id_casal, descricao, orcamento_total, data_casamento, cidade_casamento, prazo_entrega, status, observacoes)
+VALUES
+(8, 'Casamento econômico mas bonito com cerimônia simples', 20000.00, '2025-05-10', 'Serra, ES', '30 dias antes', 'ATIVA', 'Orçamento apertado mas queremos qualidade'),
+(8, 'Buffet e decoração básica para 80 convidados', 15000.00, '2025-05-10', 'Serra, ES', '20 dias antes', 'ATIVA', 'Simples mas elegante, cores neutras');
+
+-- Casal 9: Rodrigo Costa & Beatriz Ribeiro
+INSERT INTO demanda (id_casal, descricao, orcamento_total, data_casamento, cidade_casamento, prazo_entrega, status, observacoes)
+VALUES
+(9, 'Casamento boho chic em jardim com cerimônia personalizada', 38000.00, '2025-10-05', 'Vitória, ES', '45 dias antes', 'ATIVA', 'Estilo boêmio, decoração natural e aconchegante'),
+(9, 'Celebrante alternativo e música acústica ao vivo', 12000.00, '2025-10-05', 'Vitória, ES', '20 dias antes', 'ATIVA', 'Cerimônia personalizada, violão e voz'),
+(9, 'Mesa de doces artesanais e bar de drinks autorais', 18000.00, '2025-10-05', 'Vitória, ES', '15 dias antes', 'ATIVA', 'Doces caseiros, drinks com gin');
+
+-- Casal 10: Leonardo Barbosa & Priscila Moreira
+INSERT INTO demanda (id_casal, descricao, orcamento_total, data_casamento, cidade_casamento, prazo_entrega, status, observacoes)
+VALUES
+(10, 'Casamento completo com todos os serviços em espaço de eventos', 60000.00, '2025-12-14', 'Vila Velha, ES', '90 dias antes', 'ATIVA', 'Casamento grande, precisamos de tudo'),
+(10, 'Vestido de noiva sob medida e ternos para padrinhos', 15000.00, '2025-12-14', 'Vila Velha, ES', '120 dias antes', 'ATIVA', 'Vestido princesa, ternos azul marinho');
+
+-- ========================================
+-- FASE 2: ITENS DE DEMANDA
+-- ========================================
+
+-- Demanda 8 (Casal 1 - Casamento intimista ao ar livre)
+INSERT INTO item_demanda (id_demanda, tipo, id_categoria, descricao, quantidade, preco_maximo, observacoes)
+VALUES
+(8, 'ESPAÇO', 18, 'Jardim ou espaço ao ar livre para cerimônia com 80 convidados', 1, 1500.00, 'Preferência por local com árvores'),
+(8, 'SERVIÇO', 8, 'Decoração delicada com tons pastéis para cerimônia', 1, 3500.00, 'Arco de flores e cadeiras decoradas'),
+(8, 'PRODUTO', 15, 'Buquê de noiva em tons pastéis e arranjos para altar', 1, 800.00, 'Rosas, peônias e eucalipto'),
+(8, 'SERVIÇO', 1, 'Fotografia da cerimônia e ensaio pré-wedding', 1, 2500.00, 'Fotos naturais e espontâneas'),
+(8, 'SERVIÇO', 2, 'Música ao vivo para cerimônia (violino e violão)', 1, 1200.00, 'Repertório romântico clássico');
+
+-- Demanda 9 (Casal 1 - Recepção elegante)
+INSERT INTO item_demanda (id_demanda, tipo, id_categoria, descricao, quantidade, preco_maximo, observacoes)
+VALUES
+(9, 'ESPAÇO', 19, 'Salão elegante para recepção de 80 convidados', 1, 3000.00, 'Com ar condicionado e pista de dança'),
+(9, 'SERVIÇO', 3, 'Buffet completo com jantar servido', 1, 8000.00, 'Menu com entrada, prato principal e sobremesa'),
+(9, 'SERVIÇO', 2, 'Banda ao vivo para animar a festa (4 horas)', 1, 3500.00, 'Repertório variado, música ao vivo'),
+(9, 'PRODUTO', 14, 'Bolo de casamento 3 andares e doces finos', 1, 1200.00, 'Bolo tradicional branco'),
+(9, 'PRODUTO', 17, 'Bar completo com drinks e bebidas premium', 1, 2500.00, 'Incluir champagne para brinde'),
+(9, 'SERVIÇO', 8, 'Decoração sofisticada do salão de festas', 1, 4000.00, 'Flores, velas e iluminação especial'),
+(9, 'PRODUTO', 16, 'Mobiliário completo: mesas, cadeiras, louças', 1, 1800.00, 'Cadeiras Tiffany e mesas redondas');
+
+-- Demanda 10 (Casal 2 - Casamento clássico)
+INSERT INTO item_demanda (id_demanda, tipo, id_categoria, descricao, quantidade, preco_maximo, observacoes)
+VALUES
+(10, 'ESPAÇO', 18, 'Igreja para cerimônia religiosa católica', 1, 800.00, 'Comporta 150 pessoas'),
+(10, 'ESPAÇO', 19, 'Salão de festas para 150 convidados', 1, 4500.00, 'Espaçoso, elegante, com estacionamento'),
+(10, 'SERVIÇO', 1, 'Cobertura fotográfica completa cerimônia e festa', 1, 3500.00, 'Álbum premium incluso'),
+(10, 'SERVIÇO', 4, 'Cerimonial e assessoria completa do casamento', 1, 3000.00, 'Coordenação de todos os fornecedores'),
+(10, 'SERVIÇO', 2, 'DJ profissional com iluminação LED', 1, 2000.00, 'Som para cerimônia e festa'),
+(10, 'PRODUTO', 11, 'Vestido de noiva estilo princesa', 1, 5000.00, 'Com cauda e véu longo'),
+(10, 'PRODUTO', 12, 'Alianças de ouro 18k para os noivos', 2, 1500.00, 'Modelo clássico liso'),
+(10, 'SERVIÇO', 5, 'Celebrante religioso para cerimônia católica', 1, 600.00, 'Padre com experiência em casamentos');
+
+-- Demanda 11 (Casal 2 - Decoração e buffet)
+INSERT INTO item_demanda (id_demanda, tipo, id_categoria, descricao, quantidade, preco_maximo, observacoes)
+VALUES
+(11, 'SERVIÇO', 8, 'Decoração completa em dourado e branco', 1, 6000.00, 'Flores, tecidos nobres e iluminação'),
+(11, 'SERVIÇO', 3, 'Buffet sofisticado para 150 convidados', 1, 12000.00, 'Menu premium com 3 opções de prato principal'),
+(11, 'PRODUTO', 15, 'Arranjos florais para todas as mesas', 1, 2500.00, 'Flores brancas e folhagens douradas'),
+(11, 'PRODUTO', 14, 'Bolo de casamento luxo 4 andares', 1, 1500.00, 'Decorado em dourado e branco'),
+(11, 'PRODUTO', 16, 'Louças, talheres e taças de cristal', 1, 2000.00, 'Jogo completo premium'),
+(11, 'PRODUTO', 17, 'Bebidas premium e bar de drinks', 1, 3500.00, 'Whisky, vinhos importados e champagne');
+
+-- Demanda 12 (Casal 2 - Fotografia)
+INSERT INTO item_demanda (id_demanda, tipo, id_categoria, descricao, quantidade, preco_maximo, observacoes)
+VALUES
+(12, 'SERVIÇO', 1, 'Fotografia e filmagem premium com drone', 1, 5000.00, 'Dois fotógrafos e cinegrafista'),
+(12, 'SERVIÇO', 1, 'Ensaio pré-wedding em locação especial', 1, 1200.00, 'Praia ou campo, fotos ao pôr do sol'),
+(12, 'SERVIÇO', 1, 'Álbum fotográfico premium 40x40cm', 1, 1500.00, 'Capa em couro, 60 páginas');
+
+-- Demanda 13 (Casal 3 - Casamento rústico)
+INSERT INTO item_demanda (id_demanda, tipo, id_categoria, descricao, quantidade, preco_maximo, observacoes)
+VALUES
+(13, 'ESPAÇO', 18, 'Sítio ou fazenda para cerimônia ao pôr do sol', 1, 2500.00, 'Ambiente rural, com vista bonita'),
+(13, 'ESPAÇO', 19, 'Área coberta no sítio para recepção', 1, 3000.00, 'Proteção contra chuva'),
+(13, 'SERVIÇO', 8, 'Decoração rústica-chique com flores do campo', 1, 5000.00, 'Madeira, juta, flores silvestres'),
+(13, 'PRODUTO', 15, 'Flores campestres para buquê e arranjos', 1, 1200.00, 'Girassóis, lavanda, flores do campo'),
+(13, 'SERVIÇO', 1, 'Fotografia estilo natural e espontâneo', 1, 2800.00, 'Fotos ao ar livre, luz natural'),
+(13, 'SERVIÇO', 2, 'Música ao vivo: violão e cantora', 1, 1500.00, 'Estilo acústico, MPB e clássicos'),
+(13, 'SERVIÇO', 3, 'Buffet campestre com comida caseira gourmet', 1, 7000.00, 'Cardápio regional sofisticado'),
+(13, 'PRODUTO', 14, 'Naked cake e doces artesanais', 1, 800.00, 'Bolo rústico sem cobertura'),
+(13, 'SERVIÇO', 7, 'Transporte para convidados até o sítio', 1, 1200.00, 'Vans confortáveis ida e volta');
+
+-- Demanda 14 (Casal 3 - Buffet completo)
+INSERT INTO item_demanda (id_demanda, tipo, id_categoria, descricao, quantidade, preco_maximo, observacoes)
+VALUES
+(14, 'SERVIÇO', 3, 'Buffet completo com estações de comida', 1, 9000.00, '120 convidados, incluir churrasco'),
+(14, 'PRODUTO', 17, 'Bar premium com drinks personalizados', 1, 2800.00, 'Caipirinhas artesanais e cervejas especiais'),
+(14, 'SERVIÇO', 3, 'Estação de massas frescas', 1, 1500.00, 'Chef preparando na hora'),
+(14, 'PRODUTO', 14, 'Mesa de doces finos e bem-casados', 1, 1200.00, 'Doces variados'),
+(14, 'SERVIÇO', 10, 'Limpeza completa pós-evento', 1, 500.00, 'Deixar o local limpo');
+
+-- Demanda 15 (Casal 4 - Casamento de luxo)
+INSERT INTO item_demanda (id_demanda, tipo, id_categoria, descricao, quantidade, preco_maximo, observacoes)
+VALUES
+(15, 'ESPAÇO', 19, 'Salão de hotel 5 estrelas para 200 convidados', 1, 8000.00, 'Vista para o mar, tudo incluso'),
+(15, 'SERVIÇO', 3, 'Buffet de luxo internacional', 1, 15000.00, 'Menu degustação, entrada, prato, sobremesa'),
+(15, 'SERVIÇO', 1, 'Fotografia e filmagem cinematográfica premium', 1, 6000.00, 'Equipe completa, 2 fotógrafos, 2 cinegrafistas'),
+(15, 'SERVIÇO', 2, 'Banda ao vivo premium e DJ', 1, 5000.00, 'Banda renomada + DJ para after'),
+(15, 'SERVIÇO', 8, 'Decoração luxuosa com flores importadas', 1, 10000.00, 'Orquídeas, rosas importadas, iluminação especial'),
+(15, 'SERVIÇO', 4, 'Cerimonial VIP e assessoria exclusiva', 1, 4000.00, 'Equipe dedicada full time'),
+(15, 'PRODUTO', 11, 'Vestido de noiva alta costura', 1, 8000.00, 'Designer renomado, sob medida'),
+(15, 'PRODUTO', 12, 'Alianças com diamantes cravados', 2, 3000.00, 'Ouro branco com pedras'),
+(15, 'SERVIÇO', 5, 'Celebrante bilíngue para cerimônia', 1, 800.00, 'Português e inglês');
+
+-- Demanda 16 (Casal 4 - Decoração sofisticada)
+INSERT INTO item_demanda (id_demanda, tipo, id_categoria, descricao, quantidade, preco_maximo, observacoes)
+VALUES
+(16, 'SERVIÇO', 8, 'Decoração completa glamourosa rosa e dourado', 1, 8000.00, 'Flores, cristais, iluminação cênica'),
+(16, 'PRODUTO', 15, 'Flores importadas para toda decoração', 1, 4000.00, 'Rosas equatorianas, orquídeas'),
+(16, 'SERVIÇO', 2, 'Iluminação especial e projeção mapeada', 1, 3000.00, 'Efeitos visuais durante a festa'),
+(16, 'PRODUTO', 16, 'Mobiliário de luxo: cadeiras ghost, mesas imperiais', 1, 3500.00, 'Móveis modernos e elegantes'),
+(16, 'PRODUTO', 14, 'Bolo cenográfico 5 andares', 1, 2500.00, 'Obra de arte comestível');
+
+-- Demanda 17 (Casal 4 - Transporte e hospedagem)
+INSERT INTO item_demanda (id_demanda, tipo, id_categoria, descricao, quantidade, preco_maximo, observacoes)
+VALUES
+(17, 'SERVIÇO', 7, 'Limousine branca para os noivos', 1, 1200.00, 'Carro de luxo, motorista uniformizado'),
+(17, 'SERVIÇO', 7, 'Vans executivas para convidados VIP', 1, 2000.00, '3 vans, transfers hotel-evento'),
+(17, 'ESPAÇO', 20, 'Suítes VIP no hotel para família', 1, 5000.00, '10 suítes, 2 noites'),
+(17, 'SERVIÇO', 7, 'Carro antigo conversível para fotos', 1, 800.00, 'Clássico dos anos 50'),
+(17, 'SERVIÇO', 9, 'Segurança VIP para o evento', 1, 1500.00, 'Equipe de segurança discreta');
+
+-- Demanda 18 (Casal 5 - Casamento moderno)
+INSERT INTO item_demanda (id_demanda, tipo, id_categoria, descricao, quantidade, preco_maximo, observacoes)
+VALUES
+(18, 'ESPAÇO', 19, 'Espaço urbano estilo industrial', 1, 3500.00, 'Loft ou galpão reformado, 100 pessoas'),
+(18, 'SERVIÇO', 2, 'DJ profissional com iluminação LED', 1, 2500.00, 'Música eletrônica e pop, luzes modernas'),
+(18, 'SERVIÇO', 8, 'Decoração minimalista e moderna', 1, 3000.00, 'Linhas retas, neon, plantas'),
+(18, 'SERVIÇO', 3, 'Buffet contemporâneo com finger foods', 1, 6000.00, 'Menu moderno e descontraído'),
+(18, 'SERVIÇO', 1, 'Fotografia artística e contemporânea', 1, 2200.00, 'Fotos criativas, estilo editorial'),
+(18, 'PRODUTO', 17, 'Bar de gin e drinks autorais', 1, 2000.00, 'Mixologia criativa');
+
+-- Demanda 19 (Casal 5 - Mini wedding)
+INSERT INTO item_demanda (id_demanda, tipo, id_categoria, descricao, quantidade, preco_maximo, observacoes)
+VALUES
+(19, 'ESPAÇO', 19, 'Espaço intimista para 50 pessoas', 1, 2000.00, 'Ambiente aconchegante'),
+(19, 'SERVIÇO', 3, 'Buffet gourmet para mini wedding', 1, 5000.00, 'Qualidade premium, porções menores'),
+(19, 'SERVIÇO', 8, 'Decoração sofisticada para evento pequeno', 1, 2500.00, 'Muitos detalhes, flores nobres'),
+(19, 'PRODUTO', 14, 'Bolo boutique e doces finos', 1, 800.00, 'Pequeno mas luxuoso');
+
+-- Demanda 20 (Casal 6 - Casamento na praia)
+INSERT INTO item_demanda (id_demanda, tipo, id_categoria, descricao, quantidade, preco_maximo, observacoes)
+VALUES
+(20, 'ESPAÇO', 18, 'Praia para cerimônia ao entardecer', 1, 2000.00, 'Pés na areia, 100 pessoas'),
+(20, 'SERVIÇO', 8, 'Decoração tropical para casamento na praia', 1, 4000.00, 'Cores vibrantes, flores tropicais'),
+(20, 'PRODUTO', 15, 'Arranjos tropicais e buquê de noiva', 1, 1000.00, 'Antúrios, helicônias, orquídeas'),
+(20, 'SERVIÇO', 2, 'Música ao vivo estilo reggae/MPB', 1, 1800.00, 'Banda acústica para praia'),
+(20, 'SERVIÇO', 3, 'Buffet frutos do mar e grelhados', 1, 7000.00, 'Cardápio litorâneo'),
+(20, 'PRODUTO', 17, 'Bar tropical com drinks de frutas', 1, 2000.00, 'Caipirinhas, mojitos, drinks coloridos'),
+(20, 'SERVIÇO', 1, 'Fotografia especializada em praia', 1, 2500.00, 'Fotos no pôr do sol obrigatórias');
+
+-- Demanda 21 (Casal 6 - Estrutura praia)
+INSERT INTO item_demanda (id_demanda, tipo, id_categoria, descricao, quantidade, preco_maximo, observacoes)
+VALUES
+(21, 'SERVIÇO', 7, 'Transporte e logística para praia', 1, 2000.00, 'Transfers e estacionamento'),
+(21, 'SERVIÇO', 2, 'Sistema de som profissional para praia', 1, 1500.00, 'Potente para área aberta'),
+(21, 'PRODUTO', 16, 'Tendas, cadeiras e mesas para praia', 1, 3000.00, 'Estrutura completa resistente ao vento'),
+(21, 'SERVIÇO', 9, 'Segurança e brigadista para evento', 1, 800.00, 'Segurança preventiva'),
+(21, 'SERVIÇO', 10, 'Limpeza da praia pós-evento', 1, 400.00, 'Deixar a praia limpa');
+
+-- Demanda 22 (Casal 6 - Fotografia praia)
+INSERT INTO item_demanda (id_demanda, tipo, id_categoria, descricao, quantidade, preco_maximo, observacoes)
+VALUES
+(22, 'SERVIÇO', 1, 'Ensaio pré-wedding na praia', 1, 1000.00, 'Golden hour, fotos românticas'),
+(22, 'SERVIÇO', 1, 'Cobertura completa do casamento', 1, 3500.00, 'Cerimônia e festa na praia'),
+(22, 'SERVIÇO', 1, 'Drone para fotos aéreas da praia', 1, 600.00, 'Vista panorâmica do evento');
+
+-- Demanda 23 (Casal 7 - Casamento tradicional)
+INSERT INTO item_demanda (id_demanda, tipo, id_categoria, descricao, quantidade, preco_maximo, observacoes)
+VALUES
+(23, 'ESPAÇO', 18, 'Igreja grande para cerimônia religiosa', 1, 1000.00, 'Comporta 200 pessoas'),
+(23, 'ESPAÇO', 19, 'Salão de festas amplo para 200 convidados', 1, 5000.00, 'Espaçoso com cozinha industrial'),
+(23, 'SERVIÇO', 1, 'Fotografia e filmagem tradicional', 1, 3000.00, 'Cobertura completa profissional'),
+(23, 'SERVIÇO', 3, 'Buffet completo para muitos convidados', 1, 10000.00, 'Comida farta, buffet self-service'),
+(23, 'SERVIÇO', 2, 'DJ e iluminação para festa', 1, 2200.00, 'Animar 200 pessoas'),
+(23, 'SERVIÇO', 4, 'Cerimonial para coordenar evento grande', 1, 2500.00, 'Experiência com eventos grandes'),
+(23, 'PRODUTO', 14, 'Bolo grande e doces para muitos convidados', 1, 1500.00, 'Quantidade abundante'),
+(23, 'SERVIÇO', 5, 'Celebrante para cerimônia religiosa', 1, 600.00, 'Padre experiente');
+
+-- Demanda 24 (Casal 7 - Decoração clássica)
+INSERT INTO item_demanda (id_demanda, tipo, id_categoria, descricao, quantidade, preco_maximo, observacoes)
+VALUES
+(24, 'SERVIÇO', 8, 'Decoração clássica toda em branco', 1, 5000.00, 'Elegante, muitas flores brancas'),
+(24, 'PRODUTO', 15, 'Flores brancas: rosas, lírios, orquídeas', 1, 3000.00, 'Quantidade grande para decorar tudo'),
+(24, 'PRODUTO', 16, 'Móveis brancos: cadeiras, mesas, toalhas', 1, 2500.00, 'Tudo branco coordenado'),
+(24, 'SERVIÇO', 2, 'Iluminação branca e clean', 1, 1200.00, 'Luzes que realcem o branco');
+
+-- Demanda 25 (Casal 8 - Casamento econômico)
+INSERT INTO item_demanda (id_demanda, tipo, id_categoria, descricao, quantidade, preco_maximo, observacoes)
+VALUES
+(25, 'ESPAÇO', 19, 'Salão simples mas bonito para 80 pessoas', 1, 1500.00, 'Custo-benefício'),
+(25, 'SERVIÇO', 1, 'Fotografia básica mas profissional', 1, 1200.00, 'Cobertura essencial'),
+(25, 'SERVIÇO', 3, 'Buffet simples mas saboroso', 1, 3500.00, 'Comida boa, sem luxos'),
+(25, 'SERVIÇO', 2, 'DJ ou música ambiente', 1, 800.00, 'Som para animar sem gastar muito');
+
+-- Demanda 26 (Casal 8 - Buffet e decoração básica)
+INSERT INTO item_demanda (id_demanda, tipo, id_categoria, descricao, quantidade, preco_maximo, observacoes)
+VALUES
+(26, 'SERVIÇO', 3, 'Buffet econômico para 80 pessoas', 1, 3000.00, 'Prato único bem servido'),
+(26, 'SERVIÇO', 8, 'Decoração simples mas elegante', 1, 1500.00, 'Cores neutras, flores locais'),
+(26, 'PRODUTO', 14, 'Bolo simples e bem-casados', 1, 500.00, 'Tradicional, sem luxo'),
+(26, 'PRODUTO', 15, 'Arranjos florais simples', 1, 400.00, 'Flores da estação');
+
+-- Demanda 27 (Casal 9 - Casamento boho)
+INSERT INTO item_demanda (id_demanda, tipo, id_categoria, descricao, quantidade, preco_maximo, observacoes)
+VALUES
+(27, 'ESPAÇO', 18, 'Jardim para cerimônia estilo boho', 1, 1800.00, 'Ambiente natural e aconchegante'),
+(27, 'SERVIÇO', 8, 'Decoração boêmia com elementos naturais', 1, 4000.00, 'Macramê, madeira, flores secas'),
+(27, 'PRODUTO', 15, 'Flores secas e naturais para decoração', 1, 900.00, 'Pampas grass, flores secas'),
+(27, 'SERVIÇO', 1, 'Fotografia estilo natural e descontraído', 1, 2000.00, 'Fotos espontâneas e naturais'),
+(27, 'SERVIÇO', 3, 'Buffet orgânico e natural', 1, 5000.00, 'Comida saudável e saborosa'),
+(27, 'SERVIÇO', 2, 'Música acústica ao vivo', 1, 1500.00, 'Violão, voz, ambiente intimista');
+
+-- Demanda 28 (Casal 9 - Celebrante e música)
+INSERT INTO item_demanda (id_demanda, tipo, id_categoria, descricao, quantidade, preco_maximo, observacoes)
+VALUES
+(28, 'SERVIÇO', 5, 'Celebrante alternativo e personalizado', 1, 700.00, 'Cerimônia única e especial'),
+(28, 'SERVIÇO', 2, 'Violão e voz para cerimônia', 1, 600.00, 'Músicas escolhidas pelo casal'),
+(28, 'PRODUTO', 13, 'Convites artesanais e personalizados', 1, 800.00, 'Design boho, papel reciclado');
+
+-- Demanda 29 (Casal 9 - Mesa de doces e bar)
+INSERT INTO item_demanda (id_demanda, tipo, id_categoria, descricao, quantidade, preco_maximo, observacoes)
+VALUES
+(29, 'PRODUTO', 14, 'Doces artesanais e naked cake', 1, 1200.00, 'Feito à mão, orgânico'),
+(29, 'PRODUTO', 17, 'Bar de drinks com gin artesanal', 1, 2000.00, 'Gin tônicas e drinks especiais'),
+(29, 'SERVIÇO', 3, 'Coffee break com produtos artesanais', 1, 800.00, 'Café especial e pães artesanais');
+
+-- Demanda 30 (Casal 10 - Casamento completo)
+INSERT INTO item_demanda (id_demanda, tipo, id_categoria, descricao, quantidade, preco_maximo, observacoes)
+VALUES
+(30, 'ESPAÇO', 18, 'Espaço para cerimônia em local de eventos', 1, 2500.00, 'Parte do pacote do espaço'),
+(30, 'ESPAÇO', 19, 'Salão de eventos completo para 180 pessoas', 1, 6000.00, 'Tudo incluso no espaço'),
+(30, 'SERVIÇO', 1, 'Fotografia e filmagem profissional', 1, 4000.00, 'Equipe completa'),
+(30, 'SERVIÇO', 3, 'Buffet completo premium', 1, 12000.00, 'Menu variado, bebidas inclusas'),
+(30, 'SERVIÇO', 2, 'Banda ao vivo e DJ', 1, 4000.00, 'Música ao vivo + DJ'),
+(30, 'SERVIÇO', 8, 'Decoração completa do espaço', 1, 6000.00, 'Flores, iluminação, tudo'),
+(30, 'SERVIÇO', 4, 'Assessoria completa do início ao fim', 1, 3500.00, 'Planejamento e execução'),
+(30, 'PRODUTO', 12, 'Alianças de ouro com diamante', 2, 2500.00, 'Elegantes e duráveis'),
+(30, 'SERVIÇO', 6, 'Maquiagem e penteado de noiva', 1, 400.00, 'Profissional experiente');
+
+-- Demanda 31 (Casal 10 - Vestido e ternos)
+INSERT INTO item_demanda (id_demanda, tipo, id_categoria, descricao, quantidade, preco_maximo, observacoes)
+VALUES
+(31, 'PRODUTO', 11, 'Vestido de noiva princesa sob medida', 1, 6000.00, 'Com prova e ajustes inclusos'),
+(31, 'PRODUTO', 11, 'Ternos azul marinho para noivo e padrinhos', 5, 2500.00, 'Alfaiataria, tecido premium'),
+(31, 'PRODUTO', 12, 'Brincos e colar para noiva', 1, 1200.00, 'Pérolas ou cristais'),
+(31, 'SERVIÇO', 6, 'Prova de maquiagem e cabelo', 1, 150.00, 'Teste antes do casamento');
+
+-- ========================================
+-- FASE 3: ORÇAMENTOS (70 orçamentos)
+-- ========================================
+
+-- Fornecedor 2 (Ana Costa - Móveis e Convites) - 8 orçamentos
+INSERT INTO orcamento (id_demanda, id_fornecedor_prestador, status, valor_total, observacoes, data_hora_cadastro)
+VALUES
+(9, 2, 'PENDENTE', 1800.00, 'Temos todo o mobiliário necessário para sua recepção', '2025-10-11 10:30:00'),
+(11, 2, 'ACEITO', 2000.00, 'Mobiliário premium selecionado especialmente para vocês', '2025-10-11 11:15:00'),
+(21, 2, 'PENDENTE', 3000.00, 'Estrutura reforçada para resistir ao vento da praia', '2025-10-11 14:20:00'),
+(24, 2, 'PENDENTE', 2500.00, 'Móveis brancos coordenados conforme solicitado', '2025-10-11 15:45:00'),
+(10, 2, 'PENDENTE', 650.00, 'Convites elegantes para casamento clássico', '2025-10-12 09:00:00'),
+(28, 2, 'ACEITO', 800.00, 'Convites artesanais feitos à mão com papel reciclado', '2025-10-12 10:30:00'),
+(11, 2, 'PENDENTE', 450.00, 'Convites e papelaria coordenada', '2025-10-12 11:00:00'),
+(30, 2, 'PENDENTE', 1200.00, 'Convites de luxo com acabamento especial', '2025-10-12 14:00:00');
+
+-- Fornecedor 3 (Carlos Silva - Eventos Mágicos: 7 categorias) - 12 orçamentos
+INSERT INTO orcamento (id_demanda, id_fornecedor_prestador, status, valor_total, observacoes, data_hora_cadastro)
+VALUES
+(10, 3, 'PENDENTE', 3000.00, 'Assessoria completa com nossa equipe experiente', '2025-10-11 09:00:00'),
+(23, 3, 'ACEITO', 2500.00, 'Experiência em eventos grandes, tudo sob controle', '2025-10-11 10:00:00'),
+(30, 3, 'PENDENTE', 3500.00, 'Cerimonial premium do início ao fim', '2025-10-11 11:30:00'),
+(15, 3, 'PENDENTE', 15000.00, 'Buffet internacional de luxo com menu degustação', '2025-10-11 13:00:00'),
+(13, 3, 'ACEITO', 7000.00, 'Buffet campestre gourmet com produtos regionais', '2025-10-11 14:30:00'),
+(14, 3, 'PENDENTE', 9500.00, 'Buffet completo com estações e churrasco', '2025-10-11 15:00:00'),
+(23, 3, 'PENDENTE', 10000.00, 'Buffet farto para 200 pessoas', '2025-10-11 16:00:00'),
+(11, 3, 'REJEITADO', 3800.00, 'Bar premium com bebidas importadas', '2025-10-12 09:30:00'),
+(20, 3, 'PENDENTE', 2200.00, 'Bar tropical com drinks coloridos', '2025-10-12 10:00:00'),
+(29, 3, 'ACEITO', 2000.00, 'Bar de gin com gin artesanal premium', '2025-10-12 11:00:00'),
+(13, 3, 'PENDENTE', 1200.00, 'Transporte confortável para convidados', '2025-10-12 13:00:00'),
+(17, 3, 'PENDENTE', 3500.00, 'Pacote completo de transporte VIP', '2025-10-12 14:00:00');
+
+-- Fornecedor 4 (Mariana Santos - Beleza & Estilo) - 8 orçamentos
+INSERT INTO orcamento (id_demanda, id_fornecedor_prestador, status, valor_total, observacoes, data_hora_cadastro)
+VALUES
+(30, 4, 'ACEITO', 550.00, 'Maquiagem e penteado com teste incluso', '2025-10-11 08:30:00'),
+(31, 4, 'PENDENTE', 150.00, 'Prova de maquiagem antes do grande dia', '2025-10-11 09:00:00'),
+(10, 4, 'PENDENTE', 5000.00, 'Vestido princesa sob medida com 3 provas', '2025-10-11 10:30:00'),
+(15, 4, 'ACEITO', 8000.00, 'Vestido alta costura de designer renomado', '2025-10-11 11:00:00'),
+(31, 4, 'PENDENTE', 8500.00, 'Vestido sob medida + ternos para padrinhos', '2025-10-11 13:00:00'),
+(10, 4, 'PENDENTE', 350.00, 'Maquiagem profissional de noiva', '2025-10-12 09:00:00'),
+(15, 4, 'PENDENTE', 500.00, 'Maquiagem e penteado de luxo', '2025-10-12 10:00:00'),
+(23, 4, 'PENDENTE', 4500.00, 'Vestido tradicional elegante', '2025-10-12 11:00:00');
+
+-- Fornecedor 5 (Pedro Oliveira - Espaços Seletos) - 8 orçamentos
+INSERT INTO orcamento (id_demanda, id_fornecedor_prestador, status, valor_total, observacoes, data_hora_cadastro)
+VALUES
+(8, 5, 'ACEITO', 1500.00, 'Jardim perfeito para cerimônia intimista', '2025-10-11 08:00:00'),
+(10, 5, 'PENDENTE', 800.00, 'Capela linda para cerimônia religiosa', '2025-10-11 09:00:00'),
+(13, 5, 'PENDENTE', 2500.00, 'Sítio com vista maravilhosa para pôr do sol', '2025-10-11 10:00:00'),
+(20, 5, 'ACEITO', 2000.00, 'Estrutura completa para casamento na praia', '2025-10-11 11:00:00'),
+(23, 5, 'PENDENTE', 1000.00, 'Igreja ampla comporta até 250 pessoas', '2025-10-11 13:00:00'),
+(27, 5, 'PENDENTE', 1800.00, 'Jardim natural estilo boho', '2025-10-11 14:00:00'),
+(17, 5, 'PENDENTE', 5000.00, 'Pacote de hospedagem VIP 10 suítes', '2025-10-11 15:00:00'),
+(30, 5, 'PENDENTE', 2500.00, 'Espaço para cerimônia no local', '2025-10-11 16:00:00');
+
+-- Fornecedor 6 (Julia Ferreira - Alianças e Joias) - 6 orçamentos
+INSERT INTO orcamento (id_demanda, id_fornecedor_prestador, status, valor_total, observacoes, data_hora_cadastro)
+VALUES
+(10, 6, 'ACEITO', 1500.00, 'Alianças clássicas em ouro 18k', '2025-10-11 09:30:00'),
+(15, 6, 'PENDENTE', 3000.00, 'Alianças com diamantes cravados', '2025-10-11 10:30:00'),
+(30, 6, 'PENDENTE', 2500.00, 'Alianças elegantes com pedra', '2025-10-11 11:30:00'),
+(31, 6, 'ACEITO', 1200.00, 'Brincos e colar de pérolas para noiva', '2025-10-11 13:00:00'),
+(15, 6, 'PENDENTE', 1800.00, 'Joias finas para complementar o visual', '2025-10-11 14:00:00'),
+(10, 6, 'PENDENTE', 800.00, 'Conjunto de joias delicado', '2025-10-11 15:00:00');
+
+-- Fornecedor 7 (Fernanda Lima - Doces & Sabores) - 6 orçamentos
+INSERT INTO orcamento (id_demanda, id_fornecedor_prestador, status, valor_total, observacoes, data_hora_cadastro)
+VALUES
+(9, 7, 'ACEITO', 1200.00, 'Bolo 3 andares tradicional + doces finos', '2025-10-11 08:00:00'),
+(11, 7, 'PENDENTE', 1500.00, 'Bolo luxo 4 andares em dourado e branco', '2025-10-11 09:00:00'),
+(13, 7, 'PENDENTE', 800.00, 'Naked cake rústico com frutas frescas', '2025-10-11 10:00:00'),
+(16, 7, 'ACEITO', 2500.00, 'Bolo cenográfico 5 andares obra de arte', '2025-10-11 11:00:00'),
+(23, 7, 'PENDENTE', 1500.00, 'Bolo grande + doces para 200 pessoas', '2025-10-11 13:00:00'),
+(29, 7, 'PENDENTE', 1200.00, 'Doces artesanais orgânicos + naked cake', '2025-10-11 14:00:00');
+
+-- Fornecedor 8 (Roberto Almeida - Flash Fotografias) - 6 orçamentos
+INSERT INTO orcamento (id_demanda, id_fornecedor_prestador, status, valor_total, observacoes, data_hora_cadastro)
+VALUES
+(8, 8, 'ACEITO', 2500.00, 'Fotografia natural + ensaio pré-wedding', '2025-10-11 07:30:00'),
+(10, 8, 'PENDENTE', 3500.00, 'Cobertura completa + álbum premium', '2025-10-11 08:30:00'),
+(12, 8, 'PENDENTE', 7200.00, 'Pacote premium: fotos, vídeo, drone, álbum', '2025-10-11 09:30:00'),
+(13, 8, 'ACEITO', 2800.00, 'Fotografia estilo natural para casamento rústico', '2025-10-11 10:30:00'),
+(15, 8, 'PENDENTE', 6000.00, 'Cobertura cinematográfica premium', '2025-10-11 11:30:00'),
+(22, 8, 'PENDENTE', 5100.00, 'Ensaio praia + cobertura completa + drone', '2025-10-11 13:00:00');
+
+-- Fornecedor 9 (Patricia Souza - Decorações Elegantes) - 8 orçamentos
+INSERT INTO orcamento (id_demanda, id_fornecedor_prestador, status, valor_total, observacoes, data_hora_cadastro)
+VALUES
+(8, 9, 'PENDENTE', 4300.00, 'Decoração delicada tons pastéis + arranjos florais', '2025-10-11 08:00:00'),
+(9, 9, 'ACEITO', 4000.00, 'Decoração sofisticada do salão', '2025-10-11 09:00:00'),
+(11, 9, 'PENDENTE', 8500.00, 'Decoração completa dourado/branco + flores', '2025-10-11 10:00:00'),
+(13, 9, 'ACEITO', 6200.00, 'Decoração rústico-chique + flores campestres', '2025-10-11 11:00:00'),
+(16, 9, 'PENDENTE', 12000.00, 'Decoração glamourosa + flores importadas', '2025-10-11 13:00:00'),
+(20, 9, 'PENDENTE', 5000.00, 'Decoração tropical praia + arranjos', '2025-10-11 14:00:00'),
+(24, 9, 'ACEITO', 8000.00, 'Decoração toda branca + flores nobres', '2025-10-11 15:00:00'),
+(27, 9, 'PENDENTE', 4900.00, 'Decoração boêmia + flores secas', '2025-10-11 16:00:00');
+
+-- Fornecedor 10 (Lucas Martins - Som & Luz Eventos) - 6 orçamentos
+INSERT INTO orcamento (id_demanda, id_fornecedor_prestador, status, valor_total, observacoes, data_hora_cadastro)
+VALUES
+(8, 10, 'PENDENTE', 1200.00, 'Violino e violão para cerimônia', '2025-10-11 08:00:00'),
+(9, 10, 'ACEITO', 3500.00, 'Banda ao vivo 4 horas repertório variado', '2025-10-11 09:00:00'),
+(10, 10, 'PENDENTE', 2000.00, 'DJ profissional + iluminação LED', '2025-10-11 10:00:00'),
+(13, 10, 'PENDENTE', 1500.00, 'Violão e cantora estilo MPB', '2025-10-11 11:00:00'),
+(18, 10, 'ACEITO', 2500.00, 'DJ + iluminação LED moderna', '2025-10-11 13:00:00'),
+(30, 10, 'PENDENTE', 4000.00, 'Banda ao vivo + DJ para festa', '2025-10-11 14:00:00');
+
+-- Fornecedor 11 (Beatriz Rocha - Espaços dos Sonhos) - 6 orçamentos
+INSERT INTO orcamento (id_demanda, id_fornecedor_prestador, status, valor_total, observacoes, data_hora_cadastro)
+VALUES
+(9, 11, 'ACEITO', 3000.00, 'Salão elegante com ar condicionado', '2025-10-11 07:30:00'),
+(10, 11, 'PENDENTE', 4500.00, 'Salão amplo para 150 convidados', '2025-10-11 08:30:00'),
+(15, 11, 'PENDENTE', 8000.00, 'Salão hotel 5 estrelas vista mar', '2025-10-11 09:30:00'),
+(19, 11, 'PENDENTE', 2000.00, 'Espaço intimista para 50 pessoas', '2025-10-11 10:30:00'),
+(23, 11, 'ACEITO', 5000.00, 'Salão grande para 200 convidados', '2025-10-11 11:30:00'),
+(30, 11, 'PENDENTE', 6000.00, 'Espaço completo para 180 pessoas', '2025-10-11 13:00:00');
+
+-- ========================================
+-- FASE 4: ITENS DOS ORÇAMENTOS
+-- ========================================
+
+-- Orçamento 1 (Fornecedor 2 -> Demanda 9 - Móveis)
+INSERT INTO item_orcamento (id_orcamento, id_item_demanda, id_item, quantidade, preco_unitario, desconto, preco_total)
+VALUES
+(1, 53, 71, 80, 8.00, 0, 640.00),  -- 80 Cadeiras Tiffany
+(1, 53, 72, 10, 45.00, 0, 450.00),  -- 10 Mesas Redondas
+(1, 53, 73, 10, 25.00, 0, 250.00),  -- 10 Toalhas
+(1, 53, 76, 80, 5.00, 40.00, 360.00); -- 80 Guardanapos (com desconto)
+
+-- Orçamento 2 (Fornecedor 2 -> Demanda 11 - Móveis premium)
+INSERT INTO item_orcamento (id_orcamento, id_item_demanda, id_item, quantidade, preco_unitario, desconto, preco_total)
+VALUES
+(2, 63, 74, 15, 80.00, 0, 1200.00),  -- 15 Mesas Imperiais
+(2, 63, 75, 150, 12.00, 600.00, 1200.00); -- 150 Cadeiras Ghost (desconto volume)
+
+-- Orçamento 3 (Fornecedor 2 -> Demanda 21 - Estrutura praia)
+INSERT INTO item_orcamento (id_orcamento, id_item_demanda, id_item, quantidade, preco_unitario, desconto, preco_total)
+VALUES
+(3, 103, 71, 100, 8.00, 0, 800.00),  -- 100 Cadeiras
+(3, 103, 72, 12, 45.00, 0, 540.00),  -- 12 Mesas
+(3, 103, 73, 12, 25.00, 0, 300.00),  -- 12 Toalhas
+(3, 103, 76, 100, 5.00, 0, 500.00);  -- 100 Guardanapos
+
+-- Orçamento 4 (Fornecedor 2 -> Demanda 24 - Móveis brancos)
+INSERT INTO item_orcamento (id_orcamento, id_item_demanda, id_item, quantidade, preco_unitario, desconto, preco_total)
+VALUES
+(4, 134, 71, 200, 8.00, 0, 1600.00),  -- 200 Cadeiras brancas
+(4, 134, 72, 20, 45.00, 0, 900.00);  -- 20 Mesas
+
+-- Orçamento 5 (Fornecedor 2 -> Demanda 10 - Convites)
+INSERT INTO item_orcamento (id_orcamento, id_item_demanda, id_item, quantidade, preco_unitario, desconto, preco_total)
+VALUES
+(5, 54, 77, 1, 350.00, 0, 350.00),  -- Convites clássicos 100un
+(5, 54, 80, 1, 180.00, 0, 180.00);  -- Menus personalizados
+
+-- Orçamento 6 (Fornecedor 2 -> Demanda 28 - Convites artesanais)
+INSERT INTO item_orcamento (id_orcamento, id_item_demanda, id_item, quantidade, preco_unitario, desconto, preco_total)
+VALUES
+(6, 145, 77, 1, 350.00, 0, 350.00),  -- Convites
+(6, 145, 78, 1, 220.00, 0, 220.00),  -- Save the date
+(6, 145, 79, 1, 280.00, 50.00, 230.00); -- Lembrancinhas (desconto)
+
+-- Orçamento 7 (Fornecedor 2 -> Demanda 11 - Convites e papelaria)
+INSERT INTO item_orcamento (id_orcamento, id_item_demanda, id_item, quantidade, preco_unitario, desconto, preco_total)
+VALUES
+(7, 60, 77, 1, 350.00, 0, 350.00),  -- Convites
+(7, 60, 80, 1, 180.00, 80.00, 100.00);  -- Menus (desconto)
+
+-- Orçamento 8 (Fornecedor 2 -> Demanda 30 - Convites de luxo)
+INSERT INTO item_orcamento (id_orcamento, id_item_demanda, id_item, quantidade, preco_unitario, desconto, preco_total)
+VALUES
+(8, 156, 77, 2, 350.00, 0, 700.00),  -- Convites (dobro quantidade)
+(8, 156, 78, 1, 220.00, 0, 220.00),  -- Save the date
+(8, 156, 80, 1, 180.00, 0, 180.00);  -- Menus
+
+-- Orçamento 9 (Fornecedor 3 -> Demanda 10 - Cerimonial)
+INSERT INTO item_orcamento (id_orcamento, id_item_demanda, id_item, quantidade, preco_unitario, desconto, preco_total)
+VALUES
+(9, 51, 28, 1, 2500.00, 0, 2500.00),  -- Cerimonial completo
+(9, 51, 32, 2, 150.00, 0, 300.00);  -- Consultoria adicional
+
+-- Orçamento 10 (Fornecedor 3 -> Demanda 23 - Cerimonial grande)
+INSERT INTO item_orcamento (id_orcamento, id_item_demanda, id_item, quantidade, preco_unitario, desconto, preco_total)
+VALUES
+(10, 124, 28, 1, 2500.00, 0, 2500.00);  -- Cerimonial completo
+
+-- Orçamento 11 (Fornecedor 3 -> Demanda 30 - Cerimonial premium)
+INSERT INTO item_orcamento (id_orcamento, id_item_demanda, id_item, quantidade, preco_unitario, desconto, preco_total)
+VALUES
+(11, 156, 31, 1, 3500.00, 0, 3500.00);  -- Planejamento 12 meses
+
+-- Orçamento 12 (Fornecedor 3 -> Demanda 15 - Buffet luxo)
+INSERT INTO item_orcamento (id_orcamento, id_item_demanda, id_item, quantidade, preco_unitario, desconto, preco_total)
+VALUES
+(12, 73, 82, 1, 6200.00, 0, 6200.00),  -- Buffet 150 pessoas
+(12, 73, 83, 1, 1200.00, 0, 1200.00),  -- Bar premium
+(12, 73, 85, 1, 980.00, 0, 980.00),  -- Estação sushi
+(12, 73, 88, 1, 750.00, 0, 750.00);  -- Estação massas
+
+-- Orçamento 13 (Fornecedor 3 -> Demanda 13 - Buffet campestre)
+INSERT INTO item_orcamento (id_orcamento, id_item_demanda, id_item, quantidade, preco_unitario, desconto, preco_total)
+VALUES
+(13, 69, 84, 1, 4500.00, 0, 4500.00),  -- Buffet 100 pessoas
+(13, 69, 87, 1, 1800.00, 0, 1800.00),  -- Brunch tardio
+(13, 69, 81, 1, 850.00, 150.00, 700.00);  -- Mesa doces (desconto)
+
+-- Orçamento 14 (Fornecedor 3 -> Demanda 14 - Buffet estações)
+INSERT INTO item_orcamento (id_orcamento, id_item_demanda, id_item, quantidade, preco_unitario, desconto, preco_total)
+VALUES
+(14, 72, 82, 1, 6200.00, 0, 6200.00),  -- Buffet 150 pessoas
+(14, 72, 85, 1, 980.00, 0, 980.00),  -- Estação sushi
+(14, 72, 88, 1, 750.00, 0, 750.00);  -- Estação massas
+
+-- Orçamento 15 (Fornecedor 3 -> Demanda 23 - Buffet grande)
+INSERT INTO item_orcamento (id_orcamento, id_item_demanda, id_item, quantidade, preco_unitario, desconto, preco_total)
+VALUES
+(15, 120, 82, 2, 6200.00, 2400.00, 10000.00);  -- Buffet x2 (desconto volume)
+
+-- Orçamento 16 (Fornecedor 3 -> Demanda 11 - Bar premium) REJEITADO
+INSERT INTO item_orcamento (id_orcamento, id_item_demanda, id_item, quantidade, preco_unitario, desconto, preco_total)
+VALUES
+(16, 64, 56, 30, 85.00, 0, 2550.00),  -- Vinho seleção
+(16, 64, 58, 10, 180.00, 0, 1800.00);  -- Champagne
+
+-- Orçamento 17 (Fornecedor 3 -> Demanda 20 - Bar tropical)
+INSERT INTO item_orcamento (id_orcamento, id_item_demanda, id_item, quantidade, preco_unitario, desconto, preco_total)
+VALUES
+(17, 100, 57, 100, 12.00, 0, 1200.00),  -- Caipirinhas
+(17, 100, 59, 50, 28.00, 200.00, 1200.00);  -- Drinks moleculares
+
+-- Orçamento 18 (Fornecedor 3 -> Demanda 29 - Bar gin)
+INSERT INTO item_orcamento (id_orcamento, id_item_demanda, id_item, quantidade, preco_unitario, desconto, preco_total)
+VALUES
+(18, 149, 59, 50, 28.00, 0, 1400.00),  -- Drinks
+(18, 149, 60, 40, 18.00, 120.00, 600.00);  -- Cerveja artesanal
+
+-- Orçamento 19 (Fornecedor 3 -> Demanda 13 - Transporte sítio)
+INSERT INTO item_orcamento (id_orcamento, id_item_demanda, id_item, quantidade, preco_unitario, desconto, preco_total)
+VALUES
+(19, 71, 95, 1, 350.00, 0, 350.00),  -- Van convidados
+(19, 71, 99, 2, 800.00, 800.00, 800.00);  -- Ônibus (desconto)
+
+-- Orçamento 20 (Fornecedor 3 -> Demanda 17 - Transporte VIP)
+INSERT INTO item_orcamento (id_orcamento, id_item_demanda, id_item, quantidade, preco_unitario, desconto, preco_total)
+VALUES
+(20, 85, 97, 1, 850.00, 0, 850.00),  -- Limousine
+(20, 85, 96, 1, 650.00, 0, 650.00),  -- Carro antigo
+(20, 85, 95, 3, 350.00, 0, 1050.00),  -- Vans VIP
+(20, 85, 99, 1, 800.00, 0, 800.00);  -- Ônibus executivo
+
+-- Orçamento 21 (Fornecedor 4 -> Demanda 30 - Maquiagem)
+INSERT INTO item_orcamento (id_orcamento, id_item_demanda, id_item, quantidade, preco_unitario, desconto, preco_total)
+VALUES
+(21, 158, 1, 1, 280.00, 0, 280.00),  -- Maquiagem noiva
+(21, 158, 2, 1, 220.00, 0, 220.00),  -- Penteado
+(21, 158, 3, 1, 120.00, 70.00, 50.00);  -- Teste (desconto)
+
+-- Orçamento 22 (Fornecedor 4 -> Demanda 31 - Teste maquiagem)
+INSERT INTO item_orcamento (id_orcamento, id_item_demanda, id_item, quantidade, preco_unitario, desconto, preco_total)
+VALUES
+(22, 161, 3, 1, 120.00, 0, 120.00),  -- Teste maquiagem
+(22, 161, 4, 1, 80.00, 50.00, 30.00);  -- Teste cabelo madrinhas
+
+-- Orçamento 23 (Fornecedor 4 -> Demanda 10 - Vestido princesa)
+INSERT INTO item_orcamento (id_orcamento, id_item_demanda, id_item, quantidade, preco_unitario, desconto, preco_total)
+VALUES
+(23, 53, 38, 1, 2800.00, 0, 2800.00),  -- Vestido princesa
+(23, 53, 37, 1, 280.00, 0, 280.00),  -- Véu 3 metros
+(23, 53, 40, 1, 320.00, 0, 320.00);  -- Sapato perolado
+
+-- Orçamento 24 (Fornecedor 4 -> Demanda 15 - Vestido luxo)
+INSERT INTO item_orcamento (id_orcamento, id_item_demanda, id_item, quantidade, preco_unitario, desconto, preco_total)
+VALUES
+(24, 77, 39, 1, 3200.00, 0, 3200.00),  -- Vestido sereia
+(24, 77, 37, 1, 280.00, 0, 280.00),  -- Véu
+(24, 77, 40, 1, 320.00, 0, 320.00);  -- Sapato
+
+-- Orçamento 25 (Fornecedor 4 -> Demanda 31 - Vestido + ternos)
+INSERT INTO item_orcamento (id_orcamento, id_item_demanda, id_item, quantidade, preco_unitario, desconto, preco_total)
+VALUES
+(25, 159, 38, 1, 2800.00, 0, 2800.00),  -- Vestido
+(25, 159, 37, 1, 280.00, 0, 280.00),  -- Véu
+(25, 159, 40, 1, 320.00, 0, 320.00);  -- Sapato
+
+-- Orçamento 26 (Fornecedor 4 -> Demanda 10 - Apenas maquiagem)
+INSERT INTO item_orcamento (id_orcamento, id_item_demanda, id_item, quantidade, preco_unitario, desconto, preco_total)
+VALUES
+(26, 53, 1, 1, 280.00, 0, 280.00),  -- Maquiagem
+(26, 53, 4, 2, 80.00, 90.00, 70.00);  -- Maquiagem madrinhas
+
+-- Orçamento 27 (Fornecedor 4 -> Demanda 15 - Maquiagem luxo)
+INSERT INTO item_orcamento (id_orcamento, id_item_demanda, id_item, quantidade, preco_unitario, desconto, preco_total)
+VALUES
+(27, 77, 1, 1, 280.00, 0, 280.00),  -- Maquiagem
+(27, 77, 2, 1, 220.00, 0, 220.00);  -- Penteado
+
+-- Orçamento 28 (Fornecedor 4 -> Demanda 23 - Vestido tradicional)
+INSERT INTO item_orcamento (id_orcamento, id_item_demanda, id_item, quantidade, preco_unitario, desconto, preco_total)
+VALUES
+(28, 118, 38, 1, 2800.00, 0, 2800.00),  -- Vestido
+(28, 118, 37, 1, 280.00, 0, 280.00),  -- Véu
+(28, 118, 40, 1, 320.00, 0, 320.00);  -- Sapato
+
+-- Orçamento 29 (Fornecedor 5 -> Demanda 8 - Jardim cerimônia)
+INSERT INTO item_orcamento (id_orcamento, id_item_demanda, id_item, quantidade, preco_unitario, desconto, preco_total)
+VALUES
+(29, 43, 26, 1, 800.00, 0, 800.00),  -- Jardim cerimônia
+(29, 43, 25, 1, 350.00, 0, 350.00);  -- Gazebo
+
+-- Orçamento 30 (Fornecedor 5 -> Demanda 10 - Capela)
+INSERT INTO item_orcamento (id_orcamento, id_item_demanda, id_item, quantidade, preco_unitario, desconto, preco_total)
+VALUES
+(30, 47, 27, 1, 600.00, 0, 600.00);  -- Capela ecumênica
+
+-- Orçamento 31 (Fornecedor 5 -> Demanda 13 - Sítio)
+INSERT INTO item_orcamento (id_orcamento, id_item_demanda, id_item, quantidade, preco_unitario, desconto, preco_total)
+VALUES
+(31, 65, 26, 1, 800.00, 0, 800.00),  -- Jardim
+(31, 65, 25, 1, 350.00, 0, 350.00);  -- Gazebo
+
+-- Orçamento 32 (Fornecedor 5 -> Demanda 20 - Praia)
+INSERT INTO item_orcamento (id_orcamento, id_item_demanda, id_item, quantidade, preco_unitario, desconto, preco_total)
+VALUES
+(32, 98, 26, 1, 800.00, 0, 800.00),  -- Jardim (adaptado praia)
+(32, 98, 25, 1, 350.00, 0, 350.00);  -- Gazebo praia
+
+-- Orçamento 33 (Fornecedor 5 -> Demanda 23 - Igreja)
+INSERT INTO item_orcamento (id_orcamento, id_item_demanda, id_item, quantidade, preco_unitario, desconto, preco_total)
+VALUES
+(33, 117, 27, 1, 600.00, 0, 600.00);  -- Capela
+
+-- Orçamento 34 (Fornecedor 5 -> Demanda 27 - Jardim boho)
+INSERT INTO item_orcamento (id_orcamento, id_item_demanda, id_item, quantidade, preco_unitario, desconto, preco_total)
+VALUES
+(34, 140, 26, 1, 800.00, 0, 800.00),  -- Jardim
+(34, 140, 25, 1, 350.00, 0, 350.00);  -- Gazebo
+
+-- Orçamento 35 (Fornecedor 5 -> Demanda 17 - Hospedagem VIP)
+INSERT INTO item_orcamento (id_orcamento, id_item_demanda, id_item, quantidade, preco_unitario, desconto, preco_total)
+VALUES
+(35, 87, 41, 10, 350.00, 0, 3500.00),  -- 10 Suítes presidenciais
+(35, 87, 43, 10, 280.00, 1280.00, 1500.00);  -- Pacote weekend (desconto)
+
+-- Orçamento 36 (Fornecedor 5 -> Demanda 30 - Espaço cerimônia)
+INSERT INTO item_orcamento (id_orcamento, id_item_demanda, id_item, quantidade, preco_unitario, desconto, preco_total)
+VALUES
+(36, 150, 26, 1, 800.00, 0, 800.00),  -- Jardim
+(36, 150, 25, 1, 350.00, 0, 350.00);  -- Gazebo
+
+-- Orçamento 37 (Fornecedor 6 -> Demanda 10 - Alianças clássicas)
+INSERT INTO item_orcamento (id_orcamento, id_item_demanda, id_item, quantidade, preco_unitario, desconto, preco_total)
+VALUES
+(37, 55, 46, 2, 580.00, 0, 1160.00),  -- 2 Alianças ouro 18k
+(37, 55, 44, 1, 320.00, 0, 320.00);  -- Brincos pérola
+
+-- Orçamento 38 (Fornecedor 6 -> Demanda 15 - Alianças diamante)
+INSERT INTO item_orcamento (id_orcamento, id_item_demanda, id_item, quantidade, preco_unitario, desconto, preco_total)
+VALUES
+(38, 78, 47, 2, 1200.00, 0, 2400.00),  -- 2 Alianças diamante
+(38, 78, 44, 1, 320.00, 0, 320.00);  -- Brincos
+
+-- Orçamento 39 (Fornecedor 6 -> Demanda 30 - Alianças elegantes)
+INSERT INTO item_orcamento (id_orcamento, id_item_demanda, id_item, quantidade, preco_unitario, desconto, preco_total)
+VALUES
+(39, 157, 47, 2, 1200.00, 0, 2400.00),  -- 2 Alianças diamante
+(39, 157, 44, 1, 320.00, 180.00, 140.00);  -- Brincos (desconto)
+
+-- Orçamento 40 (Fornecedor 6 -> Demanda 31 - Joias noiva)
+INSERT INTO item_orcamento (id_orcamento, id_item_demanda, id_item, quantidade, preco_unitario, desconto, preco_total)
+VALUES
+(40, 160, 44, 1, 320.00, 0, 320.00),  -- Brincos pérola
+(40, 160, 45, 1, 2200.00, 1320.00, 880.00);  -- Anel solitário (desconto)
+
+-- Orçamento 41 (Fornecedor 6 -> Demanda 15 - Joias finas)
+INSERT INTO item_orcamento (id_orcamento, id_item_demanda, id_item, quantidade, preco_unitario, desconto, preco_total)
+VALUES
+(41, 78, 44, 1, 320.00, 0, 320.00),  -- Brincos
+(41, 78, 45, 1, 2200.00, 720.00, 1480.00);  -- Anel (desconto)
+
+-- Orçamento 42 (Fornecedor 6 -> Demanda 10 - Conjunto joias)
+INSERT INTO item_orcamento (id_orcamento, id_item_demanda, id_item, quantidade, preco_unitario, desconto, preco_total)
+VALUES
+(42, 55, 44, 1, 320.00, 0, 320.00),  -- Brincos
+(42, 55, 46, 1, 580.00, 100.00, 480.00);  -- Colar (desconto)
+
+-- Orçamento 43 (Fornecedor 7 -> Demanda 9 - Bolo e doces)
+INSERT INTO item_orcamento (id_orcamento, id_item_demanda, id_item, quantidade, preco_unitario, desconto, preco_total)
+VALUES
+(43, 51, 10, 1, 380.00, 0, 380.00),  -- Bolo 3 andares
+(43, 51, 11, 1, 320.00, 0, 320.00),  -- Doces finos 100un
+(43, 51, 9, 1, 250.00, 0, 250.00),  -- Bem-casados
+(43, 51, 13, 1, 380.00, 130.00, 250.00);  -- Macarons (desconto)
+
+-- Orçamento 44 (Fornecedor 7 -> Demanda 11 - Bolo luxo)
+INSERT INTO item_orcamento (id_orcamento, id_item_demanda, id_item, quantidade, preco_unitario, desconto, preco_total)
+VALUES
+(44, 62, 10, 1, 380.00, 0, 380.00),  -- Bolo base
+(44, 62, 15, 1, 420.00, 0, 420.00),  -- Torre profiteroles
+(44, 62, 13, 2, 380.00, 60.00, 700.00);  -- Macarons dobro
+
+-- Orçamento 45 (Fornecedor 7 -> Demanda 13 - Naked cake)
+INSERT INTO item_orcamento (id_orcamento, id_item_demanda, id_item, quantidade, preco_unitario, desconto, preco_total)
+VALUES
+(45, 70, 12, 1, 280.00, 0, 280.00),  -- Naked cake
+(45, 70, 16, 1, 180.00, 0, 180.00),  -- Brigadeiros gourmet
+(45, 70, 14, 1, 200.00, 0, 200.00);  -- Cupcakes
+
+-- Orçamento 46 (Fornecedor 7 -> Demanda 16 - Bolo cenográfico)
+INSERT INTO item_orcamento (id_orcamento, id_item_demanda, id_item, quantidade, preco_unitario, desconto, preco_total)
+VALUES
+(46, 81, 10, 2, 380.00, 0, 760.00),  -- Base 2 bolos
+(46, 81, 15, 1, 420.00, 0, 420.00),  -- Torre profiteroles
+(46, 81, 13, 3, 380.00, 0, 1140.00);  -- Macarons especiais
+
+-- Orçamento 47 (Fornecedor 7 -> Demanda 23 - Bolo grande)
+INSERT INTO item_orcamento (id_orcamento, id_item_demanda, id_item, quantidade, preco_unitario, desconto, preco_total)
+VALUES
+(47, 126, 10, 2, 380.00, 0, 760.00),  -- 2 Bolos
+(47, 126, 11, 2, 320.00, 0, 640.00),  -- Doces dobro
+(47, 126, 16, 1, 180.00, 80.00, 100.00);  -- Brigadeiros
+
+-- Orçamento 48 (Fornecedor 7 -> Demanda 29 - Doces artesanais)
+INSERT INTO item_orcamento (id_orcamento, id_item_demanda, id_item, quantidade, preco_unitario, desconto, preco_total)
+VALUES
+(48, 147, 12, 1, 280.00, 0, 280.00),  -- Naked cake
+(48, 147, 16, 2, 180.00, 0, 360.00),  -- Brigadeiros
+(48, 147, 9, 1, 250.00, 0, 250.00),  -- Bem-casados
+(48, 147, 14, 1, 200.00, 0, 200.00);  -- Cupcakes
+
+-- Orçamento 49 (Fornecedor 8 -> Demanda 8 - Fotografia natural)
+INSERT INTO item_orcamento (id_orcamento, id_item_demanda, id_item, quantidade, preco_unitario, desconto, preco_total)
+VALUES
+(49, 46, 50, 1, 2500.00, 0, 2500.00);  -- Cobertura completa
+
+-- Orçamento 50 (Fornecedor 8 -> Demanda 10 - Cobertura + álbum)
+INSERT INTO item_orcamento (id_orcamento, id_item_demanda, id_item, quantidade, preco_unitario, desconto, preco_total)
+VALUES
+(50, 49, 50, 1, 2500.00, 0, 2500.00),  -- Cobertura
+(50, 49, 52, 1, 680.00, 0, 680.00);  -- Álbum premium
+
+-- Orçamento 51 (Fornecedor 8 -> Demanda 12 - Pacote premium)
+INSERT INTO item_orcamento (id_orcamento, id_item_demanda, id_item, quantidade, preco_unitario, desconto, preco_total)
+VALUES
+(51, 57, 49, 1, 850.00, 0, 850.00),  -- Ensaio pré-wedding
+(51, 57, 50, 1, 2500.00, 0, 2500.00),  -- Cobertura
+(51, 57, 53, 1, 450.00, 0, 450.00),  -- Drone
+(51, 57, 52, 1, 680.00, 0, 680.00),  -- Álbum
+(51, 57, 51, 1, 800.00, 0, 800.00),  -- Vídeo highlights
+(51, 57, 55, 1, 320.00, 300.00, 20.00);  -- Making of (desconto)
+
+-- Orçamento 52 (Fornecedor 8 -> Demanda 13 - Foto rústico)
+INSERT INTO item_orcamento (id_orcamento, id_item_demanda, id_item, quantidade, preco_unitario, desconto, preco_total)
+VALUES
+(52, 67, 50, 1, 2500.00, 0, 2500.00),  -- Cobertura
+(52, 67, 55, 1, 320.00, 20.00, 300.00);  -- Making of
+
+-- Orçamento 53 (Fornecedor 8 -> Demanda 15 - Foto cinematográfica)
+INSERT INTO item_orcamento (id_orcamento, id_item_demanda, id_item, quantidade, preco_unitario, desconto, preco_total)
+VALUES
+(53, 71, 50, 2, 2500.00, 0, 5000.00),  -- 2 Fotógrafos
+(53, 71, 48, 1, 1200.00, 0, 1200.00);  -- Filmagem cerimônia
+
+-- Orçamento 54 (Fornecedor 8 -> Demanda 22 - Foto praia completa)
+INSERT INTO item_orcamento (id_orcamento, id_item_demanda, id_item, quantidade, preco_unitario, desconto, preco_total)
+VALUES
+(54, 105, 49, 1, 850.00, 0, 850.00),  -- Ensaio
+(54, 105, 50, 1, 2500.00, 0, 2500.00),  -- Cobertura
+(54, 105, 53, 1, 450.00, 0, 450.00),  -- Drone
+(54, 105, 51, 1, 800.00, 0, 800.00),  -- Vídeo
+(54, 105, 52, 1, 680.00, 180.00, 500.00);  -- Álbum (desconto)
+
+-- Orçamento 55 (Fornecedor 9 -> Demanda 8 - Decoração pastéis)
+INSERT INTO item_orcamento (id_orcamento, id_item_demanda, id_item, quantidade, preco_unitario, desconto, preco_total)
+VALUES
+(55, 44, 92, 1, 3500.00, 0, 3500.00),  -- Decoração completa
+(55, 44, 21, 1, 280.00, 0, 280.00),  -- Buquê rosas
+(55, 44, 23, 3, 25.00, 0, 75.00),  -- Corsage madrinhas
+(55, 44, 94, 8, 85.00, 235.00, 445.00);  -- Arranjos mesas (desconto)
+
+-- Orçamento 56 (Fornecedor 9 -> Demanda 9 - Decoração sofisticada)
+INSERT INTO item_orcamento (id_orcamento, id_item_demanda, id_item, quantidade, preco_unitario, desconto, preco_total)
+VALUES
+(56, 52, 92, 1, 3500.00, 0, 3500.00),  -- Decoração completa
+(56, 52, 93, 1, 650.00, 150.00, 500.00);  -- Altar (desconto)
+
+-- Orçamento 57 (Fornecedor 9 -> Demanda 11 - Decoração dourado/branco)
+INSERT INTO item_orcamento (id_orcamento, id_item_demanda, id_item, quantidade, preco_unitario, desconto, preco_total)
+VALUES
+(57, 59, 92, 2, 3500.00, 0, 7000.00),  -- Decoração ampliada
+(57, 59, 21, 5, 280.00, 0, 1400.00),  -- Buquês e arranjos
+(57, 59, 94, 15, 85.00, 225.00, 1050.00);  -- Arranjos mesas
+
+-- Orçamento 58 (Fornecedor 9 -> Demanda 13 - Decoração rústica)
+INSERT INTO item_orcamento (id_orcamento, id_item_demanda, id_item, quantidade, preco_unitario, desconto, preco_total)
+VALUES
+(58, 66, 92, 1, 3500.00, 0, 3500.00),  -- Decoração
+(58, 66, 93, 1, 650.00, 0, 650.00),  -- Altar
+(58, 66, 21, 3, 280.00, 0, 840.00),  -- Flores
+(58, 66, 94, 12, 85.00, 810.00, 210.00);  -- Arranjos (desconto)
+
+-- Orçamento 59 (Fornecedor 9 -> Demanda 16 - Decoração glamourosa)
+INSERT INTO item_orcamento (id_orcamento, id_item_demanda, id_item, quantidade, preco_unitario, desconto, preco_total)
+VALUES
+(59, 79, 92, 3, 3500.00, 0, 10500.00),  -- Decoração premium
+(59, 79, 24, 5, 350.00, 250.00, 1500.00);  -- Buquês peônias
+
+-- Orçamento 60 (Fornecedor 9 -> Demanda 20 - Decoração tropical)
+INSERT INTO item_orcamento (id_orcamento, id_item_demanda, id_item, quantidade, preco_unitario, desconto, preco_total)
+VALUES
+(60, 97, 92, 1, 3500.00, 0, 3500.00),  -- Decoração
+(60, 97, 21, 3, 280.00, 0, 840.00),  -- Buquês
+(60, 97, 94, 10, 85.00, 190.00, 660.00);  -- Arranjos
+
+-- Orçamento 61 (Fornecedor 9 -> Demanda 24 - Decoração branca)
+INSERT INTO item_orcamento (id_orcamento, id_item_demanda, id_item, quantidade, preco_unitario, desconto, preco_total)
+VALUES
+(61, 130, 92, 2, 3500.00, 0, 7000.00),  -- Decoração ampla
+(61, 130, 21, 8, 280.00, 1240.00, 1000.00);  -- Flores brancas
+
+-- Orçamento 62 (Fornecedor 9 -> Demanda 27 - Decoração boho)
+INSERT INTO item_orcamento (id_orcamento, id_item_demanda, id_item, quantidade, preco_unitario, desconto, preco_total)
+VALUES
+(62, 141, 92, 1, 3500.00, 0, 3500.00),  -- Decoração
+(62, 141, 93, 1, 650.00, 0, 650.00),  -- Altar
+(62, 141, 21, 2, 280.00, 0, 560.00),  -- Flores
+(62, 141, 94, 6, 85.00, 320.00, 190.00);  -- Arranjos (desconto)
+
+-- Orçamento 63 (Fornecedor 10 -> Demanda 8 - Violino cerimônia)
+INSERT INTO item_orcamento (id_orcamento, id_item_demanda, id_item, quantidade, preco_unitario, desconto, preco_total)
+VALUES
+(63, 47, 69, 1, 320.00, 0, 320.00),  -- Violinista
+(63, 47, 68, 1, 480.00, 0, 480.00);  -- Coral
+
+-- Orçamento 64 (Fornecedor 10 -> Demanda 9 - Banda ao vivo)
+INSERT INTO item_orcamento (id_orcamento, id_item_demanda, id_item, quantidade, preco_unitario, desconto, preco_total)
+VALUES
+(64, 50, 67, 1, 2800.00, 0, 2800.00),  -- Banda 4h
+(64, 50, 65, 1, 850.00, 150.00, 700.00);  -- Iluminação LED
+
+-- Orçamento 65 (Fornecedor 10 -> Demanda 10 - DJ + LED)
+INSERT INTO item_orcamento (id_orcamento, id_item_demanda, id_item, quantidade, preco_unitario, desconto, preco_total)
+VALUES
+(65, 52, 64, 1, 1200.00, 0, 1200.00),  -- DJ 6h
+(65, 52, 65, 1, 850.00, 50.00, 800.00);  -- Iluminação
+
+-- Orçamento 66 (Fornecedor 10 -> Demanda 13 - Música acústica)
+INSERT INTO item_orcamento (id_orcamento, id_item_demanda, id_item, quantidade, preco_unitario, desconto, preco_total)
+VALUES
+(66, 68, 69, 1, 320.00, 0, 320.00),  -- Violinista
+(66, 68, 66, 1, 350.00, 0, 350.00);  -- Som cerimônia
+
+-- Orçamento 67 (Fornecedor 10 -> Demanda 18 - DJ moderno)
+INSERT INTO item_orcamento (id_orcamento, id_item_demanda, id_item, quantidade, preco_unitario, desconto, preco_total)
+VALUES
+(67, 92, 64, 1, 1200.00, 0, 1200.00),  -- DJ
+(67, 92, 65, 1, 850.00, 0, 850.00),  -- LED
+(67, 92, 70, 1, 1200.00, 750.00, 450.00);  -- Projeção (desconto)
+
+-- Orçamento 68 (Fornecedor 10 -> Demanda 30 - Banda + DJ)
+INSERT INTO item_orcamento (id_orcamento, id_item_demanda, id_item, quantidade, preco_unitario, desconto, preco_total)
+VALUES
+(68, 154, 67, 1, 2800.00, 0, 2800.00),  -- Banda
+(68, 154, 64, 1, 1200.00, 0, 1200.00);  -- DJ
+
+-- Orçamento 69 (Fornecedor 11 -> Demanda 9 - Salão elegante)
+INSERT INTO item_orcamento (id_orcamento, id_item_demanda, id_item, quantidade, preco_unitario, desconto, preco_total)
+VALUES
+(69, 48, 33, 1, 2400.00, 0, 2400.00),  -- Salão 150 pessoas
+(69, 48, 35, 1, 200.00, 0, 200.00);  -- Sala de noiva
+
+-- Orçamento 70 (Fornecedor 11 -> Demanda 10 - Salão amplo)
+INSERT INTO item_orcamento (id_orcamento, id_item_demanda, id_item, quantidade, preco_unitario, desconto, preco_total)
+VALUES
+(70, 48, 33, 1, 2400.00, 0, 2400.00),  -- Salão 150
+(70, 48, 34, 1, 450.00, 0, 450.00),  -- Espaço gourmet
+(70, 48, 35, 1, 200.00, 0, 200.00);  -- Sala noiva
+
+-- Continuação dos orçamentos do Fornecedor 11
+INSERT INTO item_orcamento (id_orcamento, id_item_demanda, id_item, quantidade, preco_unitario, desconto, preco_total)
+VALUES
+-- Orçamento 71 (Fornecedor 11 -> Demanda 15 - Salão hotel luxo)
+(71, 72, 33, 2, 2400.00, 0, 4800.00),  -- 2 Salões
+(71, 72, 34, 1, 450.00, 0, 450.00),  -- Espaço gourmet
+(71, 72, 35, 1, 200.00, 0, 200.00),  -- Sala noiva
+
+-- Orçamento 72 (Fornecedor 11 -> Demanda 19 - Espaço intimista)
+(72, 95, 36, 1, 1800.00, 0, 1800.00),  -- Salão 100 pessoas
+(72, 95, 35, 1, 200.00, 0, 200.00),  -- Sala noiva
+
+-- Orçamento 73 (Fornecedor 11 -> Demanda 23 - Salão grande)
+(73, 118, 33, 2, 2400.00, 0, 4800.00),  -- 2 Salões unidos
+(73, 118, 35, 1, 200.00, 0, 200.00),  -- Sala noiva
+
+-- Orçamento 74 (Fornecedor 11 -> Demanda 30 - Espaço completo)
+(74, 151, 33, 2, 2400.00, 0, 4800.00),  -- 2 Salões
+(74, 151, 34, 1, 450.00, 0, 450.00),  -- Gourmet
+(74, 151, 35, 1, 200.00, 0, 200.00);  -- Sala noiva
+
+-- ========================================
+COMMIT;
+
+-- ========================================
+-- VALIDAÇÕES FINAIS
+-- ========================================
+SELECT 'Demandas criadas:' as validacao, COUNT(*) as total FROM demanda;
+SELECT 'Itens de demanda:' as validacao, COUNT(*) as total FROM item_demanda;
+SELECT 'Orçamentos criados:' as validacao, COUNT(*) as total FROM orcamento;
+SELECT 'Itens orçados:' as validacao, COUNT(*) as total FROM item_orcamento;
+
+-- Orçamentos por fornecedor
+SELECT
+    f.id,
+    u.nome as fornecedor,
+    COUNT(o.id) as total_orcamentos,
+    SUM(CASE WHEN o.status = 'PENDENTE' THEN 1 ELSE 0 END) as pendentes,
+    SUM(CASE WHEN o.status = 'ACEITO' THEN 1 ELSE 0 END) as aceitos,
+    SUM(CASE WHEN o.status = 'REJEITADO' THEN 1 ELSE 0 END) as rejeitados
+FROM fornecedor f
+INNER JOIN usuario u ON f.id = u.id
+LEFT JOIN orcamento o ON f.id = o.id_fornecedor_prestador
+GROUP BY f.id, u.nome
+ORDER BY total_orcamentos DESC;
+
+-- Demandas por casal
+SELECT
+    c.id,
+    u1.nome || ' & ' || u2.nome as casal,
+    COUNT(d.id) as total_demandas
+FROM casal c
+INNER JOIN usuario u1 ON c.id_noivo1 = u1.id
+LEFT JOIN usuario u2 ON c.id_noivo2 = u2.id
+LEFT JOIN demanda d ON c.id = d.id_casal
+GROUP BY c.id, u1.nome, u2.nome
+ORDER BY c.id;

@@ -31,6 +31,7 @@
                             <option value="">Todos</option>
                             <option value="PENDENTE" {% if request.query_params.get('status') == 'PENDENTE' %}selected{% endif %}>Pendente</option>
                             <option value="ACEITO" {% if request.query_params.get('status') == 'ACEITO' %}selected{% endif %}>Aceito</option>
+                            <option value="PARCIALMENTE_ACEITO" {% if request.query_params.get('status') == 'PARCIALMENTE_ACEITO' %}selected{% endif %}>Parcialmente Aceito</option>
                             <option value="REJEITADO" {% if request.query_params.get('status') == 'REJEITADO' %}selected{% endif %}>Rejeitado</option>
                         </select>
                     </div>
@@ -58,64 +59,113 @@
 <div class="row">
     {% for orcamento in orcamentos %}
     <div class="col-lg-6 col-xl-4 mb-4">
-        <div class="card h-100 shadow">
-            <div class="card-header d-flex justify-content-between align-items-center">
-                <h6 class="mb-0">{{ orcamento.demanda_titulo }}</h6>
-                <span class="badge
-                    {% if orcamento.status == 'PENDENTE' %}bg-warning
-                    {% elif orcamento.status == 'ACEITO' %}bg-success
-                    {% elif orcamento.status == 'REJEITADO' %}bg-danger
-                    {% else %}bg-secondary{% endif %}">
-                    {{ orcamento.status }}
-                </span>
+        <div class="card h-100 shadow-sm">
+            <div class="card-header bg-light">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                        <h6 class="mb-1">{{ orcamento.noivos_nomes }}</h6>
+                        <small class="text-muted">
+                            <i class="fas fa-file-invoice"></i> Orçamento #{{ orcamento.id }}
+                        </small>
+                    </div>
+                    <span class="badge
+                        {% if orcamento.status == 'PENDENTE' %}bg-warning
+                        {% elif orcamento.status == 'ACEITO' %}bg-success
+                        {% elif orcamento.status == 'PARCIALMENTE_ACEITO' %}bg-info
+                        {% elif orcamento.status == 'REJEITADO' %}bg-danger
+                        {% else %}bg-secondary{% endif %}">
+                        {{ orcamento.status }}
+                    </span>
+                </div>
             </div>
             <div class="card-body">
-                {% if orcamento.observacoes %}
-                <p class="card-text">{{ orcamento.observacoes[:100] }}{% if orcamento.observacoes|length > 100 %}...{% endif %}</p>
-                {% endif %}
+                <!-- Descrição da Demanda -->
+                <p class="mb-3">
+                    <strong>Demanda:</strong><br>
+                    <small>{{ orcamento.demanda_titulo[:120] }}{% if orcamento.demanda_titulo|length > 120 %}...{% endif %}</small>
+                </p>
 
-                <div class="row text-center mb-3">
+                <!-- Informações do Orçamento -->
+                <div class="row mb-3">
                     <div class="col-6">
-                        <small class="text-muted">Valor Total</small>
-                        <div class="fw-bold text-success">{{ orcamento.valor_total|moeda }}</div>
+                        <small class="text-muted d-block">Valor Total</small>
+                        <strong class="text-success">{{ orcamento.valor_total|moeda }}</strong>
                     </div>
                     <div class="col-6">
-                        <small class="text-muted">Itens</small>
-                        <div class="fw-bold">{{ orcamento.itens_count or 0 }}</div>
+                        <small class="text-muted d-block">Data de Envio</small>
+                        <strong>{{ orcamento.data_envio or 'N/A' }}</strong>
                     </div>
                 </div>
 
+                <!-- Estatísticas de Itens -->
+                <div class="row mb-3 g-2">
+                    <div class="col-6">
+                        <div class="card bg-primary text-white text-center py-2">
+                            <div class="card-body p-2">
+                                <small class="d-block opacity-75">Itens Orçados</small>
+                                <div class="h3 mb-0 fw-bold">{{ orcamento.itens_count or 0 }}</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="card
+                            {% if orcamento.status == 'PENDENTE' %}bg-warning text-dark
+                            {% elif orcamento.status == 'ACEITO' %}bg-success
+                            {% elif orcamento.status == 'PARCIALMENTE_ACEITO' %}bg-info
+                            {% elif orcamento.status == 'REJEITADO' %}bg-danger
+                            {% else %}bg-secondary{% endif %}
+                            text-white text-center py-2">
+                            <div class="card-body p-2">
+                                <small class="d-block {% if orcamento.status == 'PENDENTE' %}opacity-50{% else %}opacity-75{% endif %}">Status</small>
+                                <div class="h3 mb-0 fw-bold">
+                                    {% if orcamento.status == 'PENDENTE' %}
+                                    <i class="fas fa-clock"></i>
+                                    {% elif orcamento.status == 'ACEITO' %}
+                                    <i class="fas fa-check-circle"></i>
+                                    {% elif orcamento.status == 'PARCIALMENTE_ACEITO' %}
+                                    <i class="fas fa-check-double"></i>
+                                    {% elif orcamento.status == 'REJEITADO' %}
+                                    <i class="fas fa-times-circle"></i>
+                                    {% else %}
+                                    <i class="fas fa-question-circle"></i>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Observações -->
+                {% if orcamento.observacoes %}
+                <div class="mb-3">
+                    <small class="text-muted d-block">Observações:</small>
+                    <small>{{ orcamento.observacoes[:100] }}{% if orcamento.observacoes|length > 100 %}...{% endif %}</small>
+                </div>
+                {% endif %}
+
+                <!-- Prazo de Entrega -->
                 {% if orcamento.prazo_entrega %}
-                <div class="alert alert-info py-2 mb-3">
+                <div class="alert alert-info py-2 mb-0">
                     <small>
-                        <strong>Prazo de Entrega:</strong> {{ orcamento.prazo_entrega }}
+                        <i class="fas fa-clock"></i> <strong>Prazo de Entrega:</strong> {{ orcamento.prazo_entrega }}
                     </small>
                 </div>
                 {% endif %}
-
-                <div class="d-flex justify-content-between align-items-center">
-                    <small class="text-muted">Enviado em: {{ orcamento.data_envio or 'Data não definida' }}</small>
-                    {% if orcamento.status == 'ACEITO' %}
-                    <span class="badge bg-success rounded-pill">Aceito!</span>
-                    {% elif orcamento.status == 'REJEITADO' %}
-                    <span class="badge bg-danger rounded-pill">Rejeitado</span>
-                    {% endif %}
-                </div>
             </div>
-            <div class="card-footer bg-white border-top-0">
-                <div class="d-flex justify-content-between">
-                    <a href="/fornecedor/orcamentos/{{ orcamento.id }}" class="btn btn-outline-primary btn-sm">
-                        <i class="fas fa-eye"></i> Ver Detalhes
+
+            <!-- Ações -->
+            <div class="card-footer bg-white border-top">
+                <div class="d-flex gap-2">
+                    <a href="/fornecedor/orcamentos/{{ orcamento.id }}" class="btn btn-outline-primary btn-sm flex-fill">
+                        <i class="fas fa-eye"></i> Detalhes
                     </a>
                     {% if orcamento.status == 'PENDENTE' %}
-                    <div class="btn-group" role="group">
-                        <a href="/fornecedor/orcamentos/{{ orcamento.id }}/editar" class="btn btn-outline-warning btn-sm">
-                            <i class="fas fa-edit"></i> Editar
-                        </a>
-                        <button type="button" class="btn btn-outline-danger btn-sm" onclick="cancelarOrcamento({{ orcamento.id }})">
-                            <i class="fas fa-times"></i> Cancelar
-                        </button>
-                    </div>
+                    <a href="/fornecedor/orcamentos/{{ orcamento.id }}/editar" class="btn btn-outline-warning btn-sm flex-fill">
+                        <i class="fas fa-edit"></i> Editar
+                    </a>
+                    <button type="button" class="btn btn-outline-danger btn-sm" onclick="cancelarOrcamento({{ orcamento.id }})" title="Cancelar orçamento">
+                        <i class="fas fa-times"></i>
+                    </button>
                     {% endif %}
                 </div>
             </div>

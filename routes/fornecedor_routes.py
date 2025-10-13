@@ -518,10 +518,10 @@ async def atualizar_item(
 @router.post("/fornecedor/itens/{id_item}/excluir")
 @requer_autenticacao([TipoUsuario.FORNECEDOR.value])
 @tratar_erro_rota(redirect_erro="/fornecedor/itens")
-async def excluir_item(request: Request, id_item: int, usuario_logado: dict = {}):
+async def excluir_item(request: Request, id_item: int, confirmar: str = Form(None), usuario_logado: dict = {}):
     """Exclui um item"""
     id_fornecedor = usuario_logado["id"]
-    sucesso = item_repo.excluir(id_item, id_fornecedor)
+    sucesso = item_repo.excluir_item_fornecedor(id_item, id_fornecedor)
 
     if sucesso:
         logger.info("Item excluído com sucesso", item_id=id_item, fornecedor_id=id_fornecedor)
@@ -593,6 +593,22 @@ async def listar_orcamentos(request: Request, status_filter: str = "", usuario_l
             # Buscar dados da demanda
             demanda = demanda_repo.obter_por_id(orcamento.id_demanda)
 
+            # Buscar dados do casal e noivos
+            noivos_nomes = "Casal não identificado"
+            if demanda:
+                try:
+                    casal = casal_repo.obter_por_id(demanda.id_casal)
+                    if casal:
+                        noivo1 = usuario_repo.obter_por_id(casal.id_noivo1)
+                        noivo2 = usuario_repo.obter_por_id(casal.id_noivo2) if casal.id_noivo2 else None
+
+                        if noivo1 and noivo2:
+                            noivos_nomes = f"{noivo1.nome} & {noivo2.nome}"
+                        elif noivo1:
+                            noivos_nomes = noivo1.nome
+                except Exception as e_noivos:
+                    logger.warning("Erro ao buscar noivos", erro=e_noivos, demanda_id=demanda.id)
+
             # Buscar itens do orçamento para contar
             itens = item_orcamento_repo.obter_por_orcamento(orcamento.id)
             orcamento.itens_count = len(itens)
@@ -609,16 +625,26 @@ async def listar_orcamentos(request: Request, status_filter: str = "", usuario_l
             else:
                 orcamento.data_envio = None
 
-            # Adicionar título da demanda
+            # Adicionar título da demanda e nomes dos noivos
             orcamento.demanda_titulo = demanda.descricao if demanda else "Demanda sem título"
+            orcamento.noivos_nomes = noivos_nomes
+
+            # Log para debug
+            logger.info(
+                "Orçamento enriquecido",
+                orcamento_id=orcamento.id,
+                noivos_nomes=getattr(orcamento, 'noivos_nomes', 'ATRIBUTO NÃO ENCONTRADO'),
+                demanda_titulo=getattr(orcamento, 'demanda_titulo', 'ATRIBUTO NÃO ENCONTRADO'),
+            )
 
             orcamentos_enriched.append(orcamento)
         except Exception as e:
-            logger.warning("Erro ao enriquecer orçamento", erro=e, orcamento_id=orcamento.id)
+            logger.error("Erro ao enriquecer orçamento", erro=e, orcamento_id=orcamento.id)
             # Adicionar mesmo com dados incompletos
             orcamento.itens_count = 0
             orcamento.data_envio = None
             orcamento.demanda_titulo = "Demanda sem título"
+            orcamento.noivos_nomes = "Casal não identificado"
             orcamentos_enriched.append(orcamento)
 
     logger.info("Orçamentos listados", fornecedor_id=id_fornecedor, total=len(orcamentos_enriched))

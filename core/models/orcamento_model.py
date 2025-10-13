@@ -30,5 +30,6 @@ class Orcamento:
     itens_count: Optional[int] = None
     data_envio: Optional[str] = None
     demanda_titulo: Optional[str] = None
+    noivos_nomes: Optional[str] = None
     total_itens: Optional[int] = None
     itens: Optional[list] = None
