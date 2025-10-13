@@ -234,10 +234,7 @@
                             {% for item_tipo in stats_itens.detalhes_por_tipo %}
                             <tr>
                                 <td>
-                                    <span class="badge
-                                        {% if item_tipo.tipo == 'PRODUTO' %}bg-primary
-                                        {% elif item_tipo.tipo == 'SERVIÇO' %}bg-success
-                                        {% else %}bg-info{% endif %}">
+                                    <span class="badge bg-{% if item_tipo.tipo == 'PRODUTO' %}primary{% elif item_tipo.tipo == 'SERVIÇO' %}success{% elif item_tipo.tipo == 'ESPAÇO' %}info{% else %}secondary{% endif %}">
                                         {{ item_tipo.tipo.capitalize() }}
                                     </span>
                                 </td>

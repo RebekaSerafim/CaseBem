@@ -78,10 +78,7 @@
                             </div>
                         </td>
                         <td class="text-center">
-                            <span class="badge
-                                {% if categoria.tipo_fornecimento.value == 'PRODUTO' %}bg-primary
-                                {% elif categoria.tipo_fornecimento.value == 'SERVICO' %}bg-success
-                                {% else %}bg-info{% endif %}">
+                            <span class="badge bg-{% if categoria.tipo_fornecimento.value == 'PRODUTO' %}primary{% elif categoria.tipo_fornecimento.value == 'SERVIÇO' %}success{% elif categoria.tipo_fornecimento.value == 'ESPAÇO' %}info{% else %}secondary{% endif %}">
                                 {{ categoria.tipo_fornecimento.value.capitalize() }}
                             </span>
                         </td>

@@ -56,10 +56,7 @@
                         <strong>ID:</strong> {{ item.id }}<br>
                         <strong>Nome:</strong> {{ item.nome }}<br>
                         <strong>Tipo:</strong>
-                        <span class="badge
-                            {% if item.tipo.value == 'PRODUTO' %}bg-primary
-                            {% elif item.tipo.value == 'SERVIÇO' %}bg-success
-                            {% else %}bg-info{% endif %}">
+                        <span class="badge bg-{% if item.tipo.value == 'PRODUTO' %}primary{% elif item.tipo.value == 'SERVIÇO' %}success{% elif item.tipo.value == 'ESPAÇO' %}info{% else %}secondary{% endif %}">
                             {{ item.tipo.value.capitalize() }}
                         </span><br>
                         <strong>Preço:</strong> {{ item.preco|moeda }}<br>

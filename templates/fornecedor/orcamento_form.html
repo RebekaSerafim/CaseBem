@@ -105,11 +105,7 @@
                 <div class="card-header">
                     <div class="row align-items-center">
                         <div class="col-md-8">
-                            <span class="badge
-                                {% if item_demanda.tipo == 'PRODUTO' %}bg-primary
-                                {% elif item_demanda.tipo == 'SERVICO' %}bg-success
-                                {% elif item_demanda.tipo == 'ESPACO' %}bg-info
-                                {% else %}bg-secondary{% endif %} me-2">
+                            <span class="badge bg-{% if item_demanda.tipo == 'PRODUTO' %}primary{% elif item_demanda.tipo == 'SERVIÇO' %}success{% elif item_demanda.tipo == 'ESPAÇO' %}info{% else %}secondary{% endif %} me-2">
                                 {{ item_demanda.tipo }}
                             </span>
                             <strong>{{ item_demanda.categoria_nome or 'Categoria' }}</strong>

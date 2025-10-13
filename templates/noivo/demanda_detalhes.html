@@ -145,11 +145,7 @@
                             {% for item in itens %}
                             <tr>
                                 <td>
-                                    <span class="badge
-                                        {% if item.tipo == 'PRODUTO' %}bg-primary
-                                        {% elif item.tipo == 'SERVICO' %}bg-success
-                                        {% elif item.tipo == 'ESPACO' %}bg-info
-                                        {% else %}bg-secondary{% endif %}">
+                                    <span class="badge bg-{% if item.tipo == 'PRODUTO' %}primary{% elif item.tipo == 'SERVIÇO' %}success{% elif item.tipo == 'ESPAÇO' %}info{% else %}secondary{% endif %}">
                                         {{ item.tipo }}
                                     </span>
                                     <br>
