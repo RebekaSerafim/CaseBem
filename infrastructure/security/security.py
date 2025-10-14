@@ -5,6 +5,7 @@ import secrets
 import string
 import os
 from datetime import datetime, timedelta
+from typing import cast
 from passlib.context import CryptContext
 
 # Contexto para hash de senhas usando bcrypt
@@ -14,29 +15,29 @@ pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 def criar_hash_senha(senha: str) -> str:
     """
     Cria um hash seguro da senha usando bcrypt
-    
+
     Args:
         senha: Senha em texto plano
-    
+
     Returns:
         Hash da senha
     """
-    return pwd_context.hash(senha)
+    return cast(str, pwd_context.hash(senha))
 
 
 def verificar_senha(senha_plana: str, senha_hash: str) -> bool:
     """
     Verifica se a senha em texto plano corresponde ao hash
-    
+
     Args:
         senha_plana: Senha em texto plano
         senha_hash: Hash da senha armazenado no banco
-    
+
     Returns:
         True se a senha está correta, False caso contrário
     """
     try:
-        return pwd_context.verify(senha_plana, senha_hash)
+        return cast(bool, pwd_context.verify(senha_plana, senha_hash))
     except (ValueError, TypeError):
         # Retorna False se hash inválido ou senha em formato incorreto
         return False

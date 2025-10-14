@@ -20,18 +20,56 @@ from tests.factories import (
 )
 
 
-@pytest.fixture
+@pytest.fixture(scope="function")
 def test_db():
-    """Cria um banco de dados temporário para testes"""
-    db_fd, db_path = tempfile.mkstemp(suffix='.db')
+    """Cria um banco de dados exclusivo para CADA teste
+
+    Esta fixture garante isolamento completo entre testes, criando
+    um arquivo de banco de dados temporário único para cada execução.
+    O arquivo é automaticamente removido após o teste.
+    """
+    db_fd, db_path = tempfile.mkstemp(suffix='.db', prefix='test_casebem_')
     os.environ['TEST_DATABASE_PATH'] = db_path
 
     yield db_path
 
     # Cleanup
     os.close(db_fd)
+    os.environ.pop('TEST_DATABASE_PATH', None)
     if os.path.exists(db_path):
         os.unlink(db_path)
+
+
+@pytest.fixture(scope="function")
+def test_db_with_tables(test_db):
+    """Banco de dados de teste com todas as tabelas já criadas
+
+    Esta fixture cria um banco de dados isolado E já cria todas as
+    tabelas do sistema, evitando que cada teste precise criar manualmente.
+    Útil para testes que precisam apenas inserir dados.
+    """
+    from core.repositories.usuario_repo import usuario_repo
+    from core.repositories.fornecedor_repo import fornecedor_repo
+    from core.repositories.casal_repo import casal_repo
+    from core.repositories.categoria_repo import categoria_repo
+    from core.repositories.item_repo import item_repo
+    from core.repositories.demanda_repo import demanda_repo
+    from core.repositories.item_demanda_repo import item_demanda_repo
+    from core.repositories.orcamento_repo import orcamento_repo
+    from core.repositories.item_orcamento_repo import item_orcamento_repo
+
+    # Criar todas as tabelas na ordem correta (respeitando FKs)
+    usuario_repo.criar_tabela()
+    fornecedor_repo.criar_tabela()
+    casal_repo.criar_tabela()
+    categoria_repo.criar_tabela()
+    demanda_repo.criar_tabela()
+    item_repo.criar_tabela()
+    item_demanda_repo.criar_tabela()
+    orcamento_repo.criar_tabela()
+    item_orcamento_repo.criar_tabela()
+
+    yield test_db
 
 
 @pytest.fixture

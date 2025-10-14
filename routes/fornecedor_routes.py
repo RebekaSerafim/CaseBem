@@ -584,7 +584,7 @@ async def listar_orcamentos(request: Request, status_filter: str = "", usuario_l
 
     # Filtrar por status se especificado
     if status_filter:
-        orcamentos = [o for o in orcamentos if o.status.upper() == status_filter.upper()]
+        orcamentos = [o for o in orcamentos if str(o.status).upper() == status_filter.upper()]
 
     # Enriquecer dados dos orçamentos
     orcamentos_enriched = []

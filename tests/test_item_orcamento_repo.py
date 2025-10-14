@@ -1,4 +1,5 @@
 import pytest
+from decimal import Decimal
 from core.models.item_orcamento_model import ItemOrcamento
 from core.models.categoria_model import Categoria, TipoFornecimento
 from core.models.usuario_model import Usuario, TipoUsuario
@@ -41,6 +42,7 @@ def setup_test_data():
 
     fornecedor = Fornecedor(id=0, nome="Fornecedor Teste", cpf=None, data_nascimento=None, email="forn@test.com", telefone="", senha="hash", perfil=TipoUsuario.FORNECEDOR, token_redefinicao=None, data_token=None, data_cadastro=None, nome_empresa="Empresa Teste", cnpj=None)
     id_fornecedor = fornecedor_repo.inserir(fornecedor)
+    assert id_fornecedor is not None, "id_fornecedor não deve ser None"
 
     casal = Casal(id=0, id_noivo1=id_usuario, id_noivo2=id_usuario2)
     id_casal = casal_repo.inserir(casal)
@@ -51,7 +53,7 @@ def setup_test_data():
     demanda = Demanda(id=0, id_casal=id_casal, descricao="Demanda Teste")
     id_demanda = demanda_repo.inserir(demanda)
 
-    item = Item(id=0, id_fornecedor=id_fornecedor, id_categoria=1, nome="Item Teste", descricao="Descrição do item teste", tipo=TipoFornecimento.PRODUTO, preco=100.0)
+    item = Item(id=0, id_fornecedor=id_fornecedor, id_categoria=1, nome="Item Teste", descricao="Descrição do item teste", tipo=TipoFornecimento.PRODUTO, preco=Decimal("100.0"))
     id_item = item_repo.inserir(item)
 
     orcamento = Orcamento(id=0, id_demanda=id_demanda, id_fornecedor_prestador=id_fornecedor, data_hora_cadastro=datetime.now())

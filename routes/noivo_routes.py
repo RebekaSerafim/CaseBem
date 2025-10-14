@@ -187,14 +187,15 @@ async def listar_demandas(
             for item_demanda in itens_demanda:
                 try:
                     # Verificar se este item_demanda tem algum item_orcamento ACEITO
-                    if item_orcamento_repo.verificar_item_demanda_ja_aceito(item_demanda.get("id")):
+                    item_demanda_id = item_demanda.get("id")
+                    if item_demanda_id and item_orcamento_repo.verificar_item_demanda_ja_aceito(item_demanda_id):
                         itens_atendidos += 1
                 except Exception as e:
                     logger.warning(
                         "Erro ao verificar item_demanda aceito",
                         demanda_id=demanda.id,
                         item_demanda_id=item_demanda.get("id"),
-                        erro=str(e)
+                        erro=e
                     )
                     continue
 
@@ -210,7 +211,7 @@ async def listar_demandas(
             logger.error(
                 "Erro ao enriquecer demanda com dados de atendimento",
                 demanda_id=demanda.id,
-                erro=str(e)
+                erro=e
             )
             # Garantir que os atributos existam mesmo em caso de erro
             demanda.itens_count = 0  # type: ignore[attr-defined]
