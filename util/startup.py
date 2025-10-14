@@ -456,9 +456,9 @@ def criar_item_demanda_seed():
                 return
 
         # Carregar dados dos itens de demanda do arquivo JSON
-        itens_dados = carregar_dados_json('item_demanda.json')
+        itens_dados = carregar_dados_json('itens_demanda.json')
         if not itens_dados:
-            logger.info("Arquivo item_demanda.json não encontrado - pulando seed de itens de demanda")
+            logger.info("Arquivo itens_demanda.json não encontrado - pulando seed de itens de demanda")
             return
 
         logger.info(f"Importando {len(itens_dados)} itens de demanda do seed...")
@@ -558,9 +558,9 @@ def criar_item_orcamento_seed():
                 return
 
         # Carregar dados dos itens de orçamento do arquivo JSON
-        itens_dados = carregar_dados_json('item_orcamento.json')
+        itens_dados = carregar_dados_json('itens_orcamento.json')
         if not itens_dados:
-            logger.info("Arquivo item_orcamento.json vazio ou não encontrado - pulando seed de itens de orçamento")
+            logger.info("Arquivo itens_orcamento.json vazio ou não encontrado - pulando seed de itens de orçamento")
             return
 
         if len(itens_dados) == 0:
