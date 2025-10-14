@@ -11,7 +11,7 @@
                 <a href="/noivo/orcamentos" class="btn btn-outline-secondary me-2">
                     <i class="fas fa-arrow-left"></i> Voltar
                 </a>
-                {% if orcamento.status == 'ACEITO' %}
+                {% if orcamento.status == 'APROVADO' %}
                 <a href="/noivo/fornecedor/{{ orcamento.id_fornecedor }}" class="btn btn-primary">
                     <i class="fas fa-user"></i> Ver Fornecedor
                 </a>
@@ -26,21 +26,21 @@
     <div class="col-12">
         <div class="alert
             {% if orcamento.status == 'PENDENTE' %}alert-warning
-            {% elif orcamento.status == 'ACEITO' %}alert-success
+            {% elif orcamento.status == 'APROVADO' %}alert-success
             {% elif orcamento.status == 'REJEITADO' %}alert-danger
             {% else %}alert-secondary{% endif %}" role="alert">
             <div class="d-flex justify-content-between align-items-center">
                 <div>
                     <h5 class="alert-heading">
                         {% if orcamento.status == 'PENDENTE' %}Aguardando sua decisão
-                        {% elif orcamento.status == 'ACEITO' %}Orçamento Aceito
+                        {% elif orcamento.status == 'APROVADO' %}Orçamento Aprovado
                         {% elif orcamento.status == 'REJEITADO' %}Orçamento Rejeitado
                         {% else %}{{ orcamento.status }}{% endif %}
                     </h5>
                     <p class="mb-0">
                         {% if orcamento.status == 'PENDENTE' %}
                             Analise os detalhes e decida se deseja aceitar ou rejeitar esta proposta.
-                        {% elif orcamento.status == 'ACEITO' %}
+                        {% elif orcamento.status == 'APROVADO' %}
                             Você aceitou este orçamento. Entre em contato com o fornecedor para finalizar os detalhes.
                         {% elif orcamento.status == 'REJEITADO' %}
                             Este orçamento foi rejeitado por você.
@@ -50,7 +50,7 @@
                 <div>
                     {% if orcamento.data_resposta %}
                     <small class="text-muted">
-                        {% if orcamento.status == 'ACEITO' %}Aceito em:
+                        {% if orcamento.status == 'APROVADO' %}Aprovado em:
                         {% elif orcamento.status == 'REJEITADO' %}Rejeitado em:{% endif %}
                         {{ orcamento.data_resposta | formatar_data_hora }}
                     </small>
@@ -241,7 +241,7 @@
                                 <td>
                                     <span class="badge
                                         {% if item.status == 'PENDENTE' %}bg-warning text-dark
-                                        {% elif item.status == 'ACEITO' %}bg-success
+                                        {% elif item.status == 'APROVADO' %}bg-success
                                         {% elif item.status == 'REJEITADO' %}bg-danger
                                         {% else %}bg-secondary{% endif %}">
                                         {{ item.status }}
@@ -261,7 +261,7 @@
                                             <i class="fas fa-times"></i>
                                         </button>
                                     </div>
-                                    {% elif item.status == 'ACEITO' %}
+                                    {% elif item.status == 'APROVADO' %}
                                     <span class="text-success"><i class="fas fa-check-circle"></i> Aceito</span>
                                     {% elif item.status == 'REJEITADO' %}
                                     <span class="text-danger"><i class="fas fa-times-circle"></i> Rejeitado</span>
@@ -292,14 +292,14 @@
 </div>
 
 <!-- Ações -->
-{% if orcamento.status == 'ACEITO' or orcamento.status == 'PARCIALMENTE_ACEITO' %}
+{% if orcamento.status == 'APROVADO' or orcamento.status == 'PARCIALMENTE_ACEITO' %}
 <div class="row mt-4">
     <div class="col-12">
         <div class="card border-success shadow">
             <div class="card-body">
                 <div class="d-flex justify-content-between align-items-center">
                     <div>
-                        <h6 class="text-success">Orçamento Aceito!</h6>
+                        <h6 class="text-success">Orçamento Aprovado!</h6>
                         <p class="text-muted mb-0">Entre em contato com o fornecedor para combinar os detalhes.</p>
                     </div>
                     <div>

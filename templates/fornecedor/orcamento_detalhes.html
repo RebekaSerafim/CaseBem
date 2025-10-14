@@ -21,7 +21,7 @@
     <div class="col-12">
         <div class="alert
             {% if orcamento.status == 'PENDENTE' %}alert-warning
-            {% elif orcamento.status == 'ACEITO' %}alert-success
+            {% elif orcamento.status == 'APROVADO' %}alert-success
             {% elif orcamento.status == 'PARCIALMENTE_ACEITO' %}alert-info
             {% elif orcamento.status == 'REJEITADO' %}alert-danger
             {% else %}alert-secondary{% endif %}" role="alert">
@@ -29,15 +29,15 @@
                 <div>
                     <h5 class="alert-heading">
                         {% if orcamento.status == 'PENDENTE' %}Aguardando Resposta do Cliente
-                        {% elif orcamento.status == 'ACEITO' %}Orçamento Aceito!
-                        {% elif orcamento.status == 'PARCIALMENTE_ACEITO' %}Orçamento Parcialmente Aceito
+                        {% elif orcamento.status == 'APROVADO' %}Orçamento Aprovado!
+                        {% elif orcamento.status == 'PARCIALMENTE_ACEITO' %}Orçamento Parcialmente Aprovado
                         {% elif orcamento.status == 'REJEITADO' %}Orçamento Rejeitado
                         {% else %}{{ orcamento.status }}{% endif %}
                     </h5>
                     <p class="mb-0">
                         {% if orcamento.status == 'PENDENTE' %}
                             Seu orçamento foi enviado e está aguardando a decisão do cliente.
-                        {% elif orcamento.status == 'ACEITO' %}
+                        {% elif orcamento.status == 'APROVADO' %}
                             Parabéns! O cliente aceitou seu orçamento. Entre em contato para finalizar os detalhes.
                         {% elif orcamento.status == 'PARCIALMENTE_ACEITO' %}
                             O cliente aceitou alguns itens do seu orçamento. Confira na tabela abaixo quais itens foram aceitos.
@@ -90,7 +90,7 @@
                 </div>
                 {% endif %}
 
-                {% if orcamento.status == 'ACEITO' %}
+                {% if orcamento.status == 'APROVADO' %}
                 <div class="mt-4">
                     <a href="mailto:{{ noivo.email }}" class="btn btn-primary btn-sm me-2">
                         <i class="fas fa-envelope"></i> Enviar Email
@@ -212,7 +212,7 @@
                         </thead>
                         <tbody>
                             {% for item in orcamento.itens %}
-                            <tr class="{% if item.status == 'ACEITO' %}table-success-light
+                            <tr class="{% if item.status == 'APROVADO' %}table-success-light
                                       {% elif item.status == 'REJEITADO' %}table-danger-light
                                       {% endif %}">
                                 <td>
@@ -242,7 +242,7 @@
                                     </strong>
                                 </td>
                                 <td>
-                                    {% if item.status == 'ACEITO' %}
+                                    {% if item.status == 'APROVADO' %}
                                         <span class="badge bg-success">Aceito</span>
                                     {% elif item.status == 'REJEITADO' %}
                                         <span class="badge bg-danger">Rejeitado</span>

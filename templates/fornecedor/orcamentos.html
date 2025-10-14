@@ -30,7 +30,7 @@
                         <select class="form-select" id="status" name="status">
                             <option value="">Todos</option>
                             <option value="PENDENTE" {% if request.query_params.get('status') == 'PENDENTE' %}selected{% endif %}>Pendente</option>
-                            <option value="ACEITO" {% if request.query_params.get('status') == 'ACEITO' %}selected{% endif %}>Aceito</option>
+                            <option value="APROVADO" {% if request.query_params.get('status') == 'APROVADO' %}selected{% endif %}>Aprovado</option>
                             <option value="PARCIALMENTE_ACEITO" {% if request.query_params.get('status') == 'PARCIALMENTE_ACEITO' %}selected{% endif %}>Parcialmente Aceito</option>
                             <option value="REJEITADO" {% if request.query_params.get('status') == 'REJEITADO' %}selected{% endif %}>Rejeitado</option>
                         </select>
@@ -70,7 +70,7 @@
                     </div>
                     <span class="badge
                         {% if orcamento.status == 'PENDENTE' %}bg-warning
-                        {% elif orcamento.status == 'ACEITO' %}bg-success
+                        {% elif orcamento.status == 'APROVADO' %}bg-success
                         {% elif orcamento.status == 'PARCIALMENTE_ACEITO' %}bg-info
                         {% elif orcamento.status == 'REJEITADO' %}bg-danger
                         {% else %}bg-secondary{% endif %}">
@@ -110,7 +110,7 @@
                     <div class="col-6">
                         <div class="card
                             {% if orcamento.status == 'PENDENTE' %}bg-warning text-dark
-                            {% elif orcamento.status == 'ACEITO' %}bg-success
+                            {% elif orcamento.status == 'APROVADO' %}bg-success
                             {% elif orcamento.status == 'PARCIALMENTE_ACEITO' %}bg-info
                             {% elif orcamento.status == 'REJEITADO' %}bg-danger
                             {% else %}bg-secondary{% endif %}
@@ -120,7 +120,7 @@
                                 <div class="h3 mb-0 fw-bold">
                                     {% if orcamento.status == 'PENDENTE' %}
                                     <i class="fas fa-clock"></i>
-                                    {% elif orcamento.status == 'ACEITO' %}
+                                    {% elif orcamento.status == 'APROVADO' %}
                                     <i class="fas fa-check-circle"></i>
                                     {% elif orcamento.status == 'PARCIALMENTE_ACEITO' %}
                                     <i class="fas fa-check-double"></i>

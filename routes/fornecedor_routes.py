@@ -575,9 +575,15 @@ async def desativar_item(request: Request, id_item: int, usuario_logado: dict = 
 @router.get("/fornecedor/orcamentos")
 @requer_autenticacao([TipoUsuario.FORNECEDOR.value])
 @tratar_erro_rota(template_erro="fornecedor/orcamentos.html")
-async def listar_orcamentos(request: Request, status_filter: str = "", usuario_logado: dict = {}):
+async def listar_orcamentos(request: Request, usuario_logado: dict = {}):
     """Lista orçamentos do fornecedor"""
     id_fornecedor = usuario_logado["id"]
+
+    # Obter parâmetros de filtro
+    search = request.query_params.get("search", "").strip()
+    status_filter = request.query_params.get("status", "").strip()
+    valor_min = request.query_params.get("valor_min", "").strip()
+    valor_max = request.query_params.get("valor_max", "").strip()
 
     # Buscar orçamentos do fornecedor
     orcamentos = orcamento_repo.obter_por_fornecedor_prestador(id_fornecedor)
@@ -647,13 +653,39 @@ async def listar_orcamentos(request: Request, status_filter: str = "", usuario_l
             orcamento.noivos_nomes = "Casal não identificado"
             orcamentos_enriched.append(orcamento)
 
-    logger.info("Orçamentos listados", fornecedor_id=id_fornecedor, total=len(orcamentos_enriched))
+    # Aplicar filtros adicionais após enriquecimento
+    orcamentos_filtrados = orcamentos_enriched
+
+    # Filtro por busca (título da demanda ou nome dos noivos)
+    if search:
+        orcamentos_filtrados = [
+            o for o in orcamentos_filtrados
+            if search.lower() in o.demanda_titulo.lower() or search.lower() in o.noivos_nomes.lower()
+        ]
+
+    # Filtro por valor mínimo
+    if valor_min:
+        try:
+            valor_min_float = float(valor_min)
+            orcamentos_filtrados = [o for o in orcamentos_filtrados if o.valor_total >= valor_min_float]
+        except ValueError:
+            logger.warning("Valor mínimo inválido", valor_min=valor_min)
+
+    # Filtro por valor máximo
+    if valor_max:
+        try:
+            valor_max_float = float(valor_max)
+            orcamentos_filtrados = [o for o in orcamentos_filtrados if o.valor_total <= valor_max_float]
+        except ValueError:
+            logger.warning("Valor máximo inválido", valor_max=valor_max)
+
+    logger.info("Orçamentos listados", fornecedor_id=id_fornecedor, total=len(orcamentos_filtrados))
     return templates.TemplateResponse(
         "fornecedor/orcamentos.html",
         {
             "request": request,
             "usuario_logado": usuario_logado,
-            "orcamentos": orcamentos_enriched,
+            "orcamentos": orcamentos_filtrados,
             "status_filter": status_filter,
         },
     )

@@ -1,191 +1,248 @@
 #!/usr/bin/env python3
 """
-Script para gerar 2-4 orçamentos fictícios para cada demanda existente no banco
+Script para gerar orçamentos para todas as demandas existentes no banco de dados.
+Para cada item_demanda, cria orçamentos com pelo menos 2 itens de orçamento compatíveis.
 """
 import sqlite3
 import random
 from datetime import datetime, timedelta
+from pathlib import Path
 
-# Conectar ao banco
-conn = sqlite3.connect('dados.db')
-cursor = conn.cursor()
+# Caminhos
+DB_PATH = Path(__file__).parent.parent / "dados.db"
 
-# Buscar todas as demandas
-cursor.execute("""
-    SELECT id, id_casal, id_categoria, titulo, orcamento_min, orcamento_max, status
-    FROM demanda
-    ORDER BY id
-""")
-demandas = cursor.fetchall()
+# Status possíveis
+STATUS_ORCAMENTO = ["PENDENTE", "APROVADO", "REJEITADO"]
+STATUS_ITEM = ["PENDENTE", "APROVADO", "REJEITADO"]
 
-# Buscar fornecedores disponíveis
-cursor.execute("SELECT id FROM usuario WHERE perfil = 'FORNECEDOR'")
-fornecedores = [row[0] for row in cursor.fetchall()]
 
-if not fornecedores:
-    print("❌ Nenhum fornecedor encontrado no banco!")
-    conn.close()
-    exit(1)
+def get_fornecedores(cursor):
+    """Busca todos os fornecedores"""
+    cursor.execute("SELECT id FROM usuario WHERE perfil = 'FORNECEDOR'")
+    return [row[0] for row in cursor.fetchall()]
 
-print(f"📦 {len(demandas)} demandas encontradas")
-print(f"👤 {len(fornecedores)} fornecedores disponíveis")
 
-# Observações possíveis para orçamentos
-observacoes_templates = [
-    "Orçamento válido por 30 dias. Inclui todos os materiais necessários.",
-    "Valores já incluem impostos. Forma de pagamento: 50% entrada e 50% na entrega.",
-    "Desconto de 10% para pagamento à vista.",
-    "Parcelamento em até 3x sem juros no cartão de crédito.",
-    "Incluímos garantia de 90 dias para o serviço prestado.",
-    "Valores sujeitos a reajuste após visita técnica.",
-    "Orçamento detalhado. Entre em contato para esclarecimentos.",
-    "Disponibilidade confirmada para a data solicitada.",
-    "Pacote promocional com desconto especial para casamentos.",
-    "Experiência de 10+ anos no mercado de eventos.",
-    None,
-    None,  # Algumas sem observações
-]
+def get_demandas(cursor):
+    """Busca todas as demandas"""
+    cursor.execute("SELECT id FROM demanda")
+    return [row[0] for row in cursor.fetchall()]
 
-orcamentos_criados = []
-total_por_status = {"PENDENTE": 0, "ACEITO": 0, "REJEITADO": 0}
 
-# Gerar orçamentos para cada demanda
-for demanda_id, id_casal, id_categoria, titulo, orc_min, orc_max, status_demanda in demandas:
+def get_itens_demanda_by_demanda(cursor, id_demanda):
+    """Busca todos os itens de uma demanda"""
+    cursor.execute("""
+        SELECT id, id_categoria, quantidade, preco_maximo
+        FROM item_demanda
+        WHERE id_demanda = ?
+    """, (id_demanda,))
+    return cursor.fetchall()
 
-    # Definir quantos orçamentos criar (2 a 4)
-    num_orcamentos = random.randint(2, 4)
 
-    # Selecionar fornecedores aleatórios (sem repetição para esta demanda)
-    fornecedores_selecionados = random.sample(fornecedores, min(num_orcamentos, len(fornecedores)))
+def get_itens_by_categoria(cursor, id_categoria):
+    """Busca itens do catálogo por categoria"""
+    cursor.execute("""
+        SELECT id, nome, preco
+        FROM item
+        WHERE id_categoria = ?
+    """, (id_categoria,))
+    return cursor.fetchall()
 
-    # Determinar status dos orçamentos baseado no status da demanda
-    if status_demanda == "FINALIZADA":
-        # 1 aceito, resto pendente ou rejeitado
-        status_orcamentos = ["ACEITO"] + random.choices(["PENDENTE", "REJEITADO"], k=num_orcamentos-1)
-    elif status_demanda == "CANCELADA":
-        # Apenas pendentes ou rejeitados
-        status_orcamentos = random.choices(["PENDENTE", "REJEITADO"], k=num_orcamentos)
-    else:  # ATIVA
-        # Maioria pendente, alguns rejeitados
-        status_orcamentos = random.choices(
-            ["PENDENTE", "PENDENTE", "PENDENTE", "REJEITADO"],
-            k=num_orcamentos
-        )
 
-    # Embaralhar para não ser sempre na mesma ordem
-    random.shuffle(status_orcamentos)
+def criar_orcamento(cursor, id_demanda, id_fornecedor):
+    """Cria um orçamento"""
+    data_cadastro = datetime.now() - timedelta(days=random.randint(0, 30))
+    data_validade = data_cadastro + timedelta(days=30)
+    status = random.choice(["PENDENTE", "PENDENTE", "APROVADO", "REJEITADO"])  # Mais chances de ser PENDENTE
 
-    # Data base para orçamentos (entre 1 e 30 dias atrás)
-    dias_atras = random.randint(1, 30)
-    data_base = datetime.now() - timedelta(days=dias_atras)
+    observacoes = None
+    if status == "APROVADO":
+        observacoes = "Orçamento aprovado pelo casal"
+    elif status == "REJEITADO":
+        observacoes = random.choice([
+            "Valores acima do esperado",
+            "Fornecedor não disponível nas datas",
+            "Optamos por outro fornecedor"
+        ])
 
-    for i, fornecedor_id in enumerate(fornecedores_selecionados):
-        # Calcular valor do orçamento dentro da faixa
-        # Adicionar variação para tornar mais realista
-        faixa = orc_max - orc_min
-        valor_base = orc_min + (faixa * random.random())
+    cursor.execute("""
+        INSERT INTO orcamento (
+            id_demanda, id_fornecedor_prestador, data_hora_cadastro,
+            data_hora_validade, status, observacoes, valor_total
+        ) VALUES (?, ?, ?, ?, ?, ?, 0)
+    """, (id_demanda, id_fornecedor, data_cadastro, data_validade, status, observacoes))
 
-        # Adicionar pequena variação adicional
-        variacao = random.uniform(0.95, 1.05)
-        valor_total = round(valor_base * variacao, 2)
+    return cursor.lastrowid, status
 
-        # Data de cadastro (variar um pouco entre orçamentos)
-        data_cadastro = data_base + timedelta(hours=random.randint(0, 72))
 
-        # Data de validade (15 a 30 dias após cadastro)
-        dias_validade = random.randint(15, 30)
-        data_validade = data_cadastro + timedelta(days=dias_validade)
+def criar_item_orcamento(cursor, id_orcamento, id_item_demanda, id_item, quantidade, preco_unitario, status_orcamento):
+    """Cria um item de orçamento"""
+    # Se o orçamento foi rejeitado, alguns itens podem ter motivo
+    motivo_rejeicao = None
+    status_item = status_orcamento
 
-        # Status do orçamento
-        status_orc = status_orcamentos[i] if i < len(status_orcamentos) else "PENDENTE"
+    if status_orcamento == "REJEITADO" and random.random() < 0.3:
+        motivo_rejeicao = random.choice([
+            "Preço muito alto",
+            "Item não disponível",
+            "Qualidade não atende expectativa"
+        ])
 
-        # Observações
-        obs = random.choice(observacoes_templates)
+    # Desconto aleatório (0-20%)
+    desconto = round(random.uniform(0, 20), 2) if random.random() < 0.3 else 0
 
-        # Se for aceito, adicionar observação especial
-        if status_orc == "ACEITO":
-            obs = "✅ Orçamento aceito pelo casal. Aguardando confirmação de pagamento."
-        elif status_orc == "REJEITADO":
-            motivos = [
-                "Valor acima do orçamento disponível.",
-                "Casal optou por outro fornecedor.",
-                "Prazo de entrega incompatível.",
-                "Serviço não atendeu às expectativas.",
-            ]
-            obs = random.choice(motivos)
+    cursor.execute("""
+        INSERT INTO item_orcamento (
+            id_orcamento, id_item_demanda, id_item, quantidade,
+            preco_unitario, desconto, status, motivo_rejeicao, observacoes
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, NULL)
+    """, (id_orcamento, id_item_demanda, id_item, quantidade, preco_unitario, desconto, status_item, motivo_rejeicao))
 
-        orcamentos_criados.append((
-            demanda_id,
-            fornecedor_id,
-            data_cadastro.strftime('%Y-%m-%d %H:%M:%S'),
-            data_validade.strftime('%Y-%m-%d %H:%M:%S'),
-            status_orc,
-            obs,
-            valor_total
-        ))
+    return cursor.lastrowid
 
-        total_por_status[status_orc] += 1
 
-# Inserir orçamentos no banco
-print(f"\n💾 Inserindo {len(orcamentos_criados)} orçamentos no banco...")
+def calcular_valor_total_orcamento(cursor, id_orcamento):
+    """Calcula e atualiza o valor total do orçamento"""
+    cursor.execute("""
+        SELECT SUM((preco_unitario * quantidade) * (1 - desconto/100))
+        FROM item_orcamento
+        WHERE id_orcamento = ?
+    """, (id_orcamento,))
 
-cursor.executemany('''
-    INSERT INTO orcamento (
-        id_demanda, id_fornecedor_prestador, data_hora_cadastro,
-        data_hora_validade, status, observacoes, valor_total
-    ) VALUES (?, ?, ?, ?, ?, ?, ?)
-''', orcamentos_criados)
+    valor_total = cursor.fetchone()[0] or 0
 
-conn.commit()
+    cursor.execute("""
+        UPDATE orcamento
+        SET valor_total = ?
+        WHERE id = ?
+    """, (valor_total, id_orcamento))
 
-# Verificar inserção
-cursor.execute("SELECT COUNT(*) FROM orcamento")
-total_orcamentos = cursor.fetchone()[0]
+    return valor_total
 
-print(f"✅ {total_orcamentos} orçamentos criados com sucesso!")
 
-# Estatísticas
-print("\n📊 Distribuição por status:")
-for status, count in total_por_status.items():
-    percentual = (count / total_orcamentos * 100) if total_orcamentos > 0 else 0
-    print(f"  {status}: {count} ({percentual:.1f}%)")
+def gerar_orcamentos_para_demanda(cursor, id_demanda, fornecedores):
+    """Gera orçamentos para uma demanda"""
+    # Buscar itens da demanda
+    itens_demanda = get_itens_demanda_by_demanda(cursor, id_demanda)
 
-# Média de orçamentos por demanda
-cursor.execute("""
-    SELECT
-        COUNT(*) as total_orcamentos,
-        COUNT(DISTINCT id_demanda) as total_demandas,
-        ROUND(CAST(COUNT(*) AS FLOAT) / COUNT(DISTINCT id_demanda), 2) as media
-    FROM orcamento
-""")
-total_orc, total_dem, media = cursor.fetchone()
-print(f"\n📈 Média de orçamentos por demanda: {media}")
+    if not itens_demanda:
+        print(f"⚠️  Demanda {id_demanda} não tem itens, pulando...")
+        return 0, 0
 
-# Top 5 demandas com mais orçamentos
-cursor.execute("""
-    SELECT d.id, d.titulo, COUNT(o.id) as total_orcamentos
-    FROM demanda d
-    LEFT JOIN orcamento o ON d.id = o.id_demanda
-    GROUP BY d.id
-    ORDER BY total_orcamentos DESC
-    LIMIT 5
-""")
-print("\n🏆 Top 5 demandas com mais orçamentos:")
-for dem_id, titulo, count in cursor.fetchall():
-    print(f"  #{dem_id} - {titulo[:50]}... ({count} orçamentos)")
+    # Criar 1-3 orçamentos de fornecedores diferentes
+    num_orcamentos = random.randint(1, min(3, len(fornecedores)))
+    fornecedores_selecionados = random.sample(fornecedores, num_orcamentos)
 
-# Demandas sem orçamentos (não deveria haver)
-cursor.execute("""
-    SELECT COUNT(*)
-    FROM demanda d
-    LEFT JOIN orcamento o ON d.id = o.id_demanda
-    WHERE o.id IS NULL
-""")
-sem_orcamento = cursor.fetchone()[0]
-if sem_orcamento > 0:
-    print(f"\n⚠️  {sem_orcamento} demandas ainda sem orçamentos")
-else:
-    print(f"\n✅ Todas as demandas possuem orçamentos!")
+    total_orcamentos = 0
+    total_itens = 0
 
-conn.close()
-print("\n✅ Script concluído!")
+    for id_fornecedor in fornecedores_selecionados:
+        # Criar orçamento
+        id_orcamento, status_orcamento = criar_orcamento(cursor, id_demanda, id_fornecedor)
+        total_orcamentos += 1
+
+        # Para cada item da demanda, adicionar pelo menos 2 itens de orçamento
+        for id_item_demanda, id_categoria, quantidade_demanda, preco_maximo in itens_demanda:
+            # Buscar itens do catálogo dessa categoria
+            itens_catalogo = get_itens_by_categoria(cursor, id_categoria)
+
+            if not itens_catalogo:
+                print(f"⚠️  Categoria {id_categoria} não tem itens no catálogo")
+                continue
+
+            # Selecionar pelo menos 2 itens (ou todos se houver menos de 2)
+            num_itens = random.randint(2, min(3, len(itens_catalogo)))
+            itens_selecionados = random.sample(itens_catalogo, min(num_itens, len(itens_catalogo)))
+
+            for id_item, nome_item, preco_base in itens_selecionados:
+                # Ajustar quantidade (pode variar um pouco da demanda)
+                quantidade = quantidade_demanda
+                if random.random() < 0.3:
+                    quantidade = max(1, quantidade_demanda + random.randint(-1, 2))
+
+                # Calcular preço unitário baseado no preço máximo da demanda
+                # Variar entre 70% e 95% do preço máximo dividido pela quantidade
+                if preco_maximo and quantidade_demanda > 0:
+                    preco_base_calculado = preco_maximo / quantidade_demanda
+                    fator = random.uniform(0.70, 0.95)
+                    preco_unitario = round(preco_base_calculado * fator, 2)
+                else:
+                    # Usar preço base do item com variação
+                    preco_unitario = round(preco_base * random.uniform(0.9, 1.1), 2)
+
+                # Criar item de orçamento
+                criar_item_orcamento(
+                    cursor, id_orcamento, id_item_demanda,
+                    id_item, quantidade, preco_unitario, status_orcamento
+                )
+                total_itens += 1
+
+        # Calcular valor total do orçamento
+        valor_total = calcular_valor_total_orcamento(cursor, id_orcamento)
+
+    return total_orcamentos, total_itens
+
+
+def main():
+    """Executa a geração de orçamentos"""
+    print(f"📊 Gerando orçamentos em {DB_PATH}\n")
+
+    # Verificar se o banco existe
+    if not DB_PATH.exists():
+        print(f"❌ Erro: Banco de dados não encontrado em {DB_PATH}")
+        return
+
+    conn = sqlite3.connect(DB_PATH)
+    cursor = conn.cursor()
+
+    try:
+        # Limpar orçamentos existentes
+        cursor.execute("DELETE FROM item_orcamento")
+        cursor.execute("DELETE FROM orcamento")
+        print("🗑️  Orçamentos existentes removidos\n")
+
+        # Buscar fornecedores
+        fornecedores = get_fornecedores(cursor)
+        print(f"👥 Encontrados {len(fornecedores)} fornecedores")
+
+        # Buscar demandas
+        demandas = get_demandas(cursor)
+        print(f"📋 Encontradas {len(demandas)} demandas\n")
+
+        total_orcamentos = 0
+        total_itens = 0
+
+        # Gerar orçamentos para cada demanda
+        for i, id_demanda in enumerate(demandas, 1):
+            print(f"[{i}/{len(demandas)}] Processando demanda {id_demanda}...", end=" ")
+            num_orc, num_itens = gerar_orcamentos_para_demanda(cursor, id_demanda, fornecedores)
+            total_orcamentos += num_orc
+            total_itens += num_itens
+            print(f"✅ {num_orc} orçamentos, {num_itens} itens")
+
+        # Commit das alterações
+        conn.commit()
+
+        print(f"\n🎉 Geração concluída!")
+        print(f"   - {total_orcamentos} orçamentos criados")
+        print(f"   - {total_itens} itens de orçamento criados")
+
+        # Estatísticas
+        cursor.execute("""
+            SELECT status, COUNT(*)
+            FROM orcamento
+            GROUP BY status
+        """)
+        print(f"\n📊 Distribuição de orçamentos por status:")
+        for status, count in cursor.fetchall():
+            print(f"   - {status}: {count}")
+
+    except Exception as e:
+        conn.rollback()
+        print(f"\n❌ Erro: {e}")
+        raise
+    finally:
+        conn.close()
+
+
+if __name__ == "__main__":
+    main()
