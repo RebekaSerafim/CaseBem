@@ -10,7 +10,7 @@ from enum import Enum
 from .base_dto import BaseDTO
 from util.validacoes_dto import (
     validar_texto_obrigatorio, validar_texto_opcional, validar_valor_monetario,
-    validar_numero_inteiro, validar_enum_valor, ValidacaoError
+    validar_numero_inteiro, validar_enum_valor
 )
 
 
@@ -92,7 +92,7 @@ class DemandaNoivoDTO(BaseDTO):
         if not v:
             return v
         validador = cls.validar_campo_wrapper(
-            lambda valor, campo: validar_texto_opcional(valor, max_chars=100),
+            lambda valor, _campo: validar_texto_opcional(valor, max_chars=100),
             "Prazo de entrega"
         )
         return validador(v)
@@ -103,7 +103,7 @@ class DemandaNoivoDTO(BaseDTO):
         if not v:
             return v
         validador = cls.validar_campo_wrapper(
-            lambda valor, campo: validar_texto_opcional(valor, max_chars=1000),
+            lambda valor, _campo: validar_texto_opcional(valor, max_chars=1000),
             "Observações"
         )
         return validador(v)
@@ -178,7 +178,7 @@ class PropostaOrcamentoDTO(BaseDTO):
         if not v:
             return v
         validador = cls.validar_campo_wrapper(
-            lambda valor, campo: validar_texto_opcional(valor, max_chars=1000),
+            lambda valor, _campo: validar_texto_opcional(valor, max_chars=1000),
             "Observações"
         )
         return validador(v)

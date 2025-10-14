@@ -2,8 +2,7 @@ from fastapi import APIRouter, Form, Request, status
 from fastapi.responses import RedirectResponse
 from fastapi.templating import Jinja2Templates
 from pydantic import ValidationError
-from typing import Optional
-import math
+from typing import Optional, Dict
 
 from core.models.usuario_model import TipoUsuario, Usuario
 from core.models.fornecedor_model import Fornecedor
@@ -55,7 +54,7 @@ def get_active_page(request: Request) -> str:
         return ""
 
 
-def render_template_with_user(request: Request, template_name: str, context: dict = {}):
+def render_template_with_user(request: Request, template_name: str, context: Optional[Dict] = None):
     """Renderiza template incluindo informações do usuário logado"""
     from infrastructure.security import obter_usuario_logado
 
@@ -179,6 +178,7 @@ async def post_cadastro_noivos(
         )
         # Criar um objeto simples com os dados do formulário para preservar no template
         from types import SimpleNamespace
+
         dados_form = SimpleNamespace(
             nome1=nome1,
             data_nascimento1=data_nascimento1,
@@ -196,7 +196,7 @@ async def post_cadastro_noivos(
             local_previsto=local_previsto,
             orcamento_estimado=orcamento,
             numero_convidados=numero_convidados,
-            newsletter=newsletter
+            newsletter=newsletter,
         )
         return templates.TemplateResponse(
             "publico/cadastro_noivos.html",
@@ -212,7 +212,7 @@ async def post_cadastro_noivos(
         email=dados.email1,
         senha=dados.senha,
         cpf=dados.cpf1,
-        telefone=dados.telefone1
+        telefone=dados.telefone1,
     )
     if not valido:
         return templates.TemplateResponse(
@@ -234,7 +234,7 @@ async def post_cadastro_noivos(
         email=dados.email2,
         senha=dados.senha,  # Mesma senha para ambos
         cpf=dados.cpf2,
-        telefone=dados.telefone2
+        telefone=dados.telefone2,
     )
     if not valido:
         return templates.TemplateResponse(
@@ -320,15 +320,16 @@ async def post_cadastro_noivos(
 
     # Enviar emails de boas-vindas para ambos os noivos
     from infrastructure.email.email_service import enviar_email_boas_vindas
+
     try:
         enviar_email_boas_vindas(dados.email1, dados.nome1)
-        logger.info(f"Email de boas-vindas enviado para {dados.email1}")
+        logger.info(f"E-mail de boas-vindas enviado para {dados.email1}")
     except Exception as e:
         logger.error(f"Erro ao enviar email de boas-vindas para {dados.email1}", erro=e)
 
     try:
         enviar_email_boas_vindas(dados.email2, dados.nome2)
-        logger.info(f"Email de boas-vindas enviado para {dados.email2}")
+        logger.info(f"E-mail de boas-vindas enviado para {dados.email2}")
     except Exception as e:
         logger.error(f"Erro ao enviar email de boas-vindas para {dados.email2}", erro=e)
 
@@ -388,6 +389,7 @@ async def post_cadastro_fornecedor(
         )
         # Criar um objeto simples com os dados do formulário para preservar no template
         from types import SimpleNamespace
+
         dados_form = SimpleNamespace(
             nome=nome,
             data_nascimento=data_nascimento,
@@ -397,7 +399,7 @@ async def post_cadastro_fornecedor(
             descricao=descricao,
             email=email,
             telefone=telefone,
-            newsletter=newsletter
+            newsletter=newsletter,
         )
         return templates.TemplateResponse(
             "publico/cadastro_fornecedor.html",
@@ -413,7 +415,7 @@ async def post_cadastro_fornecedor(
         email=dados.email,
         senha=dados.senha,
         cpf=dados.cpf,
-        telefone=dados.telefone
+        telefone=dados.telefone,
     )
     if not valido:
         return templates.TemplateResponse(
@@ -469,9 +471,10 @@ async def post_cadastro_fornecedor(
 
     # Enviar email de boas-vindas para o fornecedor
     from infrastructure.email.email_service import enviar_email_boas_vindas
+
     try:
         enviar_email_boas_vindas(dados.email, dados.nome)
-        logger.info(f"Email de boas-vindas enviado para {dados.email}")
+        logger.info(f"E-mail de boas-vindas enviado para {dados.email}")
     except Exception as e:
         logger.error(f"Erro ao enviar email de boas-vindas para {dados.email}", erro=e)
 
@@ -564,7 +567,7 @@ async def post_login(
         return template_response_with_flash(
             templates,
             "publico/login.html",
-            {"request": request, "erro": "Email ou senha inválidos"},
+            {"request": request, "erro": "E-mail ou senha inválidos", "email": email},
         )
 
     # Criar sessão
@@ -612,7 +615,10 @@ async def get_esqueci_senha(request: Request):
 @tratar_erro_rota(template_erro="publico/esqueci_senha.html")
 async def post_esqueci_senha(request: Request, email: str = Form(...)):
     """Processa solicitação de recuperação de senha"""
-    from infrastructure.security.security import gerar_token_redefinicao, obter_data_expiracao_token
+    from infrastructure.security.security import (
+        gerar_token_redefinicao,
+        obter_data_expiracao_token,
+    )
     from infrastructure.email.email_service import enviar_email_recuperacao_senha
 
     # Buscar usuário pelo email
@@ -621,13 +627,15 @@ async def post_esqueci_senha(request: Request, email: str = Form(...)):
     # Por segurança, sempre mostrar mensagem de sucesso (mesmo se email não existir)
     # Isso evita que atacantes descubram quais emails estão cadastrados
     if not usuario:
-        logger.warning(f"Tentativa de recuperação de senha com email não cadastrado", email=email)
+        logger.warning(
+            f"Tentativa de recuperação de senha com email não cadastrado", email=email
+        )
         return templates.TemplateResponse(
             "publico/esqueci_senha.html",
             {
                 "request": request,
-                "sucesso": "Se o e-mail estiver cadastrado, você receberá instruções para redefinir sua senha."
-            }
+                "sucesso": "Se o e-mail estiver cadastrado, você receberá instruções para redefinir sua senha.",
+            },
         )
 
     # Gerar token e data de expiração
@@ -643,22 +651,24 @@ async def post_esqueci_senha(request: Request, email: str = Form(...)):
         f"Token de recuperação de senha gerado",
         usuario_id=usuario.id,
         email=email,
-        expira_em=data_expiracao
+        expira_em=data_expiracao,
     )
 
     # Enviar email com link de recuperação
     try:
         enviar_email_recuperacao_senha(email, usuario.nome, token)
-        logger.info(f"Email de recuperação de senha enviado", email=email)
+        logger.info(f"E-mail de recuperação de senha enviado", email=email)
     except Exception as e:
-        logger.error(f"Erro ao enviar email de recuperação de senha", email=email, erro=e)
+        logger.error(
+            f"Erro ao enviar email de recuperação de senha", email=email, erro=e
+        )
 
     return templates.TemplateResponse(
         "publico/esqueci_senha.html",
         {
             "request": request,
-            "sucesso": "Se o e-mail estiver cadastrado, você receberá instruções para redefinir sua senha."
-        }
+            "sucesso": "Se o e-mail estiver cadastrado, você receberá instruções para redefinir sua senha.",
+        },
     )
 
 
@@ -672,11 +682,7 @@ async def get_reset_senha(request: Request, token: Optional[str] = None):
         logger.warning("Tentativa de acesso à página de reset sem token")
         return templates.TemplateResponse(
             "publico/reset_senha.html",
-            {
-                "request": request,
-                "erro": "Token não fornecido",
-                "token_valido": False
-            }
+            {"request": request, "erro": "Token não fornecido", "token_valido": False},
         )
 
     # Buscar usuário pelo token
@@ -689,20 +695,18 @@ async def get_reset_senha(request: Request, token: Optional[str] = None):
             {
                 "request": request,
                 "erro": "Token inválido ou expirado",
-                "token_valido": False
-            }
+                "token_valido": False,
+            },
         )
 
     # Verificar se token expirou
     if not usuario.data_token:
-        logger.error(f"Usuário com token mas sem data de expiração", usuario_id=usuario.id)
+        logger.error(
+            f"Usuário com token mas sem data de expiração", usuario_id=usuario.id
+        )
         return templates.TemplateResponse(
             "publico/reset_senha.html",
-            {
-                "request": request,
-                "erro": "Token inválido",
-                "token_valido": False
-            }
+            {"request": request, "erro": "Token inválido", "token_valido": False},
         )
 
     try:
@@ -712,34 +716,26 @@ async def get_reset_senha(request: Request, token: Optional[str] = None):
                 f"Token de recuperação expirado",
                 usuario_id=usuario.id,
                 email=usuario.email,
-                expirou_em=usuario.data_token
+                expirou_em=usuario.data_token,
             )
             return templates.TemplateResponse(
                 "publico/reset_senha.html",
                 {
                     "request": request,
                     "erro": "Token expirado. Solicite um novo link.",
-                    "token_valido": False
-                }
+                    "token_valido": False,
+                },
             )
     except (ValueError, AttributeError) as e:
         logger.error(f"Erro ao validar data de expiração do token", erro=e)
         return templates.TemplateResponse(
             "publico/reset_senha.html",
-            {
-                "request": request,
-                "erro": "Token inválido",
-                "token_valido": False
-            }
+            {"request": request, "erro": "Token inválido", "token_valido": False},
         )
 
     return templates.TemplateResponse(
         "publico/reset_senha.html",
-        {
-            "request": request,
-            "token": token,
-            "token_valido": True
-        }
+        {"request": request, "token": token, "token_valido": True},
     )
 
 
@@ -749,7 +745,7 @@ async def post_reset_senha(
     request: Request,
     token: str = Form(...),
     senha: str = Form(...),
-    confirmar_senha: str = Form(...)
+    confirmar_senha: str = Form(...),
 ):
     """Processa redefinição de senha"""
     from datetime import datetime
@@ -764,8 +760,8 @@ async def post_reset_senha(
                 "request": request,
                 "token": token,
                 "token_valido": True,
-                "erro": "As senhas não coincidem"
-            }
+                "erro": "As senhas não coincidem",
+            },
         )
 
     # Validar força da senha
@@ -773,38 +769,33 @@ async def post_reset_senha(
     if not valido:
         return templates.TemplateResponse(
             "publico/reset_senha.html",
-            {
-                "request": request,
-                "token": token,
-                "token_valido": True,
-                "erro": erro
-            }
+            {"request": request, "token": token, "token_valido": True, "erro": erro},
         )
 
     # Buscar usuário pelo token
     usuario = usuario_repo.obter_usuario_por_token(token)
 
     if not usuario:
-        logger.warning(f"Token inválido na tentativa de reset", token=token[:10] + "...")
+        logger.warning(
+            f"Token inválido na tentativa de reset", token=token[:10] + "..."
+        )
         return templates.TemplateResponse(
             "publico/reset_senha.html",
             {
                 "request": request,
                 "erro": "Token inválido ou expirado",
-                "token_valido": False
-            }
+                "token_valido": False,
+            },
         )
 
     # Verificar se token expirou
     if not usuario.data_token:
-        logger.error(f"Usuário com token mas sem data de expiração", usuario_id=usuario.id)
+        logger.error(
+            f"Usuário com token mas sem data de expiração", usuario_id=usuario.id
+        )
         return templates.TemplateResponse(
             "publico/reset_senha.html",
-            {
-                "request": request,
-                "erro": "Token inválido",
-                "token_valido": False
-            }
+            {"request": request, "erro": "Token inválido", "token_valido": False},
         )
 
     try:
@@ -813,25 +804,21 @@ async def post_reset_senha(
             logger.warning(
                 f"Tentativa de usar token expirado",
                 usuario_id=usuario.id,
-                email=usuario.email
+                email=usuario.email,
             )
             return templates.TemplateResponse(
                 "publico/reset_senha.html",
                 {
                     "request": request,
                     "erro": "Token expirado. Solicite um novo link.",
-                    "token_valido": False
-                }
+                    "token_valido": False,
+                },
             )
     except (ValueError, AttributeError) as e:
         logger.error(f"Erro ao validar data de expiração", erro=e)
         return templates.TemplateResponse(
             "publico/reset_senha.html",
-            {
-                "request": request,
-                "erro": "Token inválido",
-                "token_valido": False
-            }
+            {"request": request, "erro": "Token inválido", "token_valido": False},
         )
 
     # Atualizar senha e limpar token
@@ -841,12 +828,12 @@ async def post_reset_senha(
     usuario_repo.atualizar(usuario)
 
     logger.info(
-        f"Senha redefinida com sucesso",
-        usuario_id=usuario.id,
-        email=usuario.email
+        f"Senha redefinida com sucesso", usuario_id=usuario.id, email=usuario.email
     )
 
-    informar_sucesso(request, "Senha redefinida com sucesso! Faça login com sua nova senha.")
+    informar_sucesso(
+        request, "Senha redefinida com sucesso! Faça login com sua nova senha."
+    )
     return RedirectResponse("/login", status.HTTP_303_SEE_OTHER)
 
 
@@ -907,10 +894,7 @@ async def listar_itens_publicos(
 
     # Aplicar paginação
     page_info = PaginationHelper.paginate(
-        itens,
-        total_itens,
-        pagina,
-        PaginationHelper.PUBLIC_PAGE_SIZE
+        itens, total_itens, pagina, PaginationHelper.PUBLIC_PAGE_SIZE
     )
 
     logger.info(
@@ -979,7 +963,13 @@ async def detalhes_item_publico(request: Request, id: int):
             {"request": request, "erro": "Item não encontrado"},
         )
 
-    logger.info(f"Detalhes do item público exibidos", item_id=id, item_nome=item.get("nome", "desconhecido") if isinstance(item, dict) else item.nome)
+    logger.info(
+        f"Detalhes do item público exibidos",
+        item_id=id,
+        item_nome=(
+            item.get("nome", "desconhecido") if isinstance(item, dict) else item.nome
+        ),
+    )
 
     return template_response_with_flash(
         templates, "publico/item_detalhes.html", {"request": request, "item": item}

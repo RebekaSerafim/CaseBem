@@ -23,23 +23,28 @@
                     <div class="col-md-4">
                         <label for="search" class="form-label">Buscar</label>
                         <input type="text" class="form-control" id="search" name="search"
-                               value="{{ request.query_params.get('search', '') }}" placeholder="Nome ou email">
+                            value="{{ request.query_params.get('search', '') }}" placeholder="Nome ou email">
                     </div>
                     <div class="col-md-3">
                         <label for="tipo_usuario" class="form-label">Perfil</label>
                         <select class="form-select" id="tipo_usuario" name="tipo_usuario">
                             <option value="">Todos</option>
-                            <option value="ADMIN" {% if request.query_params.get('tipo_usuario') == 'ADMIN' %}selected{% endif %}>Administrador</option>
-                            <option value="FORNECEDOR" {% if request.query_params.get('tipo_usuario') == 'FORNECEDOR' %}selected{% endif %}>Fornecedor</option>
-                            <option value="NOIVO" {% if request.query_params.get('tipo_usuario') == 'NOIVO' %}selected{% endif %}>Noivo</option>
+                            <option value="ADMIN" {% if request.query_params.get('tipo_usuario')=='ADMIN' %}selected{%
+                                endif %}>Administrador</option>
+                            <option value="FORNECEDOR" {% if request.query_params.get('tipo_usuario')=='FORNECEDOR'
+                                %}selected{% endif %}>Fornecedor</option>
+                            <option value="NOIVO" {% if request.query_params.get('tipo_usuario')=='NOIVO' %}selected{%
+                                endif %}>Noivo</option>
                         </select>
                     </div>
                     <div class="col-md-2">
                         <label for="status" class="form-label">Status</label>
                         <select class="form-select" id="status" name="status">
                             <option value="">Todos</option>
-                            <option value="ativo" {% if request.query_params.get('status') == 'ativo' %}selected{% endif %}>Ativo</option>
-                            <option value="inativo" {% if request.query_params.get('status') == 'inativo' %}selected{% endif %}>Inativo</option>
+                            <option value="ativo" {% if request.query_params.get('status')=='ativo' %}selected{% endif
+                                %}>Ativo</option>
+                            <option value="inativo" {% if request.query_params.get('status')=='inativo' %}selected{%
+                                endif %}>Inativo</option>
                         </select>
                     </div>
                     <div class="col-md-3 d-flex align-items-end gap-2">
@@ -64,7 +69,7 @@
                                 <th>Foto</th>
                                 <th>ID</th>
                                 <th>Nome</th>
-                                <th>Email</th>
+                                <th>E-mail</th>
                                 <th class="text-center">Tipo</th>
                                 <th class="text-center">Telefone</th>
                                 <th class="text-center">Status</th>
@@ -77,10 +82,10 @@
                                 <td>
                                     {% if avatar_existe(usuario.id) %}
                                     <img src="{{ obter_avatar_ou_padrao(usuario.id) }}" alt="Foto de {{ usuario.nome }}"
-                                         class="rounded-circle" style="width: 40px; height: 40px; object-fit: cover;">
+                                        class="rounded-circle" style="width: 40px; height: 40px; object-fit: cover;">
                                     {% else %}
                                     <div class="rounded-circle bg-secondary d-flex align-items-center justify-content-center text-white"
-                                         style="width: 40px; height: 40px; font-size: 16px; font-weight: bold;">
+                                        style="width: 40px; height: 40px; font-size: 16px; font-weight: bold;">
                                         {{ usuario.nome[0].upper() if usuario.nome else '?' }}
                                     </div>
                                     {% endif %}
@@ -107,72 +112,56 @@
                                 <td class="text-center">
                                     <div class="btn-group" role="group">
                                         <a href="/admin/usuarios/{{ usuario.id }}"
-                                           class="btn btn-primary btn-sm btn-action"
-                                           data-bs-toggle="tooltip"
-                                           data-bs-placement="top"
-                                           title="Ver detalhes">
+                                            class="btn btn-primary btn-sm btn-action" data-bs-toggle="tooltip"
+                                            data-bs-placement="top" title="Ver detalhes">
                                             <i class="bi bi-eye-fill "></i>
                                         </a>
                                         {% if usuario.perfil.value == 'ADMIN' %}
-                                            <a href="/admin/usuarios/editar-admin/{{ usuario.id }}"
-                                               class="btn btn-secondary btn-sm btn-action"
-                                               data-bs-toggle="tooltip"
-                                               data-bs-placement="top"
-                                               title="Editar administrador">
-                                                <i class="bi bi-pencil-fill "></i>
-                                            </a>
+                                        <a href="/admin/usuarios/editar-admin/{{ usuario.id }}"
+                                            class="btn btn-secondary btn-sm btn-action" data-bs-toggle="tooltip"
+                                            data-bs-placement="top" title="Editar administrador">
+                                            <i class="bi bi-pencil-fill "></i>
+                                        </a>
                                         {% elif usuario.perfil.value == 'FORNECEDOR' %}
-                                            {% set fornecedor = fornecedores_dados.get(usuario.id) %}
-                                            {% if fornecedor and not fornecedor.verificado %}
-                                            <a href="/admin/verificacao/{{ usuario.id }}"
-                                               class="btn btn-info btn-sm btn-action"
-                                               data-bs-toggle="tooltip"
-                                               data-bs-placement="top"
-                                               title="Verificar fornecedor">
-                                                <i class="bi bi-patch-check "></i>
-                                            </a>
-                                            {% endif %}
-                                            {% if usuario.ativo %}
-                                            <button type="button"
-                                                    class="btn btn-warning btn-sm btn-action"
-                                                    data-bs-toggle="tooltip"
-                                                    data-bs-placement="top"
-                                                    title="Bloquear usuário"
-                                                    onclick="confirmarBloqueio({{ usuario.id }}, '{{ usuario.nome }}')">
-                                                <i class="bi bi-lock-fill "></i>
-                                            </button>
-                                            {% else %}
-                                            <form method="post" action="/admin/usuarios/{{ usuario.id }}/ativar" class="d-inline">
-                                                <button type="submit"
-                                                        class="btn btn-success btn-sm btn-action"
-                                                        data-bs-toggle="tooltip"
-                                                        data-bs-placement="top"
-                                                        title="Ativar usuário">
-                                                    <i class="bi bi-unlock-fill "></i>
-                                                </button>
-                                            </form>
-                                            {% endif %}
+                                        {% set fornecedor = fornecedores_dados.get(usuario.id) %}
+                                        {% if fornecedor and not fornecedor.verificado %}
+                                        <a href="/admin/verificacao/{{ usuario.id }}"
+                                            class="btn btn-info btn-sm btn-action" data-bs-toggle="tooltip"
+                                            data-bs-placement="top" title="Verificar fornecedor">
+                                            <i class="bi bi-patch-check "></i>
+                                        </a>
+                                        {% endif %}
+                                        {% if usuario.ativo %}
+                                        <button type="button" class="btn btn-warning btn-sm btn-action"
+                                            data-bs-toggle="tooltip" data-bs-placement="top" title="Bloquear usuário"
+                                            onclick="confirmarBloqueio({{ usuario.id }}, '{{ usuario.nome }}')">
+                                            <i class="bi bi-lock-fill "></i>
+                                        </button>
                                         {% else %}
-                                            {% if usuario.ativo %}
-                                            <button type="button"
-                                                    class="btn btn-warning btn-sm btn-action"
-                                                    data-bs-toggle="tooltip"
-                                                    data-bs-placement="top"
-                                                    title="Bloquear usuário"
-                                                    onclick="confirmarBloqueio({{ usuario.id }}, '{{ usuario.nome }}')">
-                                                <i class="bi bi-lock-fill "></i>
+                                        <form method="post" action="/admin/usuarios/{{ usuario.id }}/ativar"
+                                            class="d-inline">
+                                            <button type="submit" class="btn btn-success btn-sm btn-action"
+                                                data-bs-toggle="tooltip" data-bs-placement="top" title="Ativar usuário">
+                                                <i class="bi bi-unlock-fill "></i>
                                             </button>
-                                            {% else %}
-                                            <form method="post" action="/admin/usuarios/{{ usuario.id }}/ativar" class="d-inline">
-                                                <button type="submit"
-                                                        class="btn btn-success btn-sm btn-action"
-                                                        data-bs-toggle="tooltip"
-                                                        data-bs-placement="top"
-                                                        title="Ativar usuário">
-                                                    <i class="bi bi-unlock-fill "></i>
-                                                </button>
-                                            </form>
-                                            {% endif %}
+                                        </form>
+                                        {% endif %}
+                                        {% else %}
+                                        {% if usuario.ativo %}
+                                        <button type="button" class="btn btn-warning btn-sm btn-action"
+                                            data-bs-toggle="tooltip" data-bs-placement="top" title="Bloquear usuário"
+                                            onclick="confirmarBloqueio({{ usuario.id }}, '{{ usuario.nome }}')">
+                                            <i class="bi bi-lock-fill "></i>
+                                        </button>
+                                        {% else %}
+                                        <form method="post" action="/admin/usuarios/{{ usuario.id }}/ativar"
+                                            class="d-inline">
+                                            <button type="submit" class="btn btn-success btn-sm btn-action"
+                                                data-bs-toggle="tooltip" data-bs-placement="top" title="Ativar usuário">
+                                                <i class="bi bi-unlock-fill "></i>
+                                            </button>
+                                        </form>
+                                        {% endif %}
                                         {% endif %}
                                     </div>
                                 </td>
@@ -195,7 +184,8 @@
                 <!-- Página anterior -->
                 {% if pagina_atual > 1 %}
                 <li class="page-item">
-                    <a class="page-link" href="?{% if busca %}search={{ busca }}&{% endif %}{% if tipo_usuario %}tipo_usuario={{ tipo_usuario }}&{% endif %}{% if status %}status={{ status }}&{% endif %}pagina={{ pagina_atual - 1 }}">
+                    <a class="page-link"
+                        href="?{% if busca %}search={{ busca }}&{% endif %}{% if tipo_usuario %}tipo_usuario={{ tipo_usuario }}&{% endif %}{% if status %}status={{ status }}&{% endif %}pagina={{ pagina_atual - 1 }}">
                         <i class="bi bi-chevron-left"></i> Anterior
                     </a>
                 </li>
@@ -206,27 +196,29 @@
                 {% set fim_pagina = [total_paginas + 1, pagina_atual + 3]|min %}
                 {% for num_pagina in range(inicio_pagina, fim_pagina) %}
                 <li class="page-item {{ 'active' if num_pagina == pagina_atual else '' }}">
-                    <a class="page-link" href="?{% if busca %}search={{ busca }}&{% endif %}{% if tipo_usuario %}tipo_usuario={{ tipo_usuario }}&{% endif %}{% if status %}status={{ status }}&{% endif %}pagina={{ num_pagina }}">
+                    <a class="page-link"
+                        href="?{% if busca %}search={{ busca }}&{% endif %}{% if tipo_usuario %}tipo_usuario={{ tipo_usuario }}&{% endif %}{% if status %}status={{ status }}&{% endif %}pagina={{ num_pagina }}">
                         {{ num_pagina }}
                     </a>
                 </li>
                 {% endfor %}
 
                 <!-- Próxima página -->
-                {% if pagina_atual < total_paginas %}
-                <li class="page-item">
-                    <a class="page-link" href="?{% if busca %}search={{ busca }}&{% endif %}{% if tipo_usuario %}tipo_usuario={{ tipo_usuario }}&{% endif %}{% if status %}status={{ status }}&{% endif %}pagina={{ pagina_atual + 1 }}">
+                {% if pagina_atual < total_paginas %} <li class="page-item">
+                    <a class="page-link"
+                        href="?{% if busca %}search={{ busca }}&{% endif %}{% if tipo_usuario %}tipo_usuario={{ tipo_usuario }}&{% endif %}{% if status %}status={{ status }}&{% endif %}pagina={{ pagina_atual + 1 }}">
                         Próxima <i class="bi bi-chevron-right"></i>
                     </a>
-                </li>
-                {% endif %}
+                    </li>
+                    {% endif %}
             </ul>
         </nav>
 
         <!-- Info da paginação -->
         <div class="text-center text-muted">
             Página {{ pagina_atual }} de {{ total_paginas }}
-            ({{ (pagina_atual - 1) * 10 + 1 }} a {{ [pagina_atual * 10, total_usuarios]|min }} de {{ total_usuarios }} usuários)
+            ({{ (pagina_atual - 1) * 10 + 1 }} a {{ [pagina_atual * 10, total_usuarios]|min }} de {{ total_usuarios }}
+            usuários)
         </div>
     </div>
 </div>
@@ -262,30 +254,30 @@
 
 {% block scripts %}
 <script>
-// Inicializar tooltips
-document.addEventListener('DOMContentLoaded', function () {
-    var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
-    var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
-        return new bootstrap.Tooltip(tooltipTriggerEl);
+    // Inicializar tooltips
+    document.addEventListener('DOMContentLoaded', function () {
+        var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+        var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+            return new bootstrap.Tooltip(tooltipTriggerEl);
+        });
     });
-});
 
-function confirmarBloqueio(id, nome) {
-    mostrarModalConfirmacao({
-        titulo: 'Confirmar Bloqueio',
-        texto: `Tem certeza que deseja bloquear o usuário ${nome}?`,
-        subtexto: 'O usuário não poderá mais acessar o sistema.',
-        tipo: 'warning',
-        textoBotao: 'Bloquear',
-        onConfirmar: function() {
-            // Criar form dinamicamente e submeter
-            const form = document.createElement('form');
-            form.method = 'POST';
-            form.action = `/admin/usuarios/${id}/bloquear`;
-            document.body.appendChild(form);
-            form.submit();
-        }
-    });
-}
+    function confirmarBloqueio(id, nome) {
+        mostrarModalConfirmacao({
+            titulo: 'Confirmar Bloqueio',
+            texto: `Tem certeza que deseja bloquear o usuário ${nome}?`,
+            subtexto: 'O usuário não poderá mais acessar o sistema.',
+            tipo: 'warning',
+            textoBotao: 'Bloquear',
+            onConfirmar: function () {
+                // Criar form dinamicamente e submeter
+                const form = document.createElement('form');
+                form.method = 'POST';
+                form.action = `/admin/usuarios/${id}/bloquear`;
+                document.body.appendChild(form);
+                form.submit();
+            }
+        });
+    }
 </script>
 {% endblock %}

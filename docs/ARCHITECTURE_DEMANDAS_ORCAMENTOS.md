@@ -370,7 +370,7 @@ WHERE io.id_orcamento = ?
 
 ### Prioridade ALTA
 - [ ] Adicionar campo `motivo_rejeicao` em ItemOrcamento
-- [ ] Notificações por email ao receber/aceitar orçamento
+- [ ] Notificações por e-mail ao receber/aceitar orçamento
 - [ ] Histórico de alterações de status
 
 ### Prioridade MÉDIA

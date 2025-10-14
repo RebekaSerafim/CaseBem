@@ -29,7 +29,7 @@
                 <div class="row">
                     <div class="col-md-6">
                         <div class="mb-3">
-                            <small class="text-muted">Email:</small>
+                            <small class="text-muted">E-mail:</small>
                             <div>{{ fornecedor.email }}</div>
                         </div>
 
@@ -60,16 +60,16 @@
                             <small class="text-muted">Tipos de Fornecimento:</small>
                             <div class="mt-1">
                                 {% if fornecedor.prestador %}
-                                    <span class="badge bg-info me-1">Serviços</span>
+                                <span class="badge bg-info me-1">Serviços</span>
                                 {% endif %}
                                 {% if fornecedor.vendedor %}
-                                    <span class="badge bg-success me-1">Produtos</span>
+                                <span class="badge bg-success me-1">Produtos</span>
                                 {% endif %}
                                 {% if fornecedor.locador %}
-                                    <span class="badge bg-warning me-1">Espaços</span>
+                                <span class="badge bg-warning me-1">Espaços</span>
                                 {% endif %}
                                 {% if not fornecedor.prestador and not fornecedor.vendedor and not fornecedor.locador %}
-                                    <span class="text-muted">Nenhum tipo selecionado</span>
+                                <span class="text-muted">Nenhum tipo selecionado</span>
                                 {% endif %}
                             </div>
                         </div>
@@ -91,16 +91,14 @@
                 <div class="row mt-4">
                     <div class="col-12">
                         <div class="d-flex justify-content-center gap-3">
-                            <button type="button" class="btn btn-success"
-                                    data-bs-toggle="tooltip" data-bs-placement="top" title="Aprovar fornecedor"
-                                    onclick="confirmarAprovacao('o fornecedor &quot;{{ fornecedor.nome }}&quot;', function() {
+                            <button type="button" class="btn btn-success" data-bs-toggle="tooltip"
+                                data-bs-placement="top" title="Aprovar fornecedor" onclick="confirmarAprovacao('o fornecedor &quot;{{ fornecedor.nome }}&quot;', function() {
                                         document.getElementById('formAprovar{{ fornecedor.id }}').submit();
                                     })">
                                 <i class="bi bi-check-circle-fill me-2"></i>Aprovar Fornecedor
                             </button>
-                            <button type="button" class="btn btn-danger"
-                                    data-bs-toggle="tooltip" data-bs-placement="top" title="Rejeitar fornecedor"
-                                    onclick="confirmarRejeicao('o fornecedor &quot;{{ fornecedor.nome }}&quot;', function() {
+                            <button type="button" class="btn btn-danger" data-bs-toggle="tooltip"
+                                data-bs-placement="top" title="Rejeitar fornecedor" onclick="confirmarRejeicao('o fornecedor &quot;{{ fornecedor.nome }}&quot;', function() {
                                         document.getElementById('formRejeitar{{ fornecedor.id }}').submit();
                                     })">
                                 <i class="bi bi-x-circle-fill me-2"></i>Rejeitar Fornecedor
@@ -121,7 +119,7 @@
                             </div>
                             <div class="card-body">
                                 <div class="mb-3">
-                                    <small class="text-muted">Email:</small>
+                                    <small class="text-muted">E-mail:</small>
                                     <div>{{ fornecedor_item.email }}</div>
                                 </div>
 
@@ -150,16 +148,17 @@
                                     <small class="text-muted">Tipos de Serviço:</small>
                                     <div class="mt-1">
                                         {% if fornecedor_item.prestador %}
-                                            <span class="badge bg-info me-1">Prestador de Serviços</span>
+                                        <span class="badge bg-info me-1">Prestador de Serviços</span>
                                         {% endif %}
                                         {% if fornecedor_item.vendedor %}
-                                            <span class="badge bg-success me-1">Vendedor de Produtos</span>
+                                        <span class="badge bg-success me-1">Vendedor de Produtos</span>
                                         {% endif %}
                                         {% if fornecedor_item.locador %}
-                                            <span class="badge bg-warning me-1">Locador de Espaços</span>
+                                        <span class="badge bg-warning me-1">Locador de Espaços</span>
                                         {% endif %}
-                                        {% if not fornecedor_item.prestador and not fornecedor_item.vendedor and not fornecedor_item.locador %}
-                                            <span class="text-muted">Nenhum tipo selecionado</span>
+                                        {% if not fornecedor_item.prestador and not fornecedor_item.vendedor and not
+                                        fornecedor_item.locador %}
+                                        <span class="text-muted">Nenhum tipo selecionado</span>
                                         {% endif %}
                                     </div>
                                 </div>
@@ -179,15 +178,15 @@
                             <div class="card-footer bg-white border-top-0">
                                 <div class="d-flex justify-content-center gap-2">
                                     <button type="button" class="btn btn-success btn-sm btn-action"
-                                            data-bs-toggle="tooltip" data-bs-placement="top" title="Aprovar fornecedor"
-                                            onclick="confirmarAprovacao('o fornecedor &quot;{{ fornecedor_item.nome }}&quot;', function() {
+                                        data-bs-toggle="tooltip" data-bs-placement="top" title="Aprovar fornecedor"
+                                        onclick="confirmarAprovacao('o fornecedor &quot;{{ fornecedor_item.nome }}&quot;', function() {
                                                 document.getElementById('formAprovar{{ fornecedor_item.id }}').submit();
                                             })">
                                         <i class="bi bi-check-circle-fill"></i>
                                     </button>
                                     <button type="button" class="btn btn-danger btn-sm btn-action"
-                                            data-bs-toggle="tooltip" data-bs-placement="top" title="Rejeitar fornecedor"
-                                            onclick="confirmarRejeicao('o fornecedor &quot;{{ fornecedor_item.nome }}&quot;', function() {
+                                        data-bs-toggle="tooltip" data-bs-placement="top" title="Rejeitar fornecedor"
+                                        onclick="confirmarRejeicao('o fornecedor &quot;{{ fornecedor_item.nome }}&quot;', function() {
                                                 document.getElementById('formRejeitar{{ fornecedor_item.id }}').submit();
                                             })">
                                         <i class="bi bi-x-circle-fill "></i>
@@ -203,7 +202,8 @@
                 <div class="text-center py-5">
                     <i class="bi bi-check-circle-fill" style="font-size: 4rem; color: #28a745;" class="mb-4"></i>
                     <h4>Nenhum fornecedor pendente</h4>
-                    <p class="text-muted">Todos os fornecedores foram verificados ou não há novos cadastros para análise.</p>
+                    <p class="text-muted">Todos os fornecedores foram verificados ou não há novos cadastros para
+                        análise.</p>
                 </div>
                 {% endif %}
 
@@ -219,14 +219,18 @@
 
 <!-- Formulários ocultos para aprovação e rejeição -->
 {% if fornecedor %}
-<form id="formAprovar{{ fornecedor.id }}" method="post" action="/admin/verificacao/{{ fornecedor.id }}/aprovar" style="display: none;"></form>
-<form id="formRejeitar{{ fornecedor.id }}" method="post" action="/admin/verificacao/{{ fornecedor.id }}/rejeitar" style="display: none;"></form>
+<form id="formAprovar{{ fornecedor.id }}" method="post" action="/admin/verificacao/{{ fornecedor.id }}/aprovar"
+    style="display: none;"></form>
+<form id="formRejeitar{{ fornecedor.id }}" method="post" action="/admin/verificacao/{{ fornecedor.id }}/rejeitar"
+    style="display: none;"></form>
 {% endif %}
 
 {% if fornecedores_pendentes %}
 {% for fornecedor_item in fornecedores_pendentes %}
-<form id="formAprovar{{ fornecedor_item.id }}" method="post" action="/admin/verificacao/{{ fornecedor_item.id }}/aprovar" style="display: none;"></form>
-<form id="formRejeitar{{ fornecedor_item.id }}" method="post" action="/admin/verificacao/{{ fornecedor_item.id }}/rejeitar" style="display: none;"></form>
+<form id="formAprovar{{ fornecedor_item.id }}" method="post"
+    action="/admin/verificacao/{{ fornecedor_item.id }}/aprovar" style="display: none;"></form>
+<form id="formRejeitar{{ fornecedor_item.id }}" method="post"
+    action="/admin/verificacao/{{ fornecedor_item.id }}/rejeitar" style="display: none;"></form>
 {% endfor %}
 {% endif %}
 
@@ -234,13 +238,13 @@
 
 {% block scripts %}
 <script>
-// Inicializar tooltips
-document.addEventListener('DOMContentLoaded', function () {
-    var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
-    var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
-        return new bootstrap.Tooltip(tooltipTriggerEl);
+    // Inicializar tooltips
+    document.addEventListener('DOMContentLoaded', function () {
+        var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+        var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+            return new bootstrap.Tooltip(tooltipTriggerEl);
+        });
     });
-});
 
 </script>
 {% endblock %}

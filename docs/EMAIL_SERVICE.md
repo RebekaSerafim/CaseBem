@@ -1,4 +1,4 @@
-# 📧 Serviço de Email - CaseBem
+# 📧 Serviço de E-mail - CaseBem
 
 ## 📋 Visão Geral
 
@@ -22,7 +22,7 @@ templates/emails/
 
 ## 🚀 Funcionalidades Implementadas
 
-### 1. Email de Boas-Vindas ✅
+### 1. E-mail de Boas-Vindas ✅
 **Status:** Implementado e em uso
 
 **Quando é enviado:**
@@ -40,12 +40,12 @@ from infrastructure.email.email_service import enviar_email_boas_vindas
 enviar_email_boas_vindas(email_destinatario, nome_destinatario)
 ```
 
-### 2. Email de Recuperação de Senha ✅
+### 2. E-mail de Recuperação de Senha ✅
 **Status:** Implementado e em uso
 
 **Quando é enviado:**
 - Usuário solicita recuperação de senha via `/esqueci-senha`
-- Email contém link com token de 24h de validade
+- E-mail contém link com token de 24h de validade
 
 **Localização:**
 - `routes/public_routes.py:577-628` (solicitação)
@@ -173,7 +173,7 @@ from infrastructure.email.email_service import enviar_meu_email
 try:
     resultado = enviar_meu_email(user.email, user.nome, dados)
     if resultado["sucesso"]:
-        logger.info(f"Email enviado com sucesso para {user.email}")
+        logger.info(f"E-mail enviado com sucesso para {user.email}")
     else:
         logger.error(f"Erro ao enviar email: {resultado['erro']}")
 except Exception as e:

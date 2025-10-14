@@ -70,7 +70,7 @@ class CadastroNoivosDTO(BaseDTO):
     @classmethod
     def validar_nome1(cls, v: str) -> str:
         validador = cls.validar_campo_wrapper(
-            lambda valor, campo: validar_nome_pessoa(valor),
+            lambda valor, _campo: validar_nome_pessoa(valor),
             "Nome do primeiro noivo"
         )
         return validador(v)
@@ -79,7 +79,7 @@ class CadastroNoivosDTO(BaseDTO):
     @classmethod
     def validar_nome2(cls, v: str) -> str:
         validador = cls.validar_campo_wrapper(
-            lambda valor, campo: validar_nome_pessoa(valor),
+            lambda valor, _campo: validar_nome_pessoa(valor),
             "Nome do segundo noivo"
         )
         return validador(v)
@@ -90,7 +90,7 @@ class CadastroNoivosDTO(BaseDTO):
         if not v:
             return v
         validador = cls.validar_campo_wrapper(
-            lambda valor, campo: validar_cpf(valor),
+            lambda valor, _campo: validar_cpf(valor),
             "CPF do primeiro noivo"
         )
         return validador(v)
@@ -101,7 +101,7 @@ class CadastroNoivosDTO(BaseDTO):
         if not v:
             return v
         validador = cls.validar_campo_wrapper(
-            lambda valor, campo: validar_cpf(valor),
+            lambda valor, _campo: validar_cpf(valor),
             "CPF do segundo noivo"
         )
         return validador(v)
@@ -110,7 +110,7 @@ class CadastroNoivosDTO(BaseDTO):
     @classmethod
     def validar_telefone1(cls, v: str) -> str:
         validador = cls.validar_campo_wrapper(
-            lambda valor, campo: validar_telefone(valor),
+            lambda valor, _campo: validar_telefone(valor),
             "Telefone do primeiro noivo"
         )
         return validador(v)
@@ -119,7 +119,7 @@ class CadastroNoivosDTO(BaseDTO):
     @classmethod
     def validar_telefone2(cls, v: str) -> str:
         validador = cls.validar_campo_wrapper(
-            lambda valor, campo: validar_telefone(valor),
+            lambda valor, _campo: validar_telefone(valor),
             "Telefone do segundo noivo"
         )
         return validador(v)
@@ -130,7 +130,7 @@ class CadastroNoivosDTO(BaseDTO):
         if not v:
             return v
         validador = cls.validar_campo_wrapper(
-            lambda valor, campo: validar_data_nascimento(valor, idade_minima=16),
+            lambda valor, _campo: validar_data_nascimento(valor, idade_minima=16),
             "Data de nascimento do primeiro noivo"
         )
         return validador(v)
@@ -141,7 +141,7 @@ class CadastroNoivosDTO(BaseDTO):
         if not v:
             return v
         validador = cls.validar_campo_wrapper(
-            lambda valor, campo: validar_data_nascimento(valor, idade_minima=16),
+            lambda valor, _campo: validar_data_nascimento(valor, idade_minima=16),
             "Data de nascimento do segundo noivo"
         )
         return validador(v)
@@ -174,7 +174,7 @@ class CadastroNoivosDTO(BaseDTO):
     @classmethod
     def validar_senha_campo(cls, v: str) -> str:
         validador = cls.validar_campo_wrapper(
-            lambda valor, campo: validar_senha(valor, min_chars=8, obrigatorio=True),
+            lambda valor, _campo: validar_senha(valor, min_chars=8, obrigatorio=True),
             "Senha"
         )
         return validador(v)  # type: ignore[return-value]
@@ -184,7 +184,7 @@ class CadastroNoivosDTO(BaseDTO):
     def senhas_devem_coincidir(cls, v: str, info: ValidationInfo) -> str:
         if 'senha' in info.data:
             validador = cls.validar_campo_wrapper(
-                lambda valor, campo: validar_senhas_coincidem(info.data['senha'], valor),
+                lambda valor, _campo: validar_senhas_coincidem(info.data['senha'], valor),
                 "Confirmação de senha"
             )
             return validador(v)
@@ -242,7 +242,7 @@ class PerfilNoivoDTO(BaseDTO):
     @classmethod
     def validar_nome(cls, v: str) -> str:
         validador = cls.validar_campo_wrapper(
-            lambda valor, campo: validar_nome_pessoa(valor),
+            lambda valor, _campo: validar_nome_pessoa(valor),
             "Nome do noivo"
         )
         return validador(v)
@@ -253,7 +253,7 @@ class PerfilNoivoDTO(BaseDTO):
         if not v:
             return v
         validador = cls.validar_campo_wrapper(
-            lambda valor, campo: validar_cpf(valor),
+            lambda valor, _campo: validar_cpf(valor),
             "CPF"
         )
         return validador(v)
@@ -262,7 +262,7 @@ class PerfilNoivoDTO(BaseDTO):
     @classmethod
     def validar_telefone_campo(cls, v: str) -> str:
         validador = cls.validar_campo_wrapper(
-            lambda valor, campo: validar_telefone(valor),
+            lambda valor, _campo: validar_telefone(valor),
             "Telefone"
         )
         return validador(v)
@@ -273,7 +273,7 @@ class PerfilNoivoDTO(BaseDTO):
         if not v:
             return v
         validador = cls.validar_campo_wrapper(
-            lambda valor, campo: validar_data_nascimento(valor, idade_minima=16),
+            lambda valor, _campo: validar_data_nascimento(valor, idade_minima=16),
             "Data de nascimento"
         )
         return validador(v)

@@ -1,8 +1,5 @@
-from typing import Optional, List
+from typing import List
 from core.repositories.base_repo import BaseRepo
-from util.exceptions import RecursoNaoEncontradoError
-from infrastructure.logging import logger
-from datetime import datetime
 from core.sql import orcamento_sql
 from core.models.orcamento_model import Orcamento
 

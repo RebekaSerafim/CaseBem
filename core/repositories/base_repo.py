@@ -179,19 +179,19 @@ class BaseRepo:
             )
             return afetado
 
-    def _objeto_para_tupla_insert(self, objeto: Any) -> tuple:
+    def _objeto_para_tupla_insert(self, _objeto: Any) -> tuple:
         """Converte objeto em tupla para INSERT - deve ser sobrescrito"""
         raise NotImplementedError(
             "Implemente _objeto_para_tupla_insert na classe filha"
         )
 
-    def _objeto_para_tupla_update(self, objeto: Any) -> tuple:
+    def _objeto_para_tupla_update(self, _objeto: Any) -> tuple:
         """Converte objeto em tupla para UPDATE - deve ser sobrescrito"""
         raise NotImplementedError(
             "Implemente _objeto_para_tupla_update na classe filha"
         )
 
-    def _linha_para_objeto(self, linha: Dict) -> Any:
+    def _linha_para_objeto(self, _linha: Dict) -> Any:
         """Converte linha do BD em objeto - deve ser sobrescrito"""
         raise NotImplementedError("Implemente _linha_para_objeto na classe filha")
 

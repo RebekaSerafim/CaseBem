@@ -88,13 +88,18 @@ class TestUsuarioRepoMelhorado:
         # Verificar emails únicos
         AssertHelper.emails_unicos(usuarios_listados, "usuarios listados")
 
-    @pytest.mark.parametrize("nome,email_valido,deve_passar", [
-        ("João Silva", "joao@teste.com", True),
-        ("", "email@teste.com", False),  # Nome vazio
-        ("Maria", "email_inválido", False),  # Email inválido
-        ("A" * 101, "teste@teste.com", False),  # Nome muito longo
-    ])
-    def test_validacao_dados_usuario(self, test_db, usuario_factory, nome, email_valido, deve_passar):
+    @pytest.mark.parametrize(
+        "nome,email_valido,deve_passar",
+        [
+            ("João Silva", "joao@teste.com", True),
+            ("", "email@teste.com", False),  # Nome vazio
+            ("Maria", "email_inválido", False),  # E-mail inválido
+            ("A" * 101, "teste@teste.com", False),  # Nome muito longo
+        ],
+    )
+    def test_validacao_dados_usuario(
+        self, test_db, usuario_factory, nome, email_valido, deve_passar
+    ):
         """Teste parametrizado para validações - demonstra uso de factories"""
         # Arrange
         usuario_repo.criar_tabela()
@@ -151,7 +156,7 @@ class TestIntegracaoUsuarios:
 
         # Act - Inserir todos os usuários
         ids_inseridos = []
-        for usuario in dados['usuarios']:
+        for usuario in dados["usuarios"]:
             id_usuario = usuario_repo.inserir(usuario)
             ids_inseridos.append(id_usuario)
 
@@ -176,11 +181,11 @@ class TestIntegracaoUsuarios:
         dados = builder.com_usuarios(5).com_fornecedores(3).construir()
 
         # Act & Assert
-        assert len(dados['usuarios']) == 5
-        assert len(dados['fornecedores']) == 3
+        assert len(dados["usuarios"]) == 5
+        assert len(dados["fornecedores"]) == 3
 
         # Verificar que fornecedores têm dados de usuário válidos
-        for fornecedor in dados['fornecedores']:
+        for fornecedor in dados["fornecedores"]:
             assert_usuario_valido(fornecedor)
-            assert hasattr(fornecedor, 'nome_empresa')
+            assert hasattr(fornecedor, "nome_empresa")
             assert fornecedor.perfil == TipoUsuario.FORNECEDOR

@@ -73,7 +73,7 @@ class UsuarioRepo(BaseRepo):
         )
 
     def obter_usuario_por_email(self, email: str) -> Optional[Usuario]:
-        """Busca um usuário pelo email"""
+        """Busca um usuário pelo e-mail"""
         resultados = self.executar_consulta(
             usuario_sql.OBTER_USUARIO_POR_EMAIL, (email,)
         )
@@ -123,7 +123,7 @@ class UsuarioRepo(BaseRepo):
         numero_pagina: int = 1,
         tamanho_pagina: int = 100,
     ) -> List[Usuario]:
-        """Busca usuários com filtros de nome/email, tipo e status"""
+        """Busca usuários com filtros de nome/e-mail, tipo e status"""
         offset = (numero_pagina - 1) * tamanho_pagina
         resultados = self.executar_consulta(
             usuario_sql.BUSCAR_USUARIOS,

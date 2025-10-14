@@ -149,7 +149,7 @@ Se no futuro for necessário templates externos, é fácil adicionar Jinja2 de v
 O logging foi integrado diretamente no serviço usando o logger estruturado da aplicação:
 
 ```python
-logger.info("Email enviado com sucesso", destinatario=email, message_id=id)
+logger.info("E-mail enviado com sucesso", destinatario=email, message_id=id)
 logger.error("Erro ao enviar e-mail", destinatario=email, erro=e)
 ```
 

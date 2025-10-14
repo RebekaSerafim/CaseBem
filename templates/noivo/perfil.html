@@ -30,12 +30,12 @@
                         <div class="col-md-6 mb-3">
                             <label for="nome" class="form-label">Nome Completo *</label>
                             <input type="text" class="form-control" id="nome" name="nome"
-                                   value="{{ usuario_logado.nome if usuario_logado else '' }}" required>
+                                value="{{ usuario_logado.nome if usuario_logado else '' }}" required>
                         </div>
                         <div class="col-md-6 mb-3">
-                            <label for="email" class="form-label">Email *</label>
+                            <label for="email" class="form-label">E-mail *</label>
                             <input type="email" class="form-control" id="email" name="email"
-                                   value="{{ usuario_logado.email if usuario_logado else '' }}" required>
+                                value="{{ usuario_logado.email if usuario_logado else '' }}" required>
                         </div>
                     </div>
 
@@ -43,12 +43,12 @@
                         <div class="col-md-6 mb-3">
                             <label for="telefone" class="form-label">Telefone *</label>
                             <input type="tel" class="form-control" id="telefone" name="telefone"
-                                   value="{{ usuario_logado.telefone if usuario_logado else '' }}" required>
+                                value="{{ usuario_logado.telefone if usuario_logado else '' }}" required>
                         </div>
                         <div class="col-md-6 mb-3">
                             <label for="data_nascimento" class="form-label">Data de Nascimento</label>
                             <input type="date" class="form-control" id="data_nascimento" name="data_nascimento"
-                                   value="{{ usuario_logado.data_nascimento if usuario_logado else '' }}">
+                                value="{{ usuario_logado.data_nascimento if usuario_logado else '' }}">
                         </div>
                     </div>
 
@@ -56,17 +56,21 @@
                         <div class="col-md-6 mb-3">
                             <label for="cpf" class="form-label">CPF</label>
                             <input type="text" class="form-control" id="cpf" name="cpf"
-                                   value="{{ usuario_logado.cpf if usuario_logado else '' }}"
-                                   placeholder="000.000.000-00">
+                                value="{{ usuario_logado.cpf if usuario_logado else '' }}" placeholder="000.000.000-00">
                         </div>
                         <div class="col-md-6 mb-3">
                             <label for="genero" class="form-label">Gênero</label>
                             <select class="form-select" id="genero" name="genero">
                                 <option value="">Selecione</option>
-                                <option value="Masculino" {% if usuario_logado and usuario_logado.genero == 'Masculino' %}selected{% endif %}>Masculino</option>
-                                <option value="Feminino" {% if usuario_logado and usuario_logado.genero == 'Feminino' %}selected{% endif %}>Feminino</option>
-                                <option value="Outro" {% if usuario_logado and usuario_logado.genero == 'Outro' %}selected{% endif %}>Outro</option>
-                                <option value="Prefiro não informar" {% if usuario_logado and usuario_logado.genero == 'Prefiro não informar' %}selected{% endif %}>Prefiro não informar</option>
+                                <option value="Masculino" {% if usuario_logado and usuario_logado.genero=='Masculino'
+                                    %}selected{% endif %}>Masculino</option>
+                                <option value="Feminino" {% if usuario_logado and usuario_logado.genero=='Feminino'
+                                    %}selected{% endif %}>Feminino</option>
+                                <option value="Outro" {% if usuario_logado and usuario_logado.genero=='Outro'
+                                    %}selected{% endif %}>Outro</option>
+                                <option value="Prefiro não informar" {% if usuario_logado and
+                                    usuario_logado.genero=='Prefiro não informar' %}selected{% endif %}>Prefiro não
+                                    informar</option>
                             </select>
                         </div>
                     </div>
@@ -84,34 +88,34 @@
 
 {% block scripts %}
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    // Máscara para CPF
-    const cpfInput = document.getElementById('cpf');
-    if (cpfInput) {
-        cpfInput.addEventListener('input', function(e) {
-            let value = e.target.value.replace(/\D/g, '');
-            value = value.replace(/(\d{3})(\d)/, '$1.$2');
-            value = value.replace(/(\d{3})(\d)/, '$1.$2');
-            value = value.replace(/(\d{3})(\d{1,2})$/, '$1-$2');
-            e.target.value = value;
-        });
-    }
+    document.addEventListener('DOMContentLoaded', function () {
+        // Máscara para CPF
+        const cpfInput = document.getElementById('cpf');
+        if (cpfInput) {
+            cpfInput.addEventListener('input', function (e) {
+                let value = e.target.value.replace(/\D/g, '');
+                value = value.replace(/(\d{3})(\d)/, '$1.$2');
+                value = value.replace(/(\d{3})(\d)/, '$1.$2');
+                value = value.replace(/(\d{3})(\d{1,2})$/, '$1-$2');
+                e.target.value = value;
+            });
+        }
 
-    // Máscara para telefone
-    const telefoneInput = document.getElementById('telefone');
-    if (telefoneInput) {
-        telefoneInput.addEventListener('input', function(e) {
-            let value = e.target.value.replace(/\D/g, '');
-            if (value.length <= 10) {
-                value = value.replace(/(\d{2})(\d)/, '($1) $2');
-                value = value.replace(/(\d{4})(\d)/, '$1-$2');
-            } else {
-                value = value.replace(/(\d{2})(\d)/, '($1) $2');
-                value = value.replace(/(\d{5})(\d)/, '$1-$2');
-            }
-            e.target.value = value;
-        });
-    }
-});
+        // Máscara para telefone
+        const telefoneInput = document.getElementById('telefone');
+        if (telefoneInput) {
+            telefoneInput.addEventListener('input', function (e) {
+                let value = e.target.value.replace(/\D/g, '');
+                if (value.length <= 10) {
+                    value = value.replace(/(\d{2})(\d)/, '($1) $2');
+                    value = value.replace(/(\d{4})(\d)/, '$1-$2');
+                } else {
+                    value = value.replace(/(\d{2})(\d)/, '($1) $2');
+                    value = value.replace(/(\d{5})(\d)/, '$1-$2');
+                }
+                e.target.value = value;
+            });
+        }
+    });
 </script>
 {% endblock %}

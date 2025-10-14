@@ -3,8 +3,8 @@ Classe base para todos os DTOs do sistema CaseBem.
 Fornece configurações padrão e métodos de validação comuns.
 """
 
-from pydantic import BaseModel, ConfigDict, field_validator
-from typing import Optional, Dict, Any, Callable, TypeVar
+from pydantic import BaseModel, ConfigDict
+from typing import Dict, Any, Callable, TypeVar
 from util.validacoes_dto import ValidacaoError
 
 T = TypeVar('T')

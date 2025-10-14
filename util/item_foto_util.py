@@ -70,7 +70,7 @@ def excluir_foto_item(item_id: int) -> bool:
             os.remove(caminho_fisico)
             return True
         return False
-    except Exception as e:
+    except Exception as _e:
         logger.error("Erro ao excluir foto do item",
             item_id=item_id,
             exc_info=True
@@ -89,6 +89,6 @@ def criar_diretorio_itens() -> bool:
         if not os.path.exists(diretorio):
             os.makedirs(diretorio, exist_ok=True)
         return True
-    except Exception as e:
+    except Exception as _e:
         logger.error("Erro ao criar diretório de itens", exc_info=True)
         return False

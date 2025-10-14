@@ -72,7 +72,7 @@ class ItemFornecedorDTO(BaseDTO):
     @classmethod
     def validar_observacoes_dto(cls, v: Optional[str]) -> Optional[str]:
         validador = cls.validar_campo_wrapper(
-            lambda valor, campo: validar_texto_opcional(valor, max_chars=500),
+            lambda valor, _campo: validar_texto_opcional(valor, max_chars=500),
             "Observações"
         )
         return validador(v)
@@ -142,7 +142,7 @@ class CadastroFornecedorDTO(BaseDTO):
     @classmethod
     def validar_nome_dto(cls, v: str) -> str:
         validador = cls.validar_campo_wrapper(
-            lambda valor, campo: validar_nome_pessoa(valor),
+            lambda valor, _campo: validar_nome_pessoa(valor),
             "Nome do fornecedor"
         )
         return validador(v)
@@ -153,7 +153,7 @@ class CadastroFornecedorDTO(BaseDTO):
         if not v:
             return v
         validador = cls.validar_campo_wrapper(
-            lambda valor, campo: validar_cpf(valor),
+            lambda valor, _campo: validar_cpf(valor),
             "CPF"
         )
         return validador(v)
@@ -164,7 +164,7 @@ class CadastroFornecedorDTO(BaseDTO):
         if not v:
             return v
         validador = cls.validar_campo_wrapper(
-            lambda valor, campo: validar_cnpj(valor),
+            lambda valor, _campo: validar_cnpj(valor),
             "CNPJ"
         )
         return validador(v)
@@ -173,7 +173,7 @@ class CadastroFornecedorDTO(BaseDTO):
     @classmethod
     def validar_nome_empresa_dto(cls, v: Optional[str]) -> Optional[str]:
         validador = cls.validar_campo_wrapper(
-            lambda valor, campo: validar_texto_opcional(valor, max_chars=100),
+            lambda valor, _campo: validar_texto_opcional(valor, max_chars=100),
             "Nome da empresa"
         )
         return validador(v)
@@ -182,7 +182,7 @@ class CadastroFornecedorDTO(BaseDTO):
     @classmethod
     def validar_descricao_dto(cls, v: Optional[str]) -> Optional[str]:
         validador = cls.validar_campo_wrapper(
-            lambda valor, campo: validar_texto_opcional(valor, max_chars=1000),
+            lambda valor, _campo: validar_texto_opcional(valor, max_chars=1000),
             "Descrição"
         )
         return validador(v)
@@ -191,7 +191,7 @@ class CadastroFornecedorDTO(BaseDTO):
     @classmethod
     def validar_telefone_dto(cls, v: str) -> str:
         validador = cls.validar_campo_wrapper(
-            lambda valor, campo: validar_telefone(valor),
+            lambda valor, _campo: validar_telefone(valor),
             "Telefone"
         )
         return validador(v)
@@ -202,7 +202,7 @@ class CadastroFornecedorDTO(BaseDTO):
         if not v:
             return v
         validador = cls.validar_campo_wrapper(
-            lambda valor, campo: validar_data_nascimento(valor, idade_minima=16),
+            lambda valor, _campo: validar_data_nascimento(valor, idade_minima=16),
             "Data de nascimento"
         )
         return validador(v)
@@ -211,7 +211,7 @@ class CadastroFornecedorDTO(BaseDTO):
     @classmethod
     def validar_senha_dto(cls, v: str) -> str:
         validador = cls.validar_campo_wrapper(
-            lambda valor, campo: validar_senha(valor, min_chars=8, obrigatorio=True),
+            lambda valor, _campo: validar_senha(valor, min_chars=8, obrigatorio=True),
             "Senha"
         )
         return validador(v)  # type: ignore[return-value]
@@ -221,7 +221,7 @@ class CadastroFornecedorDTO(BaseDTO):
     def senhas_devem_coincidir(cls, v: str, info: ValidationInfo) -> str:
         if 'senha' in info.data:
             validador = cls.validar_campo_wrapper(
-                lambda valor, campo: validar_senhas_coincidem(info.data['senha'], valor),
+                lambda valor, _campo: validar_senhas_coincidem(info.data['senha'], valor),
                 "Confirmação de senha"
             )
             return validador(v)
@@ -281,7 +281,7 @@ class PerfilFornecedorDTO(BaseDTO):
     @classmethod
     def validar_nome_dto(cls, v: str) -> str:
         validador = cls.validar_campo_wrapper(
-            lambda valor, campo: validar_nome_pessoa(valor),
+            lambda valor, _campo: validar_nome_pessoa(valor),
             "Nome do fornecedor"
         )
         return validador(v)
@@ -292,7 +292,7 @@ class PerfilFornecedorDTO(BaseDTO):
         if not v:
             return v
         validador = cls.validar_campo_wrapper(
-            lambda valor, campo: validar_cpf(valor),
+            lambda valor, _campo: validar_cpf(valor),
             "CPF"
         )
         return validador(v)
@@ -303,7 +303,7 @@ class PerfilFornecedorDTO(BaseDTO):
         if not v:
             return v
         validador = cls.validar_campo_wrapper(
-            lambda valor, campo: validar_cnpj(valor),
+            lambda valor, _campo: validar_cnpj(valor),
             "CNPJ"
         )
         return validador(v)
@@ -312,7 +312,7 @@ class PerfilFornecedorDTO(BaseDTO):
     @classmethod
     def validar_telefone_dto(cls, v: str) -> str:
         validador = cls.validar_campo_wrapper(
-            lambda valor, campo: validar_telefone(valor),
+            lambda valor, _campo: validar_telefone(valor),
             "Telefone"
         )
         return validador(v)
@@ -323,7 +323,7 @@ class PerfilFornecedorDTO(BaseDTO):
         if not v:
             return v
         validador = cls.validar_campo_wrapper(
-            lambda valor, campo: validar_data_nascimento(valor, idade_minima=16),
+            lambda valor, _campo: validar_data_nascimento(valor, idade_minima=16),
             "Data de nascimento"
         )
         return validador(v)
@@ -332,7 +332,7 @@ class PerfilFornecedorDTO(BaseDTO):
     @classmethod
     def validar_descricao_dto(cls, v: Optional[str]) -> Optional[str]:
         validador = cls.validar_campo_wrapper(
-            lambda valor, campo: validar_texto_opcional(valor, max_chars=1000),
+            lambda valor, _campo: validar_texto_opcional(valor, max_chars=1000),
             "Descrição"
         )
         return validador(v)
@@ -341,7 +341,7 @@ class PerfilFornecedorDTO(BaseDTO):
     @classmethod
     def validar_nome_empresa_dto(cls, v: Optional[str]) -> Optional[str]:
         validador = cls.validar_campo_wrapper(
-            lambda valor, campo: validar_texto_opcional(valor, max_chars=100),
+            lambda valor, _campo: validar_texto_opcional(valor, max_chars=100),
             "Nome da empresa"
         )
         return validador(v)

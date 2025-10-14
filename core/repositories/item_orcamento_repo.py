@@ -1,6 +1,5 @@
 from typing import Optional, List
 from core.repositories.base_repo import BaseRepo
-from infrastructure.logging import logger
 from core.sql import item_orcamento_sql
 from core.models.item_orcamento_model import ItemOrcamento
 

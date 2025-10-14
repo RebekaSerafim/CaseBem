@@ -222,7 +222,7 @@ Os e-mails são logados automaticamente:
 
 ```python
 # Sucesso
-logger.info("Email enviado com sucesso", destinatario=email, message_id=id)
+logger.info("E-mail enviado com sucesso", destinatario=email, message_id=id)
 
 # Erro
 logger.error("Erro ao enviar e-mail", destinatario=email, erro=e)

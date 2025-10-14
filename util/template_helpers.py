@@ -12,8 +12,8 @@ from util.flash_messages import get_flashed_messages
 from util.avatar_util import obter_avatar_ou_padrao, obter_caminho_avatar, avatar_existe
 from util.item_foto_util import obter_foto_item_ou_padrao, obter_caminho_foto_item, foto_item_existe
 
-# Imports novos (recomendado usar no futuro)
-from util.file_storage import FileStorageManager, TipoArquivo
+# Imports novos (recomendado usar no futuro) - não usados aqui mas exportados
+from util.file_storage import FileStorageManager as _FileStorageManager, TipoArquivo as _TipoArquivo
 
 
 def formatar_moeda(valor):

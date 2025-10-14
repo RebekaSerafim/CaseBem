@@ -27,7 +27,7 @@ class LoginDTO(BaseDTO):
     @classmethod
     def validar_senha_dto(cls, v: str) -> str:
         validador = cls.validar_campo_wrapper(
-            lambda valor, campo: validar_senha(valor, min_chars=1, obrigatorio=True),
+            lambda valor, _campo: validar_senha(valor, min_chars=1, obrigatorio=True),
             "Senha"
         )
         return validador(v)  # type: ignore[return-value]
@@ -58,7 +58,7 @@ class AlterarSenhaDTO(BaseDTO):
     @classmethod
     def senha_atual_nao_vazia(cls, v: str) -> str:
         validador = cls.validar_campo_wrapper(
-            lambda valor, campo: validar_senha(valor, min_chars=1, obrigatorio=True),
+            lambda valor, _campo: validar_senha(valor, min_chars=1, obrigatorio=True),
             "Senha atual"
         )
         return validador(v)  # type: ignore[return-value]
@@ -67,7 +67,7 @@ class AlterarSenhaDTO(BaseDTO):
     @classmethod
     def validar_nova_senha(cls, v: str, info: ValidationInfo) -> str:
         validador = cls.validar_campo_wrapper(
-            lambda valor, campo: validar_senha(valor, min_chars=6, obrigatorio=True),
+            lambda valor, _campo: validar_senha(valor, min_chars=6, obrigatorio=True),
             "Nova senha"
         )
         senha_validada = validador(v)
@@ -82,7 +82,7 @@ class AlterarSenhaDTO(BaseDTO):
     def senhas_devem_coincidir(cls, v: str, info: ValidationInfo) -> str:
         if 'nova_senha' in info.data:
             validador = cls.validar_campo_wrapper(
-                lambda valor, campo: validar_senhas_coincidem(info.data['nova_senha'], valor),
+                lambda valor, _campo: validar_senhas_coincidem(info.data['nova_senha'], valor),
                 "Confirmação de senha"
             )
             return validador(v)
@@ -117,7 +117,7 @@ class AdminUsuarioDTO(BaseDTO):
     @classmethod
     def validar_nome_dto(cls, v: str) -> str:
         validador = cls.validar_campo_wrapper(
-            lambda valor, campo: validar_nome_pessoa(valor),
+            lambda valor, _campo: validar_nome_pessoa(valor),
             "Nome do administrador"
         )
         return validador(v)
@@ -128,7 +128,7 @@ class AdminUsuarioDTO(BaseDTO):
         if not v:
             return v
         validador = cls.validar_campo_wrapper(
-            lambda valor, campo: validar_cpf(valor),
+            lambda valor, _campo: validar_cpf(valor),
             "CPF"
         )
         return validador(v)
@@ -139,7 +139,7 @@ class AdminUsuarioDTO(BaseDTO):
         if not v:
             return v
         validador = cls.validar_campo_wrapper(
-            lambda valor, campo: validar_telefone(valor),
+            lambda valor, _campo: validar_telefone(valor),
             "Telefone"
         )
         return validador(v)
@@ -150,7 +150,7 @@ class AdminUsuarioDTO(BaseDTO):
         if not v:
             return v
         validador = cls.validar_campo_wrapper(
-            lambda valor, campo: validar_data_nascimento(valor, idade_minima=18),
+            lambda valor, _campo: validar_data_nascimento(valor, idade_minima=18),
             "Data de nascimento"
         )
         return validador(v)
@@ -161,7 +161,7 @@ class AdminUsuarioDTO(BaseDTO):
         if not v:
             return v
         validador = cls.validar_campo_wrapper(
-            lambda valor, campo: validar_senha(valor, obrigatorio=False),
+            lambda valor, _campo: validar_senha(valor, obrigatorio=False),
             "Senha"
         )
         return validador(v)
@@ -200,7 +200,7 @@ class PerfilAdminDTO(BaseDTO):
     @classmethod
     def validar_nome_dto(cls, v: str) -> str:
         validador = cls.validar_campo_wrapper(
-            lambda valor, campo: validar_nome_pessoa(valor, min_chars=2, max_chars=100),
+            lambda valor, _campo: validar_nome_pessoa(valor, min_chars=2, max_chars=100),
             "Nome"
         )
         return validador(v)
@@ -211,7 +211,7 @@ class PerfilAdminDTO(BaseDTO):
         if not v:
             return v
         validador = cls.validar_campo_wrapper(
-            lambda valor, campo: validar_telefone(valor),
+            lambda valor, _campo: validar_telefone(valor),
             "Telefone"
         )
         return validador(v)
@@ -220,7 +220,7 @@ class PerfilAdminDTO(BaseDTO):
     @classmethod
     def validar_cargo_dto(cls, v: Optional[str]) -> Optional[str]:
         validador = cls.validar_campo_wrapper(
-            lambda valor, campo: validar_texto_opcional(valor, max_chars=50),
+            lambda valor, _campo: validar_texto_opcional(valor, max_chars=50),
             "Cargo"
         )
         return validador(v)
@@ -229,7 +229,7 @@ class PerfilAdminDTO(BaseDTO):
     @classmethod
     def validar_endereco_dto(cls, v: Optional[str]) -> Optional[str]:
         validador = cls.validar_campo_wrapper(
-            lambda valor, campo: validar_texto_opcional(valor, max_chars=200),
+            lambda valor, _campo: validar_texto_opcional(valor, max_chars=200),
             "Endereço"
         )
         return validador(v)
@@ -240,14 +240,14 @@ class PerfilAdminDTO(BaseDTO):
         # Primeira validação: se existe, deve ser um nome válido
         if v:
             validador_nome = cls.validar_campo_wrapper(
-                lambda valor, campo: validar_nome_pessoa(valor, min_chars=1, max_chars=50),
+                lambda valor, _campo: validar_nome_pessoa(valor, min_chars=1, max_chars=50),
                 "Cidade"
             )
             validador_nome(v)
 
         # Segunda validação: tamanho máximo
         validador_texto = cls.validar_campo_wrapper(
-            lambda valor, campo: validar_texto_opcional(valor, max_chars=50),
+            lambda valor, _campo: validar_texto_opcional(valor, max_chars=50),
             "Cidade"
         )
         return validador_texto(v)
@@ -258,7 +258,7 @@ class PerfilAdminDTO(BaseDTO):
         if not v:
             return v
         validador = cls.validar_campo_wrapper(
-            lambda valor, campo: validar_estado_brasileiro(valor),
+            lambda valor, _campo: validar_estado_brasileiro(valor),
             "Estado"
         )
         return validador(v)
@@ -267,7 +267,7 @@ class PerfilAdminDTO(BaseDTO):
     @classmethod
     def validar_observacoes_dto(cls, v: Optional[str]) -> Optional[str]:
         validador = cls.validar_campo_wrapper(
-            lambda valor, campo: validar_texto_opcional(valor, max_chars=1000),
+            lambda valor, _campo: validar_texto_opcional(valor, max_chars=1000),
             "Observações"
         )
         return validador(v)

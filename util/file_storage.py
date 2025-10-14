@@ -108,7 +108,7 @@ class FileStorageManager:
                 os.remove(caminho)
                 return True
             return False
-        except Exception as e:
+        except Exception as _e:
             logger.error("Erro ao excluir arquivo",
                 tipo=tipo.value,
                 id_recurso=id_recurso,
@@ -131,7 +131,7 @@ class FileStorageManager:
             diretorio = f"{FileStorageManager.BASE_DIR}/{tipo.value}"
             os.makedirs(diretorio, exist_ok=True)
             return True
-        except Exception as e:
+        except Exception as _e:
             logger.error("Erro ao criar diretório",
                 tipo=tipo.value,
                 exc_info=True
@@ -166,7 +166,7 @@ class FileStorageManager:
                         continue
 
             return sorted(ids)
-        except Exception as e:
+        except Exception as _e:
             logger.error("Erro ao listar arquivos",
                 tipo=tipo.value,
                 exc_info=True

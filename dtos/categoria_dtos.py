@@ -8,8 +8,7 @@ from typing import Optional
 from .base_dto import BaseDTO
 from core.models.tipo_fornecimento_model import TipoFornecimento
 from util.validacoes_dto import (
-    validar_texto_obrigatorio, validar_texto_opcional, validar_enum_valor,
-    ValidadorWrapper
+    validar_texto_obrigatorio, validar_texto_opcional, validar_enum_valor
 )
 import re
 
@@ -56,7 +55,7 @@ class CategoriaDTO(BaseDTO):
         if v is None:
             return v
         validador = cls.validar_campo_wrapper(
-            lambda valor, campo: validar_texto_opcional(valor, max_chars=500),
+            lambda valor, _campo: validar_texto_opcional(valor, max_chars=500),
             "Descrição"
         )
         return validador(v)
@@ -90,7 +89,7 @@ class CategoriaListaDTO(BaseDTO):
         if v is None or not v.strip():
             return None
         validador = cls.validar_campo_wrapper(
-            lambda valor, campo: validar_texto_opcional(valor, max_chars=50),
+            lambda valor, _campo: validar_texto_opcional(valor, max_chars=50),
             "Busca"
         )
         return validador(v)

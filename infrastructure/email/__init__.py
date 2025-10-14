@@ -1,5 +1,5 @@
 """
-Infrastructure Email - Sistema simplificado de envio de e-mails usando Resend
+Infrastructure E-mail - Sistema simplificado de envio de e-mails usando Resend
 """
 
 from infrastructure.email.email_config import EmailConfig
@@ -13,12 +13,12 @@ from infrastructure.email.email_service import (
 
 __all__ = [
     # Config
-    'EmailConfig',
+    "EmailConfig",
     # Service
-    'EmailService',
-    'get_email_service',
+    "EmailService",
+    "get_email_service",
     # Convenience functions
-    'enviar_email_boas_vindas',
-    'enviar_email_recuperacao_senha',
-    'enviar_notificacao_orcamento',
+    "enviar_email_boas_vindas",
+    "enviar_email_recuperacao_senha",
+    "enviar_notificacao_orcamento",
 ]

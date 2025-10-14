@@ -11,8 +11,8 @@ import re
 class UsuarioValidator:
     """Validador centralizado para dados de usuário"""
 
-    # Regex simples para validação de email
-    EMAIL_REGEX = re.compile(r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$')
+    # Regex simples para validação de e-mail
+    EMAIL_REGEX = re.compile(r"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$")
 
     # Tamanho mínimo de senha
     TAMANHO_MINIMO_SENHA = 6
@@ -37,17 +37,20 @@ class UsuarioValidator:
             return False, "Nome é obrigatório"
 
         if len(nome) > UsuarioValidator.TAMANHO_MAXIMO_NOME:
-            return False, f"Nome não pode ter mais de {UsuarioValidator.TAMANHO_MAXIMO_NOME} caracteres"
+            return (
+                False,
+                f"Nome não pode ter mais de {UsuarioValidator.TAMANHO_MAXIMO_NOME} caracteres",
+            )
 
         return True, None
 
     @staticmethod
     def validar_email(email: str) -> Tuple[bool, Optional[str]]:
         """
-        Valida formato de email.
+        Valida formato de e-mail.
 
         Args:
-            email: Email a validar
+            email: E-mail a validar
 
         Returns:
             Tuple[bool, Optional[str]]: (valido, mensagem_erro)
@@ -55,15 +58,17 @@ class UsuarioValidator:
         email = email.strip() if email else ""
 
         if not email:
-            return False, "Email é obrigatório"
+            return False, "E-mail é obrigatório"
 
         if not UsuarioValidator.EMAIL_REGEX.match(email):
-            return False, "Email inválido"
+            return False, "E-mail inválido"
 
         return True, None
 
     @staticmethod
-    def validar_senha(senha: str, confirmar: bool = False) -> Tuple[bool, Optional[str]]:
+    def validar_senha(
+        senha: str, confirmar: bool = False
+    ) -> Tuple[bool, Optional[str]]:
         """
         Valida força da senha.
 
@@ -85,7 +90,10 @@ class UsuarioValidator:
 
         # Se tem senha, validar tamanho
         if senha and len(senha) < UsuarioValidator.TAMANHO_MINIMO_SENHA:
-            return False, f"Senha deve ter pelo menos {UsuarioValidator.TAMANHO_MINIMO_SENHA} caracteres"
+            return (
+                False,
+                f"Senha deve ter pelo menos {UsuarioValidator.TAMANHO_MINIMO_SENHA} caracteres",
+            )
 
         return True, None
 
@@ -104,7 +112,7 @@ class UsuarioValidator:
             return True, None  # CPF é opcional
 
         # Remove caracteres não numéricos
-        cpf_numeros = re.sub(r'[^0-9]', '', cpf)
+        cpf_numeros = re.sub(r"[^0-9]", "", cpf)
 
         # Valida tamanho
         if len(cpf_numeros) != 11:
@@ -131,7 +139,7 @@ class UsuarioValidator:
             return True, None  # Telefone é opcional
 
         # Remove caracteres não numéricos
-        telefone_numeros = re.sub(r'[^0-9]', '', telefone)
+        telefone_numeros = re.sub(r"[^0-9]", "", telefone)
 
         # Valida tamanho (10 ou 11 dígitos)
         if len(telefone_numeros) not in [10, 11]:
@@ -146,14 +154,14 @@ class UsuarioValidator:
         senha: str,
         cpf: Optional[str] = None,
         telefone: Optional[str] = None,
-        id_excluir: Optional[int] = None  # Para atualização
+        id_excluir: Optional[int] = None,  # Para atualização
     ) -> Tuple[bool, Optional[str]]:
         """
         Valida dados completos de cadastro/atualização de usuário.
 
         Args:
             nome: Nome do usuário
-            email: Email do usuário
+            email: E-mail do usuário
             senha: Senha do usuário
             cpf: CPF (opcional)
             telefone: Telefone (opcional)
@@ -193,12 +201,14 @@ class UsuarioValidator:
         return True, None
 
     @staticmethod
-    def validar_email_unico(email: str, id_excluir: Optional[int] = None) -> Tuple[bool, Optional[str]]:
+    def validar_email_unico(
+        email: str, id_excluir: Optional[int] = None
+    ) -> Tuple[bool, Optional[str]]:
         """
         Verifica se email já está em uso por outro usuário.
 
         Args:
-            email: Email a verificar
+            email: E-mail a verificar
             id_excluir: ID do usuário atual (para permitir manter mesmo email em updates)
 
         Returns:
@@ -213,7 +223,7 @@ class UsuarioValidator:
             if id_excluir and usuario_existente.id == id_excluir:
                 return True, None
 
-            # Email já está em uso por outro usuário
+            # E-mail já está em uso por outro usuário
             return False, f"Já existe um usuário cadastrado com o email {email}"
 
         return True, None

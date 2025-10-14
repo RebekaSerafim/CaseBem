@@ -31,7 +31,7 @@ Sistema web moderno para conectar noivos e fornecedores de serviços para casame
 │   ├── 📁 database/           # 💾 Conexão e adapters
 │   ├── 📁 security/           # 🔒 Autenticação e autorização
 │   ├── 📁 logging/            # 📊 Sistema de logs
-│   └── 📁 email/              # 📧 Serviço de email
+│   └── 📁 email/              # 📧 Serviço de e-mail
 ├── 📁 dtos/                   # 📝 6 DTOs com validação Pydantic
 ├── 📁 routes/                 # 🛣️  5 routers FastAPI
 │   ├── 📄 public_routes.py    # Rotas públicas

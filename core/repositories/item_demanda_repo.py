@@ -1,6 +1,5 @@
-from typing import Optional, List, Dict, Any
+from typing import List, Dict, Any
 from core.repositories.base_repo import BaseRepo
-from infrastructure.logging import logger
 from core.sql import item_demanda_sql
 from core.models.item_demanda_model import ItemDemanda
 from core.models.tipo_fornecimento_model import TipoFornecimento

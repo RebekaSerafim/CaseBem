@@ -43,7 +43,7 @@ def get_fornecedor_active_page(request: Request) -> str:
 
 @router.get("/fornecedor")
 @requer_autenticacao([TipoUsuario.FORNECEDOR.value])
-async def root_fornecedor(request: Request, usuario_logado: dict = {}):
+async def root_fornecedor(_request: Request, _usuario_logado: dict = {}):
     return RedirectResponse("/fornecedor/dashboard", status_code=status.HTTP_303_SEE_OTHER)
 
 
@@ -518,7 +518,7 @@ async def atualizar_item(
 @router.post("/fornecedor/itens/{id_item}/excluir")
 @requer_autenticacao([TipoUsuario.FORNECEDOR.value])
 @tratar_erro_rota(redirect_erro="/fornecedor/itens")
-async def excluir_item(request: Request, id_item: int, confirmar: str = Form(None), usuario_logado: dict = {}):
+async def excluir_item(request: Request, id_item: int, _confirmar: str = Form(None), usuario_logado: dict = {}):
     """Exclui um item"""
     id_fornecedor = usuario_logado["id"]
     sucesso = item_repo.excluir_item_fornecedor(id_item, id_fornecedor)
@@ -1249,8 +1249,6 @@ async def atualizar_orcamento_com_itens(
     usuario_logado: dict = {},
 ):
     """Atualiza orçamento existente (apenas se PENDENTE)"""
-    from datetime import datetime
-    from core.models.orcamento_model import Orcamento
     from core.repositories import item_orcamento_repo, item_demanda_repo
     from core.models.item_orcamento_model import ItemOrcamento
 

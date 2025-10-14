@@ -397,7 +397,7 @@ async def usuarios(request: Request, usuario_logado: dict):
 │                  ↓                                          │
 │ 2. Preenche formulário:                                     │
 │    - Nome                                                   │
-│    - Email                                                  │
+│    - E-mail                                                  │
 │    - Senha                                                  │
 │    - CPF (opcional)                                         │
 │    - Telefone                                               │
@@ -405,7 +405,7 @@ async def usuarios(request: Request, usuario_logado: dict):
 │ 3. Submit do formulário → POST /cadastro-fornecedor         │
 │                  ↓                                          │
 │ 4. Backend valida dados:                                    │
-│    ✓ Email já existe?                                       │
+│    ✓ E-mail já existe?                                       │
 │    ✓ Senha forte o suficiente?                              │
 │    ✓ CPF válido?                                            │
 │    ✓ Campos obrigatórios preenchidos?                       │
@@ -489,7 +489,7 @@ async def post_cadastro_fornecedor(
 │ 1. Usuário acessa /login                                    │
 │                  ↓                                          │
 │ 2. Preenche formulário:                                     │
-│    - Email                                                  │
+│    - E-mail                                                  │
 │    - Senha                                                  │
 │                  ↓                                          │
 │ 3. Submit do formulário → POST /login                       │
@@ -499,7 +499,7 @@ async def post_cadastro_fornecedor(
 │                  ↓                                          │
 │ 5. Verifica se usuário existe                               │
 │    if not usuario:                                          │
-│        return "Email ou senha inválidos"                    │
+│        return "E-mail ou senha inválidos"                    │
 │                  ↓                                          │
 │ 6. Verifica senha com bcrypt:                               │
 │    senha_correta = verificar_senha(                         │
@@ -508,7 +508,7 @@ async def post_cadastro_fornecedor(
 │    )                                                        │
 │                  ↓                                          │
 │ 7. Se senha incorreta:                                      │
-│    → return "Email ou senha inválidos"                      │
+│    → return "E-mail ou senha inválidos"                      │
 │    → Log de tentativa falhada                               │
 │                                                             │
 │ 8. Se senha correta:                                        │
@@ -548,7 +548,7 @@ async def post_login(
 
     # 2. Verificar existência e senha
     if not usuario or not verificar_senha(senha, usuario.senha):
-        return {"erro": "Email ou senha inválidos"}
+        return {"erro": "E-mail ou senha inválidos"}
 
     # 3. Criar sessão
     usuario_dict = usuario_para_sessao(usuario)
@@ -762,13 +762,13 @@ request.session = {
 ```python
 # ❌ MAU: Revela se email existe
 if not usuario:
-    return "Email não encontrado"
+    return "E-mail não encontrado"
 else:
-    return "Email enviado com sucesso"
+    return "E-mail enviado com sucesso"
 
 # Atacante pode descobrir emails cadastrados:
-# "teste@email.com" → "Email não encontrado"
-# "joao@email.com" → "Email enviado com sucesso"  ← Email existe!
+# "teste@email.com" → "E-mail não encontrado"
+# "joao@email.com" → "E-mail enviado com sucesso"  ← E-mail existe!
 
 # ✅ BOM: Mesma mensagem sempre
 return "Se o email estiver cadastrado, você receberá instruções"

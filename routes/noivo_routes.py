@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Request, Form, status
-from fastapi.responses import RedirectResponse, JSONResponse
+from fastapi.responses import RedirectResponse
 from fastapi.templating import Jinja2Templates
 from infrastructure.security import requer_autenticacao
 from core.models.usuario_model import TipoUsuario
@@ -16,7 +16,6 @@ from util.flash_messages import informar_sucesso, informar_erro
 from util.template_helpers import configurar_filtros_jinja
 from util.error_handlers import tratar_erro_rota
 from infrastructure.logging import logger
-from util.pagination import PaginationHelper
 
 router = APIRouter()
 templates = Jinja2Templates(directory="templates")
@@ -40,7 +39,7 @@ def get_noivo_active_page(request: Request) -> str:
 
 @router.get("/noivo")
 @requer_autenticacao([TipoUsuario.NOIVO.value])
-async def noivo_root(request: Request, usuario_logado: dict = {}):
+async def noivo_root(_request: Request, _usuario_logado: dict = {}):
     """Redireciona /noivo para /noivo/dashboard"""
     return RedirectResponse("/noivo/dashboard", status_code=status.HTTP_302_FOUND)
 

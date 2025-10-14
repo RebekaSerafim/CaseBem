@@ -1,13 +1,22 @@
 from typing import Optional
 import json
 import os
-from core.models.usuario_model import Usuario, TipoUsuario
+from core.models.usuario_model import TipoUsuario
 from core.models.tipo_fornecimento_model import TipoFornecimento
-from core.models.fornecedor_model import Fornecedor
-from core.models.casal_model import Casal
-from core.repositories import usuario_repo, fornecedor_repo, casal_repo, item_repo, categoria_repo, item_demanda_repo, item_orcamento_repo, demanda_repo, orcamento_repo
+from core.repositories import (
+    usuario_repo,
+    fornecedor_repo,
+    casal_repo,
+    item_repo,
+    categoria_repo,
+    item_demanda_repo,
+    item_orcamento_repo,
+    demanda_repo,
+    orcamento_repo,
+)
 from infrastructure.security import criar_hash_senha
 from infrastructure.logging import logger
+
 
 def criar_tabelas_banco():
     """
@@ -22,6 +31,7 @@ def criar_tabelas_banco():
     orcamento_repo.criar_tabela()
     item_demanda_repo.criar_tabela()
     item_orcamento_repo.criar_tabela()
+
 
 def criar_admin_padrao() -> Optional[int]:
     """
@@ -59,18 +69,19 @@ def criar_admin_padrao() -> Optional[int]:
                     TipoUsuario.ADMIN.value,
                     1,  # ativo
                     None,  # token_redefinicao
-                    None   # data_token
-                )
+                    None,  # data_token
+                ),
             )
 
         logger.info("Administrador padrão criado com sucesso! ID: 1")
-        logger.info("Email: admin@casebem.com | Senha: 1234aA@#")
+        logger.info("E-mail: admin@casebem.com | Senha: 1234aA@#")
         logger.warning("IMPORTANTE: Altere a senha no primeiro login!")
         return 1
 
     except Exception as e:
         logger.error(f"Erro ao verificar/criar administrador: {e}")
         return None
+
 
 def criar_usuarios_seed():
     """
@@ -91,9 +102,11 @@ def criar_usuarios_seed():
                 return
 
         # Carregar dados dos usuários do arquivo JSON
-        usuarios_dados = carregar_dados_json('usuarios.json')
+        usuarios_dados = carregar_dados_json("usuarios.json")
         if not usuarios_dados:
-            logger.info("Arquivo usuarios.json não encontrado - pulando seed de usuários")
+            logger.info(
+                "Arquivo usuarios.json não encontrado - pulando seed de usuários"
+            )
             return
 
         logger.info("Importando usuários noivos do seed...")
@@ -107,21 +120,23 @@ def criar_usuarios_seed():
                     """INSERT INTO usuario (id, nome, cpf, data_nascimento, email, telefone, senha, perfil, ativo, token_redefinicao, data_token, data_cadastro)
                        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
                     (
-                        user_data['id'],
-                        user_data['nome'],
-                        user_data['cpf'],
-                        user_data['data_nascimento'],
-                        user_data['email'],
-                        user_data['telefone'],
+                        user_data["id"],
+                        user_data["nome"],
+                        user_data["cpf"],
+                        user_data["data_nascimento"],
+                        user_data["email"],
+                        user_data["telefone"],
                         criar_hash_senha("1234aA@#"),
-                        user_data['perfil'],
+                        user_data["perfil"],
                         1,  # ativo
-                        user_data.get('token_redefinicao'),
-                        user_data.get('data_token'),
-                        user_data.get('data_cadastro')
-                    )
+                        user_data.get("token_redefinicao"),
+                        user_data.get("data_token"),
+                        user_data.get("data_cadastro"),
+                    ),
                 )
-                logger.debug(f"Usuário ID {user_data['id']} '{user_data['nome']}' importado")
+                logger.debug(
+                    f"Usuário ID {user_data['id']} '{user_data['nome']}' importado"
+                )
 
         logger.info(f"{len(usuarios_dados)} usuários noivos importados com sucesso!")
         logger.info("Senha padrão para todos os usuários: 1234aA@#")
@@ -130,13 +145,16 @@ def criar_usuarios_seed():
     except Exception as e:
         logger.error(f"Erro ao importar usuários: {e}")
 
+
 def carregar_dados_json(nome_arquivo: str) -> dict:
     """
     Carrega dados de um arquivo JSON na pasta data/seeds/.
     """
     try:
-        caminho_arquivo = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'data', 'seeds', nome_arquivo)
-        with open(caminho_arquivo, 'r', encoding='utf-8') as arquivo:
+        caminho_arquivo = os.path.join(
+            os.path.dirname(os.path.dirname(__file__)), "data", "seeds", nome_arquivo
+        )
+        with open(caminho_arquivo, "r", encoding="utf-8") as arquivo:
             return json.load(arquivo)  # type: ignore[no-any-return]
     except FileNotFoundError:
         logger.error(f"Arquivo {nome_arquivo} não encontrado na pasta data/seeds/")
@@ -147,6 +165,7 @@ def carregar_dados_json(nome_arquivo: str) -> dict:
     except Exception as e:
         logger.error(f"Erro ao carregar arquivo {nome_arquivo}: {e}")
         return {}
+
 
 def criar_categorias():
     """
@@ -161,12 +180,12 @@ def criar_categorias():
             return
 
         # Carregar dados das categorias do arquivo JSON
-        dados_categorias = carregar_dados_json('categorias.json')
-        if not dados_categorias or 'categorias' not in dados_categorias:
+        dados_categorias = carregar_dados_json("categorias.json")
+        if not dados_categorias or "categorias" not in dados_categorias:
             logger.error("Não foi possível carregar os dados das categorias")
             return
 
-        lista_categorias = dados_categorias['categorias']
+        lista_categorias = dados_categorias["categorias"]
 
         # Inserir categorias com IDs explícitos
         from infrastructure.database import obter_conexao
@@ -177,25 +196,28 @@ def criar_categorias():
 
             for cat_data in lista_categorias:
                 # Mapear string do tipo para enum
-                tipo_item = getattr(TipoFornecimento, cat_data['tipo'])
+                tipo_item = getattr(TipoFornecimento, cat_data["tipo"])
 
                 # Inserir com ID explícito
                 cursor.execute(
                     categoria_sql.INSERIR_COM_ID,
                     (
-                        cat_data['id'],
-                        cat_data['nome'],
+                        cat_data["id"],
+                        cat_data["nome"],
                         tipo_item.value,
-                        cat_data['descricao'],
-                        1  # ativo
-                    )
+                        cat_data["descricao"],
+                        1,  # ativo
+                    ),
                 )
-                logger.info(f"Categoria ID {cat_data['id']} '{cat_data['nome']}' criada com sucesso")
+                logger.info(
+                    f"Categoria ID {cat_data['id']} '{cat_data['nome']}' criada com sucesso"
+                )
 
         logger.info(f"{len(lista_categorias)} categorias padrão criadas com sucesso!")
 
     except Exception as e:
         logger.error(f"Erro ao criar categorias padrão: {e}")
+
 
 def criar_fornecedores_seed():
     """
@@ -210,7 +232,7 @@ def criar_fornecedores_seed():
             return
 
         # Carregar dados dos fornecedores do arquivo JSON
-        fornecedores_dados = carregar_dados_json('fornecedores.json')
+        fornecedores_dados = carregar_dados_json("fornecedores.json")
         if not fornecedores_dados:
             logger.error("Não foi possível carregar os dados dos fornecedores")
             return
@@ -228,19 +250,19 @@ def criar_fornecedores_seed():
                     """INSERT OR REPLACE INTO usuario (id, nome, cpf, data_nascimento, email, telefone, senha, perfil, ativo, token_redefinicao, data_token, data_cadastro)
                        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
                     (
-                        forn_data['id'],
-                        forn_data['nome'],
-                        forn_data['cpf'],
-                        forn_data['data_nascimento'],
-                        forn_data['email'],
-                        forn_data['telefone'],
+                        forn_data["id"],
+                        forn_data["nome"],
+                        forn_data["cpf"],
+                        forn_data["data_nascimento"],
+                        forn_data["email"],
+                        forn_data["telefone"],
                         criar_hash_senha("1234aA@#"),
-                        forn_data['perfil'],
-                        forn_data['ativo'],
+                        forn_data["perfil"],
+                        forn_data["ativo"],
                         None,  # token_redefinicao
                         None,  # data_token
-                        forn_data.get('data_cadastro')
-                    )
+                        forn_data.get("data_cadastro"),
+                    ),
                 )
 
                 # Depois, inserir na tabela fornecedor
@@ -248,20 +270,23 @@ def criar_fornecedores_seed():
                     """INSERT INTO fornecedor (id, nome_empresa, cnpj, descricao, verificado)
                        VALUES (?, ?, ?, ?, ?)""",
                     (
-                        forn_data['id'],
-                        forn_data['nome_empresa'],
-                        forn_data['cnpj'],
-                        forn_data['descricao'],
-                        forn_data['verificado']
-                    )
+                        forn_data["id"],
+                        forn_data["nome_empresa"],
+                        forn_data["cnpj"],
+                        forn_data["descricao"],
+                        forn_data["verificado"],
+                    ),
                 )
-                logger.debug(f"Fornecedor ID {forn_data['id']} '{forn_data['nome_empresa']}' importado")
+                logger.debug(
+                    f"Fornecedor ID {forn_data['id']} '{forn_data['nome_empresa']}' importado"
+                )
 
         logger.info(f"{len(fornecedores_dados)} fornecedores importados com sucesso!")
         logger.info("Senha padrão para todos os fornecedores: 1234aA@#")
 
     except Exception as e:
         logger.error(f"Erro ao importar fornecedores: {e}")
+
 
 def criar_itens_seed():
     """
@@ -271,6 +296,7 @@ def criar_itens_seed():
     try:
         # Verificar se já existem itens ativos
         from infrastructure.database import obter_conexao
+
         with obter_conexao() as conexao:
             cursor = conexao.cursor()
             cursor.execute("SELECT COUNT(*) FROM item WHERE ativo = 1")
@@ -281,30 +307,29 @@ def criar_itens_seed():
             return
 
         # Carregar dados de itens e categorias
-        itens_json = carregar_dados_json('itens.json')
-        if not itens_json or 'itens' not in itens_json:
+        itens_json = carregar_dados_json("itens.json")
+        if not itens_json or "itens" not in itens_json:
             logger.error("Não foi possível carregar os dados dos itens")
             return
 
-        itens_dados = itens_json['itens']
+        itens_dados = itens_json["itens"]
 
         # Carregar categorias para obter o tipo (PRODUTO/SERVICO/ESPACO)
-        categorias_json = carregar_dados_json('categorias.json')
-        if not categorias_json or 'categorias' not in categorias_json:
+        categorias_json = carregar_dados_json("categorias.json")
+        if not categorias_json or "categorias" not in categorias_json:
             logger.error("Não foi possível carregar as categorias")
             return
 
         # Criar mapa id_categoria -> tipo (normalizando para o formato do banco)
         def normalizar_tipo(tipo: str) -> str:
             """Normaliza tipo para o formato esperado pelo banco (com acentos)"""
-            tipo_map = {
-                'SERVICO': 'SERVIÇO',
-                'ESPACO': 'ESPAÇO',
-                'PRODUTO': 'PRODUTO'
-            }
+            tipo_map = {"SERVICO": "SERVIÇO", "ESPACO": "ESPAÇO", "PRODUTO": "PRODUTO"}
             return tipo_map.get(tipo.upper(), tipo)
 
-        categoria_tipo_map = {cat['id']: normalizar_tipo(cat['tipo']) for cat in categorias_json['categorias']}
+        categoria_tipo_map = {
+            cat["id"]: normalizar_tipo(cat["tipo"])
+            for cat in categorias_json["categorias"]
+        }
 
         logger.info(f"Importando {len(itens_dados)} itens do seed...")
 
@@ -313,30 +338,33 @@ def criar_itens_seed():
 
             for item_data in itens_dados:
                 # Obter tipo da categoria (já normalizado com acentos)
-                tipo = categoria_tipo_map.get(item_data['id_categoria'], 'PRODUTO')
+                tipo = categoria_tipo_map.get(item_data["id_categoria"], "PRODUTO")
 
                 # Inserir item com ID explícito (compatibilidade com fotos)
                 cursor.execute(
                     """INSERT INTO item (id, id_fornecedor, tipo, nome, descricao, preco, id_categoria, observacoes, ativo)
                        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)""",
                     (
-                        item_data['id'],
-                        item_data['id_fornecedor'],
+                        item_data["id"],
+                        item_data["id_fornecedor"],
                         tipo,
-                        item_data['nome'],
-                        item_data['descricao'],
-                        item_data['preco'],
-                        item_data['id_categoria'],
+                        item_data["nome"],
+                        item_data["descricao"],
+                        item_data["preco"],
+                        item_data["id_categoria"],
                         None,  # observacoes
-                        1      # ativo
-                    )
+                        1,  # ativo
+                    ),
                 )
-                logger.debug(f"Item ID {item_data['id']} '{item_data['nome']}' importado (Fornecedor {item_data['id_fornecedor']})")
+                logger.debug(
+                    f"Item ID {item_data['id']} '{item_data['nome']}' importado (Fornecedor {item_data['id_fornecedor']})"
+                )
 
         logger.info(f"{len(itens_dados)} itens importados com sucesso!")
 
     except Exception as e:
         logger.error(f"Erro ao importar itens: {e}")
+
 
 def criar_casais_seed():
     """
@@ -350,7 +378,7 @@ def criar_casais_seed():
             return
 
         # Carregar dados dos casais do arquivo JSON
-        casais_dados = carregar_dados_json('casais.json')
+        casais_dados = carregar_dados_json("casais.json")
         if not casais_dados:
             logger.error("Não foi possível carregar os dados dos casais")
             return
@@ -368,22 +396,25 @@ def criar_casais_seed():
                     """INSERT INTO casal (id, id_noivo1, id_noivo2, data_casamento, local_previsto, orcamento_estimado, numero_convidados, data_cadastro)
                        VALUES (?, ?, ?, ?, ?, ?, ?, ?)""",
                     (
-                        casal_data['id'],
-                        casal_data['id_noivo1'],
-                        casal_data['id_noivo2'],
-                        casal_data['data_casamento'],
-                        casal_data['local_previsto'],
-                        casal_data['orcamento_estimado'],
-                        casal_data['numero_convidados'],
-                        casal_data.get('data_cadastro')
-                    )
+                        casal_data["id"],
+                        casal_data["id_noivo1"],
+                        casal_data["id_noivo2"],
+                        casal_data["data_casamento"],
+                        casal_data["local_previsto"],
+                        casal_data["orcamento_estimado"],
+                        casal_data["numero_convidados"],
+                        casal_data.get("data_cadastro"),
+                    ),
                 )
-                logger.debug(f"Casal ID {casal_data['id']} importado - {casal_data['data_casamento']}")
+                logger.debug(
+                    f"Casal ID {casal_data['id']} importado - {casal_data['data_casamento']}"
+                )
 
         logger.info(f"{len(casais_dados)} casais importados com sucesso!")
 
     except Exception as e:
         logger.error(f"Erro ao importar casais: {e}")
+
 
 def criar_demandas_seed():
     """
@@ -399,13 +430,17 @@ def criar_demandas_seed():
             total_demandas = cursor.fetchone()[0]
 
             if total_demandas >= 20:
-                logger.info(f"Demandas já existem no sistema ({total_demandas} registros)")
+                logger.info(
+                    f"Demandas já existem no sistema ({total_demandas} registros)"
+                )
                 return
 
         # Carregar dados das demandas do arquivo JSON
-        demandas_dados = carregar_dados_json('demandas.json')
+        demandas_dados = carregar_dados_json("demandas.json")
         if not demandas_dados:
-            logger.info("Arquivo demandas.json não encontrado - pulando seed de demandas")
+            logger.info(
+                "Arquivo demandas.json não encontrado - pulando seed de demandas"
+            )
             return
 
         logger.info(f"Importando {len(demandas_dados)} demandas do seed...")
@@ -419,24 +454,27 @@ def criar_demandas_seed():
                     """INSERT INTO demanda (id, id_casal, descricao, orcamento_total, data_casamento, cidade_casamento, prazo_entrega, status, data_criacao, observacoes)
                        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
                     (
-                        demanda_data['id'],
-                        demanda_data['id_casal'],
-                        demanda_data['descricao'],
-                        demanda_data.get('orcamento_total'),
-                        demanda_data.get('data_casamento'),
-                        demanda_data.get('cidade_casamento'),
-                        demanda_data.get('prazo_entrega'),
-                        demanda_data.get('status', 'ATIVA'),
-                        demanda_data.get('data_criacao'),
-                        demanda_data.get('observacoes')
-                    )
+                        demanda_data["id"],
+                        demanda_data["id_casal"],
+                        demanda_data["descricao"],
+                        demanda_data.get("orcamento_total"),
+                        demanda_data.get("data_casamento"),
+                        demanda_data.get("cidade_casamento"),
+                        demanda_data.get("prazo_entrega"),
+                        demanda_data.get("status", "ATIVA"),
+                        demanda_data.get("data_criacao"),
+                        demanda_data.get("observacoes"),
+                    ),
                 )
-                logger.debug(f"Demanda ID {demanda_data['id']} importada - Casal {demanda_data['id_casal']}")
+                logger.debug(
+                    f"Demanda ID {demanda_data['id']} importada - Casal {demanda_data['id_casal']}"
+                )
 
         logger.info(f"{len(demandas_dados)} demandas importadas com sucesso!")
 
     except Exception as e:
         logger.error(f"Erro ao importar demandas: {e}")
+
 
 def criar_item_demanda_seed():
     """
@@ -452,13 +490,17 @@ def criar_item_demanda_seed():
             total_itens = cursor.fetchone()[0]
 
             if total_itens >= 100:
-                logger.info(f"Itens de demanda já existem no sistema ({total_itens} registros)")
+                logger.info(
+                    f"Itens de demanda já existem no sistema ({total_itens} registros)"
+                )
                 return
 
         # Carregar dados dos itens de demanda do arquivo JSON
-        itens_dados = carregar_dados_json('itens_demandas.json')
+        itens_dados = carregar_dados_json("itens_demandas.json")
         if not itens_dados:
-            logger.info("Arquivo itens_demandas.json não encontrado - pulando seed de itens de demanda")
+            logger.info(
+                "Arquivo itens_demandas.json não encontrado - pulando seed de itens de demanda"
+            )
             return
 
         logger.info(f"Importando {len(itens_dados)} itens de demanda do seed...")
@@ -472,22 +514,25 @@ def criar_item_demanda_seed():
                     """INSERT INTO item_demanda (id, id_demanda, tipo, id_categoria, descricao, quantidade, preco_maximo, observacoes)
                        VALUES (?, ?, ?, ?, ?, ?, ?, ?)""",
                     (
-                        item_data['id'],
-                        item_data['id_demanda'],
-                        item_data['tipo'],
-                        item_data['id_categoria'],
-                        item_data['descricao'],
-                        item_data['quantidade'],
-                        item_data.get('preco_maximo'),
-                        item_data.get('observacoes')
-                    )
+                        item_data["id"],
+                        item_data["id_demanda"],
+                        item_data["tipo"],
+                        item_data["id_categoria"],
+                        item_data["descricao"],
+                        item_data["quantidade"],
+                        item_data.get("preco_maximo"),
+                        item_data.get("observacoes"),
+                    ),
                 )
-                logger.debug(f"Item demanda ID {item_data['id']} importado - Demanda {item_data['id_demanda']}")
+                logger.debug(
+                    f"Item demanda ID {item_data['id']} importado - Demanda {item_data['id_demanda']}"
+                )
 
         logger.info(f"{len(itens_dados)} itens de demanda importados com sucesso!")
 
     except Exception as e:
         logger.error(f"Erro ao importar itens de demanda: {e}")
+
 
 def criar_orcamentos_seed():
     """
@@ -503,13 +548,17 @@ def criar_orcamentos_seed():
             total_orcamentos = cursor.fetchone()[0]
 
             if total_orcamentos >= 50:
-                logger.info(f"Orçamentos já existem no sistema ({total_orcamentos} registros)")
+                logger.info(
+                    f"Orçamentos já existem no sistema ({total_orcamentos} registros)"
+                )
                 return
 
         # Carregar dados dos orçamentos do arquivo JSON
-        orcamentos_dados = carregar_dados_json('orcamentos.json')
+        orcamentos_dados = carregar_dados_json("orcamentos.json")
         if not orcamentos_dados:
-            logger.info("Arquivo orcamentos.json não encontrado - pulando seed de orçamentos")
+            logger.info(
+                "Arquivo orcamentos.json não encontrado - pulando seed de orçamentos"
+            )
             return
 
         logger.info(f"Importando {len(orcamentos_dados)} orçamentos do seed...")
@@ -523,22 +572,25 @@ def criar_orcamentos_seed():
                     """INSERT INTO orcamento (id, id_demanda, id_fornecedor_prestador, data_hora_cadastro, data_hora_validade, status, observacoes, valor_total)
                        VALUES (?, ?, ?, ?, ?, ?, ?, ?)""",
                     (
-                        orcamento_data['id'],
-                        orcamento_data['id_demanda'],
-                        orcamento_data['id_fornecedor_prestador'],
-                        orcamento_data.get('data_hora_cadastro'),
-                        orcamento_data.get('data_hora_validade'),
-                        orcamento_data.get('status', 'PENDENTE'),
-                        orcamento_data.get('observacoes'),
-                        orcamento_data.get('valor_total')
-                    )
+                        orcamento_data["id"],
+                        orcamento_data["id_demanda"],
+                        orcamento_data["id_fornecedor_prestador"],
+                        orcamento_data.get("data_hora_cadastro"),
+                        orcamento_data.get("data_hora_validade"),
+                        orcamento_data.get("status", "PENDENTE"),
+                        orcamento_data.get("observacoes"),
+                        orcamento_data.get("valor_total"),
+                    ),
                 )
-                logger.debug(f"Orçamento ID {orcamento_data['id']} importado - Demanda {orcamento_data['id_demanda']}")
+                logger.debug(
+                    f"Orçamento ID {orcamento_data['id']} importado - Demanda {orcamento_data['id_demanda']}"
+                )
 
         logger.info(f"{len(orcamentos_dados)} orçamentos importados com sucesso!")
 
     except Exception as e:
         logger.error(f"Erro ao importar orçamentos: {e}")
+
 
 def criar_item_orcamento_seed():
     """
@@ -554,13 +606,17 @@ def criar_item_orcamento_seed():
             total_itens = cursor.fetchone()[0]
 
             if total_itens >= 100:
-                logger.info(f"Itens de orçamento já existem no sistema ({total_itens} registros)")
+                logger.info(
+                    f"Itens de orçamento já existem no sistema ({total_itens} registros)"
+                )
                 return
 
         # Carregar dados dos itens de orçamento do arquivo JSON
-        itens_dados = carregar_dados_json('itens_orcamentos.json')
+        itens_dados = carregar_dados_json("itens_orcamentos.json")
         if not itens_dados:
-            logger.info("Arquivo itens_orcamentos.json vazio ou não encontrado - pulando seed de itens de orçamento")
+            logger.info(
+                "Arquivo itens_orcamentos.json vazio ou não encontrado - pulando seed de itens de orçamento"
+            )
             return
 
         if len(itens_dados) == 0:
@@ -578,24 +634,27 @@ def criar_item_orcamento_seed():
                     """INSERT INTO item_orcamento (id, id_orcamento, id_item_demanda, id_item, quantidade, preco_unitario, observacoes, desconto, status, motivo_rejeicao)
                        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
                     (
-                        item_data['id'],
-                        item_data['id_orcamento'],
-                        item_data['id_item_demanda'],
-                        item_data['id_item'],
-                        item_data['quantidade'],
-                        item_data['preco_unitario'],
-                        item_data.get('observacoes'),
-                        item_data.get('desconto', 0),
-                        item_data.get('status', 'PENDENTE'),
-                        item_data.get('motivo_rejeicao')
-                    )
+                        item_data["id"],
+                        item_data["id_orcamento"],
+                        item_data["id_item_demanda"],
+                        item_data["id_item"],
+                        item_data["quantidade"],
+                        item_data["preco_unitario"],
+                        item_data.get("observacoes"),
+                        item_data.get("desconto", 0),
+                        item_data.get("status", "PENDENTE"),
+                        item_data.get("motivo_rejeicao"),
+                    ),
                 )
-                logger.debug(f"Item orçamento ID {item_data['id']} importado - Orçamento {item_data['id_orcamento']}")
+                logger.debug(
+                    f"Item orçamento ID {item_data['id']} importado - Orçamento {item_data['id_orcamento']}"
+                )
 
         logger.info(f"{len(itens_dados)} itens de orçamento importados com sucesso!")
 
     except Exception as e:
         logger.error(f"Erro ao importar itens de orçamento: {e}")
+
 
 def inicializar_sistema():
     """

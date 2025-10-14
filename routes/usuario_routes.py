@@ -26,7 +26,7 @@ renderer = TemplateRenderer(templates)
 @requer_autenticacao(
     [TipoUsuario.ADMIN.value, TipoUsuario.FORNECEDOR.value, TipoUsuario.NOIVO.value]
 )
-async def get_alterar_senha(request: Request, usuario_logado: dict = {}):
+async def get_alterar_senha(request: Request, _usuario_logado: dict = {}):
     """Página para alteração de senha (todos os perfis)"""
     return renderer.render(request, "usuario/alterar_senha.html")
 
@@ -122,7 +122,7 @@ async def post_alterar_senha(
     [TipoUsuario.ADMIN.value, TipoUsuario.FORNECEDOR.value, TipoUsuario.NOIVO.value]
 )
 async def alterar_foto(
-    request: Request, foto: UploadFile = File(...), usuario_logado: dict = {}
+    _request: Request, foto: UploadFile = File(...), usuario_logado: dict = {}
 ):
     """Processa o upload de avatar do usuário"""
     from util.image_processor import ImageProcessor
@@ -166,7 +166,7 @@ async def alterar_foto(
 @requer_autenticacao(
     [TipoUsuario.ADMIN.value, TipoUsuario.FORNECEDOR.value, TipoUsuario.NOIVO.value]
 )
-async def remover_foto(request: Request, usuario_logado: dict = {}):
+async def remover_foto(_request: Request, usuario_logado: dict = {}):
     """Remove o avatar do usuário"""
     perfil = usuario_logado["perfil"].lower()
 

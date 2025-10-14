@@ -1,6 +1,7 @@
 """
 Serviço de envio de e-mails usando Resend
 """
+
 import os
 import resend
 from typing import Optional, Dict, Any, cast
@@ -28,7 +29,7 @@ class EmailService:
         destinatario: str,
         assunto: str,
         html: str,
-        nome_destinatario: Optional[str] = None
+        nome_destinatario: Optional[str] = None,
     ) -> Dict[str, Any]:
         """
         Envia um e-mail simples
@@ -45,35 +46,35 @@ class EmailService:
         try:
             params: Dict[str, Any] = {
                 "from": f"{self.sender_name} <{self.sender_email}>",
-                "to": [destinatario] if not nome_destinatario else [f"{nome_destinatario} <{destinatario}>"],
+                "to": (
+                    [destinatario]
+                    if not nome_destinatario
+                    else [f"{nome_destinatario} <{destinatario}>"]
+                ),
                 "subject": assunto,
-                "html": html
+                "html": html,
             }
 
             response = cast(Dict[str, Any], resend.Emails.send(params))  # type: ignore[arg-type]
 
-            logger.info("Email enviado com sucesso",
-                       destinatario=destinatario,
-                       assunto=assunto,
-                       message_id=response.get("id"))
+            logger.info(
+                "E-mail enviado com sucesso",
+                destinatario=destinatario,
+                assunto=assunto,
+                message_id=response.get("id"),
+            )
 
-            return {
-                "sucesso": True,
-                "message_id": response.get("id"),
-                "data": response
-            }
+            return {"sucesso": True, "message_id": response.get("id"), "data": response}
 
         except Exception as e:
-            logger.error("Erro ao enviar e-mail",
-                        destinatario=destinatario,
-                        assunto=assunto,
-                        erro=e)
+            logger.error(
+                "Erro ao enviar e-mail",
+                destinatario=destinatario,
+                assunto=assunto,
+                erro=e,
+            )
 
-            return {
-                "sucesso": False,
-                "erro": str(e),
-                "data": None
-            }
+            return {"sucesso": False, "erro": str(e), "data": None}
 
     def _criar_html_base(self, conteudo: str, titulo: str = "Case Bem") -> str:
         """
@@ -133,6 +134,7 @@ class EmailService:
 
 # Instância global do serviço
 _email_service_instance = None
+
 
 def get_email_service() -> EmailService:
     """Retorna a instância global do serviço de e-mail"""
@@ -197,7 +199,7 @@ def enviar_email_boas_vindas(email: str, nome: str) -> Dict[str, Any]:
         destinatario=email,
         assunto="Bem-vindo(a) ao Case Bem! 💒",
         html=html,
-        nome_destinatario=nome
+        nome_destinatario=nome,
     )
 
 
@@ -257,16 +259,12 @@ def enviar_email_recuperacao_senha(email: str, nome: str, token: str) -> Dict[st
         destinatario=email,
         assunto="Recuperação de Senha - Case Bem 🔐",
         html=html,
-        nome_destinatario=nome
+        nome_destinatario=nome,
     )
 
 
 def enviar_notificacao_orcamento(
-    email: str,
-    nome: str,
-    nome_fornecedor: str,
-    item_nome: str,
-    valor: float
+    email: str, nome: str, nome_fornecedor: str, item_nome: str, valor: float
 ) -> Dict[str, Any]:
     """
     Envia notificação de novo orçamento recebido
@@ -282,7 +280,9 @@ def enviar_notificacao_orcamento(
         Dict com o resultado do envio
     """
     service = get_email_service()
-    valor_formatado = f"R$ {valor:,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")
+    valor_formatado = (
+        f"R$ {valor:,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")
+    )
 
     conteudo = f"""
     <h2 style="color: #28a745; margin-top: 0;">Novo Orçamento Recebido! 💰</h2>
@@ -323,5 +323,5 @@ def enviar_notificacao_orcamento(
         destinatario=email,
         assunto=f"Novo orçamento de {nome_fornecedor} - Case Bem 💰",
         html=html,
-        nome_destinatario=nome
+        nome_destinatario=nome,
     )

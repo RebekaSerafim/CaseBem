@@ -36,13 +36,14 @@
                     </h5>
                     <p class="mb-0">
                         {% if orcamento.status == 'PENDENTE' %}
-                            Seu orçamento foi enviado e está aguardando a decisão do cliente.
+                        Seu orçamento foi enviado e está aguardando a decisão do cliente.
                         {% elif orcamento.status == 'APROVADO' %}
-                            Parabéns! O cliente aceitou seu orçamento. Entre em contato para finalizar os detalhes.
+                        Parabéns! O cliente aceitou seu orçamento. Entre em contato para finalizar os detalhes.
                         {% elif orcamento.status == 'PARCIALMENTE_ACEITO' %}
-                            O cliente aceitou alguns itens do seu orçamento. Confira na tabela abaixo quais itens foram aceitos.
+                        O cliente aceitou alguns itens do seu orçamento. Confira na tabela abaixo quais itens foram
+                        aceitos.
                         {% elif orcamento.status == 'REJEITADO' %}
-                            O cliente optou por outro orçamento.
+                        O cliente optou por outro orçamento.
                         {% endif %}
                     </p>
                 </div>
@@ -76,7 +77,7 @@
 
                 <div class="row mb-3">
                     <div class="col-12">
-                        <small class="text-muted">Email:</small>
+                        <small class="text-muted">E-mail:</small>
                         <div>{{ noivo.email }}</div>
                     </div>
                 </div>
@@ -93,7 +94,7 @@
                 {% if orcamento.status == 'APROVADO' %}
                 <div class="mt-4">
                     <a href="mailto:{{ noivo.email }}" class="btn btn-primary btn-sm me-2">
-                        <i class="fas fa-envelope"></i> Enviar Email
+                        <i class="fas fa-envelope"></i> Enviar E-mail
                     </a>
                     {% if noivo.telefone %}
                     <a href="tel:{{ noivo.telefone }}" class="btn btn-outline-primary btn-sm">
@@ -231,9 +232,9 @@
                                 <td>{{ item.preco_unitario|moeda }}</td>
                                 <td>
                                     {% if item.desconto > 0 %}
-                                        {{ item.desconto|moeda }}
+                                    {{ item.desconto|moeda }}
                                     {% else %}
-                                        -
+                                    -
                                     {% endif %}
                                 </td>
                                 <td>
@@ -243,18 +244,18 @@
                                 </td>
                                 <td>
                                     {% if item.status == 'APROVADO' %}
-                                        <span class="badge bg-success">Aceito</span>
+                                    <span class="badge bg-success">Aceito</span>
                                     {% elif item.status == 'REJEITADO' %}
-                                        <span class="badge bg-danger">Rejeitado</span>
+                                    <span class="badge bg-danger">Rejeitado</span>
                                     {% else %}
-                                        <span class="badge bg-warning text-dark">Pendente</span>
+                                    <span class="badge bg-warning text-dark">Pendente</span>
                                     {% endif %}
                                 </td>
                                 <td>
                                     {% if item.observacoes %}
-                                        <small>{{ item.observacoes }}</small>
+                                    <small>{{ item.observacoes }}</small>
                                     {% else %}
-                                        <small class="text-muted">-</small>
+                                    <small class="text-muted">-</small>
                                     {% endif %}
                                 </td>
                             </tr>
@@ -286,39 +287,39 @@
 
 {% block scripts %}
 <style>
-.avatar-circle {
-    width: 50px;
-    height: 50px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1.2rem;
-    font-weight: bold;
-}
+    .avatar-circle {
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.2rem;
+        font-weight: bold;
+    }
 
-/* Destaque suave para linhas com base no status */
-.table-success-light {
-    background-color: rgba(25, 135, 84, 0.08) !important;
-}
+    /* Destaque suave para linhas com base no status */
+    .table-success-light {
+        background-color: rgba(25, 135, 84, 0.08) !important;
+    }
 
-.table-danger-light {
-    background-color: rgba(220, 53, 69, 0.08) !important;
-}
+    .table-danger-light {
+        background-color: rgba(220, 53, 69, 0.08) !important;
+    }
 
-.table-success-light:hover {
-    background-color: rgba(25, 135, 84, 0.15) !important;
-}
+    .table-success-light:hover {
+        background-color: rgba(25, 135, 84, 0.15) !important;
+    }
 
-.table-danger-light:hover {
-    background-color: rgba(220, 53, 69, 0.15) !important;
-}
+    .table-danger-light:hover {
+        background-color: rgba(220, 53, 69, 0.15) !important;
+    }
 
-/* Melhorar visibilidade dos badges */
-.badge {
-    font-size: 0.85rem;
-    padding: 0.35em 0.65em;
-    font-weight: 600;
-}
+    /* Melhorar visibilidade dos badges */
+    .badge {
+        font-size: 0.85rem;
+        padding: 0.35em 0.65em;
+        font-weight: 600;
+    }
 </style>
 {% endblock %}

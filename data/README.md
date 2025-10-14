@@ -57,7 +57,7 @@ Contém os itens/serviços oferecidos pelos fornecedores.
 ## Credenciais Padrão
 
 ### Administrador
-- Email: `admin@casebem.com`
+- E-mail: `admin@casebem.com`
 - Senha: `1234aA@#`
 
 ### Fornecedores e Noivos

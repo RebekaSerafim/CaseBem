@@ -2,7 +2,6 @@ from typing import Optional, List
 from core.repositories.base_repo import BaseRepo
 from core.repositories import usuario_repo
 from util.exceptions import RecursoNaoEncontradoError
-from infrastructure.logging import logger
 from core.sql import casal_sql
 from core.models.casal_model import Casal
 

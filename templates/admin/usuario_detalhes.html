@@ -31,7 +31,7 @@
                             <dt class="col-sm-4">Nome:</dt>
                             <dd class="col-sm-8">{{ usuario.nome }}</dd>
 
-                            <dt class="col-sm-4">Email:</dt>
+                            <dt class="col-sm-4">E-mail:</dt>
                             <dd class="col-sm-8">{{ usuario.email }}</dd>
 
                             <dt class="col-sm-4">Telefone:</dt>
@@ -103,10 +103,8 @@
             </div>
             <div class="card-body text-center">
                 <div class="d-inline-block position-relative">
-                    <img src="{{ obter_avatar_ou_padrao(usuario.id) }}"
-                         class="rounded-circle border"
-                         style="width: 120px; height: 120px; object-fit: cover;"
-                         alt="Avatar de {{ usuario.nome }}">
+                    <img src="{{ obter_avatar_ou_padrao(usuario.id) }}" class="rounded-circle border"
+                        style="width: 120px; height: 120px; object-fit: cover;" alt="Avatar de {{ usuario.nome }}">
                     {% if not avatar_existe(usuario.id) %}
                     <small class="d-block text-muted mt-2">
                         <i class="bi bi-info-circle"></i> Avatar padrão
@@ -214,7 +212,7 @@
             subtexto: 'O usuário não poderá mais acessar o sistema.',
             tipo: 'warning',
             textoBotao: 'Bloquear',
-            onConfirmar: function() {
+            onConfirmar: function () {
                 // Criar form dinamicamente e submeter
                 const form = document.createElement('form');
                 form.method = 'POST';
