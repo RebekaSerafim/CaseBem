@@ -17,11 +17,13 @@
 <!-- Filtros -->
 <div class="row mb-4">
     <div class="col-12">
-        <div class="card shadow">
+        <div class="card shadow-sm">
             <div class="card-body">
                 <form method="get" class="row g-3">
                     <div class="col-md-4">
-                        <label for="status" class="form-label">Status</label>
+                        <label for="status" class="form-label">
+                            <i class="fas fa-filter"></i> Status
+                        </label>
                         <select class="form-select" id="status" name="status">
                             <option value="">Todos os status</option>
                             <option value="ATIVA" {% if request.query_params.get('status') == 'ATIVA' %}selected{% endif %}>Ativa</option>
@@ -30,13 +32,19 @@
                         </select>
                     </div>
                     <div class="col-md-4">
-                        <label for="search" class="form-label">Buscar</label>
+                        <label for="search" class="form-label">
+                            <i class="fas fa-search"></i> Buscar
+                        </label>
                         <input type="text" class="form-control" id="search" name="search"
                                value="{{ request.query_params.get('search', '') }}" placeholder="Título ou descrição">
                     </div>
-                    <div class="col-md-4 d-flex align-items-end">
-                        <button type="submit" class="btn btn-primary me-2">Filtrar</button>
-                        <a href="/noivo/demandas" class="btn btn-outline-secondary">Limpar</a>
+                    <div class="col-md-4 d-flex align-items-end gap-2">
+                        <button type="submit" class="btn btn-primary flex-fill">
+                            <i class="fas fa-filter"></i> Filtrar
+                        </button>
+                        <a href="/noivo/demandas" class="btn btn-outline-secondary flex-fill">
+                            <i class="fas fa-redo"></i> Limpar
+                        </a>
                     </div>
                 </form>
             </div>
@@ -48,39 +56,68 @@
 <div class="row">
     {% for demanda in demandas %}
     <div class="col-lg-6 col-xl-4 mb-4">
-        <div class="card h-100 shadow">
-            <div class="card-header d-flex justify-content-between align-items-center">
-                <h6 class="mb-0">Demanda #{{ demanda.id }}</h6>
-                <span class="badge
-                    {% if demanda.status.value == 'ATIVA' %}bg-success
-                    {% elif demanda.status.value == 'FINALIZADA' %}bg-primary
-                    {% elif demanda.status.value == 'CANCELADA' %}bg-danger
-                    {% else %}bg-secondary{% endif %}">
-                    {{ demanda.status.value }}
-                </span>
+        <div class="card h-100 shadow-sm">
+            <div class="card-header bg-light">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                        <h6 class="mb-1">{{ demanda.descricao[:50] }}{% if demanda.descricao|length > 50 %}...{% endif %}</h6>
+                        <small class="text-muted">
+                            <i class="fas fa-clipboard-list"></i> Demanda #{{ demanda.id }}
+                        </small>
+                    </div>
+                    <span class="badge
+                        {% if demanda.status.value == 'ATIVA' %}bg-success
+                        {% elif demanda.status.value == 'FINALIZADA' %}bg-primary
+                        {% elif demanda.status.value == 'CANCELADA' %}bg-danger
+                        {% else %}bg-secondary{% endif %}">
+                        {{ demanda.status.value }}
+                    </span>
+                </div>
             </div>
             <div class="card-body">
-                <p class="card-text">{{ demanda.descricao[:100] }}{% if demanda.descricao|length > 100 %}...{% endif %}</p>
+                <!-- Descrição Completa -->
+                <p class="mb-3">
+                    <small>{{ demanda.descricao[:120] }}{% if demanda.descricao|length > 120 %}...{% endif %}</small>
+                </p>
 
-                <div class="row text-center mb-3">
+                <!-- Estatísticas em Cards Coloridos -->
+                <div class="row mb-3 g-2">
                     <div class="col-4">
-                        <small class="text-muted">Orçamentos</small>
-                        <div class="fw-bold">{{ demanda.orcamentos_count or 0 }}</div>
+                        <div class="card bg-primary text-white text-center py-2">
+                            <div class="card-body p-2">
+                                <small class="d-block opacity-75">Orçamentos</small>
+                                <div class="h4 mb-0 fw-bold">{{ demanda.orcamentos_count or 0 }}</div>
+                            </div>
+                        </div>
                     </div>
                     <div class="col-4">
-                        <small class="text-muted">Itens</small>
-                        <div class="fw-bold">{{ demanda.itens_count or 0 }}</div>
+                        <div class="card bg-info text-white text-center py-2">
+                            <div class="card-body p-2">
+                                <small class="d-block opacity-75">Itens</small>
+                                <div class="h4 mb-0 fw-bold">{{ demanda.itens_count or 0 }}</div>
+                            </div>
+                        </div>
                     </div>
                     <div class="col-4">
-                        <small class="text-muted">Atendidos</small>
-                        <div class="fw-bold">{{ demanda.itens_atendidos or 0 }}</div>
+                        <div class="card
+                            {% if demanda.percentual_atendimento == 100 %}bg-success
+                            {% elif demanda.percentual_atendimento > 0 %}bg-warning text-dark
+                            {% else %}bg-secondary{% endif %}
+                            text-white text-center py-2">
+                            <div class="card-body p-2">
+                                <small class="d-block {% if demanda.percentual_atendimento > 0 and demanda.percentual_atendimento < 100 %}opacity-50{% else %}opacity-75{% endif %}">Atendidos</small>
+                                <div class="h4 mb-0 fw-bold">{{ demanda.itens_atendidos or 0 }}</div>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
                 <!-- Barra de progresso de atendimento -->
                 <div class="mb-3">
-                    <div class="d-flex justify-content-between align-items-center mb-1">
-                        <small class="text-muted">Progresso de Atendimento</small>
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <small class="text-muted">
+                            <i class="fas fa-tasks"></i> Progresso de Atendimento
+                        </small>
                         <small class="fw-bold
                             {% if demanda.percentual_atendimento == 100 %}text-success
                             {% elif demanda.percentual_atendimento > 0 %}text-warning
@@ -88,7 +125,7 @@
                             {{ demanda.percentual_atendimento }}%
                         </small>
                     </div>
-                    <div class="progress" style="height: 8px;">
+                    <div class="progress" style="height: 10px;">
                         <div class="progress-bar
                             {% if demanda.percentual_atendimento == 100 %}bg-success
                             {% elif demanda.percentual_atendimento > 0 %}bg-warning
@@ -102,42 +139,56 @@
                     </div>
                 </div>
 
+                <!-- Orçamento da Demanda -->
                 {% if demanda.orcamento_min and demanda.orcamento_max %}
                 <div class="alert alert-info py-2 mb-3">
                     <small>
-                        <strong>Orçamento:</strong>
+                        <i class="fas fa-wallet"></i> <strong>Orçamento:</strong>
                         {{ demanda.orcamento_min|moeda }} - {{ demanda.orcamento_max|moeda }}
                     </small>
                 </div>
                 {% endif %}
 
+                <!-- Data e Badges -->
                 <div class="d-flex justify-content-between align-items-center">
-                    <small class="text-muted">{{ demanda.data_criacao | formatar_data }}</small>
+                    <small class="text-muted">
+                        <i class="far fa-calendar-alt"></i> {{ demanda.data_criacao | formatar_data }}
+                    </small>
                     <div>
                         {% if demanda.percentual_atendimento == 100 %}
-                        <span class="badge bg-success rounded-pill me-1">Atendida</span>
+                        <span class="badge bg-success rounded-pill me-1">
+                            <i class="fas fa-check-circle"></i> Atendida
+                        </span>
                         {% elif demanda.percentual_atendimento > 0 %}
-                        <span class="badge bg-warning rounded-pill me-1">Parcial</span>
+                        <span class="badge bg-warning rounded-pill me-1">
+                            <i class="fas fa-hourglass-half"></i> Parcial
+                        </span>
                         {% endif %}
                         {% if demanda.orcamentos_pendentes > 0 %}
-                        <span class="badge bg-info rounded-pill">{{ demanda.orcamentos_pendentes }} novos</span>
+                        <span class="badge bg-danger rounded-pill pulse">
+                            <i class="fas fa-bell"></i> {{ demanda.orcamentos_pendentes }} novos
+                        </span>
                         {% endif %}
                     </div>
                 </div>
             </div>
-            <div class="card-footer bg-white border-top-0">
-                <div class="d-grid gap-2">
-                    <a href="/noivo/demandas/{{ demanda.id }}" class="btn btn-primary btn-sm">
-                        <i class="fas fa-eye"></i> Ver Detalhes
+            <div class="card-footer bg-white border-top">
+                <div class="d-flex gap-2">
+                    <a href="/noivo/demandas/{{ demanda.id }}" class="btn btn-outline-primary btn-sm flex-fill">
+                        <i class="fas fa-eye"></i> Detalhes
                     </a>
                     {% if demanda.status.value == 'ATIVA' %}
-                    <a href="/noivo/demandas/editar/{{ demanda.id }}" class="btn btn-outline-secondary btn-sm">
-                        <i class="fas fa-edit"></i> Alterar
+                    <a href="/noivo/demandas/editar/{{ demanda.id }}" class="btn btn-outline-secondary btn-sm flex-fill">
+                        <i class="fas fa-edit"></i> Editar
                     </a>
-                    {% endif %}
-                    <button type="button" class="btn btn-outline-danger btn-sm" onclick="excluirDemanda({{ demanda.id }})">
-                        <i class="fas fa-trash"></i> Excluir
+                    <button type="button" class="btn btn-outline-danger btn-sm" onclick="excluirDemanda({{ demanda.id }})" title="Excluir demanda">
+                        <i class="fas fa-trash"></i>
                     </button>
+                    {% else %}
+                    <button type="button" class="btn btn-outline-danger btn-sm" onclick="excluirDemanda({{ demanda.id }})" title="Excluir demanda">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                    {% endif %}
                 </div>
             </div>
         </div>
@@ -151,15 +202,17 @@
 {% else %}
 <div class="row">
     <div class="col-12">
-        <div class="card shadow">
+        <div class="card shadow-sm">
             <div class="card-body text-center py-5">
-                <i class="fas fa-list-alt fa-4x text-gray-300 mb-4"></i>
-                <h4>Nenhuma demanda encontrada</h4>
+                <i class="fas fa-clipboard-list fa-4x text-muted mb-4" style="opacity: 0.3;"></i>
+                <h4 class="mb-3">Nenhuma demanda encontrada</h4>
                 {% if request.query_params.get('search') or request.query_params.get('status') %}
-                <p class="text-muted">Nenhuma demanda corresponde aos filtros aplicados.</p>
-                <a href="/noivo/demandas" class="btn btn-outline-secondary me-2">Limpar Filtros</a>
+                <p class="text-muted mb-4">Nenhuma demanda corresponde aos filtros aplicados.</p>
+                <a href="/noivo/demandas" class="btn btn-outline-secondary me-2">
+                    <i class="fas fa-redo"></i> Limpar Filtros
+                </a>
                 {% else %}
-                <p class="text-muted">Você ainda não criou nenhuma demanda. Comece criando sua primeira solicitação!</p>
+                <p class="text-muted mb-4">Você ainda não criou nenhuma demanda. Comece criando sua primeira solicitação!</p>
                 {% endif %}
                 <a href="/noivo/demandas/nova" class="btn btn-primary">
                     <i class="fas fa-plus"></i> Criar Primeira Demanda
@@ -170,6 +223,67 @@
 </div>
 {% endif %}
 
+{% endblock %}
+
+{% block styles %}
+<style>
+/* Animação pulse para badges de notificação */
+@keyframes pulse {
+    0%, 100% {
+        opacity: 1;
+        transform: scale(1);
+    }
+    50% {
+        opacity: 0.9;
+        transform: scale(1.05);
+    }
+}
+
+.pulse {
+    animation: pulse 2s ease-in-out infinite;
+}
+
+/* Hover nos cards coloridos de estatísticas */
+.card-body .card {
+    transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+}
+
+.card-body .card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+}
+
+/* Melhoria na barra de progresso */
+.progress {
+    border-radius: 5px;
+    box-shadow: inset 0 1px 2px rgba(0,0,0,0.1);
+}
+
+.progress-bar {
+    transition: width 0.6s ease;
+}
+
+/* Hover suave nos cards principais */
+.card.h-100 {
+    transition: all 0.3s ease;
+    border: 1px solid rgba(0,0,0,0.125);
+}
+
+.card.h-100:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0,0,0,0.1) !important;
+    border-color: rgba(0,0,0,0.2);
+}
+
+/* Melhoria visual nos botões do footer */
+.card-footer .btn {
+    transition: all 0.2s ease;
+}
+
+.card-footer .btn:hover {
+    transform: translateY(-1px);
+}
+</style>
 {% endblock %}
 
 {% block scripts %}
