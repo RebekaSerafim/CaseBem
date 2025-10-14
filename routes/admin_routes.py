@@ -146,7 +146,7 @@ async def atualizar_perfil_admin(
             return RedirectResponse("/admin/perfil", status_code=status.HTTP_303_SEE_OTHER)
 
     except Exception as e:
-        logger.error("Erro ao atualizar perfil admin", erro=str(e), admin_id=usuario_logado.get('id', 'desconhecido'))
+        logger.error("Erro ao atualizar perfil admin", erro=e, admin_id=usuario_logado.get('id', 'desconhecido'))
         informar_erro(request, "Erro ao atualizar perfil")
         return RedirectResponse("/admin/perfil", status_code=status.HTTP_303_SEE_OTHER)
 
