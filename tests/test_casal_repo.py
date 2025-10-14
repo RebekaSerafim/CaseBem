@@ -165,3 +165,58 @@ class TestCasalRepo:
         # Assert
         assert casal_encontrado is not None
         assert casal_encontrado.id_noivo1 == 1 or casal_encontrado.id_noivo2 == 1
+
+    def test_obter_casal_por_noivo_nao_encontrado(self, test_db):
+        """Testa busca de casal por noivo quando não encontrado (linha 79)"""
+        # Arrange
+        usuario_repo.criar_tabela()
+        casal_repo.criar_tabela()
+        # Act
+        casal_encontrado = casal_repo.obter_por_noivo(999)
+        # Assert
+        assert casal_encontrado is None, "Deveria retornar None quando não encontrar casal"
+
+    def test_obter_por_id_completo(self, test_db, lista_noivos_exemplo):
+        """Testa obtenção de casal por ID com dados completos dos noivos (linhas 52-64)"""
+        # Arrange
+        usuario_repo.criar_tabela()
+        for noivo in lista_noivos_exemplo:
+            usuario_repo.inserir(noivo)
+        casal_repo.criar_tabela()
+        novo_casal = Casal(
+            id=0,
+            id_noivo1=1,
+            id_noivo2=2,
+            data_casamento="2024-12-25",
+            local_previsto="Igreja do Centro",
+            orcamento_estimado="50k_100k",
+            numero_convidados=150
+        )
+        id_casal = casal_repo.inserir(novo_casal)
+        # Act
+        casal_completo = casal_repo.obter_por_id_completo(id_casal)
+        # Assert
+        assert casal_completo is not None, "Casal completo não deveria ser None"
+        assert casal_completo.id == id_casal
+        assert casal_completo.id_noivo1 == 1
+        assert casal_completo.id_noivo2 == 2
+        # Verifica se os dados dos noivos foram carregados
+        assert hasattr(casal_completo, 'noivo1'), "Casal deveria ter atributo noivo1"
+        assert hasattr(casal_completo, 'noivo2'), "Casal deveria ter atributo noivo2"
+        assert casal_completo.noivo1 is not None, "Noivo1 não deveria ser None"
+        assert casal_completo.noivo2 is not None, "Noivo2 não deveria ser None"
+        assert casal_completo.noivo1.id == 1
+        assert casal_completo.noivo2.id == 2
+
+    def test_obter_por_id_completo_nao_encontrado(self, test_db):
+        """Testa exceção quando casal não é encontrado em obter_por_id_completo (linha 65)"""
+        # Arrange
+        usuario_repo.criar_tabela()
+        casal_repo.criar_tabela()
+        # Act & Assert
+        import pytest
+        from util.exceptions import RecursoNaoEncontradoError
+        with pytest.raises(RecursoNaoEncontradoError) as exc_info:
+            casal_repo.obter_por_id_completo(999)
+        assert "Casal" in str(exc_info.value)
+        assert "999" in str(exc_info.value)

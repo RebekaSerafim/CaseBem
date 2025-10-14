@@ -261,3 +261,155 @@ class TestDemandaRepo:
         # Assert
         assert len(demandas_casal1) == 2, "Deveria retornar 2 demandas para o casal1"
         assert all(d.id_casal == id_casal1 for d in demandas_casal1), "Todas as demandas devem pertencer ao casal1"
+
+    def test_atualizar_status(self, test_db, lista_noivos_exemplo):
+        """Testa atualização de status da demanda (linha 57)"""
+        from core.models.demanda_model import StatusDemanda
+        # Arrange
+        usuario_repo.criar_tabela()
+        casal_repo.criar_tabela()
+        demanda_repo.criar_tabela()
+        for noivo in lista_noivos_exemplo[:2]:
+            usuario_repo.inserir(noivo)
+        casal = Casal(0, 1, 2)
+        id_casal = casal_repo.inserir(casal)
+        demanda = Demanda(id=0, id_casal=id_casal, descricao="Demanda teste", status=StatusDemanda.ATIVA)
+        id_demanda = demanda_repo.inserir(demanda)
+        # Act
+        resultado = demanda_repo.atualizar_status(id_demanda, StatusDemanda.FINALIZADA)
+        # Assert
+        assert resultado is True, "Atualização de status deveria retornar True"
+        demanda_db = demanda_repo.obter_por_id(id_demanda)
+        assert demanda_db.status == StatusDemanda.FINALIZADA
+
+    def test_obter_ativas(self, test_db, lista_noivos_exemplo):
+        """Testa obtenção de demandas ativas (linhas 70-71)"""
+        from core.models.demanda_model import StatusDemanda
+        # Arrange
+        usuario_repo.criar_tabela()
+        casal_repo.criar_tabela()
+        demanda_repo.criar_tabela()
+        for noivo in lista_noivos_exemplo[:2]:
+            usuario_repo.inserir(noivo)
+        casal = Casal(0, 1, 2)
+        id_casal = casal_repo.inserir(casal)
+        demanda1 = Demanda(id=0, id_casal=id_casal, descricao="Demanda 1")
+        demanda2 = Demanda(id=0, id_casal=id_casal, descricao="Demanda 2")
+        id_demanda1 = demanda_repo.inserir(demanda1)
+        id_demanda2 = demanda_repo.inserir(demanda2)
+        # Atualizar status da segunda demanda para CANCELADA
+        demanda_repo.atualizar_status(id_demanda2, StatusDemanda.CANCELADA)
+        # Act
+        demandas_ativas = demanda_repo.obter_ativas()
+        # Assert
+        assert len(demandas_ativas) == 1, "Deveria retornar apenas 1 demanda ativa"
+        assert demandas_ativas[0].status == StatusDemanda.ATIVA
+        assert demandas_ativas[0].id == id_demanda1
+
+    def test_buscar_demandas(self, test_db, lista_noivos_exemplo):
+        """Testa busca de demandas por termo (linhas 75-79)"""
+        # Arrange
+        usuario_repo.criar_tabela()
+        casal_repo.criar_tabela()
+        demanda_repo.criar_tabela()
+        for noivo in lista_noivos_exemplo[:2]:
+            usuario_repo.inserir(noivo)
+        casal = Casal(0, 1, 2)
+        id_casal = casal_repo.inserir(casal)
+        demanda1 = Demanda(id=0, id_casal=id_casal, descricao="Decoração especial para casamento")
+        demanda2 = Demanda(id=0, id_casal=id_casal, descricao="Buffet completo")
+        demanda3 = Demanda(id=0, id_casal=id_casal, descricao="Decoração simples")
+        demanda_repo.inserir(demanda1)
+        demanda_repo.inserir(demanda2)
+        demanda_repo.inserir(demanda3)
+        # Act
+        resultados = demanda_repo.buscar("Decoração")
+        # Assert
+        assert len(resultados) == 2, "Deveria encontrar 2 demandas com 'Decoração'"
+        assert all("Decoração" in d.descricao for d in resultados)
+
+    def test_obter_por_status_com_enum(self, test_db, lista_noivos_exemplo):
+        """Testa obtenção por status usando enum (linhas 84-101)"""
+        from core.models.demanda_model import StatusDemanda
+        # Arrange
+        usuario_repo.criar_tabela()
+        casal_repo.criar_tabela()
+        demanda_repo.criar_tabela()
+        for noivo in lista_noivos_exemplo[:2]:
+            usuario_repo.inserir(noivo)
+        casal = Casal(0, 1, 2)
+        id_casal = casal_repo.inserir(casal)
+        demanda1 = Demanda(id=0, id_casal=id_casal, descricao="Demanda 1")
+        demanda2 = Demanda(id=0, id_casal=id_casal, descricao="Demanda 2")
+        demanda3 = Demanda(id=0, id_casal=id_casal, descricao="Demanda 3")
+        demanda_repo.inserir(demanda1)
+        demanda_repo.inserir(demanda2)
+        id_demanda3 = demanda_repo.inserir(demanda3)
+        # Atualizar status da terceira demanda para FINALIZADA
+        demanda_repo.atualizar_status(id_demanda3, StatusDemanda.FINALIZADA)
+        # Act
+        demandas_ativas = demanda_repo.obter_por_status(StatusDemanda.ATIVA)
+        # Assert
+        assert len(demandas_ativas) == 2, "Deveria retornar 2 demandas ativas"
+        assert all(d.status == StatusDemanda.ATIVA for d in demandas_ativas)
+
+    def test_obter_por_status_com_string(self, test_db, lista_noivos_exemplo):
+        """Testa obtenção por status usando string (linhas 87-96)"""
+        from core.models.demanda_model import StatusDemanda
+        # Arrange
+        usuario_repo.criar_tabela()
+        casal_repo.criar_tabela()
+        demanda_repo.criar_tabela()
+        for noivo in lista_noivos_exemplo[:2]:
+            usuario_repo.inserir(noivo)
+        casal = Casal(0, 1, 2)
+        id_casal = casal_repo.inserir(casal)
+        demanda1 = Demanda(id=0, id_casal=id_casal, descricao="Demanda 1")
+        id_demanda1 = demanda_repo.inserir(demanda1)
+        # Atualizar status para FINALIZADA
+        demanda_repo.atualizar_status(id_demanda1, StatusDemanda.FINALIZADA)
+        # Act
+        demandas = demanda_repo.obter_por_status("finalizada")
+        # Assert
+        assert len(demandas) == 1, "Deveria retornar 1 demanda finalizada"
+        assert demandas[0].status == StatusDemanda.FINALIZADA
+
+    def test_obter_por_status_invalido(self, test_db, lista_noivos_exemplo):
+        """Testa obtenção por status inválido (linhas 92-96)"""
+        # Arrange
+        usuario_repo.criar_tabela()
+        casal_repo.criar_tabela()
+        demanda_repo.criar_tabela()
+        for noivo in lista_noivos_exemplo[:2]:
+            usuario_repo.inserir(noivo)
+        casal = Casal(0, 1, 2)
+        id_casal = casal_repo.inserir(casal)
+        demanda = Demanda(id=0, id_casal=id_casal, descricao="Demanda teste")
+        demanda_repo.inserir(demanda)
+        # Act
+        demandas = demanda_repo.obter_por_status("INVALIDO")
+        # Assert
+        assert len(demandas) == 0, "Deveria retornar lista vazia para status inválido"
+
+    def test_obter_por_cidade(self, test_db, lista_noivos_exemplo):
+        """Testa obtenção de demandas por cidade (linhas 116-119)"""
+        from core.models.demanda_model import StatusDemanda
+        # Arrange
+        usuario_repo.criar_tabela()
+        casal_repo.criar_tabela()
+        demanda_repo.criar_tabela()
+        for noivo in lista_noivos_exemplo[:2]:
+            usuario_repo.inserir(noivo)
+        casal = Casal(0, 1, 2)
+        id_casal = casal_repo.inserir(casal)
+        demanda1 = Demanda(id=0, id_casal=id_casal, descricao="Demanda 1", cidade_casamento="Vitória", status=StatusDemanda.ATIVA)
+        demanda2 = Demanda(id=0, id_casal=id_casal, descricao="Demanda 2", cidade_casamento="Vitória", status=StatusDemanda.ATIVA)
+        demanda3 = Demanda(id=0, id_casal=id_casal, descricao="Demanda 3", cidade_casamento="Vila Velha", status=StatusDemanda.ATIVA)
+        demanda_repo.inserir(demanda1)
+        demanda_repo.inserir(demanda2)
+        demanda_repo.inserir(demanda3)
+        # Act
+        demandas_vitoria = demanda_repo.obter_por_cidade("Vitória")
+        # Assert
+        assert len(demandas_vitoria) == 2, "Deveria retornar 2 demandas de Vitória"
+        assert all(d.cidade_casamento == "Vitória" for d in demandas_vitoria)

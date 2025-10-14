@@ -238,3 +238,103 @@ class TestItemDemandaRepo:
         assert resultado == True
         total = item_demanda_repo.contar_por_demanda(id_demanda)
         assert total == 0
+
+    def test_obter_por_tipo_e_categoria(self, test_db, item_demanda_factory, demanda_factory, categoria_factory, usuario_factory):
+        """Testa obtenção de itens por tipo e categoria (linhas 81-84)"""
+        # Arrange
+        usuario_repo.criar_tabela()
+        casal_repo.criar_tabela()
+        demanda_repo.criar_tabela()
+        categoria_repo.criar_tabela()
+        item_demanda_repo.criar_tabela()
+        # Criar usuários e casal
+        usuario1 = usuario_factory.criar()
+        id_usuario1 = usuario_repo.inserir(usuario1)
+        usuario2 = usuario_factory.criar()
+        id_usuario2 = usuario_repo.inserir(usuario2)
+        casal = Casal(0, id_usuario1, id_usuario2)
+        id_casal = casal_repo.inserir(casal)
+        # Criar categorias
+        categoria1 = categoria_factory.criar(nome="Categoria 1", tipo_fornecimento=TipoFornecimento.PRODUTO)
+        id_categoria1 = categoria_repo.inserir(categoria1)
+        categoria2 = categoria_factory.criar(nome="Categoria 2", tipo_fornecimento=TipoFornecimento.SERVICO)
+        id_categoria2 = categoria_repo.inserir(categoria2)
+        # Criar demanda
+        demanda = demanda_factory.criar(id_casal=id_casal)
+        id_demanda = demanda_repo.inserir(demanda)
+        # Criar itens de diferentes tipos e categorias
+        item1 = item_demanda_factory.criar(id_demanda=id_demanda, tipo="PRODUTO", id_categoria=id_categoria1)
+        item2 = item_demanda_factory.criar(id_demanda=id_demanda, tipo="PRODUTO", id_categoria=id_categoria1)
+        item3 = item_demanda_factory.criar(id_demanda=id_demanda, tipo="SERVIÇO", id_categoria=id_categoria2)
+        item_demanda_repo.inserir(item1)
+        item_demanda_repo.inserir(item2)
+        item_demanda_repo.inserir(item3)
+        # Act
+        itens_produto_cat1 = item_demanda_repo.obter_por_tipo_e_categoria("PRODUTO", id_categoria1)
+        itens_servico_cat2 = item_demanda_repo.obter_por_tipo_e_categoria("SERVIÇO", id_categoria2)
+        # Assert
+        assert len(itens_produto_cat1) == 2, "Deveria encontrar 2 itens do tipo PRODUTO na categoria 1"
+        assert len(itens_servico_cat2) == 1, "Deveria encontrar 1 item do tipo SERVIÇO na categoria 2"
+
+    def test_obter_demandas_compativeis_com_fornecedor(self, test_db, item_demanda_factory, demanda_factory, categoria_factory, usuario_factory):
+        """Testa obtenção de demandas compatíveis com categorias do fornecedor (linhas 98-114)"""
+        # Arrange
+        usuario_repo.criar_tabela()
+        casal_repo.criar_tabela()
+        demanda_repo.criar_tabela()
+        categoria_repo.criar_tabela()
+        item_demanda_repo.criar_tabela()
+        # Criar usuários e casais
+        usuario1 = usuario_factory.criar()
+        id_usuario1 = usuario_repo.inserir(usuario1)
+        usuario2 = usuario_factory.criar()
+        id_usuario2 = usuario_repo.inserir(usuario2)
+        casal1 = Casal(0, id_usuario1, id_usuario2)
+        id_casal1 = casal_repo.inserir(casal1)
+
+        usuario3 = usuario_factory.criar()
+        id_usuario3 = usuario_repo.inserir(usuario3)
+        usuario4 = usuario_factory.criar()
+        id_usuario4 = usuario_repo.inserir(usuario4)
+        casal2 = Casal(0, id_usuario3, id_usuario4)
+        id_casal2 = casal_repo.inserir(casal2)
+
+        # Criar categorias
+        categoria1 = categoria_factory.criar(nome="Categoria 1")
+        id_categoria1 = categoria_repo.inserir(categoria1)
+        categoria2 = categoria_factory.criar(nome="Categoria 2")
+        id_categoria2 = categoria_repo.inserir(categoria2)
+        categoria3 = categoria_factory.criar(nome="Categoria 3")
+        id_categoria3 = categoria_repo.inserir(categoria3)
+
+        # Criar demandas
+        demanda1 = demanda_factory.criar(id_casal=id_casal1)
+        id_demanda1 = demanda_repo.inserir(demanda1)
+        demanda2 = demanda_factory.criar(id_casal=id_casal2)
+        id_demanda2 = demanda_repo.inserir(demanda2)
+
+        # Criar itens com categorias diferentes
+        item1 = item_demanda_factory.criar(id_demanda=id_demanda1, id_categoria=id_categoria1)
+        item2 = item_demanda_factory.criar(id_demanda=id_demanda1, id_categoria=id_categoria2)
+        item3 = item_demanda_factory.criar(id_demanda=id_demanda2, id_categoria=id_categoria3)
+        item_demanda_repo.inserir(item1)
+        item_demanda_repo.inserir(item2)
+        item_demanda_repo.inserir(item3)
+
+        # Act
+        # Fornecedor atende categorias 1 e 2
+        demandas_compativeis = item_demanda_repo.obter_demandas_compativeis_com_fornecedor([id_categoria1, id_categoria2])
+
+        # Assert
+        assert len(demandas_compativeis) == 1, "Deveria encontrar 1 demanda compatível"
+        assert id_demanda1 in demandas_compativeis, "Demanda 1 deveria estar na lista"
+        assert id_demanda2 not in demandas_compativeis, "Demanda 2 não deveria estar na lista"
+
+    def test_obter_demandas_compativeis_com_fornecedor_lista_vazia(self, test_db):
+        """Testa obtenção de demandas quando lista de categorias está vazia (linha 99)"""
+        # Arrange
+        item_demanda_repo.criar_tabela()
+        # Act
+        demandas_compativeis = item_demanda_repo.obter_demandas_compativeis_com_fornecedor([])
+        # Assert
+        assert demandas_compativeis == [], "Deveria retornar lista vazia quando não há categorias"

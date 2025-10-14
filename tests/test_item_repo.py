@@ -378,3 +378,252 @@ class TestItemRepo:
         # Assert
         assert total_produtos == 2, "Deveria contar 2 produtos"
         assert total_servicos == 1, "Deveria contar 1 serviço"
+
+    def test_obter_produtos(self, test_db, fornecedor_exemplo):
+        """Testa obtenção de produtos ativos (linha 142)"""
+        # Arrange
+        usuario_repo.criar_tabela()
+        fornecedor_repo.criar_tabela()
+        categoria_repo.criar_tabela()
+        item_repo.criar_tabela()
+
+        id_fornecedor = fornecedor_repo.inserir(fornecedor_exemplo)
+        assert id_fornecedor is not None
+        categoria = Categoria(0, "Cat Produto", TipoFornecimento.PRODUTO, "Desc", True)
+        id_categoria = categoria_repo.inserir(categoria)
+        assert id_categoria is not None
+
+        item = Item(0, id_fornecedor, TipoFornecimento.PRODUTO, "Produto", "Desc", Decimal(50), id_categoria, None, True, None)
+        item_repo.inserir(item)
+        # Act
+        produtos = item_repo.obter_produtos()
+        # Assert
+        assert len(produtos) == 1
+        assert produtos[0].tipo == TipoFornecimento.PRODUTO
+
+    def test_obter_servicos(self, test_db, fornecedor_exemplo):
+        """Testa obtenção de serviços ativos (linha 146)"""
+        # Arrange
+        usuario_repo.criar_tabela()
+        fornecedor_repo.criar_tabela()
+        categoria_repo.criar_tabela()
+        item_repo.criar_tabela()
+
+        id_fornecedor = fornecedor_repo.inserir(fornecedor_exemplo)
+        assert id_fornecedor is not None
+        categoria = Categoria(0, "Cat Serviço", TipoFornecimento.SERVICO, "Desc", True)
+        id_categoria = categoria_repo.inserir(categoria)
+        assert id_categoria is not None
+
+        item = Item(0, id_fornecedor, TipoFornecimento.SERVICO, "Serviço", "Desc", Decimal(100), id_categoria, None, True, None)
+        item_repo.inserir(item)
+        # Act
+        servicos = item_repo.obter_servicos()
+        # Assert
+        assert len(servicos) == 1
+        assert servicos[0].tipo == TipoFornecimento.SERVICO
+
+    def test_obter_espacos(self, test_db, fornecedor_exemplo):
+        """Testa obtenção de espaços ativos (linha 150)"""
+        # Arrange
+        usuario_repo.criar_tabela()
+        fornecedor_repo.criar_tabela()
+        categoria_repo.criar_tabela()
+        item_repo.criar_tabela()
+
+        id_fornecedor = fornecedor_repo.inserir(fornecedor_exemplo)
+        assert id_fornecedor is not None
+        categoria = Categoria(0, "Cat Espaço", TipoFornecimento.ESPACO, "Desc", True)
+        id_categoria = categoria_repo.inserir(categoria)
+        assert id_categoria is not None
+
+        item = Item(0, id_fornecedor, TipoFornecimento.ESPACO, "Espaço", "Desc", Decimal(200), id_categoria, None, True, None)
+        item_repo.inserir(item)
+        # Act
+        espacos = item_repo.obter_espacos()
+        # Assert
+        assert len(espacos) == 1
+        assert espacos[0].tipo == TipoFornecimento.ESPACO
+
+    def test_ativar_desativar_item_admin(self, test_db, fornecedor_exemplo):
+        """Testa ativação/desativação admin (linhas 274-275, 279-280)"""
+        # Arrange
+        usuario_repo.criar_tabela()
+        fornecedor_repo.criar_tabela()
+        categoria_repo.criar_tabela()
+        item_repo.criar_tabela()
+
+        id_fornecedor = fornecedor_repo.inserir(fornecedor_exemplo)
+        assert id_fornecedor is not None
+        categoria = Categoria(0, "Categoria", TipoFornecimento.PRODUTO, "Desc", True)
+        id_categoria = categoria_repo.inserir(categoria)
+        assert id_categoria is not None
+
+        item = Item(0, id_fornecedor, TipoFornecimento.PRODUTO, "Item", "Desc", Decimal(50), id_categoria, None, True, None)
+        id_item = item_repo.inserir(item)
+        assert id_item is not None
+        # Act
+        item_repo.desativar_item_admin(id_item)
+        item_desativado = item_repo.obter_por_id(id_item)
+        item_repo.ativar_item_admin(id_item)
+        item_ativado = item_repo.obter_por_id(id_item)
+        # Assert
+        assert item_desativado.ativo == False
+        assert item_ativado.ativo == True
+
+    def test_atualizar_item_categoria_tipo_incompativel(self, test_db, fornecedor_exemplo):
+        """Testa atualização com categoria incompatível (linha 43)"""
+        # Arrange
+        usuario_repo.criar_tabela()
+        fornecedor_repo.criar_tabela()
+        categoria_repo.criar_tabela()
+        item_repo.criar_tabela()
+
+        id_fornecedor = fornecedor_repo.inserir(fornecedor_exemplo)
+        assert id_fornecedor is not None
+        categoria_produto = Categoria(0, "Cat Produto", TipoFornecimento.PRODUTO, "Desc", True)
+        categoria_servico = Categoria(0, "Cat Serviço", TipoFornecimento.SERVICO, "Desc", True)
+        id_cat_produto = categoria_repo.inserir(categoria_produto)
+        id_cat_servico = categoria_repo.inserir(categoria_servico)
+
+        item = Item(0, id_fornecedor, TipoFornecimento.PRODUTO, "Item", "Desc", Decimal(50), id_cat_produto, None, True, None)
+        id_item = item_repo.inserir(item)
+        assert id_item is not None
+        # Act & Assert - Tentar atualizar com categoria incompatível
+        item_invalido = Item(id_item, id_fornecedor, TipoFornecimento.SERVICO, "Item", "Desc", Decimal(50), id_cat_produto, None, True, None)
+        with pytest.raises(ValueError, match="Categoria .* não pertence ao tipo"):
+            item_repo.atualizar(item_invalido)
+
+    def test_obter_itens_por_pagina(self, test_db, fornecedor_exemplo):
+        """Testa paginação de itens (linhas 118-119)"""
+        # Arrange
+        usuario_repo.criar_tabela()
+        fornecedor_repo.criar_tabela()
+        categoria_repo.criar_tabela()
+        item_repo.criar_tabela()
+
+        id_fornecedor = fornecedor_repo.inserir(fornecedor_exemplo)
+        assert id_fornecedor is not None
+        categoria = Categoria(0, "Categoria", TipoFornecimento.PRODUTO, "Desc", True)
+        id_categoria = categoria_repo.inserir(categoria)
+        assert id_categoria is not None
+
+        for i in range(5):
+            item = Item(0, id_fornecedor, TipoFornecimento.PRODUTO, f"Item {i}", "Desc", Decimal(50), id_categoria, None, True, None)
+            item_repo.inserir(item)
+        # Act
+        itens_pag1 = item_repo.obter_itens_por_pagina(1, 2)
+        itens_pag2 = item_repo.obter_itens_por_pagina(2, 2)
+        # Assert
+        assert len(itens_pag1) == 2
+        assert len(itens_pag2) == 2
+
+    def test_obter_paginado_itens(self, test_db, fornecedor_exemplo):
+        """Testa paginação com total (linha 286)"""
+        # Arrange
+        usuario_repo.criar_tabela()
+        fornecedor_repo.criar_tabela()
+        categoria_repo.criar_tabela()
+        item_repo.criar_tabela()
+
+        id_fornecedor = fornecedor_repo.inserir(fornecedor_exemplo)
+        assert id_fornecedor is not None
+        categoria = Categoria(0, "Categoria", TipoFornecimento.PRODUTO, "Desc", True)
+        id_categoria = categoria_repo.inserir(categoria)
+        assert id_categoria is not None
+
+        for i in range(7):
+            item = Item(0, id_fornecedor, TipoFornecimento.PRODUTO, f"Item {i}", "Desc", Decimal(50), id_categoria, None, True, None)
+            item_repo.inserir(item)
+        # Act
+        itens, total = item_repo.obter_paginado_itens(1, 3)
+        # Assert
+        assert len(itens) == 3
+        assert total == 7
+
+    def test_obter_estatisticas_itens(self, test_db, fornecedor_exemplo):
+        """Testa estatísticas de itens por tipo (linha 160)"""
+        # Arrange
+        usuario_repo.criar_tabela()
+        fornecedor_repo.criar_tabela()
+        categoria_repo.criar_tabela()
+        item_repo.criar_tabela()
+
+        id_fornecedor = fornecedor_repo.inserir(fornecedor_exemplo)
+        assert id_fornecedor is not None
+        cat_produto = Categoria(0, "Produto", TipoFornecimento.PRODUTO, "Desc", True)
+        id_cat = categoria_repo.inserir(cat_produto)
+        assert id_cat is not None
+
+        for i in range(3):
+            item = Item(0, id_fornecedor, TipoFornecimento.PRODUTO, f"Item {i}", "Desc", Decimal(50), id_cat, None, True, None)
+            item_repo.inserir(item)
+        # Act
+        stats = item_repo.obter_estatisticas_itens()
+        # Assert
+        assert len(stats) > 0
+        assert any(s["tipo"] == "PRODUTO" for s in stats)
+
+    def test_obter_itens_ativos_por_categoria(self, test_db, fornecedor_exemplo):
+        """Testa obtenção de itens por categoria (linhas 341-344)"""
+        # Arrange
+        usuario_repo.criar_tabela()
+        fornecedor_repo.criar_tabela()
+        categoria_repo.criar_tabela()
+        item_repo.criar_tabela()
+
+        id_fornecedor = fornecedor_repo.inserir(fornecedor_exemplo)
+        assert id_fornecedor is not None
+        categoria = Categoria(0, "Categoria", TipoFornecimento.PRODUTO, "Desc", True)
+        id_categoria = categoria_repo.inserir(categoria)
+        assert id_categoria is not None
+
+        for i in range(2):
+            item = Item(0, id_fornecedor, TipoFornecimento.PRODUTO, f"Item {i}", "Desc", Decimal(50), id_categoria, None, True, None)
+            item_repo.inserir(item)
+        # Act
+        itens = item_repo.obter_itens_ativos_por_categoria(id_categoria)
+        # Assert
+        assert len(itens) == 2
+        assert all(isinstance(i, dict) for i in itens)
+        assert all(i["id_categoria"] == id_categoria for i in itens if "id_categoria" in i)
+
+    def test_obter_categorias_do_fornecedor(self, test_db, fornecedor_exemplo):
+        """Testa obtenção de categorias oferecidas pelo fornecedor (linhas 358-361)"""
+        # Arrange
+        usuario_repo.criar_tabela()
+        fornecedor_repo.criar_tabela()
+        categoria_repo.criar_tabela()
+        item_repo.criar_tabela()
+
+        id_fornecedor = fornecedor_repo.inserir(fornecedor_exemplo)
+        assert id_fornecedor is not None
+        cat1 = Categoria(0, "Cat 1", TipoFornecimento.PRODUTO, "Desc", True)
+        cat2 = Categoria(0, "Cat 2", TipoFornecimento.SERVICO, "Desc", True)
+        id_cat1 = categoria_repo.inserir(cat1)
+        assert id_cat1 is not None
+        id_cat2 = categoria_repo.inserir(cat2)
+        assert id_cat2 is not None
+
+        item1 = Item(0, id_fornecedor, TipoFornecimento.PRODUTO, "Item 1", "Desc", Decimal(50), id_cat1, None, True, None)
+        item2 = Item(0, id_fornecedor, TipoFornecimento.SERVICO, "Item 2", "Desc", Decimal(100), id_cat2, None, True, None)
+        item_repo.inserir(item1)
+        item_repo.inserir(item2)
+        # Act
+        categorias = item_repo.obter_categorias_do_fornecedor(id_fornecedor)
+        # Assert
+        assert len(categorias) == 2
+        assert id_cat1 in categorias
+        assert id_cat2 in categorias
+
+    def test_validar_categoria_inexistente(self, test_db):
+        """Testa validação com categoria inexistente (linha 16)"""
+        # Arrange
+        usuario_repo.criar_tabela()
+        fornecedor_repo.criar_tabela()
+        categoria_repo.criar_tabela()
+        item_repo.criar_tabela()
+        # Act & Assert - obter_por_id lança exceção quando não encontra
+        from core.repositories.item_repo import validar_categoria_para_tipo
+        with pytest.raises(RecursoNaoEncontradoError):
+            validar_categoria_para_tipo(TipoFornecimento.PRODUTO, 999)

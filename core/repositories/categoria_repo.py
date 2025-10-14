@@ -133,9 +133,9 @@ class CategoriaRepo(BaseRepo):
         )
         total = total_resultado[0]["total"] if total_resultado else 0
 
-        # Buscar categorias usando query parametrizada
+        # Buscar categorias usando query parametrizada com paginação
         resultados = self.executar_consulta(
-            categoria_sql.BUSCAR_CATEGORIAS, parametros_select
+            categoria_sql.BUSCAR_CATEGORIAS_PAGINADO, parametros_select
         )
         categorias = [self._linha_para_objeto(row) for row in resultados]
 

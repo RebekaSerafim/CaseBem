@@ -93,5 +93,15 @@ WHERE (? = '' OR nome LIKE ? OR descricao LIKE ?)
   AND (? = '' OR (? = 'ativo' AND ativo = 1) OR (? = 'inativo' AND ativo = 0));
 """
 
+BUSCAR_CATEGORIAS_PAGINADO = """
+SELECT id, nome, tipo_fornecimento, descricao, ativo
+FROM categoria
+WHERE (? = '' OR nome LIKE ? OR descricao LIKE ?)
+  AND (? = '' OR tipo_fornecimento = ?)
+  AND (? = '' OR (? = 'ativo' AND ativo = 1) OR (? = 'inativo' AND ativo = 0))
+ORDER BY tipo_fornecimento ASC, nome ASC
+LIMIT ? OFFSET ?;
+"""
+
 # Queries ATIVAR_CATEGORIA e DESATIVAR_CATEGORIA removidas:
 # Use BaseRepo.ativar(id) e BaseRepo.desativar(id) ao invés

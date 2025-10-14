@@ -335,3 +335,150 @@ class TestCategoriaRepo:
         assert (
             resultado == False
         ), "Desativação de categoria inexistente deveria retornar False"
+
+    def test_contar_categorias(self, test_db, categoria_factory):
+        """Testa contagem de categorias (linha 60)"""
+        # Arrange
+        categoria_repo.criar_tabela()
+        categoria1 = categoria_factory.criar(nome="Categoria 1")
+        categoria2 = categoria_factory.criar(nome="Categoria 2")
+        categoria3 = categoria_factory.criar(nome="Categoria 3")
+        categoria_repo.inserir(categoria1)
+        categoria_repo.inserir(categoria2)
+        categoria_repo.inserir(categoria3)
+        # Act
+        total = categoria_repo.contar_categorias()
+        # Assert
+        assert total == 3, "Deveria ter 3 categorias"
+
+    def test_obter_paginado_categorias(self, test_db, categoria_factory):
+        """Testa obtenção paginada de categorias (linha 103)"""
+        # Arrange
+        categoria_repo.criar_tabela()
+        for i in range(5):
+            categoria = categoria_factory.criar(nome=f"Categoria {i+1}")
+            categoria_repo.inserir(categoria)
+        # Act
+        categorias, total = categoria_repo.obter_paginado_categorias(pagina=1, tamanho_pagina=2)
+        # Assert
+        assert len(categorias) == 2, "Deveria retornar 2 categorias"
+        assert total == 5, "Total deveria ser 5 categorias"
+
+    def test_buscar_paginado_sem_filtros(self, test_db, categoria_factory):
+        """Testa busca paginada sem filtros (linhas 114-142)"""
+        # Arrange
+        categoria_repo.criar_tabela()
+        for i in range(5):
+            categoria = categoria_factory.criar(nome=f"Categoria {i+1}")
+            categoria_repo.inserir(categoria)
+        # Act
+        categorias, total = categoria_repo.buscar_paginado(pagina=1, tamanho_pagina=2)
+        # Assert
+        assert len(categorias) == 2, "Deveria retornar 2 categorias"
+        assert total == 5, "Total deveria ser 5 categorias"
+
+    def test_buscar_paginado_com_busca(self, test_db, categoria_factory):
+        """Testa busca paginada com filtro de busca"""
+        # Arrange
+        categoria_repo.criar_tabela()
+        categoria1 = categoria_factory.criar(nome="Festa de Casamento")
+        categoria2 = categoria_factory.criar(nome="Decoração")
+        categoria3 = categoria_factory.criar(nome="Festa de Aniversário")
+        categoria_repo.inserir(categoria1)
+        categoria_repo.inserir(categoria2)
+        categoria_repo.inserir(categoria3)
+        # Act
+        categorias, total = categoria_repo.buscar_paginado(busca="Festa", pagina=1, tamanho_pagina=10)
+        # Assert
+        assert len(categorias) == 2, "Deveria encontrar 2 categorias com 'Festa'"
+        assert total == 2, "Total deveria ser 2"
+
+    def test_buscar_paginado_com_tipo(self, test_db, categoria_factory):
+        """Testa busca paginada com filtro de tipo"""
+        # Arrange
+        categoria_repo.criar_tabela()
+        categoria1 = categoria_factory.criar(nome="Categoria Produto", tipo_fornecimento=TipoFornecimento.PRODUTO)
+        categoria2 = categoria_factory.criar(nome="Categoria Serviço", tipo_fornecimento=TipoFornecimento.SERVICO)
+        categoria3 = categoria_factory.criar(nome="Outro Produto", tipo_fornecimento=TipoFornecimento.PRODUTO)
+        categoria_repo.inserir(categoria1)
+        categoria_repo.inserir(categoria2)
+        categoria_repo.inserir(categoria3)
+        # Act
+        categorias, total = categoria_repo.buscar_paginado(tipo_fornecimento="PRODUTO", pagina=1, tamanho_pagina=10)
+        # Assert
+        assert len(categorias) == 2, "Deveria encontrar 2 categorias de produto"
+        assert total == 2, "Total deveria ser 2"
+        assert all(c.tipo_fornecimento == TipoFornecimento.PRODUTO for c in categorias)
+
+    def test_buscar_paginado_com_status(self, test_db, categoria_factory):
+        """Testa busca paginada com filtro de status"""
+        # Arrange
+        categoria_repo.criar_tabela()
+        categoria1 = categoria_factory.criar(nome="Categoria Ativa", ativo=True)
+        categoria2 = categoria_factory.criar(nome="Categoria Inativa", ativo=False)
+        categoria3 = categoria_factory.criar(nome="Outra Ativa", ativo=True)
+        categoria_repo.inserir(categoria1)
+        categoria_repo.inserir(categoria2)
+        categoria_repo.inserir(categoria3)
+        # Act
+        categorias_ativas, total_ativas = categoria_repo.buscar_paginado(status="ativo", pagina=1, tamanho_pagina=10)
+        categorias_inativas, total_inativas = categoria_repo.buscar_paginado(status="inativo", pagina=1, tamanho_pagina=10)
+        # Assert
+        assert len(categorias_ativas) == 2, "Deveria encontrar 2 categorias ativas"
+        assert total_ativas == 2, "Total ativas deveria ser 2"
+        assert len(categorias_inativas) == 1, "Deveria encontrar 1 categoria inativa"
+        assert total_inativas == 1, "Total inativas deveria ser 1"
+
+    def test_buscar_paginado_com_todos_filtros(self, test_db, categoria_factory):
+        """Testa busca paginada com todos os filtros combinados"""
+        # Arrange
+        categoria_repo.criar_tabela()
+        categoria1 = categoria_factory.criar(
+            nome="Festa de Casamento",
+            tipo_fornecimento=TipoFornecimento.PRODUTO,
+            ativo=True
+        )
+        categoria2 = categoria_factory.criar(
+            nome="Festa de Aniversário",
+            tipo_fornecimento=TipoFornecimento.PRODUTO,
+            ativo=False
+        )
+        categoria3 = categoria_factory.criar(
+            nome="Festa Corporativa",
+            tipo_fornecimento=TipoFornecimento.SERVICO,
+            ativo=True
+        )
+        categoria_repo.inserir(categoria1)
+        categoria_repo.inserir(categoria2)
+        categoria_repo.inserir(categoria3)
+        # Act
+        categorias, total = categoria_repo.buscar_paginado(
+            busca="Festa",
+            tipo_fornecimento="PRODUTO",
+            status="ativo",
+            pagina=1,
+            tamanho_pagina=10
+        )
+        # Assert
+        assert len(categorias) == 1, "Deveria encontrar 1 categoria"
+        assert total == 1, "Total deveria ser 1"
+        assert categorias[0].nome == "Festa de Casamento"
+        assert categorias[0].tipo_fornecimento == TipoFornecimento.PRODUTO
+        assert categorias[0].ativo == True
+
+    def test_buscar_paginado_paginacao(self, test_db, categoria_factory):
+        """Testa paginação na busca paginada"""
+        # Arrange
+        categoria_repo.criar_tabela()
+        for i in range(7):
+            categoria = categoria_factory.criar(nome=f"Categoria {i+1}")
+            categoria_repo.inserir(categoria)
+        # Act
+        pagina1, total1 = categoria_repo.buscar_paginado(pagina=1, tamanho_pagina=3)
+        pagina2, total2 = categoria_repo.buscar_paginado(pagina=2, tamanho_pagina=3)
+        pagina3, total3 = categoria_repo.buscar_paginado(pagina=3, tamanho_pagina=3)
+        # Assert
+        assert len(pagina1) == 3, "Primeira página deveria ter 3 categorias"
+        assert len(pagina2) == 3, "Segunda página deveria ter 3 categorias"
+        assert len(pagina3) == 1, "Terceira página deveria ter 1 categoria"
+        assert total1 == total2 == total3 == 7, "Total deveria ser sempre 7"
