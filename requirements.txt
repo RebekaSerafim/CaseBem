@@ -8,7 +8,7 @@ itsdangerous
 passlib[bcrypt]
 python-jose[cryptography]
 python-dotenv
-mailersend
+resend
 pillow
 
 # Dependências de teste

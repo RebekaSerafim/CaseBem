@@ -10,7 +10,7 @@ from core.models.categoria_model import Categoria
 from core.models.tipo_fornecimento_model import TipoFornecimento
 from core.repositories import usuario_repo, fornecedor_repo, item_repo, categoria_repo, orcamento_repo, demanda_repo
 from util.flash_messages import informar_sucesso, informar_erro
-from util.template_helpers import configurar_filtros_jinja
+from util.template_helpers import configurar_filtros_jinja, template_response_with_flash
 from util.pagination import PaginationHelper
 import math
 
@@ -55,7 +55,7 @@ async def perfil_admin(request: Request, usuario_logado: dict = {}):
     admin = usuario_repo.obter_por_id(usuario_logado['id'])
     logger.info("Perfil do admin carregado com sucesso", admin_id=usuario_logado['id'])
 
-    return templates.TemplateResponse("admin/perfil.html", {
+    return template_response_with_flash(templates, "admin/perfil.html", {
         "request": request,
         "usuario_logado": usuario_logado,
         "admin": admin,
@@ -68,7 +68,9 @@ async def atualizar_perfil_admin(
     request: Request,
     nome: str = Form(...),
     email: str = Form(...),
+    cpf: str = Form(""),
     telefone: str = Form(""),
+    data_nascimento: str = Form(""),
     cargo: str = Form(""),
     endereco: str = Form(""),
     cidade: str = Form(""),
@@ -78,18 +80,41 @@ async def atualizar_perfil_admin(
 ):
     """Atualiza o perfil do administrador"""
     try:
+        # Log dos valores recebidos do formulário (para diagnóstico)
+        logger.info(
+            "Atualizando perfil admin",
+            admin_id=usuario_logado['id'],
+            cpf_recebido=cpf if cpf else "(vazio)",
+            data_nascimento_recebida=data_nascimento if data_nascimento else "(vazio)"
+        )
+
         admin = usuario_repo.obter_por_id(usuario_logado['id'])
         if not admin:
-            return templates.TemplateResponse("admin/perfil.html", {
-                "request": request,
-                "usuario_logado": usuario_logado,
-                "erro": "Usuário não encontrado"
-            })
+            informar_erro(request, "Usuário não encontrado")
+            return RedirectResponse("/admin/perfil", status_code=status.HTTP_303_SEE_OTHER)
+
+        # Log dos valores antes da atualização
+        logger.debug(
+            "Valores antes da atualização",
+            admin_id=admin.id,
+            cpf_antes=admin.cpf,
+            data_nascimento_antes=admin.data_nascimento
+        )
 
         # Atualizar dados do usuário
         admin.nome = nome
         admin.email = email
-        admin.telefone = telefone if telefone else None
+        admin.cpf = cpf.strip() if cpf.strip() else None
+        admin.telefone = telefone.strip() if telefone.strip() else None
+        admin.data_nascimento = data_nascimento.strip() if data_nascimento.strip() else None
+
+        # Log dos valores que serão salvos
+        logger.debug(
+            "Valores que serão salvos",
+            admin_id=admin.id,
+            cpf_novo=admin.cpf,
+            data_nascimento_nova=admin.data_nascimento
+        )
 
         # Campos específicos do admin podem ser armazenados como propriedades customizadas
         # ou em uma tabela separada dependendo da implementação do banco
@@ -97,33 +122,33 @@ async def atualizar_perfil_admin(
         sucesso = usuario_repo.atualizar(admin)
 
         if sucesso:
+            # Recarregar do banco de dados para garantir que os dados foram persistidos
+            admin_atualizado = usuario_repo.obter_por_id(usuario_logado['id'])
+
+            # Log dos valores após recarregar do banco
+            logger.info(
+                "Perfil atualizado com sucesso",
+                admin_id=admin_atualizado.id,
+                cpf_salvo=admin_atualizado.cpf,
+                data_nascimento_salva=admin_atualizado.data_nascimento
+            )
+
             # Atualizar a sessão com os novos dados
             usuario_logado['nome'] = nome
             usuario_logado['email'] = email
 
-            return templates.TemplateResponse("admin/perfil.html", {
-                "request": request,
-                "usuario_logado": usuario_logado,
-                "admin": admin,
-                "sucesso": "Perfil atualizado com sucesso!"
-            })
+            # Usar flash message e redirecionar (padrão POST-Redirect-GET)
+            informar_sucesso(request, "Perfil atualizado com sucesso!")
+            return RedirectResponse("/admin/perfil", status_code=status.HTTP_303_SEE_OTHER)
         else:
-            return templates.TemplateResponse("admin/perfil.html", {
-                "request": request,
-                "usuario_logado": usuario_logado,
-                "admin": admin,
-                "erro": "Erro ao atualizar perfil"
-            })
+            logger.warning("Falha ao atualizar perfil admin", admin_id=usuario_logado['id'])
+            informar_erro(request, "Erro ao atualizar perfil")
+            return RedirectResponse("/admin/perfil", status_code=status.HTTP_303_SEE_OTHER)
 
     except Exception as e:
-        logger.error("Erro ao atualizar perfil admin: ", erro=e)
-        admin = usuario_repo.obter_por_id(usuario_logado['id'])
-        return templates.TemplateResponse("admin/perfil.html", {
-            "request": request,
-            "usuario_logado": usuario_logado,
-            "admin": admin,
-            "erro": "Erro ao atualizar perfil"
-        })
+        logger.error("Erro ao atualizar perfil admin", erro=str(e), admin_id=usuario_logado.get('id', 'desconhecido'))
+        informar_erro(request, "Erro ao atualizar perfil")
+        return RedirectResponse("/admin/perfil", status_code=status.HTTP_303_SEE_OTHER)
 
 # ==================== DASHBOARD ====================
 
@@ -153,7 +178,7 @@ async def dashboard_admin(request: Request, usuario_logado: dict = {}):
         # Buscar fornecedores recentes
         fornecedores_recentes = fornecedor_repo.obter_fornecedores_por_pagina(1, 5)
 
-        return templates.TemplateResponse("admin/dashboard.html", {
+        return template_response_with_flash(templates, "admin/dashboard.html", {
             "request": request,
             "usuario_logado": usuario_logado,
             "stats": stats,
@@ -162,7 +187,7 @@ async def dashboard_admin(request: Request, usuario_logado: dict = {}):
         })
     except Exception as e:
         logger.error("Erro no dashboard admin: ", erro=e)
-        return templates.TemplateResponse("admin/dashboard.html", {
+        return template_response_with_flash(templates, "admin/dashboard.html", {
             "request": request,
             "usuario_logado": usuario_logado,
             "erro": "Erro ao carregar estatísticas",
@@ -212,7 +237,7 @@ async def listar_usuarios(
                 if fornecedor:
                     fornecedores_dados[usuario.id] = fornecedor
 
-        return templates.TemplateResponse("admin/usuarios.html", {
+        return template_response_with_flash(templates, "admin/usuarios.html", {
             "request": request,
             "usuario_logado": usuario_logado,
             "usuarios": page_info.items,
@@ -226,7 +251,7 @@ async def listar_usuarios(
         })
     except Exception as e:
         logger.error("Erro ao listar usuários: ", erro=e)
-        return templates.TemplateResponse("admin/usuarios.html", {
+        return template_response_with_flash(templates, "admin/usuarios.html", {
             "request": request,
             "usuario_logado": usuario_logado,
             "erro": "Erro ao carregar usuários",
@@ -242,7 +267,7 @@ async def listar_usuarios(
 @requer_autenticacao([TipoUsuario.ADMIN.value])
 async def novo_admin_form(request: Request, usuario_logado: dict = {}):
     """Formulário para cadastrar novo administrador"""
-    return templates.TemplateResponse("admin/admin_form.html", {
+    return template_response_with_flash(templates, "admin/admin_form.html", {
         "request": request,
         "usuario_logado": usuario_logado,
         "acao": "criar"
@@ -265,7 +290,7 @@ async def criar_admin(
         # Validar se o nome não está vazio
         nome = nome.strip()
         if not nome:
-            return templates.TemplateResponse("admin/admin_form.html", {
+            return template_response_with_flash(templates, "admin/admin_form.html", {
                 "request": request,
                 "usuario_logado": usuario_logado,
                 "acao": "criar",
@@ -275,7 +300,7 @@ async def criar_admin(
         # Validar se o email não está vazio
         email = email.strip()
         if not email:
-            return templates.TemplateResponse("admin/admin_form.html", {
+            return template_response_with_flash(templates, "admin/admin_form.html", {
                 "request": request,
                 "usuario_logado": usuario_logado,
                 "acao": "criar",
@@ -285,7 +310,7 @@ async def criar_admin(
         # Verificar se já existe usuário com o mesmo email
         usuario_existente = usuario_repo.obter_usuario_por_email(email)
         if usuario_existente:
-            return templates.TemplateResponse("admin/admin_form.html", {
+            return template_response_with_flash(templates, "admin/admin_form.html", {
                 "request": request,
                 "usuario_logado": usuario_logado,
                 "acao": "criar",
@@ -294,7 +319,7 @@ async def criar_admin(
 
         # Validar senha
         if not senha or len(senha) < 6:
-            return templates.TemplateResponse("admin/admin_form.html", {
+            return template_response_with_flash(templates, "admin/admin_form.html", {
                 "request": request,
                 "usuario_logado": usuario_logado,
                 "acao": "criar",
@@ -333,7 +358,7 @@ async def criar_admin(
         if admin_id:
             return RedirectResponse("/admin/usuarios", status_code=status.HTTP_303_SEE_OTHER)
         else:
-            return templates.TemplateResponse("admin/admin_form.html", {
+            return template_response_with_flash(templates, "admin/admin_form.html", {
                 "request": request,
                 "usuario_logado": usuario_logado,
                 "acao": "criar",
@@ -342,7 +367,7 @@ async def criar_admin(
 
     except Exception as e:
         logger.error("Erro ao criar administrador: ", erro=e)
-        return templates.TemplateResponse("admin/admin_form.html", {
+        return template_response_with_flash(templates, "admin/admin_form.html", {
             "request": request,
             "usuario_logado": usuario_logado,
             "acao": "criar",
@@ -358,7 +383,7 @@ async def editar_admin_form(request: Request, id_admin: int, usuario_logado: dic
         if not admin or admin.perfil != TipoUsuario.ADMIN:
             return RedirectResponse("/admin/usuarios", status_code=status.HTTP_303_SEE_OTHER)
 
-        return templates.TemplateResponse("admin/admin_form.html", {
+        return template_response_with_flash(templates, "admin/admin_form.html", {
             "request": request,
             "usuario_logado": usuario_logado,
             "admin": admin,
@@ -392,7 +417,7 @@ async def atualizar_admin(
         email = email.strip()
 
         if not nome:
-            return templates.TemplateResponse("admin/admin_form.html", {
+            return template_response_with_flash(templates, "admin/admin_form.html", {
                 "request": request,
                 "usuario_logado": usuario_logado,
                 "admin": admin,
@@ -401,7 +426,7 @@ async def atualizar_admin(
             })
 
         if not email:
-            return templates.TemplateResponse("admin/admin_form.html", {
+            return template_response_with_flash(templates, "admin/admin_form.html", {
                 "request": request,
                 "usuario_logado": usuario_logado,
                 "admin": admin,
@@ -412,7 +437,7 @@ async def atualizar_admin(
         # Verificar se email já existe (exceto para o próprio usuário)
         usuario_existente = usuario_repo.obter_usuario_por_email(email)
         if usuario_existente and usuario_existente.id != id_admin:
-            return templates.TemplateResponse("admin/admin_form.html", {
+            return template_response_with_flash(templates, "admin/admin_form.html", {
                 "request": request,
                 "usuario_logado": usuario_logado,
                 "admin": admin,
@@ -435,7 +460,7 @@ async def atualizar_admin(
 
             return RedirectResponse("/admin/usuarios", status_code=status.HTTP_303_SEE_OTHER)
         else:
-            return templates.TemplateResponse("admin/admin_form.html", {
+            return template_response_with_flash(templates, "admin/admin_form.html", {
                 "request": request,
                 "usuario_logado": usuario_logado,
                 "admin": admin,
@@ -446,7 +471,7 @@ async def atualizar_admin(
     except Exception as e:
         logger.error("Erro ao atualizar administrador: ", erro=e)
         admin = usuario_repo.obter_por_id(id_admin)
-        return templates.TemplateResponse("admin/admin_form.html", {
+        return template_response_with_flash(templates, "admin/admin_form.html", {
             "request": request,
             "usuario_logado": usuario_logado,
             "admin": admin,
@@ -462,7 +487,7 @@ async def visualizar_usuario(request: Request, id_usuario: int, usuario_logado: 
         usuario = usuario_repo.obter_por_id(id_usuario)
 
         if not usuario:
-            return templates.TemplateResponse("admin/usuarios.html", {
+            return template_response_with_flash(templates, "admin/usuarios.html", {
                 "request": request,
                 "usuario_logado": usuario_logado,
                 "erro": "Usuário não encontrado"
@@ -473,7 +498,7 @@ async def visualizar_usuario(request: Request, id_usuario: int, usuario_logado: 
         if usuario.perfil == TipoUsuario.FORNECEDOR:
             fornecedor = fornecedor_repo.obter_por_id(id_usuario)
 
-        return templates.TemplateResponse("admin/usuario_detalhes.html", {
+        return template_response_with_flash(templates, "admin/usuario_detalhes.html", {
             "request": request,
             "usuario_logado": usuario_logado,
             "usuario": usuario,
@@ -481,7 +506,7 @@ async def visualizar_usuario(request: Request, id_usuario: int, usuario_logado: 
         })
     except Exception as e:
         logger.error("Erro ao visualizar usuário: ", erro=e)
-        return templates.TemplateResponse("admin/usuarios.html", {
+        return template_response_with_flash(templates, "admin/usuarios.html", {
             "request": request,
             "usuario_logado": usuario_logado,
             "erro": "Erro ao carregar usuário"
@@ -532,7 +557,7 @@ async def verificacao_fornecedor_especifico(request: Request, id_fornecedor: int
         # Buscar o usuário e dados do fornecedor
         usuario = usuario_repo.obter_por_id(id_fornecedor)
         if not usuario or usuario.perfil != TipoUsuario.FORNECEDOR:
-            return templates.TemplateResponse("admin/verificacao.html", {
+            return template_response_with_flash(templates, "admin/verificacao.html", {
                 "request": request,
                 "usuario_logado": usuario_logado,
                 "erro": "Fornecedor não encontrado"
@@ -540,20 +565,20 @@ async def verificacao_fornecedor_especifico(request: Request, id_fornecedor: int
 
         fornecedor = fornecedor_repo.obter_por_id(id_fornecedor)
         if not fornecedor:
-            return templates.TemplateResponse("admin/verificacao.html", {
+            return template_response_with_flash(templates, "admin/verificacao.html", {
                 "request": request,
                 "usuario_logado": usuario_logado,
                 "erro": "Dados do fornecedor não encontrados"
             })
 
-        return templates.TemplateResponse("admin/verificacao.html", {
+        return template_response_with_flash(templates, "admin/verificacao.html", {
             "request": request,
             "usuario_logado": usuario_logado,
             "fornecedor": fornecedor
         })
     except Exception as e:
         logger.error("Erro ao carregar verificação: ", erro=e)
-        return templates.TemplateResponse("admin/verificacao.html", {
+        return template_response_with_flash(templates, "admin/verificacao.html", {
             "request": request,
             "usuario_logado": usuario_logado,
             "erro": "Erro ao carregar dados do fornecedor"
@@ -567,14 +592,14 @@ async def verificacao_fornecedores(request: Request, usuario_logado: dict = {}):
         fornecedores = fornecedor_repo.obter_fornecedores_por_pagina(1, 100)
         fornecedores_pendentes = [f for f in fornecedores if not f.verificado]
 
-        return templates.TemplateResponse("admin/verificacao.html", {
+        return template_response_with_flash(templates, "admin/verificacao.html", {
             "request": request,
             "usuario_logado": usuario_logado,
             "fornecedores_pendentes": fornecedores_pendentes
         })
     except Exception as e:
         logger.error("Erro ao carregar verificação: ", erro=e)
-        return templates.TemplateResponse("admin/verificacao.html", {
+        return template_response_with_flash(templates, "admin/verificacao.html", {
             "request": request,
             "usuario_logado": usuario_logado,
             "erro": "Erro ao carregar fornecedores pendentes"
@@ -674,7 +699,7 @@ async def listar_itens(
         # Buscar todas as categorias para o filtro
         categorias = categoria_repo.buscar_categorias()
 
-        return templates.TemplateResponse("admin/itens.html", {
+        return template_response_with_flash(templates, "admin/itens.html", {
             "request": request,
             "usuario_logado": usuario_logado,
             "itens": page_info.items,
@@ -691,7 +716,7 @@ async def listar_itens(
         })
     except Exception as e:
         logger.error("Erro ao listar itens: ", erro=e)
-        return templates.TemplateResponse("admin/itens.html", {
+        return template_response_with_flash(templates, "admin/itens.html", {
             "request": request,
             "usuario_logado": usuario_logado,
             "erro": "Erro ao carregar itens",
@@ -709,7 +734,7 @@ async def visualizar_item(request: Request, id_item: int, usuario_logado: dict =
         item = item_repo.obter_por_id(id_item)
 
         if not item:
-            return templates.TemplateResponse("admin/itens.html", {
+            return template_response_with_flash(templates, "admin/itens.html", {
                 "request": request,
                 "usuario_logado": usuario_logado,
                 "erro": "Item não encontrado"
@@ -718,7 +743,7 @@ async def visualizar_item(request: Request, id_item: int, usuario_logado: dict =
         # Buscar dados do fornecedor
         fornecedor = fornecedor_repo.obter_por_id(item.id_fornecedor)
 
-        return templates.TemplateResponse("admin/item_detalhes.html", {
+        return template_response_with_flash(templates, "admin/item_detalhes.html", {
             "request": request,
             "usuario_logado": usuario_logado,
             "item": item,
@@ -726,7 +751,7 @@ async def visualizar_item(request: Request, id_item: int, usuario_logado: dict =
         })
     except Exception as e:
         logger.error("Erro ao visualizar item: ", erro=e)
-        return templates.TemplateResponse("admin/itens.html", {
+        return template_response_with_flash(templates, "admin/itens.html", {
             "request": request,
             "usuario_logado": usuario_logado,
             "erro": "Erro ao carregar item"
@@ -820,7 +845,7 @@ async def relatorios(request: Request, usuario_logado: dict = {}):
             "fornecedores_verificados": round((stats_gerais["fornecedores_verificados"] / stats_gerais["total_fornecedores"] * 100) if stats_gerais["total_fornecedores"] > 0 else 0, 1)
         }
 
-        return templates.TemplateResponse("admin/relatorios.html", {
+        return template_response_with_flash(templates, "admin/relatorios.html", {
             "request": request,
             "usuario_logado": usuario_logado,
             "stats_gerais": stats_gerais,
@@ -830,7 +855,7 @@ async def relatorios(request: Request, usuario_logado: dict = {}):
         })
     except Exception as e:
         logger.error("Erro ao gerar relatórios: ", erro=e)
-        return templates.TemplateResponse("admin/relatorios.html", {
+        return template_response_with_flash(templates, "admin/relatorios.html", {
             "request": request,
             "usuario_logado": usuario_logado,
             "erro": "Erro ao gerar relatórios"
@@ -939,7 +964,7 @@ async def listar_categorias(
         # Aplicar paginação
         page_info = PaginationHelper.paginate(categorias, total_categorias, pagina, tamanho_pagina)
 
-        return templates.TemplateResponse("admin/categorias.html", {
+        return template_response_with_flash(templates, "admin/categorias.html", {
             "request": request,
             "usuario_logado": usuario_logado,
             "categorias": page_info.items,
@@ -953,7 +978,7 @@ async def listar_categorias(
         })
     except Exception as e:
         logger.error("Erro ao listar categorias: ", erro=e)
-        return templates.TemplateResponse("admin/categorias.html", {
+        return template_response_with_flash(templates, "admin/categorias.html", {
             "request": request,
             "usuario_logado": usuario_logado,
             "erro": "Erro ao carregar categorias",
@@ -967,7 +992,7 @@ async def listar_categorias(
 @requer_autenticacao([TipoUsuario.ADMIN.value])
 async def nova_categoria(request: Request, usuario_logado: dict = {}):
     """Formulário para criar nova categoria"""
-    return templates.TemplateResponse("admin/categoria_form.html", {
+    return template_response_with_flash(templates, "admin/categoria_form.html", {
         "request": request,
         "usuario_logado": usuario_logado,
         "tipos_item": [tipo for tipo in TipoFornecimento],
@@ -989,7 +1014,7 @@ async def criar_categoria(
         # Validar se o nome não está vazio
         nome = nome.strip()
         if not nome:
-            return templates.TemplateResponse("admin/categoria_form.html", {
+            return template_response_with_flash(templates, "admin/categoria_form.html", {
                 "request": request,
                 "usuario_logado": usuario_logado,
                 "tipos_item": [tipo for tipo in TipoFornecimento],
@@ -1001,7 +1026,7 @@ async def criar_categoria(
         todas_categorias = categoria_repo.buscar_categorias()
         categoria_existente = next((c for c in todas_categorias if c.nome.lower() == nome.lower() and c.tipo_fornecimento == TipoFornecimento(tipo_fornecimento)), None)
         if categoria_existente:
-            return templates.TemplateResponse("admin/categoria_form.html", {
+            return template_response_with_flash(templates, "admin/categoria_form.html", {
                 "request": request,
                 "usuario_logado": usuario_logado,
                 "tipos_item": [tipo for tipo in TipoFornecimento],
@@ -1021,7 +1046,7 @@ async def criar_categoria(
         if categoria_id:
             return RedirectResponse("/admin/categorias", status_code=status.HTTP_303_SEE_OTHER)
         else:
-            return templates.TemplateResponse("admin/categoria_form.html", {
+            return template_response_with_flash(templates, "admin/categoria_form.html", {
                 "request": request,
                 "usuario_logado": usuario_logado,
                 "tipos_item": [tipo for tipo in TipoFornecimento],
@@ -1030,7 +1055,7 @@ async def criar_categoria(
             })
     except Exception as e:
         logger.error("Erro ao criar categoria: ", erro=e)
-        return templates.TemplateResponse("admin/categoria_form.html", {
+        return template_response_with_flash(templates, "admin/categoria_form.html", {
             "request": request,
             "usuario_logado": usuario_logado,
             "tipos_item": [tipo for tipo in TipoFornecimento],
@@ -1047,7 +1072,7 @@ async def editar_categoria(request: Request, id_categoria: int, usuario_logado: 
         if not categoria:
             return RedirectResponse("/admin/categorias", status_code=status.HTTP_303_SEE_OTHER)
 
-        return templates.TemplateResponse("admin/categoria_form.html", {
+        return template_response_with_flash(templates, "admin/categoria_form.html", {
             "request": request,
             "usuario_logado": usuario_logado,
             "categoria": categoria,
@@ -1075,7 +1100,7 @@ async def atualizar_categoria(
         nome = nome.strip()
         if not nome:
             categoria_atual = categoria_repo.obter_por_id(id_categoria)
-            return templates.TemplateResponse("admin/categoria_form.html", {
+            return template_response_with_flash(templates, "admin/categoria_form.html", {
                 "request": request,
                 "usuario_logado": usuario_logado,
                 "categoria": categoria_atual,
@@ -1089,7 +1114,7 @@ async def atualizar_categoria(
         categoria_existente = next((c for c in todas_categorias if c.nome.lower() == nome.lower() and c.tipo_fornecimento == TipoFornecimento(tipo_fornecimento)), None)
         if categoria_existente and categoria_existente.id != id_categoria:
             categoria_atual = categoria_repo.obter_por_id(id_categoria)
-            return templates.TemplateResponse("admin/categoria_form.html", {
+            return template_response_with_flash(templates, "admin/categoria_form.html", {
                 "request": request,
                 "usuario_logado": usuario_logado,
                 "categoria": categoria_atual,
@@ -1110,7 +1135,7 @@ async def atualizar_categoria(
             return RedirectResponse("/admin/categorias", status_code=status.HTTP_303_SEE_OTHER)
         else:
             categoria_atual = categoria_repo.obter_por_id(id_categoria)
-            return templates.TemplateResponse("admin/categoria_form.html", {
+            return template_response_with_flash(templates, "admin/categoria_form.html", {
                 "request": request,
                 "usuario_logado": usuario_logado,
                 "categoria": categoria_atual,
@@ -1121,7 +1146,7 @@ async def atualizar_categoria(
     except Exception as e:
         logger.error("Erro ao atualizar categoria: ", erro=e)
         categoria_atual = categoria_repo.obter_por_id(id_categoria)
-        return templates.TemplateResponse("admin/categoria_form.html", {
+        return template_response_with_flash(templates, "admin/categoria_form.html", {
             "request": request,
             "usuario_logado": usuario_logado,
             "categoria": categoria_atual,
