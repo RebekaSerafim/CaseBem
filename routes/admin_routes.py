@@ -86,11 +86,11 @@ async def atualizar_perfil_admin(
     cpf: str = Form(""),
     telefone: str = Form(""),
     data_nascimento: str = Form(""),
-    _cargo: str = Form(""),
-    _endereco: str = Form(""),
-    _cidade: str = Form(""),
-    _estado: str = Form(""),
-    _observacoes: str = Form(""),
+    cargo: str = Form(""),
+    endereco: str = Form(""),
+    cidade: str = Form(""),
+    estado: str = Form(""),
+    observacoes: str = Form(""),
     usuario_logado: dict = {},
 ):
     """Atualiza o perfil do administrador"""
