@@ -10,6 +10,7 @@ from core.repositories.usuario_repo import usuario_repo
 from core.repositories.categoria_repo import categoria_repo
 from util.exceptions import RecursoNaoEncontradoError
 
+
 class TestDemandaRepo:
     def test_criar_tabela_demandas(self, test_db):
         # Arrange
@@ -26,7 +27,9 @@ class TestDemandaRepo:
         demanda_repo.criar_tabela()
 
         # Inserir categoria
-        categoria = Categoria(0, "Categoria Teste", TipoFornecimento.PRODUTO, "Descrição", True)
+        categoria = Categoria(
+            0, "Categoria Teste", TipoFornecimento.PRODUTO, "Descrição", True
+        )
         categoria_repo.inserir(categoria)
 
         # Inserir usuários e casal
@@ -34,18 +37,24 @@ class TestDemandaRepo:
             usuario_repo.inserir(noivo)
         casal = Casal(0, 1, 2)
         casal_repo.inserir(casal)
-        
+
         # Act
         id_demanda_inserida = demanda_repo.inserir(demanda_exemplo)
-        
+
         # Assert
         demanda_db = demanda_repo.obter_por_id(id_demanda_inserida)
         assert demanda_db is not None, "A demanda inserida não deveria ser None"
-        assert demanda_db.id == id_demanda_inserida, "A demanda inserida deveria ter um ID igual ao retornado pela inserção"
+        assert (
+            demanda_db.id == id_demanda_inserida
+        ), "A demanda inserida deveria ter um ID igual ao retornado pela inserção"
         assert demanda_db.id_casal == 1, "O id_casal da demanda inserida não confere"
-        assert demanda_db.data_criacao is not None, "A data_criacao não deveria ser None"
+        assert (
+            demanda_db.data_criacao is not None
+        ), "A data_criacao não deveria ser None"
 
-    def test_obter_demanda_por_id_existente(self, test_db, demanda_exemplo, lista_noivos_exemplo):
+    def test_obter_demanda_por_id_existente(
+        self, test_db, demanda_exemplo, lista_noivos_exemplo
+    ):
         # Arrange
         usuario_repo.criar_tabela()
         casal_repo.criar_tabela()
@@ -53,23 +62,31 @@ class TestDemandaRepo:
         demanda_repo.criar_tabela()
 
         # Inserir categoria
-        categoria = Categoria(0, "Categoria Teste", TipoFornecimento.PRODUTO, "Descrição", True)
+        categoria = Categoria(
+            0, "Categoria Teste", TipoFornecimento.PRODUTO, "Descrição", True
+        )
         categoria_repo.inserir(categoria)
 
         for noivo in lista_noivos_exemplo[:2]:
             usuario_repo.inserir(noivo)
         casal = Casal(0, 1, 2)
         casal_repo.inserir(casal)
-        
+
         id_demanda_inserida = demanda_repo.inserir(demanda_exemplo)
-        
+
         # Act
         demanda_db = demanda_repo.obter_por_id(id_demanda_inserida)
-        
+
         # Assert
-        assert demanda_db is not None, "A demanda retornada deveria ser diferente de None"
-        assert demanda_db.id == id_demanda_inserida, "O id da demanda buscada deveria ser igual ao id da demanda inserida"
-        assert demanda_db.id_casal == demanda_exemplo.id_casal, "O id_casal da demanda buscada deveria ser igual ao id_casal da demanda inserida"
+        assert (
+            demanda_db is not None
+        ), "A demanda retornada deveria ser diferente de None"
+        assert (
+            demanda_db.id == id_demanda_inserida
+        ), "O id da demanda buscada deveria ser igual ao id da demanda inserida"
+        assert (
+            demanda_db.id_casal == demanda_exemplo.id_casal
+        ), "O id_casal da demanda buscada deveria ser igual ao id_casal da demanda inserida"
 
     def test_obter_demanda_por_id_inexistente(self, test_db):
         # Arrange
@@ -78,7 +95,9 @@ class TestDemandaRepo:
         with pytest.raises(RecursoNaoEncontradoError):
             demanda_repo.obter_por_id(999)
 
-    def test_atualizar_demanda_existente(self, test_db, demanda_exemplo, lista_noivos_exemplo):
+    def test_atualizar_demanda_existente(
+        self, test_db, demanda_exemplo, lista_noivos_exemplo
+    ):
         # Arrange
         usuario_repo.criar_tabela()
         casal_repo.criar_tabela()
@@ -86,21 +105,23 @@ class TestDemandaRepo:
         demanda_repo.criar_tabela()
 
         # Inserir categoria
-        categoria = Categoria(0, "Categoria Teste", TipoFornecimento.PRODUTO, "Descrição", True)
+        categoria = Categoria(
+            0, "Categoria Teste", TipoFornecimento.PRODUTO, "Descrição", True
+        )
         categoria_repo.inserir(categoria)
 
         for noivo in lista_noivos_exemplo[:2]:
             usuario_repo.inserir(noivo)
         casal = Casal(0, 1, 2)
         casal_repo.inserir(casal)
-        
+
         id_demanda_inserida = demanda_repo.inserir(demanda_exemplo)
-        
+
         # Act
         demanda_db = demanda_repo.obter_por_id(id_demanda_inserida)
         # Apenas verificar se a atualização funciona, sem comparar datas
         resultado = demanda_repo.atualizar(demanda_db)
-        
+
         # Assert
         assert resultado == True, "A atualização da demanda deveria retornar True"
 
@@ -121,15 +142,19 @@ class TestDemandaRepo:
             id_casal=1,
             descricao="Teste de demanda inexistente",
             orcamento_total=5000.00,
-            data_casamento='2025-12-31',
-            cidade_casamento='Vitória'
+            data_casamento="2025-12-31",
+            cidade_casamento="Vitória",
         )
         # Act
         resultado = demanda_repo.atualizar(demanda)
         # Assert
-        assert resultado == False, "A atualização de uma demanda inexistente deveria retornar False"
+        assert (
+            resultado == False
+        ), "A atualização de uma demanda inexistente deveria retornar False"
 
-    def test_excluir_demanda_existente(self, test_db, demanda_exemplo, lista_noivos_exemplo):
+    def test_excluir_demanda_existente(
+        self, test_db, demanda_exemplo, lista_noivos_exemplo
+    ):
         # Arrange
         usuario_repo.criar_tabela()
         casal_repo.criar_tabela()
@@ -137,16 +162,18 @@ class TestDemandaRepo:
         demanda_repo.criar_tabela()
 
         # Inserir categoria
-        categoria = Categoria(0, "Categoria Teste", TipoFornecimento.PRODUTO, "Descrição", True)
+        categoria = Categoria(
+            0, "Categoria Teste", TipoFornecimento.PRODUTO, "Descrição", True
+        )
         categoria_repo.inserir(categoria)
 
         for noivo in lista_noivos_exemplo[:2]:
             usuario_repo.inserir(noivo)
         casal = Casal(0, 1, 2)
         casal_repo.inserir(casal)
-        
+
         id_demanda_inserida = demanda_repo.inserir(demanda_exemplo)
-        
+
         # Act
         resultado = demanda_repo.excluir(id_demanda_inserida)
 
@@ -171,7 +198,9 @@ class TestDemandaRepo:
         # Act
         resultado = demanda_repo.excluir(999)
         # Assert
-        assert resultado == False, "A exclusão de uma demanda inexistente deveria retornar False"
+        assert (
+            resultado == False
+        ), "A exclusão de uma demanda inexistente deveria retornar False"
 
     def test_obter_demandas_por_pagina(self, test_db, lista_usuarios_exemplo):
         # Arrange
@@ -184,8 +213,9 @@ class TestDemandaRepo:
             usuario_repo.inserir(usuario)
 
         from core.models.casal_model import Casal
+
         for i in range(1, 11, 2):
-            casal = Casal(0, i, i+1)
+            casal = Casal(0, i, i + 1)
             casal_repo.inserir(casal)
 
         # Inserir 5 demandas
@@ -195,9 +225,9 @@ class TestDemandaRepo:
                 id=0,
                 id_casal=casal_id,
                 descricao=f"Descrição da demanda {i+1}",
-                orcamento_total=round((i+1) * 1000.0, 2),
-                data_casamento='2025-12-31',
-                cidade_casamento='Vitória'
+                orcamento_total=round((i + 1) * 1000.0, 2),
+                data_casamento="2025-12-31",
+                cidade_casamento="Vitória",
             )
             demanda_repo.inserir(demanda)
 
@@ -205,9 +235,13 @@ class TestDemandaRepo:
         pagina_demandas = demanda_repo.obter_por_pagina(1, 3)
 
         # Assert
-        assert len(pagina_demandas) <= 3, "Deveria retornar no máximo 3 demandas na primeira página"
+        assert (
+            len(pagina_demandas) <= 3
+        ), "Deveria retornar no máximo 3 demandas na primeira página"
         assert len(pagina_demandas) > 0, "Deveria retornar pelo menos 1 demanda"
-        assert all(isinstance(d, Demanda) for d in pagina_demandas), "Todos os itens da página devem ser do tipo Demanda"
+        assert all(
+            isinstance(d, Demanda) for d in pagina_demandas
+        ), "Todos os itens da página devem ser do tipo Demanda"
 
     def test_obter_demandas_por_casal(self, test_db, lista_noivos_exemplo):
         # Arrange
@@ -220,6 +254,7 @@ class TestDemandaRepo:
             usuario_repo.inserir(noivo)
 
         from core.models.casal_model import Casal
+
         casal1 = Casal(0, 1, 2)
         casal2 = Casal(0, 3, 4)
         id_casal1 = casal_repo.inserir(casal1)
@@ -231,24 +266,24 @@ class TestDemandaRepo:
             id_casal=id_casal1,
             descricao="Descrição da demanda 1",
             orcamento_total=3000.00,
-            data_casamento='2025-12-31',
-            cidade_casamento='Vitória'
+            data_casamento="2025-12-31",
+            cidade_casamento="Vitória",
         )
         demanda2 = Demanda(
             id=0,
             id_casal=id_casal1,
             descricao="Descrição da demanda 2",
             orcamento_total=5000.00,
-            data_casamento='2025-12-31',
-            cidade_casamento='Vila Velha'
+            data_casamento="2025-12-31",
+            cidade_casamento="Vila Velha",
         )
         demanda3 = Demanda(
             id=0,
             id_casal=id_casal2,
             descricao="Descrição da demanda 3",
             orcamento_total=4000.00,
-            data_casamento='2026-01-15',
-            cidade_casamento='Serra'
+            data_casamento="2026-01-15",
+            cidade_casamento="Cachoeiro",
         )
 
         demanda_repo.inserir(demanda1)
@@ -260,11 +295,14 @@ class TestDemandaRepo:
 
         # Assert
         assert len(demandas_casal1) == 2, "Deveria retornar 2 demandas para o casal1"
-        assert all(d.id_casal == id_casal1 for d in demandas_casal1), "Todas as demandas devem pertencer ao casal1"
+        assert all(
+            d.id_casal == id_casal1 for d in demandas_casal1
+        ), "Todas as demandas devem pertencer ao casal1"
 
     def test_atualizar_status(self, test_db, lista_noivos_exemplo):
         """Testa atualização de status da demanda (linha 57)"""
         from core.models.demanda_model import StatusDemanda
+
         # Arrange
         usuario_repo.criar_tabela()
         casal_repo.criar_tabela()
@@ -273,7 +311,12 @@ class TestDemandaRepo:
             usuario_repo.inserir(noivo)
         casal = Casal(0, 1, 2)
         id_casal = casal_repo.inserir(casal)
-        demanda = Demanda(id=0, id_casal=id_casal, descricao="Demanda teste", status=StatusDemanda.ATIVA)
+        demanda = Demanda(
+            id=0,
+            id_casal=id_casal,
+            descricao="Demanda teste",
+            status=StatusDemanda.ATIVA,
+        )
         id_demanda = demanda_repo.inserir(demanda)
         # Act
         resultado = demanda_repo.atualizar_status(id_demanda, StatusDemanda.FINALIZADA)
@@ -285,6 +328,7 @@ class TestDemandaRepo:
     def test_obter_ativas(self, test_db, lista_noivos_exemplo):
         """Testa obtenção de demandas ativas (linhas 70-71)"""
         from core.models.demanda_model import StatusDemanda
+
         # Arrange
         usuario_repo.criar_tabela()
         casal_repo.criar_tabela()
@@ -316,7 +360,9 @@ class TestDemandaRepo:
             usuario_repo.inserir(noivo)
         casal = Casal(0, 1, 2)
         id_casal = casal_repo.inserir(casal)
-        demanda1 = Demanda(id=0, id_casal=id_casal, descricao="Decoração especial para casamento")
+        demanda1 = Demanda(
+            id=0, id_casal=id_casal, descricao="Decoração especial para casamento"
+        )
         demanda2 = Demanda(id=0, id_casal=id_casal, descricao="Buffet completo")
         demanda3 = Demanda(id=0, id_casal=id_casal, descricao="Decoração simples")
         demanda_repo.inserir(demanda1)
@@ -331,6 +377,7 @@ class TestDemandaRepo:
     def test_obter_por_status_com_enum(self, test_db, lista_noivos_exemplo):
         """Testa obtenção por status usando enum (linhas 84-101)"""
         from core.models.demanda_model import StatusDemanda
+
         # Arrange
         usuario_repo.criar_tabela()
         casal_repo.criar_tabela()
@@ -356,6 +403,7 @@ class TestDemandaRepo:
     def test_obter_por_status_com_string(self, test_db, lista_noivos_exemplo):
         """Testa obtenção por status usando string (linhas 87-96)"""
         from core.models.demanda_model import StatusDemanda
+
         # Arrange
         usuario_repo.criar_tabela()
         casal_repo.criar_tabela()
@@ -394,6 +442,7 @@ class TestDemandaRepo:
     def test_obter_por_cidade(self, test_db, lista_noivos_exemplo):
         """Testa obtenção de demandas por cidade (linhas 116-119)"""
         from core.models.demanda_model import StatusDemanda
+
         # Arrange
         usuario_repo.criar_tabela()
         casal_repo.criar_tabela()
@@ -402,9 +451,27 @@ class TestDemandaRepo:
             usuario_repo.inserir(noivo)
         casal = Casal(0, 1, 2)
         id_casal = casal_repo.inserir(casal)
-        demanda1 = Demanda(id=0, id_casal=id_casal, descricao="Demanda 1", cidade_casamento="Vitória", status=StatusDemanda.ATIVA)
-        demanda2 = Demanda(id=0, id_casal=id_casal, descricao="Demanda 2", cidade_casamento="Vitória", status=StatusDemanda.ATIVA)
-        demanda3 = Demanda(id=0, id_casal=id_casal, descricao="Demanda 3", cidade_casamento="Vila Velha", status=StatusDemanda.ATIVA)
+        demanda1 = Demanda(
+            id=0,
+            id_casal=id_casal,
+            descricao="Demanda 1",
+            cidade_casamento="Vitória",
+            status=StatusDemanda.ATIVA,
+        )
+        demanda2 = Demanda(
+            id=0,
+            id_casal=id_casal,
+            descricao="Demanda 2",
+            cidade_casamento="Vitória",
+            status=StatusDemanda.ATIVA,
+        )
+        demanda3 = Demanda(
+            id=0,
+            id_casal=id_casal,
+            descricao="Demanda 3",
+            cidade_casamento="Vila Velha",
+            status=StatusDemanda.ATIVA,
+        )
         demanda_repo.inserir(demanda1)
         demanda_repo.inserir(demanda2)
         demanda_repo.inserir(demanda3)

@@ -255,7 +255,7 @@ Usamos [Conventional Commits](https://www.conventionalcommits.org/):
 
 ## 📄 Licença
 
-Este projeto é desenvolvido para fins acadêmicos no **IFES - Campus Serra**.
+Este projeto é desenvolvido para fins acadêmicos no **IFES - Campus Cachoeiro**.
 
 ---
 

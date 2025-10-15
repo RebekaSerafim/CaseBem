@@ -1,0 +1,2 @@
+Este projeto consiste na criação de uma aplicação web para conectar demandas de noivos a fornecedores de itens para casamentos. Analise todo o projeto para compreendê-lo bem e, em seguida, crie ao menos 1 demanda com pelo menos 7 itens para cada casal presente no banco de dados. Crie ao menos 5 respostas
+  (orçamentos) para cada demanda, sendo que alguns orçamentos podem atender apenas a alguns itens. 

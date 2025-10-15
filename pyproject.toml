@@ -8,9 +8,9 @@ version = "2.0.0"
 description = "Sistema de Gestão para Casamentos - Conectando noivos e fornecedores"
 readme = "README.md"
 requires-python = ">=3.11"
-license = {text = "Proprietary - IFES Campus Serra"}
+license = {text = "Proprietary - IFES Campus Cachoeiro"}
 authors = [
-    {name = "IFES - Campus Serra", email = "contato@serra.ifes.edu.br"}
+    {name = "IFES - Campus Cachoeiro", email = "contato@serra.ifes.edu.br"}
 ]
 keywords = ["wedding", "management", "fastapi", "marketplace", "education"]
 classifiers = [
