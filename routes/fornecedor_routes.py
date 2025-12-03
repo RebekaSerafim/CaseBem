@@ -518,7 +518,7 @@ async def atualizar_item(
 @router.post("/fornecedor/itens/{id_item}/excluir")
 @requer_autenticacao([TipoUsuario.FORNECEDOR.value])
 @tratar_erro_rota(redirect_erro="/fornecedor/itens")
-async def excluir_item(request: Request, id_item: int, _confirmar: str = Form(None), usuario_logado: dict = {}):
+async def excluir_item(request: Request, id_item: int, usuario_logado: dict = {}):
     """Exclui um item"""
     id_fornecedor = usuario_logado["id"]
     sucesso = item_repo.excluir_item_fornecedor(id_item, id_fornecedor)
