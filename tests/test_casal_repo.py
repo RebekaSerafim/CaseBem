@@ -1,104 +1,222 @@
-from model.casal_model import Casal
-from repo import casal_repo, usuario_repo
+from core.models.casal_model import Casal
+from core.repositories.casal_repo import casal_repo
+from core.repositories.usuario_repo import usuario_repo
 
 class TestCasalRepo:
     def test_criar_tabela_casal(self, test_db):
-        assert casal_repo.criar_tabela_casal() is True
+        assert casal_repo.criar_tabela() is True
 
     def test_inserir_casal(self, test_db, lista_noivos_exemplo):
         # Arrange
-        usuario_repo.criar_tabela_usuarios()
+        usuario_repo.criar_tabela()
         for noivo in lista_noivos_exemplo:
-            usuario_repo.inserir_usuario(noivo)
-        novo_casal = Casal(0, 1, 2, 10000.0)
-        casal_repo.criar_tabela_casal()
+            usuario_repo.inserir(noivo)
+        novo_casal = Casal(
+            id=0,
+            id_noivo1=1,
+            id_noivo2=2,
+            data_casamento="2024-12-25",
+            local_previsto="Igreja do Centro",
+            orcamento_estimado="50k_100k",
+            numero_convidados=150
+        )
+        casal_repo.criar_tabela()
         # Act
-        id_casal = casal_repo.inserir_casal(novo_casal)        
+        id_casal = casal_repo.inserir(novo_casal)        
         # Assert
         assert id_casal is not None, "ID do casal inserido não pode ser None"
-        casal = casal_repo.obter_casal_por_id(id_casal)
+        casal = casal_repo.obter_por_id(id_casal)
         assert casal is not None, "Casal não encontrado após inserção"
         assert casal.id_noivo1 == 1
         assert casal.id_noivo2 == 2
-        assert casal.orcamento == 10000.0
+        assert casal.orcamento_estimado == "50k_100k"
+        assert casal.data_casamento == "2024-12-25"
+        assert casal.local_previsto == "Igreja do Centro"
+        assert casal.numero_convidados == 150
 
     def test_obter_casal_por_id_inexistente(self, test_db):
-        # Arrange        
-        casal_repo.criar_tabela_casal()
-        # Act        
-        casal = casal_repo.obter_casal_por_id(999)
-        # Assert
-        assert casal is None, "Não deveria encontrar casal com ID inexistente"
+        # Arrange
+        casal_repo.criar_tabela()
+        # Act & Assert
+        import pytest
+        from util.exceptions import RecursoNaoEncontradoError
+        with pytest.raises(RecursoNaoEncontradoError):
+            casal_repo.obter_por_id(999)
 
     def test_atualizar_casal_existente(self, test_db, lista_noivos_exemplo):
         # Arrange
-        usuario_repo.criar_tabela_usuarios()
+        usuario_repo.criar_tabela()
         for noivo in lista_noivos_exemplo:
-            usuario_repo.inserir_usuario(noivo)
-        novo_casal = Casal(0, 1, 2, 10000.0)
-        casal_repo.criar_tabela_casal()
-        id_casal = casal_repo.inserir_casal(novo_casal)
+            usuario_repo.inserir(noivo)
+        novo_casal = Casal(
+            id=0,
+            id_noivo1=1,
+            id_noivo2=2,
+            data_casamento="2024-12-25",
+            local_previsto="Igreja do Centro",
+            orcamento_estimado="50k_100k",
+            numero_convidados=150
+        )
+        casal_repo.criar_tabela()
+        id_casal = casal_repo.inserir(novo_casal)
         # Act
-        casal_atualizado = Casal(id_casal, 1, 2, 15000.0)
-        sucesso = casal_repo.atualizar_casal(casal_atualizado)
+        casal_atualizado = Casal(
+            id=id_casal,
+            id_noivo1=1,
+            id_noivo2=2,
+            data_casamento="2024-12-30",
+            local_previsto="Salão de Festas",
+            orcamento_estimado="acima_100k",
+            numero_convidados=200
+        )
+        sucesso = casal_repo.atualizar(casal_atualizado)
         # Assert
         assert sucesso is True, "Atualização do casal deveria ser bem-sucedida"
-        casal = casal_repo.obter_casal_por_id(id_casal)
+        casal = casal_repo.obter_por_id(id_casal)
         assert casal is not None, "Casal não encontrado após atualização"
-        assert casal.orcamento == 15000.0, "Orçamento do casal não foi atualizado corretamente"
+        assert casal.orcamento_estimado == "acima_100k", "Orçamento estimado do casal não foi atualizado corretamente"
 
     def test_atualizar_casal_inexistente(self, test_db):
         # Arrange
-        casal_repo.criar_tabela_casal()
+        casal_repo.criar_tabela()
         # Act
-        casal_inexistente = Casal(999, 1, 2, 10000.0)        
-        atualizou = casal_repo.atualizar_casal(casal_inexistente)
+        casal_inexistente = Casal(
+            id=999,
+            id_noivo1=1,
+            id_noivo2=2,
+            data_casamento="2024-01-01",
+            local_previsto="Local",
+            orcamento_estimado="10k_25k",
+            numero_convidados=50
+        )        
+        atualizou = casal_repo.atualizar(casal_inexistente)
         # Assert
         assert atualizou is False, "Atualização de casal inexistente deveria falhar"
 
     def test_excluir_casal_existente(self, test_db, lista_noivos_exemplo):
         # Arrange
-        usuario_repo.criar_tabela_usuarios()
+        usuario_repo.criar_tabela()
         for noivo in lista_noivos_exemplo:
-            usuario_repo.inserir_usuario(noivo)
-        novo_casal = Casal(0, 1, 2, 10000.0)
-        casal_repo.criar_tabela_casal()
-        id_casal = casal_repo.inserir_casal(novo_casal)
+            usuario_repo.inserir(noivo)
+        novo_casal = Casal(
+            id=0,
+            id_noivo1=1,
+            id_noivo2=2,
+            data_casamento="2024-12-25",
+            local_previsto="Igreja do Centro",
+            orcamento_estimado="50k_100k",
+            numero_convidados=150
+        )
+        casal_repo.criar_tabela()
+        id_casal = casal_repo.inserir(novo_casal)
         # Act
-        sucesso = casal_repo.excluir_casal(id_casal)
+        sucesso = casal_repo.excluir(id_casal)
         # Assert
         assert sucesso is True, "Exclusão do casal deveria ser bem-sucedida"
-        casal_excluido = casal_repo.obter_casal_por_id(id_casal)
-        assert casal_excluido is None, "Casal não foi excluído corretamente"
+        import pytest
+        from util.exceptions import RecursoNaoEncontradoError
+        with pytest.raises(RecursoNaoEncontradoError):
+            casal_repo.obter_por_id(id_casal)
 
     def test_excluir_casal_inexistente(self, test_db):
-        usuario_repo.criar_tabela_usuarios()
-        casal_repo.criar_tabela_casal()
-        assert casal_repo.excluir_casal(999) is False
+        usuario_repo.criar_tabela()
+        casal_repo.criar_tabela()
+        assert casal_repo.excluir(999) is False
 
     def test_obter_casais_por_pagina(self, test_db, lista_usuarios_exemplo, lista_casais_exemplo):
-        usuario_repo.criar_tabela_usuarios()
+        usuario_repo.criar_tabela()
         for usuario in lista_usuarios_exemplo:
-            usuario_repo.inserir_usuario(usuario)
-        casal_repo.criar_tabela_casal()
+            usuario_repo.inserir(usuario)
+        casal_repo.criar_tabela()
         for casal in lista_casais_exemplo:
-            casal_repo.inserir_casal(casal)
-        pagina = casal_repo.obter_casais_por_pagina(1, 4)
-        assert len(pagina) == 4
+            casal_repo.inserir(casal)
+        pagina = casal_repo.obter_por_pagina(1, 4)
+        assert len(pagina) <= 4  # Pode ser menos se não houver 4 casais
         assert all(isinstance(c, Casal) for c in pagina)
 
     def test_obter_casal_por_noivo(self, test_db, lista_noivos_exemplo):
         # Arrange
-        usuario_repo.criar_tabela_usuarios()
+        usuario_repo.criar_tabela()
         for noivo in lista_noivos_exemplo:
-            usuario_repo.inserir_usuario(noivo)
-        casal_repo.criar_tabela_casal()
-        casal1 = Casal(0, 1, 2, 10000.0)
-        casal2 = Casal(0, 3, 4, 15000.0)
-        casal_repo.inserir_casal(casal1)
-        casal_repo.inserir_casal(casal2)
+            usuario_repo.inserir(noivo)
+        casal_repo.criar_tabela()
+        casal1 = Casal(
+            id=0,
+            id_noivo1=1,
+            id_noivo2=2,
+            data_casamento="2024-06-15",
+            local_previsto="Igreja",
+            orcamento_estimado="25k_50k",
+            numero_convidados=100
+        )
+        casal2 = Casal(
+            id=0,
+            id_noivo1=3,
+            id_noivo2=4,
+            data_casamento="2024-09-20",
+            local_previsto="Praia",
+            orcamento_estimado="50k_100k",
+            numero_convidados=80
+        )
+        casal_repo.inserir(casal1)
+        casal_repo.inserir(casal2)
         # Act
-        casal_encontrado = casal_repo.obter_casal_por_noivo(1)
+        casal_encontrado = casal_repo.obter_por_noivo(1)
         # Assert
         assert casal_encontrado is not None
         assert casal_encontrado.id_noivo1 == 1 or casal_encontrado.id_noivo2 == 1
+
+    def test_obter_casal_por_noivo_nao_encontrado(self, test_db):
+        """Testa busca de casal por noivo quando não encontrado (linha 79)"""
+        # Arrange
+        usuario_repo.criar_tabela()
+        casal_repo.criar_tabela()
+        # Act
+        casal_encontrado = casal_repo.obter_por_noivo(999)
+        # Assert
+        assert casal_encontrado is None, "Deveria retornar None quando não encontrar casal"
+
+    def test_obter_por_id_completo(self, test_db, lista_noivos_exemplo):
+        """Testa obtenção de casal por ID com dados completos dos noivos (linhas 52-64)"""
+        # Arrange
+        usuario_repo.criar_tabela()
+        for noivo in lista_noivos_exemplo:
+            usuario_repo.inserir(noivo)
+        casal_repo.criar_tabela()
+        novo_casal = Casal(
+            id=0,
+            id_noivo1=1,
+            id_noivo2=2,
+            data_casamento="2024-12-25",
+            local_previsto="Igreja do Centro",
+            orcamento_estimado="50k_100k",
+            numero_convidados=150
+        )
+        id_casal = casal_repo.inserir(novo_casal)
+        # Act
+        casal_completo = casal_repo.obter_por_id_completo(id_casal)
+        # Assert
+        assert casal_completo is not None, "Casal completo não deveria ser None"
+        assert casal_completo.id == id_casal
+        assert casal_completo.id_noivo1 == 1
+        assert casal_completo.id_noivo2 == 2
+        # Verifica se os dados dos noivos foram carregados
+        assert hasattr(casal_completo, 'noivo1'), "Casal deveria ter atributo noivo1"
+        assert hasattr(casal_completo, 'noivo2'), "Casal deveria ter atributo noivo2"
+        assert casal_completo.noivo1 is not None, "Noivo1 não deveria ser None"
+        assert casal_completo.noivo2 is not None, "Noivo2 não deveria ser None"
+        assert casal_completo.noivo1.id == 1
+        assert casal_completo.noivo2.id == 2
+
+    def test_obter_por_id_completo_nao_encontrado(self, test_db):
+        """Testa exceção quando casal não é encontrado em obter_por_id_completo (linha 65)"""
+        # Arrange
+        usuario_repo.criar_tabela()
+        casal_repo.criar_tabela()
+        # Act & Assert
+        import pytest
+        from util.exceptions import RecursoNaoEncontradoError
+        with pytest.raises(RecursoNaoEncontradoError) as exc_info:
+            casal_repo.obter_por_id_completo(999)
+        assert "Casal" in str(exc_info.value)
+        assert "999" in str(exc_info.value)

@@ -1,0 +1,219 @@
+{% extends "fornecedor/base.html" %}
+
+{% block title %}Meus Orçamentos{% endblock %}
+
+{% block conteudo %}
+<div class="row">
+    <div class="col-12">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1>Meus Orçamentos</h1>
+            <a href="/fornecedor/demandas" class="btn btn-success">
+                <i class="fas fa-search"></i> Buscar Demandas
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- Filtros -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-body">
+                <form method="get" class="row g-3">
+                    <div class="col-md-3">
+                        <label for="search" class="form-label">Buscar</label>
+                        <input type="text" class="form-control" id="search" name="search"
+                               value="{{ request.query_params.get('search', '') }}" placeholder="Título da demanda">
+                    </div>
+                    <div class="col-md-2">
+                        <label for="status" class="form-label">Status</label>
+                        <select class="form-select" id="status" name="status">
+                            <option value="">Todos</option>
+                            <option value="PENDENTE" {% if request.query_params.get('status') == 'PENDENTE' %}selected{% endif %}>Pendente</option>
+                            <option value="APROVADO" {% if request.query_params.get('status') == 'APROVADO' %}selected{% endif %}>Aprovado</option>
+                            <option value="PARCIALMENTE_ACEITO" {% if request.query_params.get('status') == 'PARCIALMENTE_ACEITO' %}selected{% endif %}>Parcialmente Aceito</option>
+                            <option value="REJEITADO" {% if request.query_params.get('status') == 'REJEITADO' %}selected{% endif %}>Rejeitado</option>
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <label for="valor_min" class="form-label">Valor Mínimo</label>
+                        <input type="number" class="form-control" id="valor_min" name="valor_min"
+                               value="{{ request.query_params.get('valor_min', '') }}" placeholder="R$ 0,00" step="0.01">
+                    </div>
+                    <div class="col-md-2">
+                        <label for="valor_max" class="form-label">Valor Máximo</label>
+                        <input type="number" class="form-control" id="valor_max" name="valor_max"
+                               value="{{ request.query_params.get('valor_max', '') }}" placeholder="R$ 0,00" step="0.01">
+                    </div>
+                    <div class="col-md-3 d-flex align-items-end gap-2">
+                        <button type="submit" class="btn btn-primary flex-fill">Filtrar</button>
+                        <a href="/fornecedor/orcamentos" class="btn btn-info flex-fill">Limpar</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% if orcamentos %}
+<div class="row">
+    {% for orcamento in orcamentos %}
+    <div class="col-lg-6 col-xl-4 mb-4">
+        <div class="card h-100 shadow-sm">
+            <div class="card-header bg-light">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                        <h6 class="mb-1">{{ orcamento.noivos_nomes }}</h6>
+                        <small class="text-muted">
+                            <i class="fas fa-file-invoice"></i> Orçamento #{{ orcamento.id }}
+                        </small>
+                    </div>
+                    <span class="badge
+                        {% if orcamento.status == 'PENDENTE' %}bg-warning
+                        {% elif orcamento.status == 'APROVADO' %}bg-success
+                        {% elif orcamento.status == 'PARCIALMENTE_ACEITO' %}bg-info
+                        {% elif orcamento.status == 'REJEITADO' %}bg-danger
+                        {% else %}bg-secondary{% endif %}">
+                        {{ orcamento.status }}
+                    </span>
+                </div>
+            </div>
+            <div class="card-body">
+                <!-- Descrição da Demanda -->
+                <p class="mb-3">
+                    <strong>Demanda:</strong><br>
+                    <small>{{ orcamento.demanda_titulo[:120] }}{% if orcamento.demanda_titulo|length > 120 %}...{% endif %}</small>
+                </p>
+
+                <!-- Informações do Orçamento -->
+                <div class="row mb-3">
+                    <div class="col-6">
+                        <small class="text-muted d-block">Valor Total</small>
+                        <strong class="text-success">{{ orcamento.valor_total|moeda }}</strong>
+                    </div>
+                    <div class="col-6">
+                        <small class="text-muted d-block">Data de Envio</small>
+                        <strong>{{ orcamento.data_envio or 'N/A' }}</strong>
+                    </div>
+                </div>
+
+                <!-- Estatísticas de Itens -->
+                <div class="row mb-3 g-2">
+                    <div class="col-6">
+                        <div class="card bg-primary text-white text-center py-2">
+                            <div class="card-body p-2">
+                                <small class="d-block opacity-75">Itens Orçados</small>
+                                <div class="h3 mb-0 fw-bold">{{ orcamento.itens_count or 0 }}</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="card
+                            {% if orcamento.status == 'PENDENTE' %}bg-warning text-dark
+                            {% elif orcamento.status == 'APROVADO' %}bg-success
+                            {% elif orcamento.status == 'PARCIALMENTE_ACEITO' %}bg-info
+                            {% elif orcamento.status == 'REJEITADO' %}bg-danger
+                            {% else %}bg-secondary{% endif %}
+                            text-white text-center py-2">
+                            <div class="card-body p-2">
+                                <small class="d-block {% if orcamento.status == 'PENDENTE' %}opacity-50{% else %}opacity-75{% endif %}">Status</small>
+                                <div class="h3 mb-0 fw-bold">
+                                    {% if orcamento.status == 'PENDENTE' %}
+                                    <i class="fas fa-clock"></i>
+                                    {% elif orcamento.status == 'APROVADO' %}
+                                    <i class="fas fa-check-circle"></i>
+                                    {% elif orcamento.status == 'PARCIALMENTE_ACEITO' %}
+                                    <i class="fas fa-check-double"></i>
+                                    {% elif orcamento.status == 'REJEITADO' %}
+                                    <i class="fas fa-times-circle"></i>
+                                    {% else %}
+                                    <i class="fas fa-question-circle"></i>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Observações -->
+                {% if orcamento.observacoes %}
+                <div class="mb-3">
+                    <small class="text-muted d-block">Observações:</small>
+                    <small>{{ orcamento.observacoes[:100] }}{% if orcamento.observacoes|length > 100 %}...{% endif %}</small>
+                </div>
+                {% endif %}
+
+                <!-- Prazo de Entrega -->
+                {% if orcamento.prazo_entrega %}
+                <div class="alert alert-info py-2 mb-0">
+                    <small>
+                        <i class="fas fa-clock"></i> <strong>Prazo de Entrega:</strong> {{ orcamento.prazo_entrega }}
+                    </small>
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- Ações -->
+            <div class="card-footer bg-white border-top">
+                <div class="d-flex gap-2">
+                    <a href="/fornecedor/orcamentos/{{ orcamento.id }}" class="btn btn-outline-primary btn-sm flex-fill">
+                        <i class="fas fa-eye"></i> Detalhes
+                    </a>
+                    {% if orcamento.status == 'PENDENTE' %}
+                    <a href="/fornecedor/orcamentos/{{ orcamento.id }}/editar" class="btn btn-outline-warning btn-sm flex-fill">
+                        <i class="fas fa-edit"></i> Editar
+                    </a>
+                    <button type="button" class="btn btn-outline-danger btn-sm" onclick="cancelarOrcamento({{ orcamento.id }})" title="Cancelar orçamento">
+                        <i class="fas fa-times"></i>
+                    </button>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+<!-- Paginação -->
+<!-- Paginação será implementada futuramente -->
+
+{% else %}
+<div class="row">
+    <div class="col-12">
+        <div class="card shadow">
+            <div class="card-body text-center py-5">
+                <i class="fas fa-file-invoice-dollar fa-4x text-gray-300 mb-4"></i>
+                <h4>Nenhum orçamento encontrado</h4>
+                {% if request.query_params.get('search') or request.query_params.get('status') or request.query_params.get('valor_min') or request.query_params.get('valor_max') %}
+                <p class="text-muted">Nenhum orçamento corresponde aos filtros aplicados.</p>
+                <a href="/fornecedor/orcamentos" class="btn btn-outline-secondary me-2">Limpar Filtros</a>
+                {% else %}
+                <p class="text-muted">Você ainda não enviou nenhum orçamento. Procure por demandas e comece a enviar suas propostas!</p>
+                {% endif %}
+                <a href="/fornecedor/demandas" class="btn btn-success">
+                    <i class="fas fa-search"></i> Buscar Demandas
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+function cancelarOrcamento(id) {
+    mostrarModalConfirmacao({
+        titulo: 'Cancelar Orçamento',
+        texto: 'Tem certeza que deseja cancelar este orçamento?',
+        subtexto: 'Esta ação não pode ser desfeita.',
+        tipo: 'danger',
+        textoBotao: 'Cancelar Orçamento',
+        onConfirmar: function() {
+            window.location.href = `/fornecedor/orcamento/${id}/cancelar`;
+        }
+    });
+}
+</script>
+{% endblock %}

@@ -1,0 +1,203 @@
+{% extends "admin/base.html" %}
+
+{% block title %}Detalhes do Item{% endblock %}
+
+{% block conteudo %}
+<div class="row">
+    <div class="col-12">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1>Detalhes do Item</h1>
+            <a href="/admin/itens" class="btn btn-secondary">
+                <i class="bi bi-arrow-left"></i> Voltar para Lista
+            </a>
+        </div>
+    </div>
+</div>
+
+{% if item %}
+<div class="row">
+    <!-- Foto do Item -->
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">
+                    <i class="bi bi-image"></i> Foto
+                </h5>
+            </div>
+            <div class="card-body p-0">
+                <div class="position-relative">
+                    <img src="{{ obter_foto_item_ou_padrao(item.id) }}" class="img-fluid w-100 rounded-bottom border-0"
+                        style="height: auto; object-fit: cover;" alt="Foto de {{ item.nome }}">
+                    {% if not foto_item_existe(item.id) %}
+                    <div
+                        class="position-absolute bottom-0 start-0 w-100 bg-dark bg-opacity-75 text-white text-center py-2">
+                        <small>
+                            <i class="bi bi-info-circle"></i> Imagem padrão
+                        </small>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Informações do Item -->
+    <div class="col-md-4">
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="bi bi-box"></i> Informações do Item
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-12">
+                        <strong>ID:</strong> {{ item.id }}<br>
+                        <strong>Nome:</strong> {{ item.nome }}<br>
+                        <strong>Tipo:</strong>
+                        <span
+                            class="badge bg-{% if item.tipo.value == 'PRODUTO' %}primary{% elif item.tipo.value == 'SERVIÇO' %}success{% elif item.tipo.value == 'ESPAÇO' %}info{% else %}secondary{% endif %}">
+                            {{ item.tipo.value.capitalize() }}
+                        </span><br>
+                        <strong>Preço:</strong> {{ item.preco|moeda }}<br>
+                        <strong>Status:</strong>
+                        <span class="badge {{ 'bg-success' if item.ativo else 'bg-secondary' }}">
+                            {{ "Ativo" if item.ativo else "Inativo" }}
+                        </span><br>
+                        <strong>Data de Cadastro:</strong>
+                        {{ item.data_cadastro | formatar_data }}
+                    </div>
+                </div>
+
+                {% if item.descricao %}
+                <div class="row mt-3">
+                    <div class="col-12">
+                        <strong>Descrição:</strong><br>
+                        <div class="border rounded p-2 bg-light">
+                            {{ item.descricao }}
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+
+                {% if item.observacoes %}
+                <div class="row mt-3">
+                    <div class="col-12">
+                        <strong>Observações:</strong><br>
+                        <div class="border rounded p-2 bg-light">
+                            {{ item.observacoes }}
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Informações do Fornecedor e Ações -->
+    <div class="col-md-4">
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="bi bi-shop"></i> Fornecedor
+                </h5>
+            </div>
+            <div class="card-body">
+                {% if fornecedor %}
+                <strong>ID:</strong> {{ item.id_fornecedor }}<br>
+                <strong>Nome/Empresa:</strong> {{ fornecedor.nome_empresa or fornecedor.nome or 'Não informado' }}<br>
+                <strong>CNPJ:</strong> <span class="cnpj-format">{{ fornecedor.cnpj or 'Não informado' }}</span><br>
+                <strong>E-mail:</strong> {{ fornecedor.email or 'Não informado' }}<br>
+                <strong>Telefone:</strong> <span class="phone-format">{{ fornecedor.telefone or 'Não informado'
+                    }}</span><br>
+                <strong>Verificado:</strong>
+                <span class="badge {{ 'bg-success' if fornecedor.verificado else 'bg-warning' }}">
+                    {{ "Sim" if fornecedor.verificado else "Não" }}
+                </span><br>
+
+                {% if fornecedor.endereco %}
+                <strong>Endereço:</strong><br>
+                <small class="text-muted">{{ fornecedor.endereco }}</small><br>
+                {% endif %}
+
+                <div class="mt-3">
+                    <a href="/admin/usuarios/{{ fornecedor.id }}" class="btn btn-primary btn-sm">
+                        <i class="bi bi-person-fill"></i> Ver Perfil
+                    </a>
+                </div>
+                {% else %}
+                <p class="text-muted">Informações do fornecedor não encontradas.</p>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Ações -->
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="bi bi-gear"></i> Ações
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="d-grid gap-2">
+                    {% if item.ativo %}
+                    <button type="button" class="btn btn-warning w-100" onclick="confirmarDesativacao('o item &quot;{{ item.nome }}&quot;', function() {
+                                document.getElementById('formDesativarItem').submit();
+                            })">
+                        <i class="bi bi-eye-slash-fill"></i> Desativar Item
+                    </button>
+                    <form id="formDesativarItem" method="post" action="/admin/item/{{ item.id }}/desativar"
+                        style="display: none;"></form>
+                    {% else %}
+                    <form method="post" action="/admin/item/{{ item.id }}/ativar">
+                        <button type="submit" class="btn btn-success w-100">
+                            <i class="bi bi-check-circle-fill"></i> Ativar Item
+                        </button>
+                    </form>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% else %}
+<div class="row">
+    <div class="col-12">
+        <div class="card shadow">
+            <div class="card-body text-center py-5">
+                <i class="bi bi-box" style="font-size: 4rem; color: #6c757d;" class="mb-4"></i>
+                <h4>Item não encontrado</h4>
+                <p class="text-muted">O item solicitado não foi encontrado no sistema.</p>
+                <a href="/admin/itens" class="btn btn-primary">
+                    <i class="bi bi-arrow-left"></i> Voltar para Lista
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+{% if erro %}
+<div class="row">
+    <div class="col-12">
+        <div class="alert alert-danger" role="alert">
+            <i class="bi bi-exclamation-triangle"></i> {{ erro }}
+        </div>
+    </div>
+</div>
+{% endif %}
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // Inicializar tooltips
+    document.addEventListener('DOMContentLoaded', function () {
+        var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+        var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+            return new bootstrap.Tooltip(tooltipTriggerEl);
+        });
+    });
+</script>
+{% endblock %}

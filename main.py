@@ -2,18 +2,20 @@ from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
 from starlette.middleware.sessions import SessionMiddleware
 import secrets
+import os
+from dotenv import load_dotenv
 
 import uvicorn
 
-from routes import locador_routes
-from routes import usuario_routes
-from routes import prestador_routes
-from routes import fornecedor_routes
-from routes import noivo_routes
-from routes import public_routes
+# Carregar variáveis do arquivo .env
+load_dotenv()
+
+from routes import public_routes, admin_routes, fornecedor_routes, noivo_routes, usuario_routes
+from util.startup import inicializar_sistema
 
 app = FastAPI()
-SECRET_KEY = secrets.token_urlsafe(32)
+# Use uma chave fixa para manter as sessões entre reinicializações
+SECRET_KEY = os.getenv("SECRET_KEY", "case-bem-secret-key-development-only-change-in-production")
 
 app.add_middleware(
     SessionMiddleware, 
@@ -24,13 +26,18 @@ app.add_middleware(
 )
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
+# Incluir rotas
 app.include_router(public_routes.router)
 app.include_router(usuario_routes.router)
-app.include_router(locador_routes.router)
-app.include_router(noivo_routes.router)
-app.include_router(prestador_routes.router)
+app.include_router(admin_routes.router)
 app.include_router(fornecedor_routes.router)
+app.include_router(noivo_routes.router)
+
+# Inicializar sistema na primeira execução
+@app.on_event("startup")
+async def startup_event():
+    inicializar_sistema()
 
 
 if __name__ == "__main__":
-    uvicorn.run(app="main:app", host="127.0.0.1", port=8000, reload=True)
+    uvicorn.run(app="main:app", host="127.0.0.1", port=8001, reload=True)

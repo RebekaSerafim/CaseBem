@@ -1,0 +1,360 @@
+{% extends "fornecedor/base.html" %}
+
+{% block title %}{{ "Novo Item" if acao == "criar" else "Editar Item" }}{% endblock %}
+
+{% block conteudo %}
+<div class="container d-flex align-items-center justify-content-center flex-grow-1 py-4">
+    <div class="col-md-8 col-lg-6">
+        <div class="card shadow border-0 auth-card">
+            <div class="card-body p-4">
+                <div class="text-center mb-4">
+                    <h3>{{ "Cadastrar Novo Item" if acao == "criar" else "Editar Item" }}</h3>
+                    <small class="text-muted">{{ "Adicione um novo item ao seu catálogo" if acao == "criar" else "Edite as informações do item" }}</small>
+                </div>
+
+                <!-- Preview da foto do item (apenas para edição) -->
+                {% if acao == "editar" and item %}
+                <div class="text-center mb-4">
+                    <div class="position-relative d-inline-block">
+                        <img id="foto-item" src="{{ obter_foto_item_ou_padrao(item.id) }}"
+                             class="rounded border"
+                             style="width: 200px; height: 200px; object-fit: cover;"
+                             alt="Foto do item">
+
+                        <!-- Overlay para upload -->
+                        <div class="position-absolute bottom-0 end-0">
+                            <button type="button" class="btn btn-primary btn-sm rounded-circle" data-bs-toggle="modal" data-bs-target="#modalFotoItem">
+                                <i class="bi bi-camera-fill"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="mt-2">
+                        <small class="text-muted">Clique no ícone da câmera para alterar a foto</small>
+                    </div>
+                </div>
+                {% endif %}
+                <form method="post" enctype="multipart/form-data">
+                    <div class="row">
+                        <div class="col-md-8 mb-3">
+                            <label for="nome" class="form-label">Nome do Item *</label>
+                            <input type="text" class="form-control" id="nome" name="nome"
+                                   value="{{ item.nome if item else '' }}" required>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label for="tipo" class="form-label">Tipo *</label>
+                            <select class="form-select" id="tipo" name="tipo" required>
+                                <option value="">Selecione</option>
+                                {% for tipo in tipos_item %}
+                                <option value="{{ tipo }}" {{ "selected" if item and item.tipo.value == tipo else "" }}>
+                                    {{ tipo.replace("_", " ").title() }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="descricao" class="form-label">Descrição *</label>
+                        <textarea class="form-control" id="descricao" name="descricao" rows="4" required>{{ item.descricao if item else '' }}</textarea>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="preco" class="form-label">Preço (R$) *</label>
+                            <input type="number" class="form-control" id="preco" name="preco" step="0.01" min="0"
+                                   value="{{ item.preco if item else '' }}" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="categoria" class="form-label">Categoria *</label>
+                            <select class="form-select" id="categoria" name="categoria" required>
+                                <option value="">Selecione uma categoria</option>
+                                {% for categoria in categorias %}
+                                <option value="{{ categoria.id }}"
+                                        data-tipo="{{ categoria.tipo_fornecimento.value }}"
+                                        {{ "selected" if item and item.id_categoria and item.id_categoria == categoria.id else "" }}>
+                                    {{ categoria.nome }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Upload de foto apenas para criação de novo item -->
+                    {% if acao == "criar" %}
+                    <div class="mb-3">
+                        <label for="foto" class="form-label">Foto do Item</label>
+
+                        <!-- Preview da foto selecionada -->
+                        <div class="text-center mb-3" id="preview-container" style="display: none;">
+                            <div class="position-relative d-inline-block">
+                                <img id="preview-foto-criar" src=""
+                                     class="rounded border"
+                                     style="width: 200px; height: 200px; object-fit: cover;"
+                                     alt="Preview da foto do item">
+                                <div class="position-absolute top-0 end-0 m-2">
+                                    <button type="button" class="btn btn-danger btn-sm rounded-circle" onclick="removerPreview()">
+                                        <i class="bi bi-x"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="mt-2">
+                                <small class="text-muted">Preview da foto selecionada</small>
+                            </div>
+                        </div>
+
+                        <!-- Campo de upload -->
+                        <div class="upload-area border-2 border-dashed rounded p-4 text-center bg-light"
+                             id="upload-area"
+                             onclick="document.getElementById('foto').click()"
+                             style="cursor: pointer; transition: all 0.3s ease;">
+                            <input type="file" class="d-none" id="foto" name="foto" accept="image/jpeg,image/png,image/jpg,image/webp">
+                            <div id="upload-content">
+                                <i class="bi bi-cloud-upload fs-1 text-primary mb-2"></i>
+                                <h6 class="mb-2">Clique aqui para selecionar uma foto</h6>
+                                <p class="text-muted mb-0">ou arraste e solte uma imagem</p>
+                            </div>
+                        </div>
+                        <small class="form-text text-muted">Formatos aceitos: JPG, PNG, WEBP. Máximo 5MB. A imagem será redimensionada automaticamente.</small>
+                    </div>
+                    {% endif %}
+
+                    <div class="mb-3">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="ativo" name="ativo"
+                                   {{ "checked" if not item or item.ativo else "" }}>
+                            <label class="form-check-label" for="ativo">
+                                Item ativo (visível para clientes)
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="d-flex justify-content-end gap-2">
+                        <a href="/fornecedor/itens" class="btn btn-info btn-lg">Cancelar</a>
+                        <button type="submit" class="btn btn-primary btn-lg">
+                            {{ "Cadastrar Item" if acao == "criar" else "Salvar Alterações" }}
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const tipoSelect = document.getElementById('tipo');
+    const categoriaSelect = document.getElementById('categoria');
+    const todasCategorias = Array.from(categoriaSelect.querySelectorAll('option[data-tipo]'));
+
+    function filtrarCategorias() {
+        const tipoSelecionado = tipoSelect.value;
+
+        // Limpar todas as opções exceto a primeira (placeholder)
+        if (tipoSelecionado) {
+            categoriaSelect.innerHTML = '<option value="">Selecione uma categoria *</option>';
+            // Filtrar e adicionar apenas as categorias do tipo selecionado
+            todasCategorias.forEach(option => {
+                if (option.dataset.tipo === tipoSelecionado) {
+                    categoriaSelect.appendChild(option.cloneNode(true));
+                }
+            });
+            categoriaSelect.required = true;
+        } else {
+            categoriaSelect.innerHTML = '<option value="">Primeiro selecione um tipo</option>';
+            categoriaSelect.required = false;
+        }
+    }
+
+    // Filtrar categorias quando o tipo for alterado
+    tipoSelect.addEventListener('change', filtrarCategorias);
+
+    // Filtrar categorias na carga inicial da página
+    filtrarCategorias();
+
+    // Preview da foto para criação de novo item
+    const inputFotoCriar = document.getElementById('foto');
+    const uploadArea = document.getElementById('upload-area');
+
+    if (inputFotoCriar && uploadArea) {
+        // Função para processar o arquivo
+        function processarArquivo(file) {
+            // Validar tamanho do arquivo (máximo 5MB)
+            if (file.size > 5 * 1024 * 1024) {
+                alert('Arquivo muito grande! O tamanho máximo permitido é 5MB.');
+                return false;
+            }
+
+            // Validar tipo do arquivo
+            const tiposPermitidos = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
+            if (!tiposPermitidos.includes(file.type)) {
+                alert('Tipo de arquivo não permitido! Use apenas JPG, PNG ou WEBP.');
+                return false;
+            }
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const previewImg = document.getElementById('preview-foto-criar');
+                const previewContainer = document.getElementById('preview-container');
+
+                if (previewImg && previewContainer) {
+                    previewImg.src = e.target.result;
+                    previewContainer.style.display = 'block';
+                    uploadArea.style.display = 'none'; // Esconder área de upload após selecionar
+                }
+            };
+            reader.readAsDataURL(file);
+            return true;
+        }
+
+        // Event listener para mudança no input
+        inputFotoCriar.addEventListener('change', function(e) {
+            if (e.target.files && e.target.files[0]) {
+                if (!processarArquivo(e.target.files[0])) {
+                    e.target.value = '';
+                }
+            }
+        });
+
+        // Drag and drop functionality
+        uploadArea.addEventListener('dragover', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            uploadArea.classList.add('border-primary', 'bg-primary-subtle');
+            uploadArea.style.borderColor = '#0d6efd';
+        });
+
+        uploadArea.addEventListener('dragleave', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            uploadArea.classList.remove('border-primary', 'bg-primary-subtle');
+            uploadArea.style.borderColor = '';
+        });
+
+        uploadArea.addEventListener('drop', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            uploadArea.classList.remove('border-primary', 'bg-primary-subtle');
+            uploadArea.style.borderColor = '';
+
+            const files = e.dataTransfer.files;
+            if (files && files[0]) {
+                if (processarArquivo(files[0])) {
+                    // Atualizar o input file com o arquivo selecionado
+                    const dataTransfer = new DataTransfer();
+                    dataTransfer.items.add(files[0]);
+                    inputFotoCriar.files = dataTransfer.files;
+                }
+            }
+        });
+    }
+});
+
+// Função para remover o preview e limpar o campo de arquivo
+function removerPreview() {
+    const inputFoto = document.getElementById('foto');
+    const previewContainer = document.getElementById('preview-container');
+    const previewImg = document.getElementById('preview-foto-criar');
+    const uploadArea = document.getElementById('upload-area');
+
+    if (inputFoto) {
+        inputFoto.value = '';
+    }
+    if (previewContainer) {
+        previewContainer.style.display = 'none';
+    }
+    if (previewImg) {
+        previewImg.src = '';
+    }
+    if (uploadArea) {
+        uploadArea.style.display = 'block'; // Mostrar área de upload novamente
+    }
+}
+</script>
+
+<!-- Modal para alterar foto do item -->
+{% if acao == "editar" and item %}
+<div class="modal fade" id="modalFotoItem" tabindex="-1" aria-labelledby="modalFotoItemLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalFotoItemLabel">Alterar Foto do Item</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <!-- Preview da nova foto -->
+                <div class="text-center mb-3">
+                    <img id="preview-foto-item" src="{{ obter_foto_item_ou_padrao(item.id) }}"
+                         class="rounded border"
+                         style="width: 200px; height: 200px; object-fit: cover;"
+                         alt="Preview da foto do item">
+                </div>
+
+                <!-- Upload de nova foto -->
+                <form id="formFotoItem" method="post" action="/fornecedor/itens/{{ item.id }}/alterar-foto" enctype="multipart/form-data">
+                    <div class="mb-3">
+                        <label for="foto" class="form-label">Selecionar Nova Foto</label>
+                        <input type="file" class="form-control" id="foto" name="foto"
+                               accept="image/jpeg,image/png,image/jpg,image/webp" required>
+                        <div class="form-text">
+                            Formatos aceitos: JPG, PNG, WEBP. Máximo 5MB. A imagem será redimensionada automaticamente.
+                        </div>
+                    </div>
+                </form>
+
+                <!-- Remover foto atual -->
+                {% if foto_item_existe(item.id) %}
+                <div class="text-center mt-3">
+                    <form method="post" action="/fornecedor/itens/{{ item.id }}/remover-foto" style="display: inline;">
+                        <button type="submit" class="btn btn-outline-danger btn-sm"
+                                onclick="return confirm('Deseja realmente remover a foto deste item?')">
+                            <i class="bi bi-trash"></i> Remover Foto Atual
+                        </button>
+                    </form>
+                </div>
+                {% endif %}
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="submit" form="formFotoItem" class="btn btn-primary">Salvar Foto</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Preview da foto antes do upload
+document.addEventListener('DOMContentLoaded', function() {
+    const inputFoto = document.getElementById('foto');
+    const previewImg = document.getElementById('preview-foto-item');
+    const fotoItemImg = document.getElementById('foto-item');
+
+    if (inputFoto) {
+        inputFoto.addEventListener('change', function(e) {
+            if (e.target.files && e.target.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    if (previewImg) {
+                        previewImg.src = e.target.result;
+                    }
+                };
+                reader.readAsDataURL(e.target.files[0]);
+            }
+        });
+    }
+
+    // Reset preview quando modal fecha
+    const modal = document.getElementById('modalFotoItem');
+    if (modal) {
+        modal.addEventListener('hidden.bs.modal', function () {
+            if (previewImg && fotoItemImg) {
+                previewImg.src = fotoItemImg.src;
+            }
+            if (inputFoto) {
+                inputFoto.value = '';
+            }
+        });
+    }
+});
+</script>
+{% endif %}
+{% endblock %}

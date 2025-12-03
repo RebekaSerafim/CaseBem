@@ -1,0 +1,521 @@
+{% extends "fornecedor/base.html" %}
+
+{% block title %}{% if orcamento %}Editar Orçamento #{{ orcamento.id }}{% else %}Novo Orçamento{% endif %}{% endblock %}
+
+{% block extra_head %}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+{% endblock %}
+
+{% block conteudo %}
+<div class="row">
+    <div class="col-12">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1>{% if orcamento %}Editar Orçamento #{{ orcamento.id }}{% else %}Novo Orçamento{% endif %}</h1>
+            <a href="{% if orcamento %}/fornecedor/orcamentos{% else %}/fornecedor/demandas{% endif %}" class="btn btn-outline-secondary">
+                <i class="fas fa-arrow-left"></i> Voltar
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- Informações da Demanda -->
+{% if demanda %}
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                <h6 class="mb-0"><i class="fas fa-info-circle"></i> Informações da Demanda #{{ demanda.id }}</h6>
+            </div>
+            <div class="card-body">
+                <div class="row mb-3">
+                    <div class="col-md-8">
+                        <h6>Descrição Geral</h6>
+                        <p class="text-muted">{{ demanda.descricao }}</p>
+                    </div>
+                    <div class="col-md-4">
+                        {% if demanda.orcamento_total %}
+                        <div class="alert alert-info mb-2">
+                            <small>
+                                <strong>Orçamento Total:</strong><br>
+                                R$ {{ "%.2f"|format(demanda.orcamento_total) }}
+                            </small>
+                        </div>
+                        {% endif %}
+                        {% if demanda.prazo_entrega %}
+                        <div class="alert alert-warning mb-0">
+                            <small>
+                                <strong>Prazo:</strong><br>
+                                {{ demanda.prazo_entrega|formatar_data }}
+                            </small>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-4">
+                        <small class="text-muted d-block"><i class="fas fa-calendar"></i> Data do Casamento</small>
+                        <strong>{{ demanda.data_casamento|formatar_data if demanda.data_casamento else 'Não informada' }}</strong>
+                    </div>
+                    <div class="col-md-4">
+                        <small class="text-muted d-block"><i class="fas fa-map-marker-alt"></i> Local</small>
+                        <strong>{{ demanda.cidade_casamento or 'Não informado' }}</strong>
+                    </div>
+                    <div class="col-md-4">
+                        <small class="text-muted d-block"><i class="fas fa-user"></i> Noivo</small>
+                        <strong>{{ noivo.nome if noivo else 'N/A' }}</strong>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<!-- Formulário do Orçamento -->
+<form method="post" action="{% if orcamento %}/fornecedor/orcamentos/{{ orcamento.id }}{% else %}/fornecedor/demandas/{{ demanda.id }}/orcamento{% endif %}" id="formOrcamento">
+    <!-- Dados Gerais do Orçamento -->
+    <div class="card mb-4">
+        <div class="card-header">
+            <h6 class="mb-0"><i class="fas fa-file-invoice-dollar"></i> Dados Gerais do Orçamento</h6>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-12 mb-3">
+                    <label for="observacoes" class="form-label">Observações Gerais</label>
+                    <textarea class="form-control" id="observacoes" name="observacoes" rows="3"
+                              placeholder="Informações adicionais sobre o orçamento...">{% if orcamento and orcamento.observacoes %}{{ orcamento.observacoes }}{% endif %}</textarea>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Itens da Demanda - Orçar Item por Item -->
+    {% if itens_demanda %}
+    <div class="card mb-4">
+        <div class="card-header bg-success text-white">
+            <h6 class="mb-0"><i class="fas fa-list-check"></i> Itens Solicitados pelo Noivo</h6>
+            <small>Clique em "Orçar Item" para propor seus produtos/serviços para cada item</small>
+        </div>
+        <div class="card-body">
+            {% for item_demanda in itens_demanda %}
+            <div class="item-demanda-card card mb-3" data-item-demanda-id="{{ item_demanda.id }}"
+                 data-categoria-id="{{ item_demanda.id_categoria }}"
+                 data-quantidade="{{ item_demanda.quantidade }}">
+                <div class="card-header">
+                    <div class="row align-items-center">
+                        <div class="col-md-8">
+                            <span class="badge bg-{% if item_demanda.tipo == 'PRODUTO' %}primary{% elif item_demanda.tipo == 'SERVIÇO' %}success{% elif item_demanda.tipo == 'ESPAÇO' %}info{% else %}secondary{% endif %} me-2">
+                                {{ item_demanda.tipo }}
+                            </span>
+                            <strong>{{ item_demanda.categoria_nome or 'Categoria' }}</strong>
+                        </div>
+                        <div class="col-md-4 text-end">
+                            <button type="button" class="btn btn-sm btn-success btn-orcar-item"
+                                    data-item-demanda-id="{{ item_demanda.id }}"
+                                    data-categoria-id="{{ item_demanda.id_categoria }}">
+                                <i class="fas fa-plus"></i> Orçar Item
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <strong>Descrição do Noivo:</strong>
+                            <p class="mb-2">{{ item_demanda.descricao }}</p>
+                        </div>
+                        <div class="col-md-2">
+                            <small class="text-muted d-block">Quantidade</small>
+                            <strong>{{ item_demanda.quantidade }}</strong>
+                        </div>
+                        <div class="col-md-2">
+                            <small class="text-muted d-block">Preço Máximo</small>
+                            <strong>
+                                {% if item_demanda.preco_maximo %}
+                                    R$ {{ "%.2f"|format(item_demanda.preco_maximo) }}
+                                {% else %}
+                                    <span class="text-muted">Não informado</span>
+                                {% endif %}
+                            </strong>
+                        </div>
+                        <div class="col-md-2">
+                            <small class="text-muted d-block">Orçamentos</small>
+                            <strong class="contador-orcamentos-{{ item_demanda.id }}">0</strong>
+                        </div>
+                    </div>
+
+                    {% if item_demanda.observacoes %}
+                    <div class="alert alert-info py-1 mt-2 mb-0">
+                        <small><strong>Obs:</strong> {{ item_demanda.observacoes }}</small>
+                    </div>
+                    {% endif %}
+
+                    <!-- Container para item_orcamento deste item_demanda -->
+                    <div class="item-orcamento-container mt-3" id="container-{{ item_demanda.id }}">
+                        <!-- Itens serão adicionados aqui dinamicamente -->
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% else %}
+    <div class="alert alert-warning">
+        <i class="fas fa-exclamation-triangle"></i> Nenhum item compatível encontrado nesta demanda.
+    </div>
+    {% endif %}
+
+    <!-- Total Geral -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-8">
+                    <h5 class="mb-0">Total do Orçamento</h5>
+                    <small class="text-muted">Soma de todos os itens (descontos por item já aplicados)</small>
+                </div>
+                <div class="col-md-4 text-end">
+                    <h3 class="text-success mb-0" id="valor-total-geral">R$ 0,00</h3>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Botões -->
+    <div class="card">
+        <div class="card-body">
+            <div class="d-flex justify-content-between align-items-center">
+                <a href="/fornecedor/demandas" class="btn btn-secondary btn-lg">
+                    <i class="fas fa-times"></i> Cancelar
+                </a>
+                <button type="submit" class="btn btn-success btn-lg">
+                    <i class="fas fa-{% if orcamento %}save{% else %}paper-plane{% endif %}"></i> {% if orcamento %}Salvar Alterações{% else %}Enviar Orçamento{% endif %}
+                </button>
+            </div>
+        </div>
+    </div>
+</form>
+
+<!-- Template para Item de Orçamento (oculto) -->
+<template id="template-item-orcamento">
+    <div class="item-orcamento border border-success rounded p-3 mb-2 bg-white shadow-sm">
+        <div class="row align-items-end">
+            <input type="hidden" name="id_item_demanda[]" class="input-id-item-demanda">
+
+            <div class="col-md-4">
+                <label class="form-label small fw-bold">Seu Item</label>
+                <select class="form-select form-select-sm select-item bg-white" name="id_item[]" required>
+                    <option value="">Selecione...</option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <label class="form-label small fw-bold">Quantidade</label>
+                <input type="number" class="form-control form-control-sm input-quantidade bg-light"
+                       name="quantidade[]" value="1" min="1" required readonly>
+            </div>
+            <div class="col-md-2">
+                <label class="form-label small fw-bold">Preço Unit. (R$)</label>
+                <input type="number" class="form-control form-control-sm input-preco bg-light"
+                       name="preco_unitario[]" value="0" step="0.01" min="0" required readonly>
+            </div>
+            <div class="col-md-2">
+                <label class="form-label small fw-bold">Desconto (R$)</label>
+                <input type="number" class="form-control form-control-sm input-desconto bg-white"
+                       name="desconto_item[]" value="0" step="0.01" min="0">
+            </div>
+            <div class="col-md-1 text-center">
+                <label class="form-label small fw-bold">Total</label>
+                <div class="fw-bold small text-success total-item">R$ 0,00</div>
+            </div>
+            <div class="col-md-1 text-end">
+                <label class="form-label small d-block">&nbsp;</label>
+                <button type="button" class="btn btn-sm btn-outline-danger btn-remover-item" title="Remover item do orçamento">
+                    <i class="fas fa-trash-alt"></i>
+                </button>
+            </div>
+        </div>
+        <div class="row mt-2">
+            <div class="col-12">
+                <label class="form-label small fw-bold">Observações</label>
+                <input type="text" class="form-control form-control-sm bg-white" name="observacoes_item[]"
+                       placeholder="Observações específicas deste item...">
+            </div>
+        </div>
+    </div>
+</template>
+{% endblock %}
+
+{% block scripts %}
+<script>
+// Itens disponíveis do fornecedor (agrupados por categoria)
+const meus_itens = {
+    {% for item in meus_itens %}
+    {% if loop.first %}{% endif %}
+    "{{ item.id }}": {
+        id: {{ item.id }},
+        nome: "{{ item.nome }}",
+        preco: {{ item.preco }},
+        categoria: {{ item.id_categoria }},
+        tipo: "{{ item.tipo.value }}"
+    }{% if not loop.last %},{% endif %}
+    {% endfor %}
+};
+
+// Contador global de itens de orçamento por item_demanda
+const contadores = {};
+
+// Itens já usados por item_demanda
+const itensUsados = {};
+
+function adicionarItemOrcamento(idItemDemanda, idCategoria) {
+    const container = document.getElementById(`container-${idItemDemanda}`);
+    const template = document.getElementById('template-item-orcamento');
+    const clone = template.content.cloneNode(true);
+
+    // Buscar quantidade do item demandado
+    const itemDemandaCard = document.querySelector(`[data-item-demanda-id="${idItemDemanda}"]`);
+    const quantidadeDemandada = itemDemandaCard ? parseInt(itemDemandaCard.dataset.quantidade) || 1 : 1;
+
+    // Preencher select com itens da categoria correta
+    const select = clone.querySelector('.select-item');
+    const itensCategoria = Object.values(meus_itens).filter(item => item.categoria == idCategoria);
+
+    // Inicializar lista de itens usados se não existir
+    if (!itensUsados[idItemDemanda]) {
+        itensUsados[idItemDemanda] = new Set();
+    }
+
+    itensCategoria.forEach(item => {
+        const option = document.createElement('option');
+        option.value = item.id;
+        option.textContent = `${item.nome} - R$ ${item.preco.toFixed(2)}`;
+        option.dataset.preco = item.preco;
+
+        // Desabilitar se já foi usado
+        if (itensUsados[idItemDemanda].has(item.id)) {
+            option.disabled = true;
+            option.textContent += ' (já adicionado)';
+        }
+
+        select.appendChild(option);
+    });
+
+    // Set id_item_demanda hidden input
+    clone.querySelector('.input-id-item-demanda').value = idItemDemanda;
+
+    // Preencher quantidade automaticamente (readonly)
+    clone.querySelector('.input-quantidade').value = quantidadeDemandada;
+
+    // Eventos
+    const itemRow = clone.querySelector('.item-orcamento');
+
+    select.addEventListener('change', function() {
+        const selectedOption = this.options[this.selectedIndex];
+        const preco = selectedOption.dataset.preco || 0;
+        itemRow.querySelector('.input-preco').value = preco;
+        calcularTotalItem(itemRow);
+
+        // Marcar como usado
+        if (this.value) {
+            itensUsados[idItemDemanda].add(parseInt(this.value));
+        }
+    });
+
+    itemRow.querySelectorAll('.input-quantidade, .input-preco, .input-desconto').forEach(input => {
+        input.addEventListener('input', () => calcularTotalItem(itemRow));
+    });
+
+    itemRow.querySelector('.btn-remover-item').addEventListener('click', function() {
+        const nomeItem = select.options[select.selectedIndex]?.text.split(' - ')[0] || 'este item';
+
+        confirmarExclusao(nomeItem, function() {
+            const itemId = parseInt(select.value);
+            if (itemId) {
+                itensUsados[idItemDemanda].delete(itemId);
+            }
+            itemRow.remove();
+            atualizarContador(idItemDemanda);
+            calcularTotalGeral();
+        });
+    });
+
+    container.appendChild(clone);
+    atualizarContador(idItemDemanda);
+}
+
+function calcularTotalItem(row) {
+    const quantidade = parseFloat(row.querySelector('.input-quantidade').value) || 0;
+    const precoUnitario = parseFloat(row.querySelector('.input-preco').value) || 0;
+    const desconto = parseFloat(row.querySelector('.input-desconto').value) || 0;
+
+    const total = (quantidade * precoUnitario) - desconto;
+    row.querySelector('.total-item').textContent = 'R$ ' + total.toFixed(2);
+
+    calcularTotalGeral();
+}
+
+function calcularTotalGeral() {
+    let totalGeral = 0;
+    document.querySelectorAll('.total-item').forEach(totalDiv => {
+        const valor = parseFloat(totalDiv.textContent.replace('R$ ', '').replace(',', '.')) || 0;
+        totalGeral += valor;
+    });
+
+    document.getElementById('valor-total-geral').textContent = 'R$ ' + totalGeral.toFixed(2);
+}
+
+function atualizarContador(idItemDemanda) {
+    const container = document.getElementById(`container-${idItemDemanda}`);
+    const count = container.querySelectorAll('.item-orcamento').length;
+    const contador = document.querySelector(`.contador-orcamentos-${idItemDemanda}`);
+    if (contador) {
+        contador.textContent = count;
+        contador.className = count > 0 ? 'text-success fw-bold' : '';
+    }
+}
+
+// Event listeners
+document.addEventListener('DOMContentLoaded', function() {
+    // Botões "Orçar Item"
+    document.querySelectorAll('.btn-orcar-item').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const idItemDemanda = this.dataset.itemDemandaId;
+            const idCategoria = this.dataset.categoriaId;
+            adicionarItemOrcamento(idItemDemanda, idCategoria);
+        });
+    });
+
+    // Pre-popular itens se estiver editando
+    {% if orcamento and orcamento.itens %}
+    {% for item in orcamento.itens %}
+    const idItemDemanda{{ loop.index }} = {{ item.id_item_demanda }};
+    const idCategoria{{ loop.index }} = {{ item.id_categoria }};
+    adicionarItemOrcamento(idItemDemanda{{ loop.index }}, idCategoria{{ loop.index }});
+
+    // Aguardar o próximo tick para garantir que o item foi adicionado ao DOM
+    setTimeout(() => {
+        const container{{ loop.index }} = document.getElementById(`container-${idItemDemanda{{ loop.index }}}`);
+        const items{{ loop.index }} = container{{ loop.index }}.querySelectorAll('.item-orcamento');
+        const lastItem{{ loop.index }} = items{{ loop.index }}[items{{ loop.index }}.length - 1];
+
+        if (lastItem{{ loop.index }}) {
+            lastItem{{ loop.index }}.querySelector('.select-item').value = {{ item.id_item }};
+            lastItem{{ loop.index }}.querySelector('.input-quantidade').value = {{ item.quantidade }};
+            lastItem{{ loop.index }}.querySelector('.input-preco').value = {{ item.preco_unitario }};
+            lastItem{{ loop.index }}.querySelector('.input-desconto').value = {{ item.desconto or 0 }};
+            lastItem{{ loop.index }}.querySelector('input[name="observacoes_item[]"]').value = "{{ item.observacoes or '' }}";
+            calcularTotalItem(lastItem{{ loop.index }});
+        }
+    }, 50 * {{ loop.index }});
+    {% endfor %}
+    {% endif %}
+
+    // Validação do formulário antes do envio
+    document.getElementById('formOrcamento').addEventListener('submit', function(e) {
+        // Verifica se há pelo menos um item
+        const totalItens = document.querySelectorAll('.item-orcamento').length;
+        if (totalItens === 0) {
+            e.preventDefault();
+            alert('Adicione pelo menos um item ao orçamento!');
+            return false;
+        }
+
+        // Verifica se todos os selects de item estão preenchidos
+        const selects = document.querySelectorAll('.select-item');
+        let temSelectVazio = false;
+        selects.forEach(select => {
+            if (!select.value || select.value === '') {
+                temSelectVazio = true;
+                select.classList.add('is-invalid');
+            } else {
+                select.classList.remove('is-invalid');
+            }
+        });
+
+        if (temSelectVazio) {
+            e.preventDefault();
+            alert('Selecione um item do catálogo para cada linha!');
+            return false;
+        }
+    });
+});
+</script>
+
+<style>
+.item-demanda-card {
+    border-left: 4px solid #28a745;
+}
+
+.item-orcamento {
+    transition: all 0.3s ease;
+    background-color: #ffffff !important;
+}
+
+.item-orcamento:hover {
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    border-color: #28a745 !important;
+}
+
+.item-orcamento input,
+.item-orcamento select {
+    background-color: #ffffff !important;
+    border: 1px solid #ced4da;
+}
+
+.item-orcamento input:focus,
+.item-orcamento select:focus {
+    background-color: #fff !important;
+    border-color: #28a745;
+    box-shadow: 0 0 0 0.2rem rgba(40, 167, 69, 0.25);
+}
+
+.item-orcamento input[readonly] {
+    background-color: #e9ecef !important;
+    cursor: not-allowed;
+    border-color: #dee2e6;
+}
+
+.btn-remover-item {
+    min-width: 40px;
+    padding: 0.375rem 0.75rem;
+    transition: all 0.2s ease;
+    border-width: 1px;
+}
+
+.btn-remover-item:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(220, 53, 69, 0.3);
+    background-color: #dc3545;
+    border-color: #dc3545;
+    color: white;
+}
+
+.btn-remover-item:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 4px rgba(220, 53, 69, 0.3);
+}
+
+.btn-remover-item i {
+    font-size: 0.875rem;
+}
+
+.total-item {
+    font-size: 0.95rem;
+    padding: 0.25rem 0.5rem;
+    background-color: #d4edda;
+    border-radius: 0.25rem;
+    display: inline-block;
+    min-width: 70px;
+}
+
+.is-invalid {
+    border-color: #dc3545 !important;
+    background-color: #fff5f5 !important;
+}
+
+.is-invalid:focus {
+    border-color: #dc3545 !important;
+    box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25) !important;
+}
+</style>
+{% endblock %}

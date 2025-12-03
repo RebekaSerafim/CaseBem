@@ -4,5 +4,12 @@
     ],
     "python.testing.unittestEnabled": false,
     "python.testing.pytestEnabled": true,
-    "python-envs.pythonProjects": []
+    "python.analysis.autoImportCompletions": true,
+    "python.analysis.diagnosticMode": "workspace",
+    "python.languageServer": "Pylance",
+    "files.watcherExclude": {
+        "**/__pycache__/**": true,
+        "**/node_modules/**": true,
+        "**/.pytest_cache/**": true
+    }
 }

@@ -1,0 +1,72 @@
+{% extends "publico/base.html" %}
+{% block conteudo %}
+<div class="container d-flex align-items-center justify-content-center flex-grow-1 py-4">
+    <div class="col-md-6 col-lg-4">
+        <div class="card shadow border-0 auth-card">
+            <div class="card-body p-4">
+                <div class="text-center mb-4">
+                    <h3>Redefinir Senha</h3>
+                    <small class="text-muted">Digite sua nova senha</small>
+                </div>
+                    {% if erro %}
+                    <div class="alert alert-danger" role="alert">
+                        {{ erro }}
+                    </div>
+                    {% endif %}
+
+                {% if token_valido %}
+                <form method="POST" action="/reset-senha">
+                    <input type="hidden" name="token" value="{{ token }}">
+
+                    <div class="mb-3">
+                        <label for="senha" class="form-label">Nova Senha</label>
+                        <input
+                            type="password"
+                            class="form-control"
+                            id="senha"
+                            name="senha"
+                            required
+                            minlength="8"
+                            placeholder="Mínimo 8 caracteres"
+                        >
+                        <small class="form-text text-muted">
+                            A senha deve ter no mínimo 8 caracteres, incluindo letras maiúsculas, minúsculas, números e caracteres especiais.
+                        </small>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="confirmar_senha" class="form-label">Confirmar Nova Senha</label>
+                        <input
+                            type="password"
+                            class="form-control"
+                            id="confirmar_senha"
+                            name="confirmar_senha"
+                            required
+                            minlength="8"
+                            placeholder="Digite a senha novamente"
+                        >
+                    </div>
+
+                    <div class="d-grid mb-3">
+                        <button type="submit" class="btn btn-primary btn-lg">
+                            Redefinir Senha
+                        </button>
+                    </div>
+                </form>
+                {% else %}
+                <div class="alert alert-warning text-center" role="alert">
+                    <p class="mb-2">Link inválido ou expirado.</p>
+                    <a href="/esqueci-senha" class="btn btn-primary btn-sm">
+                        Solicitar Novo Link
+                    </a>
+                </div>
+                {% endif %}
+
+                <div class="text-center">
+                    <small><a href="/login" class="text-decoration-none">Voltar para o Login</a></small>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

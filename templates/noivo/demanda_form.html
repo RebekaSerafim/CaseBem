@@ -1,0 +1,352 @@
+{% extends "noivo/base.html" %}
+
+{% block title %}
+{% if acao == "editar" %}Editar Demanda{% else %}Nova Demanda{% endif %}
+{% endblock %}
+
+{% block conteudo %}
+<div class="row">
+    <div class="col-12">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1>
+                {% if acao == "editar" %}
+                    Editar Demanda
+                {% else %}
+                    Nova Demanda
+                {% endif %}
+            </h1>
+            <a href="/noivo/demandas" class="btn btn-outline-secondary">
+                <i class="fas fa-arrow-left"></i> Voltar
+            </a>
+        </div>
+    </div>
+</div>
+
+{% if erro %}
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="alert alert-danger" role="alert">
+            {{ erro }}
+        </div>
+    </div>
+</div>
+{% endif %}
+
+{% if sucesso %}
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="alert alert-success" role="alert">
+            {{ sucesso }}
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<div class="row">
+    <div class="col-12">
+        <form method="post" id="formDemanda">
+            <!-- Informações Gerais -->
+            <div class="card shadow mb-4">
+                <div class="card-header">
+                    <h6 class="mb-0"><i class="fas fa-info-circle"></i> Informações Gerais</h6>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <label for="descricao" class="form-label">Descrição Geral *</label>
+                        <textarea class="form-control" id="descricao" name="descricao" rows="4"
+                                  placeholder="Descreva o que você precisa para seu casamento. Ex: Estou procurando serviços de decoração, fotografia e buffet para meu casamento..."
+                                  required>{{ demanda.descricao if demanda else '' }}</textarea>
+                        <div class="form-text">Descreva de forma geral o que você precisa. Os itens específicos serão adicionados abaixo.</div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-4 mb-3">
+                            <label for="orcamento_total" class="form-label">Orçamento Total</label>
+                            <div class="input-group">
+                                <span class="input-group-text">R$</span>
+                                <input type="number" class="form-control" id="orcamento_total" name="orcamento_total"
+                                       value="{{ demanda.orcamento_total if demanda and demanda.orcamento_total else '' }}"
+                                       placeholder="0,00" step="0.01" min="0">
+                            </div>
+                            <div class="form-text">Orçamento total disponível para esta demanda.</div>
+                        </div>
+
+                        <div class="col-md-4 mb-3">
+                            <label for="data_casamento" class="form-label">Data do Casamento</label>
+                            <input type="date" class="form-control" id="data_casamento" name="data_casamento"
+                                   value="{{ demanda.data_casamento if demanda else casal.data_casamento if casal else '' }}"
+                                   readonly>
+                            <div class="form-text">Preenchido automaticamente do perfil do casal.</div>
+                        </div>
+
+                        <div class="col-md-4 mb-3">
+                            <label for="cidade_casamento" class="form-label">Cidade do Casamento</label>
+                            <input type="text" class="form-control" id="cidade_casamento" name="cidade_casamento"
+                                   value="{{ demanda.cidade_casamento if demanda else casal.local_previsto if casal else '' }}"
+                                   readonly>
+                            <div class="form-text">Preenchido automaticamente do perfil do casal.</div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="prazo_entrega" class="form-label">Prazo Desejado</label>
+                            <input type="text" class="form-control" id="prazo_entrega" name="prazo_entrega"
+                                   value="{{ demanda.prazo_entrega if demanda else '' }}"
+                                   placeholder="Ex: Até 30 dias antes do casamento, 15/12/2024, Urgente">
+                            <div class="form-text">Informe quando você precisa que os serviços/produtos estejam prontos.</div>
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                            <label for="observacoes" class="form-label">Observações Adicionais</label>
+                            <textarea class="form-control" id="observacoes" name="observacoes" rows="2"
+                                      placeholder="Informações extras, preferências de contato, etc.">{{ demanda.observacoes if demanda else '' }}</textarea>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Itens Solicitados -->
+            <div class="card shadow mb-4">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h6 class="mb-0"><i class="fas fa-list"></i> Itens Solicitados *</h6>
+                    <button type="button" class="btn btn-sm btn-success" onclick="adicionarItem()">
+                        <i class="fas fa-plus"></i> Adicionar Item
+                    </button>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-info mb-3">
+                        <i class="fas fa-info-circle"></i> Descreva livremente o que você precisa. Não é necessário vincular a produtos/serviços específicos do catálogo.
+                        Os fornecedores verão sua descrição e poderão fazer orçamentos com seus produtos/serviços.
+                    </div>
+
+                    <div id="itens-container">
+                        {% if itens_demanda %}
+                            {% for item in itens_demanda %}
+                            <div class="item-row border rounded p-3 mb-3" data-index="{{ loop.index0 }}" data-categoria-id="{{ item.id_categoria }}">
+                                <div class="d-flex justify-content-between mb-2">
+                                    <strong>Item #{{ loop.index }}</strong>
+                                    <button type="button" class="btn btn-sm btn-outline-danger" onclick="removerItem(this)">
+                                        <i class="fas fa-trash"></i> Remover
+                                    </button>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-md-4 mb-2">
+                                        <label class="form-label">Tipo *</label>
+                                        <select class="form-select tipo-select" name="tipo[]" required onchange="carregarCategoriasPorTipo(this)">
+                                            <option value="">Selecione o tipo</option>
+                                            <option value="PRODUTO" {% if item.tipo == 'PRODUTO' %}selected{% endif %}>Produto</option>
+                                            <option value="SERVIÇO" {% if item.tipo == 'SERVIÇO' %}selected{% endif %}>Serviço</option>
+                                            <option value="ESPAÇO" {% if item.tipo == 'ESPAÇO' %}selected{% endif %}>Espaço</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-4 mb-2">
+                                        <label class="form-label">Categoria *</label>
+                                        <select class="form-select categoria-select" name="id_categoria[]" required>
+                                            <option value="">Primeiro selecione o tipo</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-2 mb-2">
+                                        <label class="form-label">Quantidade *</label>
+                                        <input type="number" class="form-control" name="quantidade[]"
+                                               value="{{ item.quantidade }}" min="1" required>
+                                    </div>
+                                    <div class="col-md-2 mb-2">
+                                        <label class="form-label">Preço Máx</label>
+                                        <input type="number" class="form-control" name="preco_maximo[]"
+                                               value="{{ item.preco_maximo or '' }}" step="0.01" min="0" placeholder="R$ 0,00">
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-12 mb-2">
+                                        <label class="form-label">Descrição do que você quer *</label>
+                                        <textarea class="form-control" name="descricao_item[]" rows="2"
+                                                  placeholder="Descreva livremente o que você quer. Ex: Fotógrafo profissional com experiência em casamentos, pacote completo incluindo ensaio pré-wedding..."
+                                                  required>{{ item.descricao }}</textarea>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-12">
+                                        <label class="form-label">Observações do Item</label>
+                                        <input type="text" class="form-control" name="observacoes_item[]"
+                                               value="{{ item.observacoes or '' }}"
+                                               placeholder="Detalhes específicos, preferências...">
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        {% else %}
+                            <p class="text-muted" id="msg-sem-itens">
+                                <i class="fas fa-info-circle"></i> Clique em "Adicionar Item" para incluir itens à sua demanda.
+                            </p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Botões -->
+            <div class="card shadow mb-4">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <a href="/noivo/demandas" class="btn btn-secondary">
+                            <i class="fas fa-times"></i> Cancelar
+                        </a>
+                        <button type="submit" class="btn btn-success">
+                            <i class="fas fa-save"></i>
+                            {% if acao == "editar" %}
+                                Atualizar Demanda
+                            {% else %}
+                                Criar Demanda
+                            {% endif %}
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+// Categorias por tipo (carregadas do backend)
+const categoriasPorTipo = {{ categorias_por_tipo|tojson|safe if categorias_por_tipo else '{}'|safe }};
+
+let contadorItens = {{ itens_demanda|length if itens_demanda else 0 }};
+
+function carregarCategoriasPorTipo(selectTipo) {
+    const itemRow = selectTipo.closest('.item-row');
+    const selectCategoria = itemRow.querySelector('.categoria-select');
+    const tipo = selectTipo.value;
+
+    // Limpar opções
+    selectCategoria.innerHTML = '<option value="">Selecione uma categoria</option>';
+
+    // Normalizar o tipo (remover acentos para buscar no categoriasPorTipo)
+    // Backend envia com chaves sem acento (PRODUTO, SERVICO, ESPACO)
+    // mas formulário agora envia com acento (SERVIÇO, ESPAÇO)
+    const tipoNormalizado = tipo.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+
+    if (tipo && categoriasPorTipo[tipoNormalizado]) {
+        categoriasPorTipo[tipoNormalizado].forEach(cat => {
+            const option = document.createElement('option');
+            option.value = cat.id;
+            option.textContent = cat.nome;
+            selectCategoria.appendChild(option);
+        });
+    } else {
+        selectCategoria.innerHTML = '<option value="">Primeiro selecione o tipo</option>';
+    }
+}
+
+function adicionarItem() {
+    const container = document.getElementById('itens-container');
+    const msgSemItens = document.getElementById('msg-sem-itens');
+
+    if (msgSemItens) {
+        msgSemItens.remove();
+    }
+
+    contadorItens++;
+
+    const itemHtml = `
+        <div class="item-row border rounded p-3 mb-3" data-index="${contadorItens}">
+            <div class="d-flex justify-content-between mb-2">
+                <strong>Item #${contadorItens}</strong>
+                <button type="button" class="btn btn-sm btn-outline-danger" onclick="removerItem(this)">
+                    <i class="fas fa-trash"></i> Remover
+                </button>
+            </div>
+
+            <div class="row">
+                <div class="col-md-4 mb-2">
+                    <label class="form-label">Tipo *</label>
+                    <select class="form-select tipo-select" name="tipo[]" required onchange="carregarCategoriasPorTipo(this)">
+                        <option value="">Selecione o tipo</option>
+                        <option value="PRODUTO">Produto</option>
+                        <option value="SERVIÇO">Serviço</option>
+                        <option value="ESPAÇO">Espaço</option>
+                    </select>
+                </div>
+                <div class="col-md-4 mb-2">
+                    <label class="form-label">Categoria *</label>
+                    <select class="form-select categoria-select" name="id_categoria[]" required>
+                        <option value="">Primeiro selecione o tipo</option>
+                    </select>
+                </div>
+                <div class="col-md-2 mb-2">
+                    <label class="form-label">Quantidade *</label>
+                    <input type="number" class="form-control" name="quantidade[]"
+                           value="1" min="1" required>
+                </div>
+                <div class="col-md-2 mb-2">
+                    <label class="form-label">Preço Máx</label>
+                    <input type="number" class="form-control" name="preco_maximo[]"
+                           step="0.01" min="0" placeholder="R$ 0,00">
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-12 mb-2">
+                    <label class="form-label">Descrição do que você quer *</label>
+                    <textarea class="form-control" name="descricao_item[]" rows="2"
+                              placeholder="Descreva livremente o que você quer. Ex: Fotógrafo profissional com experiência em casamentos, pacote completo incluindo ensaio pré-wedding..."
+                              required></textarea>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-12">
+                    <label class="form-label">Observações do Item</label>
+                    <input type="text" class="form-control" name="observacoes_item[]"
+                           placeholder="Detalhes específicos, preferências...">
+                </div>
+            </div>
+        </div>
+    `;
+
+    container.insertAdjacentHTML('beforeend', itemHtml);
+}
+
+function removerItem(button) {
+    const itemRow = button.closest('.item-row');
+    itemRow.remove();
+
+    // Se não houver mais itens, mostrar mensagem
+    const container = document.getElementById('itens-container');
+    if (!container.querySelector('.item-row')) {
+        container.innerHTML = '<p class="text-muted" id="msg-sem-itens"><i class="fas fa-info-circle"></i> Clique em "Adicionar Item" para incluir itens à sua demanda.</p>';
+        contadorItens = 0;
+    }
+}
+
+// Validação do formulário
+document.getElementById('formDemanda').addEventListener('submit', function(e) {
+    const itensAdicionados = document.querySelectorAll('.item-row');
+
+    if (itensAdicionados.length === 0) {
+        e.preventDefault();
+        alert('Adicione pelo menos um item à demanda');
+        return false;
+    }
+
+    return true;
+});
+
+// Carregar categorias para itens existentes no modo de edição
+document.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('.tipo-select').forEach(select => {
+        if (select.value) {
+            carregarCategoriasPorTipo(select);
+            // Selecionar a categoria correta
+            const itemRow = select.closest('.item-row');
+            const categoriaOriginal = itemRow.dataset.categoriaId;
+            if (categoriaOriginal) {
+                setTimeout(() => {
+                    itemRow.querySelector('.categoria-select').value = categoriaOriginal;
+                }, 100);
+            }
+        }
+    });
+});
+</script>
+{% endblock %}

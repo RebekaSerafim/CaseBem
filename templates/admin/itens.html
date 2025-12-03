@@ -1,0 +1,335 @@
+{% extends "admin/base.html" %}
+
+{% block title %}Itens{% endblock %}
+
+{% block conteudo %}
+<div class="row">
+    <div class="col-12">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1>Gerenciar Itens</h1>
+        </div>
+    </div>
+</div>
+
+<!-- Filtros -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-body">
+                <form method="get" class="row g-3" id="filtrosForm">
+                    <div class="col-md-3">
+                        <label for="search" class="form-label">Buscar</label>
+                        <div class="input-group">
+                            <input type="text" class="form-control" id="search" name="search"
+                                   value="{{ request.query_params.get('search', '') }}" placeholder="Nome ou descrição">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-search"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="col-md-2">
+                        <label for="tipo_item" class="form-label">Tipo</label>
+                        <select class="form-select" id="tipo_item" name="tipo_item" onchange="filtrarCategorias(); submitForm();">
+                            <option value="">Todos</option>
+                            <option value="PRODUTO" {% if request.query_params.get('tipo_item') == 'PRODUTO' %}selected{% endif %}>Produto</option>
+                            <option value="SERVIÇO" {% if request.query_params.get('tipo_item') == 'SERVIÇO' %}selected{% endif %}>Serviço</option>
+                            <option value="ESPAÇO" {% if request.query_params.get('tipo_item') == 'ESPAÇO' %}selected{% endif %}>Espaço</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <label for="categoria" class="form-label">Categoria</label>
+                        <select class="form-select" id="categoria" name="categoria" onchange="submitForm();">
+                            <option value="">Todas</option>
+                            {% if categorias %}
+                                {% for categoria in categorias %}
+                                <option value="{{ categoria.id }}"
+                                        data-tipo="{{ categoria.tipo_fornecimento.value }}"
+                                        {% if request.query_params.get('categoria') == categoria.id|string %}selected{% endif %}>
+                                    {{ categoria.nome }}
+                                </option>
+                                {% endfor %}
+                            {% endif %}
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <label for="status" class="form-label">Status</label>
+                        <select class="form-select" id="status" name="status" onchange="submitForm();">
+                            <option value="">Todos</option>
+                            <option value="ativo" {% if request.query_params.get('status') == 'ativo' %}selected{% endif %}>Ativo</option>
+                            <option value="inativo" {% if request.query_params.get('status') == 'inativo' %}selected{% endif %}>Inativo</option>
+                        </select>
+                    </div>
+                    <div class="col-md-2 d-flex align-items-end">
+                        <a href="/admin/itens" class="btn btn-info w-100">Limpar Filtros</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% if itens %}
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-striped table-hover mb-0">
+                        <thead>
+                            <tr>
+                                <th>Foto</th>
+                                <th>ID</th>
+                                <th>Nome</th>
+                                <th class="text-center">Tipo</th>
+                                <th>Categoria</th>
+                                <th class="text-center">Preço</th>
+                                <th class="text-center">Status</th>
+                                <th class="text-center">Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for item in itens %}
+                            <tr>
+                                <td>
+                                    <img src="{{ obter_foto_item_ou_padrao(item.id) }}"
+                                         alt="Foto de {{ item.nome }}"
+                                         class="rounded"
+                                         style="width: 50px; height: 50px; object-fit: cover;">
+                                </td>
+                                <td>{{ item.id }}</td>
+                                <td>
+                                    <a href="/admin/item/{{ item.id }}" class="text-decoration-none">
+                                        {{ item.nome }}
+                                    </a>
+                                </td>
+                                <td class="text-center">
+                                    <span class="badge bg-{% if item.tipo.value == 'PRODUTO' %}primary{% elif item.tipo.value == 'SERVIÇO' %}success{% elif item.tipo.value == 'ESPAÇO' %}info{% else %}secondary{% endif %}">
+                                        {{ item.tipo.value.capitalize() }}
+                                    </span>
+                                </td>
+                                <td>
+                                    {% if item.id_categoria in categorias_dados %}
+                                        {{ categorias_dados[item.id_categoria].nome }}
+                                    {% else %}
+                                        Sem categoria
+                                    {% endif %}
+                                </td>
+                                <td class="text-center">{{ item.preco|moeda }}</td>
+                                <td class="text-center">
+                                    <span class="badge {{ 'bg-success' if item.ativo else 'bg-secondary' }}">
+                                        {{ "Ativo" if item.ativo else "Inativo" }}
+                                    </span>
+                                </td>
+                                <td class="text-center">
+                                    <div class="btn-group" role="group">
+                                        <a href="/admin/item/{{ item.id }}"
+                                           class="btn btn-info btn-sm btn-action"
+                                           data-bs-toggle="tooltip"
+                                           data-bs-placement="top"
+                                           title="Ver detalhes">
+                                            <i class="bi bi-eye-fill "></i>
+                                        </a>
+
+                                        {% if item.ativo %}
+                                        <a href="/admin/item/{{ item.id }}/desativar"
+                                           class="btn btn-warning btn-sm btn-action"
+                                           data-bs-toggle="tooltip"
+                                           data-bs-placement="top"
+                                           title="Desativar item">
+                                            <i class="bi bi-power"></i>
+                                        </a>
+                                        {% else %}
+                                        <a href="/admin/item/{{ item.id }}/ativar"
+                                           class="btn btn-success btn-sm btn-action"
+                                           data-bs-toggle="tooltip"
+                                           data-bs-placement="top"
+                                           title="Ativar item">
+                                            <i class="bi bi-power"></i>
+                                        </a>
+                                        {% endif %}
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Paginação -->
+{% if total_paginas > 1 %}
+<div class="row mt-4">
+    <div class="col-12">
+        <nav aria-label="Paginação dos itens">
+            <ul class="pagination justify-content-center">
+                <!-- Página anterior -->
+                {% if pagina_atual > 1 %}
+                <li class="page-item">
+                    <a class="page-link" href="?{% if busca %}search={{ busca }}&{% endif %}{% if tipo_item %}tipo_item={{ tipo_item }}&{% endif %}{% if status_filtro %}status={{ status_filtro }}&{% endif %}{% if categoria_id %}categoria={{ categoria_id }}&{% endif %}pagina={{ pagina_atual - 1 }}">
+                        <i class="bi bi-chevron-left"></i> Anterior
+                    </a>
+                </li>
+                {% endif %}
+
+                <!-- Páginas numeradas -->
+                {% set inicio_pagina = [1, pagina_atual - 2]|max %}
+                {% set fim_pagina = [total_paginas + 1, pagina_atual + 3]|min %}
+                {% for num_pagina in range(inicio_pagina, fim_pagina) %}
+                <li class="page-item {{ 'active' if num_pagina == pagina_atual else '' }}">
+                    <a class="page-link" href="?{% if busca %}search={{ busca }}&{% endif %}{% if tipo_item %}tipo_item={{ tipo_item }}&{% endif %}{% if status_filtro %}status={{ status_filtro }}&{% endif %}{% if categoria_id %}categoria={{ categoria_id }}&{% endif %}pagina={{ num_pagina }}">
+                        {{ num_pagina }}
+                    </a>
+                </li>
+                {% endfor %}
+
+                <!-- Próxima página -->
+                {% if pagina_atual < total_paginas %}
+                <li class="page-item">
+                    <a class="page-link" href="?{% if busca %}search={{ busca }}&{% endif %}{% if tipo_item %}tipo_item={{ tipo_item }}&{% endif %}{% if status_filtro %}status={{ status_filtro }}&{% endif %}{% if categoria_id %}categoria={{ categoria_id }}&{% endif %}pagina={{ pagina_atual + 1 }}">
+                        Próxima <i class="bi bi-chevron-right"></i>
+                    </a>
+                </li>
+                {% endif %}
+            </ul>
+        </nav>
+
+        <!-- Info da paginação -->
+        <div class="text-center text-muted">
+            Página {{ pagina_atual }} de {{ total_paginas }}
+            ({{ (pagina_atual - 1) * 10 + 1 }} a {{ [pagina_atual * 10, total_itens]|min }} de {{ total_itens }} itens)
+        </div>
+    </div>
+</div>
+{% endif %}
+
+{% else %}
+<div class="row">
+    <div class="col-12">
+        <div class="card shadow">
+            <div class="card-body text-center py-5">
+                <i class="bi bi-box" style="font-size: 4rem; color: #6c757d;" class="mb-4"></i>
+                <h4>Nenhum item encontrado</h4>
+                <p class="text-muted">
+                    {% if busca or tipo_item or status_filtro or categoria_id %}
+                    Não encontramos itens que correspondam aos filtros aplicados.
+                    Tente ajustar sua busca ou limpar os filtros.
+                    {% else %}
+                    Não há itens cadastrados no sistema.
+                    {% endif %}
+                </p>
+                {% if busca or tipo_item or status_filtro or categoria_id %}
+                <a href="/admin/itens" class="btn btn-primary">
+                    <i class="bi bi-x"></i> Limpar Filtros
+                </a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+{% if erro %}
+<div class="row">
+    <div class="col-12">
+        <div class="alert alert-danger" role="alert">
+            <i class="bi bi-exclamation-triangle"></i> {{ erro }}
+        </div>
+    </div>
+</div>
+{% endif %}
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+// Inicializar tooltips
+document.addEventListener('DOMContentLoaded', function () {
+    var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+    var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+        return new bootstrap.Tooltip(tooltipTriggerEl);
+    });
+
+    // Inicializar filtro de categorias
+    filtrarCategorias();
+});
+
+// Função para submeter o formulário automaticamente
+function submitForm() {
+    setTimeout(function() {
+        document.getElementById('filtrosForm').submit();
+    }, 100);
+}
+
+// Função para filtrar categorias baseado no tipo selecionado
+function filtrarCategorias() {
+    const tipoSelect = document.getElementById('tipo_item');
+    const categoriaSelect = document.getElementById('categoria');
+    const tipoSelecionado = tipoSelect.value;
+
+    // Obter todas as opções de categoria
+    const todasOpcoes = categoriaSelect.querySelectorAll('option');
+    const opcaoTodas = categoriaSelect.querySelector('option[value=""]');
+
+    // Mostrar todas as opções primeiro
+    todasOpcoes.forEach(function(option) {
+        option.style.display = 'block';
+    });
+
+    // Atualizar texto da primeira opção baseado no tipo selecionado
+    if (tipoSelecionado) {
+        // Mapear tipos para nomes amigáveis
+        const tipoNomes = {
+            'PRODUTO': 'Produto',
+            'SERVIÇO': 'Serviço',
+            'ESPAÇO': 'Espaço'
+        };
+
+        const nomeAmigavel = tipoNomes[tipoSelecionado];
+        opcaoTodas.textContent = `Todas do tipo ${nomeAmigavel}`;
+
+        // Mapear tipos de item para tipos de categoria
+        const tipoMap = {
+            'PRODUTO': 'PRODUTO',
+            'SERVIÇO': 'SERVIÇO',
+            'ESPAÇO': 'ESPAÇO'
+        };
+
+        const tipoCategoria = tipoMap[tipoSelecionado];
+
+        todasOpcoes.forEach(function(option) {
+            const tipoDaCategoria = option.getAttribute('data-tipo');
+
+            // Manter sempre a opção "Todas" visível
+            if (option.value === '') {
+                option.style.display = 'block';
+                return;
+            }
+
+            // Mostrar apenas categorias do tipo selecionado
+            if (tipoDaCategoria && tipoDaCategoria !== tipoCategoria) {
+                option.style.display = 'none';
+
+                // Se a categoria atualmente selecionada não pertence ao tipo, resetar
+                if (option.selected) {
+                    categoriaSelect.value = '';
+                }
+            }
+        });
+    } else {
+        // Resetar para o texto padrão quando nenhum tipo específico está selecionado
+        opcaoTodas.textContent = 'Todas';
+    }
+}
+
+// Adicionar evento de entrada no campo de busca para submissão com Enter
+document.getElementById('search').addEventListener('keypress', function(e) {
+    if (e.key === 'Enter') {
+        e.preventDefault();
+        document.getElementById('filtrosForm').submit();
+    }
+});
+</script>
+{% endblock %}

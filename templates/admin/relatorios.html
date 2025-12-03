@@ -1,0 +1,429 @@
+{% extends "admin/base.html" %}
+
+{% block title %}Relatórios{% endblock %}
+
+{% block conteudo %}
+<div class="row">
+    <div class="col-12">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1>Relatórios e Estatísticas</h1>
+            <div>
+                <button type="button" class="btn btn-primary no-print" onclick="window.print()">
+                    <i class="bi bi-printer"></i> Imprimir
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% if not erro %}
+<!-- Cards de Resumo -->
+<div class="row mb-4">
+    <div class="col-md-3">
+        <div class="card bg-primary text-white">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h4 class="mb-0">{{ stats_gerais.total_usuarios }}</h4>
+                        <p class="mb-0">Total de Usuários</p>
+                    </div>
+                    <div class="align-self-center">
+                        <i class="bi bi-people fs-1"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card bg-success text-white">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h4 class="mb-0">{{ stats_gerais.total_fornecedores }}</h4>
+                        <p class="mb-0">Fornecedores</p>
+                    </div>
+                    <div class="align-self-center">
+                        <i class="bi bi-shop fs-1"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card bg-info text-white">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h4 class="mb-0">{{ stats_gerais.total_itens }}</h4>
+                        <p class="mb-0">Itens Cadastrados</p>
+                    </div>
+                    <div class="align-self-center">
+                        <i class="bi bi-box fs-1"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card bg-warning text-white">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h4 class="mb-0">{{ stats_gerais.total_orcamentos }}</h4>
+                        <p class="mb-0">Orçamentos</p>
+                    </div>
+                    <div class="align-self-center">
+                        <i class="bi bi-file-text fs-1"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Gráficos -->
+<div class="row mb-4">
+    <!-- Gráfico de Usuários por Tipo -->
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="bi bi-pie-chart"></i> Distribuição de Usuários
+                </h5>
+            </div>
+            <div class="card-body text-center">
+                <div class="chart-container" style="height: 250px; max-height: 250px; margin: 0 auto; width: 100%; max-width: 300px;">
+                    <canvas id="chartUsuarios"></canvas>
+                </div>
+                <div class="mt-3">
+                    <small class="text-muted">
+                        <strong>Noivos:</strong> {{ percentuais.noivos }}% |
+                        <strong>Fornecedores:</strong> {{ percentuais.fornecedores }}% |
+                        <strong>Admins:</strong> {{ percentuais.admins }}%
+                    </small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Gráfico de Itens por Tipo -->
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="bi bi-bar-chart"></i> Itens por Categoria
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="chart-container" style="height: 250px; max-height: 250px; width: 100%;">
+                    <canvas id="chartItens"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Estatísticas Detalhadas -->
+<div class="row mb-4">
+    <!-- Fornecedores -->
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="bi bi-shop"></i> Estatísticas de Fornecedores
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row text-center">
+                    <div class="col-4">
+                        <div class="border-end">
+                            <h3 class="text-success">{{ stats_gerais.fornecedores_verificados }}</h3>
+                            <small class="text-muted">Verificados</small>
+                        </div>
+                    </div>
+                    <div class="col-4">
+                        <div class="border-end">
+                            <h3 class="text-warning">{{ stats_gerais.fornecedores_nao_verificados }}</h3>
+                            <small class="text-muted">Pendentes</small>
+                        </div>
+                    </div>
+                    <div class="col-4">
+                        <h3 class="text-info">{{ percentuais.fornecedores_verificados }}%</h3>
+                        <small class="text-muted">Taxa de Verificação</small>
+                    </div>
+                </div>
+
+                <hr>
+
+                <div class="row text-center">
+                    <div class="col-4">
+                        <h4 class="text-primary">{{ stats_fornecedores.prestadores }}</h4>
+                        <small class="text-muted">Prestadores de Serviço</small>
+                    </div>
+                    <div class="col-4">
+                        <h4 class="text-success">{{ stats_fornecedores.vendedores }}</h4>
+                        <small class="text-muted">Vendedores</small>
+                    </div>
+                    <div class="col-4">
+                        <h4 class="text-info">{{ stats_fornecedores.locadores }}</h4>
+                        <small class="text-muted">Locadores</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sistema Geral -->
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="bi bi-gear"></i> Resumo do Sistema
+                </h5>
+            </div>
+            <div class="card-body">
+                <table class="table table-sm mb-0">
+                    <tbody>
+                        <tr>
+                            <td><i class="bi bi-people text-primary"></i> Total de Noivos</td>
+                            <td class="text-end"><strong>{{ stats_gerais.total_noivos }}</strong></td>
+                        </tr>
+                        <tr>
+                            <td><i class="bi bi-shield-check text-success"></i> Administradores</td>
+                            <td class="text-end"><strong>{{ stats_gerais.total_admins }}</strong></td>
+                        </tr>
+                        <tr>
+                            <td><i class="bi bi-tags text-info"></i> Categorias</td>
+                            <td class="text-end"><strong>{{ stats_gerais.total_categorias }}</strong></td>
+                        </tr>
+                        <tr>
+                            <td><i class="bi bi-clipboard-data text-warning"></i> Demandas</td>
+                            <td class="text-end"><strong>{{ stats_gerais.total_demandas }}</strong></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Detalhes dos Itens -->
+{% if stats_itens.detalhes_por_tipo %}
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="bi bi-list-check"></i> Análise Detalhada de Itens
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-striped mb-0">
+                        <thead>
+                            <tr>
+                                <th>Tipo de Item</th>
+                                <th>Quantidade</th>
+                                <th>Preço Médio</th>
+                                <th>Preço Mínimo</th>
+                                <th>Preço Máximo</th>
+                                <th>Percentual</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for item_tipo in stats_itens.detalhes_por_tipo %}
+                            <tr>
+                                <td>
+                                    <span class="badge bg-{% if item_tipo.tipo == 'PRODUTO' %}primary{% elif item_tipo.tipo == 'SERVIÇO' %}success{% elif item_tipo.tipo == 'ESPAÇO' %}info{% else %}secondary{% endif %}">
+                                        {{ item_tipo.tipo.capitalize() }}
+                                    </span>
+                                </td>
+                                <td>{{ item_tipo.quantidade }}</td>
+                                <td>{{ item_tipo.preco_medio|moeda }}</td>
+                                <td>{{ item_tipo.preco_minimo|moeda }}</td>
+                                <td>{{ item_tipo.preco_maximo|moeda }}</td>
+                                <td>
+                                    {% set total_itens = stats_gerais.total_itens %}
+                                    {% if total_itens > 0 %}
+                                        {{ "%.1f"|format(item_tipo.quantidade / total_itens * 100) }}%
+                                    {% else %}
+                                        0%
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+{% else %}
+<div class="row">
+    <div class="col-12">
+        <div class="alert alert-danger" role="alert">
+            <i class="bi bi-exclamation-triangle"></i> {{ erro }}
+        </div>
+    </div>
+</div>
+{% endif %}
+
+{% endblock %}
+
+{% block scripts %}
+<style>
+.chart-container {
+    position: relative;
+    overflow: hidden;
+}
+
+.chart-container canvas {
+    max-width: 100% !important;
+    max-height: 100% !important;
+}
+
+@media print {
+    .btn-group { display: none !important; }
+    .chart-container { page-break-inside: avoid; }
+}
+</style>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+// Configuração dos gráficos
+document.addEventListener('DOMContentLoaded', function() {
+    // Gráfico de Usuários
+    const ctxUsuarios = document.getElementById('chartUsuarios').getContext('2d');
+    new Chart(ctxUsuarios, {
+        type: 'doughnut',
+        data: {
+            labels: ['Noivos', 'Fornecedores', 'Administradores'],
+            datasets: [{
+                data: [{{ stats_gerais.total_noivos }}, {{ stats_gerais.total_fornecedores }}, {{ stats_gerais.total_admins }}],
+                backgroundColor: ['#fd7e14', '#198754', '#0d6efd'],
+                borderWidth: 2,
+                borderColor: '#fff'
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'bottom'
+                }
+            },
+            layout: {
+                padding: 10
+            }
+        }
+    });
+
+    // Gráfico de Itens
+    const ctxItens = document.getElementById('chartItens').getContext('2d');
+    new Chart(ctxItens, {
+        type: 'bar',
+        data: {
+            labels: ['Produtos', 'Serviços', 'Espaços'],
+            datasets: [{
+                label: 'Quantidade de Itens',
+                data: [{{ stats_itens.produtos }}, {{ stats_itens.servicos }}, {{ stats_itens.espacos }}],
+                backgroundColor: ['#0d6efd', '#198754', '#17a2b8'],
+                borderColor: ['#0a58ca', '#146c43', '#138496'],
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        stepSize: 1
+                    }
+                }
+            },
+            plugins: {
+                legend: {
+                    display: false
+                }
+            },
+            layout: {
+                padding: 10
+            }
+        }
+    });
+});
+
+</script>
+
+<style>
+/* CSS para impressão */
+@media print {
+    /* Ocultar elementos que não devem aparecer na impressão */
+    .no-print,
+    .navbar,
+    nav,
+    header,
+    footer {
+        display: none !important;
+    }
+
+    /* Remover margens do corpo da página */
+    body {
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+
+    /* Remover margens e padding do container principal */
+    .container,
+    .container-fluid {
+        margin: 0 !important;
+        padding: 0 !important;
+        max-width: none !important;
+        width: 100% !important;
+    }
+
+    /* Ajustar margens da área de conteúdo */
+    main {
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+
+    /* Ajustar layout dos cards para impressão */
+    .card {
+        border: 1px solid #ddd !important;
+        box-shadow: none !important;
+        margin-bottom: 1rem !important;
+        page-break-inside: avoid;
+    }
+
+    /* Garantir que as cores apareçam na impressão */
+    .bg-primary,
+    .bg-success,
+    .bg-warning,
+    .bg-info,
+    .bg-danger {
+        color: white !important;
+        -webkit-print-color-adjust: exact !important;
+        color-adjust: exact !important;
+    }
+
+    /* Ajustar título principal */
+    h1 {
+        margin-top: 0 !important;
+        page-break-after: avoid;
+    }
+
+    /* Evitar quebra de página dentro de elementos importantes */
+    .row {
+        page-break-inside: avoid;
+    }
+}
+</style>
+
+{% endblock %}

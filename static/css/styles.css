@@ -16,35 +16,29 @@ body {
     background-color: #f8b4c2 !important;
 }
 
-
-.navbar-custom {
-    background-color: #f8f4f2;
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
-    position: relative;
+.navbar-divider {
+    width: 1px;
+    height: 60px;
+    background-color: #e0e1e2;
+    align-self: center;
 }
 
-.navbar-brand {
-    font-family: "Playfair Display", serif;
-    font-size: 1.8rem;
-    font-weight: 600;
-    margin: auto;
-    position: absolute;
-    left: 50%;
-    transform: translateX(-50%);
-    color: #4e3b31;
+@media (max-width: 991px) {
+    .navbar-divider {
+        display: none;
+    }
 }
 
-.menu-icon {
-    font-size: 1.5rem;
-    color: #4e3b31;
-    cursor: pointer;
-}
+
 
 .grid-image {
     position: relative;
     overflow: hidden;
     height: 100%;
+    width: 100%;
+    min-height: 400px;
     cursor: pointer;
+    display: block;
 }
 
 .grid-image img {
@@ -52,6 +46,12 @@ body {
     height: 100%;
     object-fit: cover;
     transition: transform 0.5s ease;
+}
+
+/* Suporte para object-fit em navegadores mais antigos */
+.object-fit-cover {
+    object-fit: cover;
+    object-position: center;
 }
 
 .grid-image:hover img {
@@ -110,10 +110,6 @@ body {
 }
 
 @media (max-width: 768px) {
-    .navbar-brand {
-        font-size: 1.4rem;
-    }
-
     .grid-overlay h5 {
         font-size: 1.2rem;
     }
@@ -172,17 +168,6 @@ body {
     text-transform: uppercase;
 }
 
-.menu-topo .nav-link {
-    color: #000;
-    font-size: 0.9rem;
-    padding: 0.5rem 0.75rem;
-}
-
-.menu-topo .nav-link.active,
-.menu-topo .nav-link:hover {
-    font-weight: bold;
-    color: #000;
-}
 
 /*vermais vestido */
 
@@ -290,10 +275,6 @@ body {
 }
 
 /* Abas personalizadas */
-.nav-tabs {
-    border-bottom: 1px solid #dee2e6;
-    margin-bottom: 1rem;
-}
 
 .custom-tab {
     border: none;
@@ -338,11 +319,11 @@ body {
     .product-title {
         font-size: 1.75rem;
     }
-    
+
     .product-info {
         padding: 2rem !important;
     }
-    
+
     .custom-tab {
         margin-right: 1rem;
         font-size: 0.9rem;
@@ -353,24 +334,58 @@ body {
     .product-title {
         font-size: 1.5rem;
     }
-    
+
     .product-info {
         padding: 1.5rem !important;
     }
-    
+
     .custom-tab {
         margin-right: 0.5rem;
         padding: 0.5rem 0.75rem;
         font-size: 0.85rem;
     }
-    
+
     .btn-contact {
         font-size: 1rem;
     }
 }
 
+/* Estilos para nav-links ativos nas áreas restritas */
+.navbar-light.bg-danger .nav-link.text-white.active,
+.navbar-light.bg-success .nav-link.text-white.active {
+    color: #ffffff !important;
+    font-weight: 700 !important;
+    background-color: rgba(0, 0, 0, 0.2) !important;
+    border-radius: 4px !important;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3) !important;
+}
+
+/* Estilo específico para navbar com fundo escuro (fornecedor - bg-primary) */
+.navbar-light.bg-primary .nav-link.text-white.active {
+    color: #ffffff !important;
+    font-weight: 700 !important;
+    background-color: rgba(255, 255, 255, 0.15) !important;
+    border-radius: 4px !important;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5) !important;
+}
+
+/* Hover nos nav-links das áreas restritas */
+.navbar-light.bg-danger .nav-link.text-white:hover,
+.navbar-light.bg-success .nav-link.text-white:hover {
+    background-color: rgba(0, 0, 0, 0.15) !important;
+    border-radius: 4px !important;
+    transition: all 0.3s ease;
+}
+
+/* Hover para navbar com fundo escuro (fornecedor - bg-primary) */
+.navbar-light.bg-primary .nav-link.text-white:hover {
+    background-color: rgba(255, 255, 255, 0.1) !important;
+    border-radius: 4px !important;
+    transition: all 0.3s ease;
+}
+
 /* Animações suaves */
-.product-info > * {
+.product-info>* {
     animation: fadeInUp 0.6s ease-out;
 }
 
@@ -379,6 +394,7 @@ body {
         opacity: 0;
         transform: translateY(20px);
     }
+
     to {
         opacity: 1;
         transform: translateY(0);
@@ -396,4 +412,240 @@ body {
 .availability-box:hover {
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     transition: box-shadow 0.3s ease;
+}
+
+/* Home page styles */
+.home-hero-section {
+    height: 60vh;
+    min-height: 400px;
+    margin-bottom: 3rem;
+    display: flex;
+    align-items: stretch;
+}
+
+.home-hero-section .row {
+    width: 100%;
+    margin: 0;
+}
+
+.home-hero-section .col {
+    height: 100%;
+    min-height: 400px;
+    padding: 0;
+}
+
+.home-section-title {
+    font-family: 'Playfair Display', serif;
+}
+
+.home-card-image {
+    height: 200px;
+    object-fit: cover;
+}
+
+/* Login and cadastro card styles */
+.auth-card {
+    border-radius: 15px;
+}
+
+/* Registration type selection cards */
+.registration-type-card {
+    cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.registration-type-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15) !important;
+}
+
+.registration-icon {
+    transition: transform 0.2s ease;
+}
+
+.registration-type-card:hover .registration-icon {
+    transform: scale(1.1);
+}
+
+/* Botões de ação nas tabelas do admin */
+.btn-action {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    padding: 0.2rem 0.3rem !important;
+    min-width: 32px !important;
+    min-height: 32px !important;
+    border-radius: 0.375rem !important;
+    transition: all 0.2s ease-in-out !important;
+}
+
+/* Anula o font-size do Bootstrap especificamente para btn-action */
+.btn-group-sm>.btn-action,
+.btn-action.btn-sm {
+    font-size: inherit !important;
+}
+
+.btn-action i,
+.btn-action .bi {
+    font-size: 1.8rem !important;
+    line-height: 1 !important;
+    width: auto !important;
+    height: auto !important;
+    display: inline-block !important;
+}
+
+/* Tamanhos específicos para botões pequenos de ação */
+.btn-action.btn-sm {
+    padding: 0.15rem 0.25rem !important;
+    min-width: 28px !important;
+    min-height: 28px !important;
+}
+
+.btn-action.btn-sm i,
+.btn-action.btn-sm .bi {
+    font-size: 1.5rem !important;
+}
+
+/* Força o tamanho dos ícones Bootstrap */
+.btn-action [class^="bi-"],
+.btn-action [class*=" bi-"] {
+    font-size: 1.8rem !important;
+    line-height: 1 !important;
+}
+
+.btn-action.btn-sm [class^="bi-"],
+.btn-action.btn-sm [class*=" bi-"] {
+    font-size: 1.5rem !important;
+}
+
+/* Hover effects para botões de ação */
+.btn-action:hover {
+    transform: translateY(-1px) !important;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15) !important;
+}
+
+/* Regras ultra-específicas para forçar o tamanho dos ícones */
+.table .btn-action i {
+    font-size: 1.8rem !important;
+}
+
+.table .btn-action.btn-sm i {
+    font-size: 1.5rem !important;
+}
+
+/* Para casos específicos dos templates admin */
+.admin-table .btn-action i,
+td .btn-action i,
+.btn-group .btn-action i {
+    font-size: 1.8rem !important;
+    line-height: 1 !important;
+}
+
+.admin-table .btn-action.btn-sm i,
+td .btn-action.btn-sm i,
+.btn-group .btn-action.btn-sm i {
+    font-size: 1.5rem !important;
+}
+
+/* Força máxima para ícones Bootstrap - sobrescreve qualquer CSS */
+body .btn-action i[class*="bi-"] {
+    font-size: 1.8rem !important;
+    line-height: 1 !important;
+    transform: none !important;
+}
+
+body .btn-action.btn-sm i[class*="bi-"] {
+    font-size: 1.5rem !important;
+    line-height: 1 !important;
+    transform: none !important;
+}
+
+/* Fallback para qualquer ícone dentro de btn-action */
+* .btn-action>i,
+* .btn-action>.bi,
+* .btn-action>[class^="bi-"],
+* .btn-action>[class*=" bi-"] {
+    font-size: 1.8rem !important;
+    line-height: 1 !important;
+    width: auto !important;
+    height: auto !important;
+}
+
+* .btn-action.btn-sm>i,
+* .btn-action.btn-sm>.bi,
+* .btn-action.btn-sm>[class^="bi-"],
+* .btn-action.btn-sm>[class*=" bi-"] {
+    font-size: 1.5rem !important;
+}
+
+/* Sobrescreve especificamente o Bootstrap .btn-sm font-size para ícones */
+.btn-group-sm>.btn-action i,
+.btn-action.btn-sm i,
+.btn-group-sm>.btn-action .bi,
+.btn-action.btn-sm .bi,
+.btn-group-sm>.btn-action [class^="bi-"],
+.btn-action.btn-sm [class^="bi-"],
+.btn-group-sm>.btn-action [class*=" bi-"],
+.btn-action.btn-sm [class*=" bi-"] {
+    font-size: 1.5rem !important;
+    line-height: 1 !important;
+}
+
+/* Força máxima contra Bootstrap - mais específico que .btn-group-sm>.btn, .btn-sm */
+.btn-group-sm>.btn-action>i,
+.btn-action.btn-sm>i,
+.btn-group-sm>.btn-action>[class*="bi-"],
+.btn-action.btn-sm>[class*="bi-"] {
+    font-size: 1.5rem !important;
+    line-height: 1 !important;
+}
+
+.btn-action>i,
+.btn-action>[class*="bi-"] {
+    font-size: 1.8rem !important;
+    line-height: 1 !important;
+}
+
+/* Espaçamento em grupos de botões */
+.btn-group .btn-action:not(:last-child) {
+    margin-right: 0 !important;
+    border-top-right-radius: 0 !important;
+    border-bottom-right-radius: 0 !important;
+}
+
+.btn-group .btn-action:not(:first-child) {
+    border-top-left-radius: 0 !important;
+    border-bottom-left-radius: 0 !important;
+}
+
+/* Regra final super específica - vence qualquer regra do Bootstrap */
+.btn-action.btn-sm>i[class*="bi-"],
+.btn-action>i[class*="bi-"],
+.btn-action.btn-sm>i[class*="bi-"],
+.btn-action>i[class*="bi-"],
+.btn-action.btn-sm>i[class*="bi-"],
+.btn-action>i[class*="bi-"] {
+    font-size: 1.5rem !important;
+    line-height: 1 !important;
+    transform: none !important;
+    width: auto !important;
+    height: auto !important;
+}
+
+.btn-action:not(.btn-sm)>i[class*="bi-"],
+.btn-action:not(.btn-sm)>i[class*="bi-"],
+.btn-action:not(.btn-sm)>i[class*="bi-"] {
+    font-size: 1.8rem !important;
+}
+
+.bg-img-casamento {
+    background: url('/static/img/casebem-bg-full.jpg') no-repeat center center;
+    background-size: cover;
+    position: relative;
+}
+
+/* Alinhamento vertical centralizado para células de tabelas nas áreas administrativas */
+.table td,
+.table th {
+    vertical-align: middle !important;
 }

@@ -1,0 +1,318 @@
+{% extends "fornecedor/base.html" %}
+
+{% block title %}Dashboard{% endblock %}
+
+{% block conteudo %}
+<div class="row">
+    <div class="col-12">
+        <h1 class="mb-0">
+            Bem-vindo, {{ usuario_logado.nome }}!
+        </h1>
+        {% if fornecedor and fornecedor.verificado %}
+        <p class="badge bg-success mb-2">Verificado</p>
+        {% elif fornecedor %}
+        <p class="badge bg-warning mb-2">Aguardando Verificação</p>
+        {% else %}
+        <p class="badge bg-danger mb-2">Erro ao carregar dados</p>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Status de Verificação -->
+{% if fornecedor and not fornecedor.verificado %}
+<div class="row mb-2">
+    <div class="col-12">
+        <div class="alert alert-warning" role="alert">
+            <h5 class="alert-heading">Conta em Análise</h5>
+            <p>Sua conta ainda está sendo analisada pela nossa equipe. Enquanto isso, você pode:</p>
+            <ul class="mb-0">
+                <li>Cadastrar seus itens (produtos, serviços ou espaços)</li>
+                <li>Completar seu perfil empresarial</li>
+                <li>Aguardar a verificação para começar a receber demandas</li>
+            </ul>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<div class="row">
+    <!-- Cards de Estatísticas -->
+    <div class="col-xl-2 col-lg-4 col-sm-6 col-12 mb-4">
+        <div class="card border-left-primary shadow h-100 py-2">
+            <div class="card-body text-center">
+                <i class="fas fa-box fa-2x text-gray-300 mb-2"></i>
+                <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                    Total de Itens
+                </div>
+                <div class="h3 mb-0 font-weight-bold text-gray-800">
+                    {{ stats.total_itens }}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-2 col-lg-4 col-sm-6 col-12 mb-4">
+        <div class="card border-left-success shadow h-100 py-2">
+            <div class="card-body text-center">
+                <i class="fas fa-shopping-bag fa-2x text-gray-300 mb-2"></i>
+                <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                    Produtos
+                </div>
+                <div class="h3 mb-0 font-weight-bold text-gray-800">
+                    {{ stats.total_produtos }}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-2 col-lg-4 col-sm-6 col-12 mb-4">
+        <div class="card border-left-info shadow h-100 py-2">
+            <div class="card-body text-center">
+                <i class="fas fa-tools fa-2x text-gray-300 mb-2"></i>
+                <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
+                    Serviços
+                </div>
+                <div class="h3 mb-0 font-weight-bold text-gray-800">
+                    {{ stats.total_servicos }}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-2 col-lg-4 col-sm-6 col-12 mb-4">
+        <div class="card border-left-warning shadow h-100 py-2">
+            <div class="card-body text-center">
+                <i class="fas fa-building fa-2x text-gray-300 mb-2"></i>
+                <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
+                    Espaços
+                </div>
+                <div class="h3 mb-0 font-weight-bold text-gray-800">
+                    {{ stats.total_espacos }}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-2 col-lg-4 col-sm-6 col-12 mb-4">
+        <div class="card border-left-danger shadow h-100 py-2">
+            <div class="card-body text-center">
+                <i class="fas fa-file-invoice-dollar fa-2x text-gray-300 mb-2"></i>
+                <div class="text-xs font-weight-bold text-danger text-uppercase mb-1">
+                    Orçamentos
+                </div>
+                <div class="h3 mb-0 font-weight-bold text-gray-800">
+                    {{ stats.total_orcamentos or 0 }}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-2 col-lg-4 col-sm-6 col-12 mb-4">
+        <div class="card border-left-dark shadow h-100 py-2">
+            <div class="card-body text-center">
+                <i class="fas fa-clipboard-list fa-2x text-gray-300 mb-2"></i>
+                <div class="text-xs font-weight-bold text-dark text-uppercase mb-1">
+                    Demandas
+                </div>
+                <div class="h3 mb-0 font-weight-bold text-gray-800">
+                    {{ stats.total_demandas or 0 }}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Ações Rápidas -->
+    <div class="col-lg-6 mb-4">
+        <div class="card shadow">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">Ações Rápidas</h6>
+            </div>
+            <div class="card-body">
+                <div class="list-group list-group-flush">
+                    <a href="/fornecedor/itens/novo" class="list-group-item list-group-item-action">
+                        <div>
+                            <strong>Cadastrar Novo Item</strong>
+                            <small class="d-block text-muted">Adicionar produto, serviço ou espaço</small>
+                        </div>
+                    </a>
+                    <a href="/fornecedor/itens" class="list-group-item list-group-item-action">
+                        <div>
+                            <strong>Gerenciar Itens</strong>
+                            <small class="d-block text-muted">Ver, editar e organizar seus itens</small>
+                        </div>
+                    </a>
+                    <a href="/fornecedor/demandas" class="list-group-item list-group-item-action">
+                        <div>
+                            <strong>Ver Demandas</strong>
+                            <small class="d-block text-muted">Buscar oportunidades de negócio</small>
+                        </div>
+                    </a>
+                    <a href="/fornecedor/orcamentos" class="list-group-item list-group-item-action">
+                        <div>
+                            <strong>Meus Orçamentos</strong>
+                            <small class="d-block text-muted">Acompanhar propostas enviadas</small>
+                        </div>
+                    </a>
+                    <a href="/fornecedor/perfil" class="list-group-item list-group-item-action">
+                        <div>
+                            <strong>Editar Perfil</strong>
+                            <small class="d-block text-muted">Atualizar dados pessoais e empresariais</small>
+                        </div>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Informações da Empresa -->
+    <div class="col-lg-6 mb-4">
+        <div class="card shadow">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">Informações da Empresa</h6>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-12">
+                        {% if fornecedor %}
+                        <p><strong>Nome:</strong> {{ fornecedor.nome_empresa or 'Não informado' }}</p>
+                        <p><strong>CNPJ:</strong> {{ fornecedor.cnpj or 'Não informado' }}</p>
+                        <p><strong>Descrição:</strong> {{ fornecedor.descricao or 'Não informado' }}</p>
+                        {% else %}
+                        <p class="text-danger">Erro ao carregar dados do fornecedor</p>
+                        {% endif %}
+                    </div>
+                </div>
+
+                {% if fornecedor %}
+                <div class="row mt-0">
+                    <div class="col-12">
+                        <strong>Eu forneço:</strong>
+                        <div class="mt-2">
+                            {% if fornecedor.prestador %}
+                            <span class="badge bg-info me-1">Serviços</span>
+                            {% endif %}
+                            {% if fornecedor.vendedor %}
+                            <span class="badge bg-success me-1">Produtos</span>
+                            {% endif %}
+                            {% if fornecedor.locador %}
+                            <span class="badge bg-warning me-1">Espaços</span>
+                            {% endif %}
+                            {% if not fornecedor.prestador and not fornecedor.vendedor and not fornecedor.locador %}
+                            <span class="text-muted">Nenhum tipo selecionado</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                {% if not fornecedor.nome_empresa or not fornecedor.cnpj %}
+                <div class="alert alert-info mt-3 mb-0" role="alert">
+                    <small>Complete seu perfil empresarial para melhorar sua credibilidade!</small>
+                </div>
+                {% endif %}
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Itens Recentes -->
+{% if itens_recentes %}
+<div class="row">
+    <div class="col-12">
+        <div class="card shadow">
+            <div class="card-header py-3 d-flex justify-content-between align-items-center">
+                <h6 class="m-0 font-weight-bold text-primary">Itens Recentes</h6>
+                <a href="/fornecedor/itens" class="btn btn-sm btn-primary">Ver Todos</a>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Nome</th>
+                                <th class="text-center">Tipo</th>
+                                <th class="text-center">Preço</th>
+                                <th class="text-center">Status</th>
+                                <th class="text-center">Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for item in itens_recentes %}
+                            <tr>
+                                <td>{{ item.nome }}</td>
+                                <td class="text-center">
+                                    <span class="badge
+                                        {% if item.tipo.value == 'PRODUTO' %}bg-success
+                                        {% elif item.tipo.value == 'SERVIÇO' %}bg-info
+                                        {% else %}bg-warning{% endif %}">
+                                        {{ item.tipo.value }}
+                                    </span>
+                                </td>
+                                <td class="text-center">{{ item.preco|moeda }}</td>
+                                <td class="text-center">
+                                    {% if item.ativo %}
+                                    <span class="badge bg-success">Ativo</span>
+                                    {% else %}
+                                    <span class="badge bg-secondary">Inativo</span>
+                                    {% endif %}
+                                </td>
+                                <td class="text-center">
+                                    <a href="/fornecedor/itens/{{ item.id }}/editar"
+                                        class="btn btn-sm btn-outline-primary">
+                                        Editar
+                                    </a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% else %}
+<div class="row">
+    <div class="col-12">
+        <div class="card shadow">
+            <div class="card-body text-center py-5">
+                <i class="fas fa-box fa-3x text-gray-300 mb-3"></i>
+                <h5>Nenhum item cadastrado</h5>
+                <p class="text-muted">Comece cadastrando seus produtos, serviços ou espaços para receber demandas!</p>
+                <a href="/fornecedor/itens/novo" class="btn btn-primary">Cadastrar Primeiro Item</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endblock %}
+
+{% block scripts %}
+<style>
+    .border-left-primary {
+        border-left: 0.25rem solid #4e73df !important;
+    }
+
+    .border-left-success {
+        border-left: 0.25rem solid #1cc88a !important;
+    }
+
+    .border-left-warning {
+        border-left: 0.25rem solid #f6c23e !important;
+    }
+
+    .border-left-info {
+        border-left: 0.25rem solid #36b9cc !important;
+    }
+
+    .border-left-danger {
+        border-left: 0.25rem solid #dc3545 !important;
+    }
+
+    .border-left-dark {
+        border-left: 0.25rem solid #343a40 !important;
+    }
+</style>
+{% endblock %}

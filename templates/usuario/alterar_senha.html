@@ -1,5 +1,80 @@
-{% extends "base.html" %}
+{% if usuario_logado.perfil == 'FORNECEDOR' %}
+    {% extends "fornecedor/base.html" %}
+{% elif usuario_logado.perfil == 'ADMIN' %}
+    {% extends "admin/base.html" %}
+{% elif usuario_logado.perfil == 'NOIVO' %}
+    {% extends "noivo/base.html" %}
+{% else %}
+    {% extends "publico/base.html" %}
+{% endif %}
+
+{% block title %}Alterar Senha{% endblock %}
+
+
 {% block conteudo %}
-<h1>Alteração de Senha</h1>
-<hr>
-{% endblock conteudo %}
+<div class="container d-flex align-items-center justify-content-center flex-grow-1 py-4">
+    <div class="col-md-6 col-lg-4">
+        <div class="card shadow border-0 auth-card">
+            <div class="card-body p-4">
+                <div class="text-center mb-4">
+                    <h3>Alterar Senha</h3>
+                    <small class="text-muted">Atualize sua senha de acesso</small>
+                </div>
+
+                {% if erro %}
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    {{ erro }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+                {% endif %}
+
+                {% if sucesso %}
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    {{ sucesso }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+                {% endif %}
+                    <form method="post">
+                        <div class="mb-3">
+                            <label for="senha_atual" class="form-label">Senha Atual *</label>
+                            <input type="password" class="form-control" id="senha_atual" name="senha_atual" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="nova_senha" class="form-label">Nova Senha *</label>
+                            <input type="password" class="form-control" id="nova_senha" name="nova_senha"
+                                   minlength="6" required>
+                            <div class="form-text">Mínimo de 6 caracteres</div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="confirmar_senha" class="form-label">Confirmar Nova Senha *</label>
+                            <input type="password" class="form-control" id="confirmar_senha" name="confirmar_senha"
+                                   minlength="6" required>
+                        </div>
+
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-primary btn-lg">Alterar Senha</button>
+                            <a href="{% if usuario_logado.perfil == 'FORNECEDOR' %}/fornecedor{% elif usuario_logado.perfil == 'NOIVO' %}/noivo{% elif usuario_logado.perfil == 'ADMIN' %}/admin{% else %}javascript:history.back(){% endif %}" class="btn btn-info">Cancelar</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Validação de confirmação de senha
+    document.getElementById('confirmar_senha').addEventListener('input', function() {
+        const novaSenha = document.getElementById('nova_senha').value;
+        const confirmarSenha = this.value;
+
+        if (novaSenha !== confirmarSenha) {
+            this.setCustomValidity('Senhas não coincidem');
+        } else {
+            this.setCustomValidity('');
+        }
+    });
+</script>
+{% endblock %}

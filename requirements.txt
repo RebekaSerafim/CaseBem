@@ -1,15 +1,22 @@
 fastapi[standard]
 uvicorn[standard]
+pydantic
 jinja2
 Babel
 python-multipart
 itsdangerous
-passlib[bcrypt]
+passlib[bcrypt]==1.7.4
+bcrypt>=3.2.0,<4.0.0  # Versão 3.x é totalmente compatível com passlib 1.7.4
 python-jose[cryptography]
-itsdangerous
+python-dotenv
+resend
+pillow
 
 # Dependências de teste
 pytest
 pytest-asyncio
 pytest-cov
-
+faker
+playwright
+playwright[async]
+pytest-playwright

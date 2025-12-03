@@ -1,0 +1,2402 @@
+[
+  {
+    "id": 1,
+    "id_demanda": 1,
+    "tipo": "ESPAÇO",
+    "id_categoria": 18,
+    "descricao": "Espaço para cerimônia religiosa com capacidade para 133 convidados",
+    "quantidade": 133,
+    "preco_maximo": 4690.51,
+    "observacoes": "Preferência por locais com boa iluminação natural"
+  },
+  {
+    "id": 2,
+    "id_demanda": 1,
+    "tipo": "ESPAÇO",
+    "id_categoria": 19,
+    "descricao": "Espaço para recepção com área coberta e ao ar livre",
+    "quantidade": 162,
+    "preco_maximo": 11665.97,
+    "observacoes": "Necessário estrutura para dança e buffet"
+  },
+  {
+    "id": 3,
+    "id_demanda": 1,
+    "tipo": "SERVIÇO",
+    "id_categoria": 1,
+    "descricao": "Fotografia profissional com álbum premium de 44 páginas",
+    "quantidade": 44,
+    "preco_maximo": 3521.08,
+    "observacoes": "Preferência por fotógrafo com portfólio em casamentos ao ar livre"
+  },
+  {
+    "id": 4,
+    "id_demanda": 1,
+    "tipo": "SERVIÇO",
+    "id_categoria": 3,
+    "descricao": "Buffet completo (entrada, prato principal, sobremesa) para 100 pessoas",
+    "quantidade": 100,
+    "preco_maximo": 13320.88,
+    "observacoes": "Cardápio variado com opções vegetarianas"
+  },
+  {
+    "id": 5,
+    "id_demanda": 1,
+    "tipo": "SERVIÇO",
+    "id_categoria": 8,
+    "descricao": "Decoração floral e ambientação completa",
+    "quantidade": 1,
+    "preco_maximo": 7045.57,
+    "observacoes": "Cores predominantes: branco, verde e dourado"
+  },
+  {
+    "id": 6,
+    "id_demanda": 1,
+    "tipo": "PRODUTO",
+    "id_categoria": 14,
+    "descricao": "Bolo de casamento 4 andares com decoração personalizada",
+    "quantidade": 4,
+    "preco_maximo": 1195.75,
+    "observacoes": "Sabores: chocolate e frutas vermelhas"
+  },
+  {
+    "id": 7,
+    "id_demanda": 1,
+    "tipo": "PRODUTO",
+    "id_categoria": 13,
+    "descricao": "Convites personalizados para 193 convidados",
+    "quantidade": 193,
+    "preco_maximo": 960.73,
+    "observacoes": "Design elegante com acabamento em relevo"
+  },
+  {
+    "id": 8,
+    "id_demanda": 1,
+    "tipo": "SERVIÇO",
+    "id_categoria": 2,
+    "descricao": "DJ profissional com equipamento de som e iluminação",
+    "quantidade": 1,
+    "preco_maximo": 3900.39,
+    "observacoes": "Playlist variada incluindo músicas românticas e animadas"
+  },
+  {
+    "id": 9,
+    "id_demanda": 2,
+    "tipo": "SERVIÇO",
+    "id_categoria": 8,
+    "descricao": "Projeto completo de decoração temática",
+    "quantidade": 1,
+    "preco_maximo": 9636.53,
+    "observacoes": "Tema: jardim encantado com elementos rústicos"
+  },
+  {
+    "id": 10,
+    "id_demanda": 2,
+    "tipo": "PRODUTO",
+    "id_categoria": 15,
+    "descricao": "Arranjos florais variados: 11 buquês e 25 centros de mesa",
+    "quantidade": 11,
+    "preco_maximo": 4339.33,
+    "observacoes": "Flores: rosas, lírios e folhagens"
+  },
+  {
+    "id": 11,
+    "id_demanda": 2,
+    "tipo": "PRODUTO",
+    "id_categoria": 16,
+    "descricao": "Locação de mobiliário: 153 cadeiras, 26 mesas e lounge",
+    "quantidade": 153,
+    "preco_maximo": 2750.34,
+    "observacoes": "Estilo rústico-chique com madeira e tecidos claros"
+  },
+  {
+    "id": 12,
+    "id_demanda": 2,
+    "tipo": "SERVIÇO",
+    "id_categoria": 2,
+    "descricao": "Iluminação cênica e decorativa",
+    "quantidade": 1,
+    "preco_maximo": 2057.3,
+    "observacoes": "Luzes de LED, velas e spots direcionados"
+  },
+  {
+    "id": 13,
+    "id_demanda": 2,
+    "tipo": "PRODUTO",
+    "id_categoria": 13,
+    "descricao": "Papelaria personalizada: 45 placas, menus e tags",
+    "quantidade": 45,
+    "preco_maximo": 747.45,
+    "observacoes": "Design coordenado com o tema da decoração"
+  },
+  {
+    "id": 14,
+    "id_demanda": 2,
+    "tipo": "SERVIÇO",
+    "id_categoria": 4,
+    "descricao": "Assessoria de cerimonial para coordenação do evento",
+    "quantidade": 1,
+    "preco_maximo": 2701.3,
+    "observacoes": "Acompanhamento desde o ensaio até o final da festa"
+  },
+  {
+    "id": 15,
+    "id_demanda": 2,
+    "tipo": "PRODUTO",
+    "id_categoria": 17,
+    "descricao": "Bebidas premium: 46 garrafas de vinho e espumante",
+    "quantidade": 46,
+    "preco_maximo": 2169.54,
+    "observacoes": "Vinhos nacionais e importados selecionados"
+  },
+  {
+    "id": 16,
+    "id_demanda": 2,
+    "tipo": "PRODUTO",
+    "id_categoria": 14,
+    "descricao": "Mesa de doces finos com 11 tipos de docinhos (100 unidades cada)",
+    "quantidade": 11,
+    "preco_maximo": 2381.59,
+    "observacoes": "Variedade de sabores e decoração refinada"
+  },
+  {
+    "id": 17,
+    "id_demanda": 3,
+    "tipo": "SERVIÇO",
+    "id_categoria": 5,
+    "descricao": "Celebrante para cerimônia personalizada",
+    "quantidade": 1,
+    "preco_maximo": 2088.5,
+    "observacoes": "Cerimônia laica com textos personalizados"
+  },
+  {
+    "id": 18,
+    "id_demanda": 3,
+    "tipo": "SERVIÇO",
+    "id_categoria": 6,
+    "descricao": "Equipe de beleza: 5 profissionais (maquiagem, penteado, manicure)",
+    "quantidade": 5,
+    "preco_maximo": 2328.78,
+    "observacoes": "Preparação da noiva, madrinhas e mães"
+  },
+  {
+    "id": 19,
+    "id_demanda": 3,
+    "tipo": "SERVIÇO",
+    "id_categoria": 7,
+    "descricao": "Transporte: 4 veículos de luxo",
+    "quantidade": 4,
+    "preco_maximo": 3313.05,
+    "observacoes": "Para noivos, padrinhos e familiares"
+  },
+  {
+    "id": 20,
+    "id_demanda": 3,
+    "tipo": "SERVIÇO",
+    "id_categoria": 1,
+    "descricao": "Filmagem profissional com edição de vídeo",
+    "quantidade": 1,
+    "preco_maximo": 6841.73,
+    "observacoes": "Entrega de vídeo editado e making of"
+  },
+  {
+    "id": 21,
+    "id_demanda": 3,
+    "tipo": "SERVIÇO",
+    "id_categoria": 9,
+    "descricao": "Equipe de segurança discreta para o evento",
+    "quantidade": 7,
+    "preco_maximo": 1681.98,
+    "observacoes": "Profissionais uniformizados e experientes"
+  },
+  {
+    "id": 22,
+    "id_demanda": 3,
+    "tipo": "PRODUTO",
+    "id_categoria": 11,
+    "descricao": "Vestido de noiva sob medida com ajustes",
+    "quantidade": 1,
+    "preco_maximo": 11636.5,
+    "observacoes": "Tecido nobre com bordados e cauda média"
+  },
+  {
+    "id": 23,
+    "id_demanda": 3,
+    "tipo": "PRODUTO",
+    "id_categoria": 12,
+    "descricao": "Par de alianças em ouro 18k com gravação personalizada",
+    "quantidade": 1,
+    "preco_maximo": 4966.03,
+    "observacoes": "Design clássico com acabamento polido"
+  },
+  {
+    "id": 24,
+    "id_demanda": 3,
+    "tipo": "ESPAÇO",
+    "id_categoria": 20,
+    "descricao": "Hospedagem para 32 convidados em hotel próximo",
+    "quantidade": 32,
+    "preco_maximo": 3082.67,
+    "observacoes": "Acomodação para convidados de fora da cidade"
+  },
+  {
+    "id": 25,
+    "id_demanda": 4,
+    "tipo": "ESPAÇO",
+    "id_categoria": 18,
+    "descricao": "Espaço para cerimônia religiosa com capacidade para 131 convidados",
+    "quantidade": 131,
+    "preco_maximo": 4953.63,
+    "observacoes": "Preferência por locais com boa iluminação natural"
+  },
+  {
+    "id": 26,
+    "id_demanda": 4,
+    "tipo": "ESPAÇO",
+    "id_categoria": 19,
+    "descricao": "Espaço para recepção com área coberta e ao ar livre",
+    "quantidade": 196,
+    "preco_maximo": 13674.53,
+    "observacoes": "Necessário estrutura para dança e buffet"
+  },
+  {
+    "id": 27,
+    "id_demanda": 4,
+    "tipo": "SERVIÇO",
+    "id_categoria": 1,
+    "descricao": "Fotografia profissional com álbum premium de 74 páginas",
+    "quantidade": 74,
+    "preco_maximo": 3598.66,
+    "observacoes": "Preferência por fotógrafo com portfólio em casamentos ao ar livre"
+  },
+  {
+    "id": 28,
+    "id_demanda": 4,
+    "tipo": "SERVIÇO",
+    "id_categoria": 3,
+    "descricao": "Buffet completo (entrada, prato principal, sobremesa) para 115 pessoas",
+    "quantidade": 115,
+    "preco_maximo": 10109.34,
+    "observacoes": "Cardápio variado com opções vegetarianas"
+  },
+  {
+    "id": 29,
+    "id_demanda": 4,
+    "tipo": "SERVIÇO",
+    "id_categoria": 8,
+    "descricao": "Decoração floral e ambientação completa",
+    "quantidade": 1,
+    "preco_maximo": 5141.85,
+    "observacoes": "Cores predominantes: branco, verde e dourado"
+  },
+  {
+    "id": 30,
+    "id_demanda": 4,
+    "tipo": "PRODUTO",
+    "id_categoria": 14,
+    "descricao": "Bolo de casamento 3 andares com decoração personalizada",
+    "quantidade": 3,
+    "preco_maximo": 1519.62,
+    "observacoes": "Sabores: chocolate e frutas vermelhas"
+  },
+  {
+    "id": 31,
+    "id_demanda": 4,
+    "tipo": "PRODUTO",
+    "id_categoria": 13,
+    "descricao": "Convites personalizados para 221 convidados",
+    "quantidade": 221,
+    "preco_maximo": 1210.44,
+    "observacoes": "Design elegante com acabamento em relevo"
+  },
+  {
+    "id": 32,
+    "id_demanda": 4,
+    "tipo": "SERVIÇO",
+    "id_categoria": 2,
+    "descricao": "DJ profissional com equipamento de som e iluminação",
+    "quantidade": 1,
+    "preco_maximo": 3879.62,
+    "observacoes": "Playlist variada incluindo músicas românticas e animadas"
+  },
+  {
+    "id": 33,
+    "id_demanda": 5,
+    "tipo": "SERVIÇO",
+    "id_categoria": 8,
+    "descricao": "Projeto completo de decoração temática",
+    "quantidade": 1,
+    "preco_maximo": 5009.88,
+    "observacoes": "Tema: jardim encantado com elementos rústicos"
+  },
+  {
+    "id": 34,
+    "id_demanda": 5,
+    "tipo": "PRODUTO",
+    "id_categoria": 15,
+    "descricao": "Arranjos florais variados: 14 buquês e 40 centros de mesa",
+    "quantidade": 14,
+    "preco_maximo": 4390.57,
+    "observacoes": "Flores: rosas, lírios e folhagens"
+  },
+  {
+    "id": 35,
+    "id_demanda": 5,
+    "tipo": "PRODUTO",
+    "id_categoria": 16,
+    "descricao": "Locação de mobiliário: 131 cadeiras, 26 mesas e lounge",
+    "quantidade": 131,
+    "preco_maximo": 2540.62,
+    "observacoes": "Estilo rústico-chique com madeira e tecidos claros"
+  },
+  {
+    "id": 36,
+    "id_demanda": 5,
+    "tipo": "SERVIÇO",
+    "id_categoria": 2,
+    "descricao": "Iluminação cênica e decorativa",
+    "quantidade": 1,
+    "preco_maximo": 2260.61,
+    "observacoes": "Luzes de LED, velas e spots direcionados"
+  },
+  {
+    "id": 37,
+    "id_demanda": 5,
+    "tipo": "PRODUTO",
+    "id_categoria": 13,
+    "descricao": "Papelaria personalizada: 34 placas, menus e tags",
+    "quantidade": 34,
+    "preco_maximo": 551.63,
+    "observacoes": "Design coordenado com o tema da decoração"
+  },
+  {
+    "id": 38,
+    "id_demanda": 5,
+    "tipo": "SERVIÇO",
+    "id_categoria": 4,
+    "descricao": "Assessoria de cerimonial para coordenação do evento",
+    "quantidade": 1,
+    "preco_maximo": 2272.34,
+    "observacoes": "Acompanhamento desde o ensaio até o final da festa"
+  },
+  {
+    "id": 39,
+    "id_demanda": 5,
+    "tipo": "PRODUTO",
+    "id_categoria": 17,
+    "descricao": "Bebidas premium: 66 garrafas de vinho e espumante",
+    "quantidade": 66,
+    "preco_maximo": 1668.06,
+    "observacoes": "Vinhos nacionais e importados selecionados"
+  },
+  {
+    "id": 40,
+    "id_demanda": 5,
+    "tipo": "PRODUTO",
+    "id_categoria": 14,
+    "descricao": "Mesa de doces finos com 9 tipos de docinhos (100 unidades cada)",
+    "quantidade": 9,
+    "preco_maximo": 1760.87,
+    "observacoes": "Variedade de sabores e decoração refinada"
+  },
+  {
+    "id": 41,
+    "id_demanda": 6,
+    "tipo": "SERVIÇO",
+    "id_categoria": 5,
+    "descricao": "Celebrante para cerimônia personalizada",
+    "quantidade": 1,
+    "preco_maximo": 1970.24,
+    "observacoes": "Cerimônia laica com textos personalizados"
+  },
+  {
+    "id": 42,
+    "id_demanda": 6,
+    "tipo": "SERVIÇO",
+    "id_categoria": 6,
+    "descricao": "Equipe de beleza: 6 profissionais (maquiagem, penteado, manicure)",
+    "quantidade": 6,
+    "preco_maximo": 2841.69,
+    "observacoes": "Preparação da noiva, madrinhas e mães"
+  },
+  {
+    "id": 43,
+    "id_demanda": 6,
+    "tipo": "SERVIÇO",
+    "id_categoria": 7,
+    "descricao": "Transporte: 3 veículos de luxo",
+    "quantidade": 3,
+    "preco_maximo": 3257.19,
+    "observacoes": "Para noivos, padrinhos e familiares"
+  },
+  {
+    "id": 44,
+    "id_demanda": 6,
+    "tipo": "SERVIÇO",
+    "id_categoria": 1,
+    "descricao": "Filmagem profissional com edição de vídeo",
+    "quantidade": 1,
+    "preco_maximo": 4378.77,
+    "observacoes": "Entrega de vídeo editado e making of"
+  },
+  {
+    "id": 45,
+    "id_demanda": 6,
+    "tipo": "SERVIÇO",
+    "id_categoria": 9,
+    "descricao": "Equipe de segurança discreta para o evento",
+    "quantidade": 8,
+    "preco_maximo": 1854.86,
+    "observacoes": "Profissionais uniformizados e experientes"
+  },
+  {
+    "id": 46,
+    "id_demanda": 6,
+    "tipo": "PRODUTO",
+    "id_categoria": 11,
+    "descricao": "Vestido de noiva sob medida com ajustes",
+    "quantidade": 1,
+    "preco_maximo": 10906.12,
+    "observacoes": "Tecido nobre com bordados e cauda média"
+  },
+  {
+    "id": 47,
+    "id_demanda": 6,
+    "tipo": "PRODUTO",
+    "id_categoria": 12,
+    "descricao": "Par de alianças em ouro 24k com gravação personalizada",
+    "quantidade": 1,
+    "preco_maximo": 5987.73,
+    "observacoes": "Design clássico com acabamento polido"
+  },
+  {
+    "id": 48,
+    "id_demanda": 6,
+    "tipo": "ESPAÇO",
+    "id_categoria": 20,
+    "descricao": "Hospedagem para 34 convidados em hotel próximo",
+    "quantidade": 34,
+    "preco_maximo": 6873.12,
+    "observacoes": "Acomodação para convidados de fora da cidade"
+  },
+  {
+    "id": 49,
+    "id_demanda": 7,
+    "tipo": "ESPAÇO",
+    "id_categoria": 18,
+    "descricao": "Espaço para cerimônia religiosa com capacidade para 92 convidados",
+    "quantidade": 92,
+    "preco_maximo": 5099.71,
+    "observacoes": "Preferência por locais com boa iluminação natural"
+  },
+  {
+    "id": 50,
+    "id_demanda": 7,
+    "tipo": "ESPAÇO",
+    "id_categoria": 19,
+    "descricao": "Espaço para recepção com área coberta e ao ar livre",
+    "quantidade": 157,
+    "preco_maximo": 14806.22,
+    "observacoes": "Necessário estrutura para dança e buffet"
+  },
+  {
+    "id": 51,
+    "id_demanda": 7,
+    "tipo": "SERVIÇO",
+    "id_categoria": 1,
+    "descricao": "Fotografia profissional com álbum premium de 59 páginas",
+    "quantidade": 59,
+    "preco_maximo": 4602.49,
+    "observacoes": "Preferência por fotógrafo com portfólio em casamentos ao ar livre"
+  },
+  {
+    "id": 52,
+    "id_demanda": 7,
+    "tipo": "SERVIÇO",
+    "id_categoria": 3,
+    "descricao": "Buffet completo (entrada, prato principal, sobremesa) para 123 pessoas",
+    "quantidade": 123,
+    "preco_maximo": 14178.39,
+    "observacoes": "Cardápio variado com opções vegetarianas"
+  },
+  {
+    "id": 53,
+    "id_demanda": 7,
+    "tipo": "SERVIÇO",
+    "id_categoria": 8,
+    "descricao": "Decoração floral e ambientação completa",
+    "quantidade": 1,
+    "preco_maximo": 5638.2,
+    "observacoes": "Cores predominantes: branco, verde e dourado"
+  },
+  {
+    "id": 54,
+    "id_demanda": 7,
+    "tipo": "PRODUTO",
+    "id_categoria": 14,
+    "descricao": "Bolo de casamento 3 andares com decoração personalizada",
+    "quantidade": 3,
+    "preco_maximo": 1197.75,
+    "observacoes": "Sabores: chocolate e frutas vermelhas"
+  },
+  {
+    "id": 55,
+    "id_demanda": 7,
+    "tipo": "PRODUTO",
+    "id_categoria": 13,
+    "descricao": "Convites personalizados para 172 convidados",
+    "quantidade": 172,
+    "preco_maximo": 1090.12,
+    "observacoes": "Design elegante com acabamento em relevo"
+  },
+  {
+    "id": 56,
+    "id_demanda": 7,
+    "tipo": "SERVIÇO",
+    "id_categoria": 2,
+    "descricao": "DJ profissional com equipamento de som e iluminação",
+    "quantidade": 1,
+    "preco_maximo": 1899.97,
+    "observacoes": "Playlist variada incluindo músicas românticas e animadas"
+  },
+  {
+    "id": 57,
+    "id_demanda": 8,
+    "tipo": "SERVIÇO",
+    "id_categoria": 8,
+    "descricao": "Projeto completo de decoração temática",
+    "quantidade": 1,
+    "preco_maximo": 9943.9,
+    "observacoes": "Tema: jardim encantado com elementos rústicos"
+  },
+  {
+    "id": 58,
+    "id_demanda": 8,
+    "tipo": "PRODUTO",
+    "id_categoria": 15,
+    "descricao": "Arranjos florais variados: 8 buquês e 35 centros de mesa",
+    "quantidade": 8,
+    "preco_maximo": 4698.71,
+    "observacoes": "Flores: rosas, lírios e folhagens"
+  },
+  {
+    "id": 59,
+    "id_demanda": 8,
+    "tipo": "PRODUTO",
+    "id_categoria": 16,
+    "descricao": "Locação de mobiliário: 142 cadeiras, 35 mesas e lounge",
+    "quantidade": 142,
+    "preco_maximo": 3927.61,
+    "observacoes": "Estilo rústico-chique com madeira e tecidos claros"
+  },
+  {
+    "id": 60,
+    "id_demanda": 8,
+    "tipo": "SERVIÇO",
+    "id_categoria": 2,
+    "descricao": "Iluminação cênica e decorativa",
+    "quantidade": 1,
+    "preco_maximo": 1604.01,
+    "observacoes": "Luzes de LED, velas e spots direcionados"
+  },
+  {
+    "id": 61,
+    "id_demanda": 8,
+    "tipo": "PRODUTO",
+    "id_categoria": 13,
+    "descricao": "Papelaria personalizada: 32 placas, menus e tags",
+    "quantidade": 32,
+    "preco_maximo": 862.8,
+    "observacoes": "Design coordenado com o tema da decoração"
+  },
+  {
+    "id": 62,
+    "id_demanda": 8,
+    "tipo": "SERVIÇO",
+    "id_categoria": 4,
+    "descricao": "Assessoria de cerimonial para coordenação do evento",
+    "quantidade": 1,
+    "preco_maximo": 2457.12,
+    "observacoes": "Acompanhamento desde o ensaio até o final da festa"
+  },
+  {
+    "id": 63,
+    "id_demanda": 8,
+    "tipo": "PRODUTO",
+    "id_categoria": 17,
+    "descricao": "Bebidas premium: 41 garrafas de vinho e espumante",
+    "quantidade": 41,
+    "preco_maximo": 2995.45,
+    "observacoes": "Vinhos nacionais e importados selecionados"
+  },
+  {
+    "id": 64,
+    "id_demanda": 8,
+    "tipo": "PRODUTO",
+    "id_categoria": 14,
+    "descricao": "Mesa de doces finos com 9 tipos de docinhos (100 unidades cada)",
+    "quantidade": 9,
+    "preco_maximo": 2474.2,
+    "observacoes": "Variedade de sabores e decoração refinada"
+  },
+  {
+    "id": 65,
+    "id_demanda": 9,
+    "tipo": "SERVIÇO",
+    "id_categoria": 5,
+    "descricao": "Celebrante para cerimônia personalizada",
+    "quantidade": 1,
+    "preco_maximo": 1637.45,
+    "observacoes": "Cerimônia laica com textos personalizados"
+  },
+  {
+    "id": 66,
+    "id_demanda": 9,
+    "tipo": "SERVIÇO",
+    "id_categoria": 6,
+    "descricao": "Equipe de beleza: 7 profissionais (maquiagem, penteado, manicure)",
+    "quantidade": 7,
+    "preco_maximo": 2225.61,
+    "observacoes": "Preparação da noiva, madrinhas e mães"
+  },
+  {
+    "id": 67,
+    "id_demanda": 9,
+    "tipo": "SERVIÇO",
+    "id_categoria": 7,
+    "descricao": "Transporte: 5 veículos de luxo",
+    "quantidade": 5,
+    "preco_maximo": 2110.12,
+    "observacoes": "Para noivos, padrinhos e familiares"
+  },
+  {
+    "id": 68,
+    "id_demanda": 9,
+    "tipo": "SERVIÇO",
+    "id_categoria": 1,
+    "descricao": "Filmagem profissional com edição de vídeo",
+    "quantidade": 1,
+    "preco_maximo": 3936.56,
+    "observacoes": "Entrega de vídeo editado e making of"
+  },
+  {
+    "id": 69,
+    "id_demanda": 9,
+    "tipo": "SERVIÇO",
+    "id_categoria": 9,
+    "descricao": "Equipe de segurança discreta para o evento",
+    "quantidade": 8,
+    "preco_maximo": 1891.57,
+    "observacoes": "Profissionais uniformizados e experientes"
+  },
+  {
+    "id": 70,
+    "id_demanda": 9,
+    "tipo": "PRODUTO",
+    "id_categoria": 11,
+    "descricao": "Vestido de noiva sob medida com ajustes",
+    "quantidade": 1,
+    "preco_maximo": 6338.22,
+    "observacoes": "Tecido nobre com bordados e cauda média"
+  },
+  {
+    "id": 71,
+    "id_demanda": 9,
+    "tipo": "PRODUTO",
+    "id_categoria": 12,
+    "descricao": "Par de alianças em ouro 18k com gravação personalizada",
+    "quantidade": 1,
+    "preco_maximo": 5331.18,
+    "observacoes": "Design clássico com acabamento polido"
+  },
+  {
+    "id": 72,
+    "id_demanda": 9,
+    "tipo": "ESPAÇO",
+    "id_categoria": 20,
+    "descricao": "Hospedagem para 34 convidados em hotel próximo",
+    "quantidade": 34,
+    "preco_maximo": 3048.28,
+    "observacoes": "Acomodação para convidados de fora da cidade"
+  },
+  {
+    "id": 73,
+    "id_demanda": 10,
+    "tipo": "ESPAÇO",
+    "id_categoria": 18,
+    "descricao": "Espaço para cerimônia religiosa com capacidade para 124 convidados",
+    "quantidade": 124,
+    "preco_maximo": 4531.9,
+    "observacoes": "Preferência por locais com boa iluminação natural"
+  },
+  {
+    "id": 74,
+    "id_demanda": 10,
+    "tipo": "ESPAÇO",
+    "id_categoria": 19,
+    "descricao": "Espaço para recepção com área coberta e ao ar livre",
+    "quantidade": 146,
+    "preco_maximo": 17213.09,
+    "observacoes": "Necessário estrutura para dança e buffet"
+  },
+  {
+    "id": 75,
+    "id_demanda": 10,
+    "tipo": "SERVIÇO",
+    "id_categoria": 1,
+    "descricao": "Fotografia profissional com álbum premium de 44 páginas",
+    "quantidade": 44,
+    "preco_maximo": 4602.33,
+    "observacoes": "Preferência por fotógrafo com portfólio em casamentos ao ar livre"
+  },
+  {
+    "id": 76,
+    "id_demanda": 10,
+    "tipo": "SERVIÇO",
+    "id_categoria": 3,
+    "descricao": "Buffet completo (entrada, prato principal, sobremesa) para 104 pessoas",
+    "quantidade": 104,
+    "preco_maximo": 10908.39,
+    "observacoes": "Cardápio variado com opções vegetarianas"
+  },
+  {
+    "id": 77,
+    "id_demanda": 10,
+    "tipo": "SERVIÇO",
+    "id_categoria": 8,
+    "descricao": "Decoração floral e ambientação completa",
+    "quantidade": 1,
+    "preco_maximo": 6726.61,
+    "observacoes": "Cores predominantes: branco, verde e dourado"
+  },
+  {
+    "id": 78,
+    "id_demanda": 10,
+    "tipo": "PRODUTO",
+    "id_categoria": 14,
+    "descricao": "Bolo de casamento 4 andares com decoração personalizada",
+    "quantidade": 4,
+    "preco_maximo": 1861.19,
+    "observacoes": "Sabores: chocolate e frutas vermelhas"
+  },
+  {
+    "id": 79,
+    "id_demanda": 10,
+    "tipo": "PRODUTO",
+    "id_categoria": 13,
+    "descricao": "Convites personalizados para 154 convidados",
+    "quantidade": 154,
+    "preco_maximo": 1491.08,
+    "observacoes": "Design elegante com acabamento em relevo"
+  },
+  {
+    "id": 80,
+    "id_demanda": 10,
+    "tipo": "SERVIÇO",
+    "id_categoria": 2,
+    "descricao": "DJ profissional com equipamento de som e iluminação",
+    "quantidade": 1,
+    "preco_maximo": 1861.71,
+    "observacoes": "Playlist variada incluindo músicas românticas e animadas"
+  },
+  {
+    "id": 81,
+    "id_demanda": 11,
+    "tipo": "SERVIÇO",
+    "id_categoria": 8,
+    "descricao": "Projeto completo de decoração temática",
+    "quantidade": 1,
+    "preco_maximo": 5975.37,
+    "observacoes": "Tema: jardim encantado com elementos rústicos"
+  },
+  {
+    "id": 82,
+    "id_demanda": 11,
+    "tipo": "PRODUTO",
+    "id_categoria": 15,
+    "descricao": "Arranjos florais variados: 10 buquês e 20 centros de mesa",
+    "quantidade": 10,
+    "preco_maximo": 4447.53,
+    "observacoes": "Flores: rosas, lírios e folhagens"
+  },
+  {
+    "id": 83,
+    "id_demanda": 11,
+    "tipo": "PRODUTO",
+    "id_categoria": 16,
+    "descricao": "Locação de mobiliário: 165 cadeiras, 35 mesas e lounge",
+    "quantidade": 165,
+    "preco_maximo": 2018.58,
+    "observacoes": "Estilo rústico-chique com madeira e tecidos claros"
+  },
+  {
+    "id": 84,
+    "id_demanda": 11,
+    "tipo": "SERVIÇO",
+    "id_categoria": 2,
+    "descricao": "Iluminação cênica e decorativa",
+    "quantidade": 1,
+    "preco_maximo": 2516.3,
+    "observacoes": "Luzes de LED, velas e spots direcionados"
+  },
+  {
+    "id": 85,
+    "id_demanda": 11,
+    "tipo": "PRODUTO",
+    "id_categoria": 13,
+    "descricao": "Papelaria personalizada: 39 placas, menus e tags",
+    "quantidade": 39,
+    "preco_maximo": 669.56,
+    "observacoes": "Design coordenado com o tema da decoração"
+  },
+  {
+    "id": 86,
+    "id_demanda": 11,
+    "tipo": "SERVIÇO",
+    "id_categoria": 4,
+    "descricao": "Assessoria de cerimonial para coordenação do evento",
+    "quantidade": 1,
+    "preco_maximo": 3742.27,
+    "observacoes": "Acompanhamento desde o ensaio até o final da festa"
+  },
+  {
+    "id": 87,
+    "id_demanda": 11,
+    "tipo": "PRODUTO",
+    "id_categoria": 17,
+    "descricao": "Bebidas premium: 73 garrafas de vinho e espumante",
+    "quantidade": 73,
+    "preco_maximo": 2574.0,
+    "observacoes": "Vinhos nacionais e importados selecionados"
+  },
+  {
+    "id": 88,
+    "id_demanda": 11,
+    "tipo": "PRODUTO",
+    "id_categoria": 14,
+    "descricao": "Mesa de doces finos com 9 tipos de docinhos (100 unidades cada)",
+    "quantidade": 9,
+    "preco_maximo": 1571.19,
+    "observacoes": "Variedade de sabores e decoração refinada"
+  },
+  {
+    "id": 89,
+    "id_demanda": 12,
+    "tipo": "SERVIÇO",
+    "id_categoria": 5,
+    "descricao": "Celebrante para cerimônia personalizada",
+    "quantidade": 1,
+    "preco_maximo": 2131.89,
+    "observacoes": "Cerimônia laica com textos personalizados"
+  },
+  {
+    "id": 90,
+    "id_demanda": 12,
+    "tipo": "SERVIÇO",
+    "id_categoria": 6,
+    "descricao": "Equipe de beleza: 6 profissionais (maquiagem, penteado, manicure)",
+    "quantidade": 6,
+    "preco_maximo": 2122.75,
+    "observacoes": "Preparação da noiva, madrinhas e mães"
+  },
+  {
+    "id": 91,
+    "id_demanda": 12,
+    "tipo": "SERVIÇO",
+    "id_categoria": 7,
+    "descricao": "Transporte: 6 veículos de luxo",
+    "quantidade": 6,
+    "preco_maximo": 2676.13,
+    "observacoes": "Para noivos, padrinhos e familiares"
+  },
+  {
+    "id": 92,
+    "id_demanda": 12,
+    "tipo": "SERVIÇO",
+    "id_categoria": 1,
+    "descricao": "Filmagem profissional com edição de vídeo",
+    "quantidade": 1,
+    "preco_maximo": 4183.04,
+    "observacoes": "Entrega de vídeo editado e making of"
+  },
+  {
+    "id": 93,
+    "id_demanda": 12,
+    "tipo": "SERVIÇO",
+    "id_categoria": 9,
+    "descricao": "Equipe de segurança discreta para o evento",
+    "quantidade": 5,
+    "preco_maximo": 1386.7,
+    "observacoes": "Profissionais uniformizados e experientes"
+  },
+  {
+    "id": 94,
+    "id_demanda": 12,
+    "tipo": "PRODUTO",
+    "id_categoria": 11,
+    "descricao": "Vestido de noiva sob medida com ajustes",
+    "quantidade": 1,
+    "preco_maximo": 7322.93,
+    "observacoes": "Tecido nobre com bordados e cauda média"
+  },
+  {
+    "id": 95,
+    "id_demanda": 12,
+    "tipo": "PRODUTO",
+    "id_categoria": 12,
+    "descricao": "Par de alianças em ouro 18k com gravação personalizada",
+    "quantidade": 1,
+    "preco_maximo": 4065.95,
+    "observacoes": "Design clássico com acabamento polido"
+  },
+  {
+    "id": 96,
+    "id_demanda": 12,
+    "tipo": "ESPAÇO",
+    "id_categoria": 20,
+    "descricao": "Hospedagem para 33 convidados em hotel próximo",
+    "quantidade": 33,
+    "preco_maximo": 5802.26,
+    "observacoes": "Acomodação para convidados de fora da cidade"
+  },
+  {
+    "id": 97,
+    "id_demanda": 13,
+    "tipo": "ESPAÇO",
+    "id_categoria": 18,
+    "descricao": "Espaço para cerimônia religiosa com capacidade para 126 convidados",
+    "quantidade": 126,
+    "preco_maximo": 3856.37,
+    "observacoes": "Preferência por locais com boa iluminação natural"
+  },
+  {
+    "id": 98,
+    "id_demanda": 13,
+    "tipo": "ESPAÇO",
+    "id_categoria": 19,
+    "descricao": "Espaço para recepção com área coberta e ao ar livre",
+    "quantidade": 181,
+    "preco_maximo": 14094.73,
+    "observacoes": "Necessário estrutura para dança e buffet"
+  },
+  {
+    "id": 99,
+    "id_demanda": 13,
+    "tipo": "SERVIÇO",
+    "id_categoria": 1,
+    "descricao": "Fotografia profissional com álbum premium de 78 páginas",
+    "quantidade": 78,
+    "preco_maximo": 3170.9,
+    "observacoes": "Preferência por fotógrafo com portfólio em casamentos ao ar livre"
+  },
+  {
+    "id": 100,
+    "id_demanda": 13,
+    "tipo": "SERVIÇO",
+    "id_categoria": 3,
+    "descricao": "Buffet completo (entrada, prato principal, sobremesa) para 105 pessoas",
+    "quantidade": 105,
+    "preco_maximo": 9308.42,
+    "observacoes": "Cardápio variado com opções vegetarianas"
+  },
+  {
+    "id": 101,
+    "id_demanda": 13,
+    "tipo": "SERVIÇO",
+    "id_categoria": 8,
+    "descricao": "Decoração floral e ambientação completa",
+    "quantidade": 1,
+    "preco_maximo": 6547.9,
+    "observacoes": "Cores predominantes: branco, verde e dourado"
+  },
+  {
+    "id": 102,
+    "id_demanda": 13,
+    "tipo": "PRODUTO",
+    "id_categoria": 14,
+    "descricao": "Bolo de casamento 4 andares com decoração personalizada",
+    "quantidade": 4,
+    "preco_maximo": 815.12,
+    "observacoes": "Sabores: chocolate e frutas vermelhas"
+  },
+  {
+    "id": 103,
+    "id_demanda": 13,
+    "tipo": "PRODUTO",
+    "id_categoria": 13,
+    "descricao": "Convites personalizados para 213 convidados",
+    "quantidade": 213,
+    "preco_maximo": 1189.66,
+    "observacoes": "Design elegante com acabamento em relevo"
+  },
+  {
+    "id": 104,
+    "id_demanda": 13,
+    "tipo": "SERVIÇO",
+    "id_categoria": 2,
+    "descricao": "DJ profissional com equipamento de som e iluminação",
+    "quantidade": 1,
+    "preco_maximo": 2582.45,
+    "observacoes": "Playlist variada incluindo músicas românticas e animadas"
+  },
+  {
+    "id": 105,
+    "id_demanda": 14,
+    "tipo": "SERVIÇO",
+    "id_categoria": 8,
+    "descricao": "Projeto completo de decoração temática",
+    "quantidade": 1,
+    "preco_maximo": 6302.1,
+    "observacoes": "Tema: jardim encantado com elementos rústicos"
+  },
+  {
+    "id": 106,
+    "id_demanda": 14,
+    "tipo": "PRODUTO",
+    "id_categoria": 15,
+    "descricao": "Arranjos florais variados: 13 buquês e 22 centros de mesa",
+    "quantidade": 13,
+    "preco_maximo": 4382.13,
+    "observacoes": "Flores: rosas, lírios e folhagens"
+  },
+  {
+    "id": 107,
+    "id_demanda": 14,
+    "tipo": "PRODUTO",
+    "id_categoria": 16,
+    "descricao": "Locação de mobiliário: 165 cadeiras, 26 mesas e lounge",
+    "quantidade": 165,
+    "preco_maximo": 2746.03,
+    "observacoes": "Estilo rústico-chique com madeira e tecidos claros"
+  },
+  {
+    "id": 108,
+    "id_demanda": 14,
+    "tipo": "SERVIÇO",
+    "id_categoria": 2,
+    "descricao": "Iluminação cênica e decorativa",
+    "quantidade": 1,
+    "preco_maximo": 2447.22,
+    "observacoes": "Luzes de LED, velas e spots direcionados"
+  },
+  {
+    "id": 109,
+    "id_demanda": 14,
+    "tipo": "PRODUTO",
+    "id_categoria": 13,
+    "descricao": "Papelaria personalizada: 60 placas, menus e tags",
+    "quantidade": 60,
+    "preco_maximo": 797.94,
+    "observacoes": "Design coordenado com o tema da decoração"
+  },
+  {
+    "id": 110,
+    "id_demanda": 14,
+    "tipo": "SERVIÇO",
+    "id_categoria": 4,
+    "descricao": "Assessoria de cerimonial para coordenação do evento",
+    "quantidade": 1,
+    "preco_maximo": 2614.39,
+    "observacoes": "Acompanhamento desde o ensaio até o final da festa"
+  },
+  {
+    "id": 111,
+    "id_demanda": 14,
+    "tipo": "PRODUTO",
+    "id_categoria": 17,
+    "descricao": "Bebidas premium: 80 garrafas de vinho e espumante",
+    "quantidade": 80,
+    "preco_maximo": 2713.93,
+    "observacoes": "Vinhos nacionais e importados selecionados"
+  },
+  {
+    "id": 112,
+    "id_demanda": 14,
+    "tipo": "PRODUTO",
+    "id_categoria": 14,
+    "descricao": "Mesa de doces finos com 11 tipos de docinhos (100 unidades cada)",
+    "quantidade": 11,
+    "preco_maximo": 1907.1,
+    "observacoes": "Variedade de sabores e decoração refinada"
+  },
+  {
+    "id": 113,
+    "id_demanda": 15,
+    "tipo": "SERVIÇO",
+    "id_categoria": 5,
+    "descricao": "Celebrante para cerimônia personalizada",
+    "quantidade": 1,
+    "preco_maximo": 1937.61,
+    "observacoes": "Cerimônia laica com textos personalizados"
+  },
+  {
+    "id": 114,
+    "id_demanda": 15,
+    "tipo": "SERVIÇO",
+    "id_categoria": 6,
+    "descricao": "Equipe de beleza: 4 profissionais (maquiagem, penteado, manicure)",
+    "quantidade": 4,
+    "preco_maximo": 3365.27,
+    "observacoes": "Preparação da noiva, madrinhas e mães"
+  },
+  {
+    "id": 115,
+    "id_demanda": 15,
+    "tipo": "SERVIÇO",
+    "id_categoria": 7,
+    "descricao": "Transporte: 4 veículos de luxo",
+    "quantidade": 4,
+    "preco_maximo": 2017.62,
+    "observacoes": "Para noivos, padrinhos e familiares"
+  },
+  {
+    "id": 116,
+    "id_demanda": 15,
+    "tipo": "SERVIÇO",
+    "id_categoria": 1,
+    "descricao": "Filmagem profissional com edição de vídeo",
+    "quantidade": 1,
+    "preco_maximo": 3532.69,
+    "observacoes": "Entrega de vídeo editado e making of"
+  },
+  {
+    "id": 117,
+    "id_demanda": 15,
+    "tipo": "SERVIÇO",
+    "id_categoria": 9,
+    "descricao": "Equipe de segurança discreta para o evento",
+    "quantidade": 7,
+    "preco_maximo": 1653.68,
+    "observacoes": "Profissionais uniformizados e experientes"
+  },
+  {
+    "id": 118,
+    "id_demanda": 15,
+    "tipo": "PRODUTO",
+    "id_categoria": 11,
+    "descricao": "Vestido de noiva sob medida com ajustes",
+    "quantidade": 1,
+    "preco_maximo": 10422.67,
+    "observacoes": "Tecido nobre com bordados e cauda média"
+  },
+  {
+    "id": 119,
+    "id_demanda": 15,
+    "tipo": "PRODUTO",
+    "id_categoria": 12,
+    "descricao": "Par de alianças em ouro 24k com gravação personalizada",
+    "quantidade": 1,
+    "preco_maximo": 3498.91,
+    "observacoes": "Design clássico com acabamento polido"
+  },
+  {
+    "id": 120,
+    "id_demanda": 15,
+    "tipo": "ESPAÇO",
+    "id_categoria": 20,
+    "descricao": "Hospedagem para 32 convidados em hotel próximo",
+    "quantidade": 32,
+    "preco_maximo": 3348.64,
+    "observacoes": "Acomodação para convidados de fora da cidade"
+  },
+  {
+    "id": 121,
+    "id_demanda": 16,
+    "tipo": "ESPAÇO",
+    "id_categoria": 18,
+    "descricao": "Espaço para cerimônia religiosa com capacidade para 117 convidados",
+    "quantidade": 117,
+    "preco_maximo": 7003.13,
+    "observacoes": "Preferência por locais com boa iluminação natural"
+  },
+  {
+    "id": 122,
+    "id_demanda": 16,
+    "tipo": "ESPAÇO",
+    "id_categoria": 19,
+    "descricao": "Espaço para recepção com área coberta e ao ar livre",
+    "quantidade": 175,
+    "preco_maximo": 15396.29,
+    "observacoes": "Necessário estrutura para dança e buffet"
+  },
+  {
+    "id": 123,
+    "id_demanda": 16,
+    "tipo": "SERVIÇO",
+    "id_categoria": 1,
+    "descricao": "Fotografia profissional com álbum premium de 69 páginas",
+    "quantidade": 69,
+    "preco_maximo": 3636.17,
+    "observacoes": "Preferência por fotógrafo com portfólio em casamentos ao ar livre"
+  },
+  {
+    "id": 124,
+    "id_demanda": 16,
+    "tipo": "SERVIÇO",
+    "id_categoria": 3,
+    "descricao": "Buffet completo (entrada, prato principal, sobremesa) para 125 pessoas",
+    "quantidade": 125,
+    "preco_maximo": 12069.89,
+    "observacoes": "Cardápio variado com opções vegetarianas"
+  },
+  {
+    "id": 125,
+    "id_demanda": 16,
+    "tipo": "SERVIÇO",
+    "id_categoria": 8,
+    "descricao": "Decoração floral e ambientação completa",
+    "quantidade": 1,
+    "preco_maximo": 6079.59,
+    "observacoes": "Cores predominantes: branco, verde e dourado"
+  },
+  {
+    "id": 126,
+    "id_demanda": 16,
+    "tipo": "PRODUTO",
+    "id_categoria": 14,
+    "descricao": "Bolo de casamento 4 andares com decoração personalizada",
+    "quantidade": 4,
+    "preco_maximo": 1624.06,
+    "observacoes": "Sabores: chocolate e frutas vermelhas"
+  },
+  {
+    "id": 127,
+    "id_demanda": 16,
+    "tipo": "PRODUTO",
+    "id_categoria": 13,
+    "descricao": "Convites personalizados para 197 convidados",
+    "quantidade": 197,
+    "preco_maximo": 720.98,
+    "observacoes": "Design elegante com acabamento em relevo"
+  },
+  {
+    "id": 128,
+    "id_demanda": 16,
+    "tipo": "SERVIÇO",
+    "id_categoria": 2,
+    "descricao": "DJ profissional com equipamento de som e iluminação",
+    "quantidade": 1,
+    "preco_maximo": 2433.9,
+    "observacoes": "Playlist variada incluindo músicas românticas e animadas"
+  },
+  {
+    "id": 129,
+    "id_demanda": 17,
+    "tipo": "SERVIÇO",
+    "id_categoria": 8,
+    "descricao": "Projeto completo de decoração temática",
+    "quantidade": 1,
+    "preco_maximo": 8139.67,
+    "observacoes": "Tema: jardim encantado com elementos rústicos"
+  },
+  {
+    "id": 130,
+    "id_demanda": 17,
+    "tipo": "PRODUTO",
+    "id_categoria": 15,
+    "descricao": "Arranjos florais variados: 9 buquês e 24 centros de mesa",
+    "quantidade": 9,
+    "preco_maximo": 3033.85,
+    "observacoes": "Flores: rosas, lírios e folhagens"
+  },
+  {
+    "id": 131,
+    "id_demanda": 17,
+    "tipo": "PRODUTO",
+    "id_categoria": 16,
+    "descricao": "Locação de mobiliário: 144 cadeiras, 30 mesas e lounge",
+    "quantidade": 144,
+    "preco_maximo": 3867.38,
+    "observacoes": "Estilo rústico-chique com madeira e tecidos claros"
+  },
+  {
+    "id": 132,
+    "id_demanda": 17,
+    "tipo": "SERVIÇO",
+    "id_categoria": 2,
+    "descricao": "Iluminação cênica e decorativa",
+    "quantidade": 1,
+    "preco_maximo": 2548.52,
+    "observacoes": "Luzes de LED, velas e spots direcionados"
+  },
+  {
+    "id": 133,
+    "id_demanda": 17,
+    "tipo": "PRODUTO",
+    "id_categoria": 13,
+    "descricao": "Papelaria personalizada: 57 placas, menus e tags",
+    "quantidade": 57,
+    "preco_maximo": 861.65,
+    "observacoes": "Design coordenado com o tema da decoração"
+  },
+  {
+    "id": 134,
+    "id_demanda": 17,
+    "tipo": "SERVIÇO",
+    "id_categoria": 4,
+    "descricao": "Assessoria de cerimonial para coordenação do evento",
+    "quantidade": 1,
+    "preco_maximo": 3441.61,
+    "observacoes": "Acompanhamento desde o ensaio até o final da festa"
+  },
+  {
+    "id": 135,
+    "id_demanda": 17,
+    "tipo": "PRODUTO",
+    "id_categoria": 17,
+    "descricao": "Bebidas premium: 70 garrafas de vinho e espumante",
+    "quantidade": 70,
+    "preco_maximo": 1206.72,
+    "observacoes": "Vinhos nacionais e importados selecionados"
+  },
+  {
+    "id": 136,
+    "id_demanda": 17,
+    "tipo": "PRODUTO",
+    "id_categoria": 14,
+    "descricao": "Mesa de doces finos com 8 tipos de docinhos (100 unidades cada)",
+    "quantidade": 8,
+    "preco_maximo": 2144.01,
+    "observacoes": "Variedade de sabores e decoração refinada"
+  },
+  {
+    "id": 137,
+    "id_demanda": 18,
+    "tipo": "SERVIÇO",
+    "id_categoria": 5,
+    "descricao": "Celebrante para cerimônia personalizada",
+    "quantidade": 1,
+    "preco_maximo": 2562.64,
+    "observacoes": "Cerimônia laica com textos personalizados"
+  },
+  {
+    "id": 138,
+    "id_demanda": 18,
+    "tipo": "SERVIÇO",
+    "id_categoria": 6,
+    "descricao": "Equipe de beleza: 5 profissionais (maquiagem, penteado, manicure)",
+    "quantidade": 5,
+    "preco_maximo": 2139.19,
+    "observacoes": "Preparação da noiva, madrinhas e mães"
+  },
+  {
+    "id": 139,
+    "id_demanda": 18,
+    "tipo": "SERVIÇO",
+    "id_categoria": 7,
+    "descricao": "Transporte: 3 veículos de luxo",
+    "quantidade": 3,
+    "preco_maximo": 2126.39,
+    "observacoes": "Para noivos, padrinhos e familiares"
+  },
+  {
+    "id": 140,
+    "id_demanda": 18,
+    "tipo": "SERVIÇO",
+    "id_categoria": 1,
+    "descricao": "Filmagem profissional com edição de vídeo",
+    "quantidade": 1,
+    "preco_maximo": 5300.33,
+    "observacoes": "Entrega de vídeo editado e making of"
+  },
+  {
+    "id": 141,
+    "id_demanda": 18,
+    "tipo": "SERVIÇO",
+    "id_categoria": 9,
+    "descricao": "Equipe de segurança discreta para o evento",
+    "quantidade": 5,
+    "preco_maximo": 1605.3,
+    "observacoes": "Profissionais uniformizados e experientes"
+  },
+  {
+    "id": 142,
+    "id_demanda": 18,
+    "tipo": "PRODUTO",
+    "id_categoria": 11,
+    "descricao": "Vestido de noiva sob medida com ajustes",
+    "quantidade": 1,
+    "preco_maximo": 8690.36,
+    "observacoes": "Tecido nobre com bordados e cauda média"
+  },
+  {
+    "id": 143,
+    "id_demanda": 18,
+    "tipo": "PRODUTO",
+    "id_categoria": 12,
+    "descricao": "Par de alianças em ouro 24k com gravação personalizada",
+    "quantidade": 1,
+    "preco_maximo": 5488.68,
+    "observacoes": "Design clássico com acabamento polido"
+  },
+  {
+    "id": 144,
+    "id_demanda": 18,
+    "tipo": "ESPAÇO",
+    "id_categoria": 20,
+    "descricao": "Hospedagem para 40 convidados em hotel próximo",
+    "quantidade": 40,
+    "preco_maximo": 4992.56,
+    "observacoes": "Acomodação para convidados de fora da cidade"
+  },
+  {
+    "id": 145,
+    "id_demanda": 19,
+    "tipo": "ESPAÇO",
+    "id_categoria": 18,
+    "descricao": "Espaço para cerimônia religiosa com capacidade para 112 convidados",
+    "quantidade": 112,
+    "preco_maximo": 3436.5,
+    "observacoes": "Preferência por locais com boa iluminação natural"
+  },
+  {
+    "id": 146,
+    "id_demanda": 19,
+    "tipo": "ESPAÇO",
+    "id_categoria": 19,
+    "descricao": "Espaço para recepção com área coberta e ao ar livre",
+    "quantidade": 195,
+    "preco_maximo": 9047.72,
+    "observacoes": "Necessário estrutura para dança e buffet"
+  },
+  {
+    "id": 147,
+    "id_demanda": 19,
+    "tipo": "SERVIÇO",
+    "id_categoria": 1,
+    "descricao": "Fotografia profissional com álbum premium de 53 páginas",
+    "quantidade": 53,
+    "preco_maximo": 2617.38,
+    "observacoes": "Preferência por fotógrafo com portfólio em casamentos ao ar livre"
+  },
+  {
+    "id": 148,
+    "id_demanda": 19,
+    "tipo": "SERVIÇO",
+    "id_categoria": 3,
+    "descricao": "Buffet completo (entrada, prato principal, sobremesa) para 161 pessoas",
+    "quantidade": 161,
+    "preco_maximo": 9316.06,
+    "observacoes": "Cardápio variado com opções vegetarianas"
+  },
+  {
+    "id": 149,
+    "id_demanda": 19,
+    "tipo": "SERVIÇO",
+    "id_categoria": 8,
+    "descricao": "Decoração floral e ambientação completa",
+    "quantidade": 1,
+    "preco_maximo": 7810.69,
+    "observacoes": "Cores predominantes: branco, verde e dourado"
+  },
+  {
+    "id": 150,
+    "id_demanda": 19,
+    "tipo": "PRODUTO",
+    "id_categoria": 14,
+    "descricao": "Bolo de casamento 5 andares com decoração personalizada",
+    "quantidade": 5,
+    "preco_maximo": 1079.28,
+    "observacoes": "Sabores: chocolate e frutas vermelhas"
+  },
+  {
+    "id": 151,
+    "id_demanda": 19,
+    "tipo": "PRODUTO",
+    "id_categoria": 13,
+    "descricao": "Convites personalizados para 232 convidados",
+    "quantidade": 232,
+    "preco_maximo": 1080.76,
+    "observacoes": "Design elegante com acabamento em relevo"
+  },
+  {
+    "id": 152,
+    "id_demanda": 19,
+    "tipo": "SERVIÇO",
+    "id_categoria": 2,
+    "descricao": "DJ profissional com equipamento de som e iluminação",
+    "quantidade": 1,
+    "preco_maximo": 1903.17,
+    "observacoes": "Playlist variada incluindo músicas românticas e animadas"
+  },
+  {
+    "id": 153,
+    "id_demanda": 20,
+    "tipo": "SERVIÇO",
+    "id_categoria": 8,
+    "descricao": "Projeto completo de decoração temática",
+    "quantidade": 1,
+    "preco_maximo": 7651.95,
+    "observacoes": "Tema: jardim encantado com elementos rústicos"
+  },
+  {
+    "id": 154,
+    "id_demanda": 20,
+    "tipo": "PRODUTO",
+    "id_categoria": 15,
+    "descricao": "Arranjos florais variados: 11 buquês e 35 centros de mesa",
+    "quantidade": 11,
+    "preco_maximo": 2869.68,
+    "observacoes": "Flores: rosas, lírios e folhagens"
+  },
+  {
+    "id": 155,
+    "id_demanda": 20,
+    "tipo": "PRODUTO",
+    "id_categoria": 16,
+    "descricao": "Locação de mobiliário: 175 cadeiras, 35 mesas e lounge",
+    "quantidade": 175,
+    "preco_maximo": 2644.95,
+    "observacoes": "Estilo rústico-chique com madeira e tecidos claros"
+  },
+  {
+    "id": 156,
+    "id_demanda": 20,
+    "tipo": "SERVIÇO",
+    "id_categoria": 2,
+    "descricao": "Iluminação cênica e decorativa",
+    "quantidade": 1,
+    "preco_maximo": 2301.57,
+    "observacoes": "Luzes de LED, velas e spots direcionados"
+  },
+  {
+    "id": 157,
+    "id_demanda": 20,
+    "tipo": "PRODUTO",
+    "id_categoria": 13,
+    "descricao": "Papelaria personalizada: 47 placas, menus e tags",
+    "quantidade": 47,
+    "preco_maximo": 838.63,
+    "observacoes": "Design coordenado com o tema da decoração"
+  },
+  {
+    "id": 158,
+    "id_demanda": 20,
+    "tipo": "SERVIÇO",
+    "id_categoria": 4,
+    "descricao": "Assessoria de cerimonial para coordenação do evento",
+    "quantidade": 1,
+    "preco_maximo": 2380.36,
+    "observacoes": "Acompanhamento desde o ensaio até o final da festa"
+  },
+  {
+    "id": 159,
+    "id_demanda": 20,
+    "tipo": "PRODUTO",
+    "id_categoria": 17,
+    "descricao": "Bebidas premium: 74 garrafas de vinho e espumante",
+    "quantidade": 74,
+    "preco_maximo": 1838.36,
+    "observacoes": "Vinhos nacionais e importados selecionados"
+  },
+  {
+    "id": 160,
+    "id_demanda": 20,
+    "tipo": "PRODUTO",
+    "id_categoria": 14,
+    "descricao": "Mesa de doces finos com 12 tipos de docinhos (100 unidades cada)",
+    "quantidade": 12,
+    "preco_maximo": 1032.06,
+    "observacoes": "Variedade de sabores e decoração refinada"
+  },
+  {
+    "id": 161,
+    "id_demanda": 21,
+    "tipo": "SERVIÇO",
+    "id_categoria": 5,
+    "descricao": "Celebrante para cerimônia personalizada",
+    "quantidade": 1,
+    "preco_maximo": 1788.79,
+    "observacoes": "Cerimônia laica com textos personalizados"
+  },
+  {
+    "id": 162,
+    "id_demanda": 21,
+    "tipo": "SERVIÇO",
+    "id_categoria": 6,
+    "descricao": "Equipe de beleza: 5 profissionais (maquiagem, penteado, manicure)",
+    "quantidade": 5,
+    "preco_maximo": 3042.0,
+    "observacoes": "Preparação da noiva, madrinhas e mães"
+  },
+  {
+    "id": 163,
+    "id_demanda": 21,
+    "tipo": "SERVIÇO",
+    "id_categoria": 7,
+    "descricao": "Transporte: 3 veículos de luxo",
+    "quantidade": 3,
+    "preco_maximo": 3617.48,
+    "observacoes": "Para noivos, padrinhos e familiares"
+  },
+  {
+    "id": 164,
+    "id_demanda": 21,
+    "tipo": "SERVIÇO",
+    "id_categoria": 1,
+    "descricao": "Filmagem profissional com edição de vídeo",
+    "quantidade": 1,
+    "preco_maximo": 6381.89,
+    "observacoes": "Entrega de vídeo editado e making of"
+  },
+  {
+    "id": 165,
+    "id_demanda": 21,
+    "tipo": "SERVIÇO",
+    "id_categoria": 9,
+    "descricao": "Equipe de segurança discreta para o evento",
+    "quantidade": 8,
+    "preco_maximo": 1367.08,
+    "observacoes": "Profissionais uniformizados e experientes"
+  },
+  {
+    "id": 166,
+    "id_demanda": 21,
+    "tipo": "PRODUTO",
+    "id_categoria": 11,
+    "descricao": "Vestido de noiva sob medida com ajustes",
+    "quantidade": 1,
+    "preco_maximo": 8339.6,
+    "observacoes": "Tecido nobre com bordados e cauda média"
+  },
+  {
+    "id": 167,
+    "id_demanda": 21,
+    "tipo": "PRODUTO",
+    "id_categoria": 12,
+    "descricao": "Par de alianças em ouro 18k com gravação personalizada",
+    "quantidade": 1,
+    "preco_maximo": 4685.54,
+    "observacoes": "Design clássico com acabamento polido"
+  },
+  {
+    "id": 168,
+    "id_demanda": 21,
+    "tipo": "ESPAÇO",
+    "id_categoria": 20,
+    "descricao": "Hospedagem para 22 convidados em hotel próximo",
+    "quantidade": 22,
+    "preco_maximo": 4645.38,
+    "observacoes": "Acomodação para convidados de fora da cidade"
+  },
+  {
+    "id": 169,
+    "id_demanda": 22,
+    "tipo": "ESPAÇO",
+    "id_categoria": 18,
+    "descricao": "Espaço para cerimônia religiosa com capacidade para 97 convidados",
+    "quantidade": 97,
+    "preco_maximo": 7974.74,
+    "observacoes": "Preferência por locais com boa iluminação natural"
+  },
+  {
+    "id": 170,
+    "id_demanda": 22,
+    "tipo": "ESPAÇO",
+    "id_categoria": 19,
+    "descricao": "Espaço para recepção com área coberta e ao ar livre",
+    "quantidade": 112,
+    "preco_maximo": 8138.73,
+    "observacoes": "Necessário estrutura para dança e buffet"
+  },
+  {
+    "id": 171,
+    "id_demanda": 22,
+    "tipo": "SERVIÇO",
+    "id_categoria": 1,
+    "descricao": "Fotografia profissional com álbum premium de 64 páginas",
+    "quantidade": 64,
+    "preco_maximo": 2658.02,
+    "observacoes": "Preferência por fotógrafo com portfólio em casamentos ao ar livre"
+  },
+  {
+    "id": 172,
+    "id_demanda": 22,
+    "tipo": "SERVIÇO",
+    "id_categoria": 3,
+    "descricao": "Buffet completo (entrada, prato principal, sobremesa) para 105 pessoas",
+    "quantidade": 105,
+    "preco_maximo": 12306.17,
+    "observacoes": "Cardápio variado com opções vegetarianas"
+  },
+  {
+    "id": 173,
+    "id_demanda": 22,
+    "tipo": "SERVIÇO",
+    "id_categoria": 8,
+    "descricao": "Decoração floral e ambientação completa",
+    "quantidade": 1,
+    "preco_maximo": 7279.18,
+    "observacoes": "Cores predominantes: branco, verde e dourado"
+  },
+  {
+    "id": 174,
+    "id_demanda": 22,
+    "tipo": "PRODUTO",
+    "id_categoria": 14,
+    "descricao": "Bolo de casamento 3 andares com decoração personalizada",
+    "quantidade": 3,
+    "preco_maximo": 1358.47,
+    "observacoes": "Sabores: chocolate e frutas vermelhas"
+  },
+  {
+    "id": 175,
+    "id_demanda": 22,
+    "tipo": "PRODUTO",
+    "id_categoria": 13,
+    "descricao": "Convites personalizados para 246 convidados",
+    "quantidade": 246,
+    "preco_maximo": 661.7,
+    "observacoes": "Design elegante com acabamento em relevo"
+  },
+  {
+    "id": 176,
+    "id_demanda": 22,
+    "tipo": "SERVIÇO",
+    "id_categoria": 2,
+    "descricao": "DJ profissional com equipamento de som e iluminação",
+    "quantidade": 1,
+    "preco_maximo": 3051.87,
+    "observacoes": "Playlist variada incluindo músicas românticas e animadas"
+  },
+  {
+    "id": 177,
+    "id_demanda": 23,
+    "tipo": "SERVIÇO",
+    "id_categoria": 8,
+    "descricao": "Projeto completo de decoração temática",
+    "quantidade": 1,
+    "preco_maximo": 6272.99,
+    "observacoes": "Tema: jardim encantado com elementos rústicos"
+  },
+  {
+    "id": 178,
+    "id_demanda": 23,
+    "tipo": "PRODUTO",
+    "id_categoria": 15,
+    "descricao": "Arranjos florais variados: 13 buquês e 32 centros de mesa",
+    "quantidade": 13,
+    "preco_maximo": 3714.4,
+    "observacoes": "Flores: rosas, lírios e folhagens"
+  },
+  {
+    "id": 179,
+    "id_demanda": 23,
+    "tipo": "PRODUTO",
+    "id_categoria": 16,
+    "descricao": "Locação de mobiliário: 154 cadeiras, 29 mesas e lounge",
+    "quantidade": 154,
+    "preco_maximo": 3569.93,
+    "observacoes": "Estilo rústico-chique com madeira e tecidos claros"
+  },
+  {
+    "id": 180,
+    "id_demanda": 23,
+    "tipo": "SERVIÇO",
+    "id_categoria": 2,
+    "descricao": "Iluminação cênica e decorativa",
+    "quantidade": 1,
+    "preco_maximo": 3317.36,
+    "observacoes": "Luzes de LED, velas e spots direcionados"
+  },
+  {
+    "id": 181,
+    "id_demanda": 23,
+    "tipo": "PRODUTO",
+    "id_categoria": 13,
+    "descricao": "Papelaria personalizada: 31 placas, menus e tags",
+    "quantidade": 31,
+    "preco_maximo": 622.86,
+    "observacoes": "Design coordenado com o tema da decoração"
+  },
+  {
+    "id": 182,
+    "id_demanda": 23,
+    "tipo": "SERVIÇO",
+    "id_categoria": 4,
+    "descricao": "Assessoria de cerimonial para coordenação do evento",
+    "quantidade": 1,
+    "preco_maximo": 3874.74,
+    "observacoes": "Acompanhamento desde o ensaio até o final da festa"
+  },
+  {
+    "id": 183,
+    "id_demanda": 23,
+    "tipo": "PRODUTO",
+    "id_categoria": 17,
+    "descricao": "Bebidas premium: 53 garrafas de vinho e espumante",
+    "quantidade": 53,
+    "preco_maximo": 1984.99,
+    "observacoes": "Vinhos nacionais e importados selecionados"
+  },
+  {
+    "id": 184,
+    "id_demanda": 23,
+    "tipo": "PRODUTO",
+    "id_categoria": 14,
+    "descricao": "Mesa de doces finos com 12 tipos de docinhos (100 unidades cada)",
+    "quantidade": 12,
+    "preco_maximo": 2370.64,
+    "observacoes": "Variedade de sabores e decoração refinada"
+  },
+  {
+    "id": 185,
+    "id_demanda": 24,
+    "tipo": "SERVIÇO",
+    "id_categoria": 5,
+    "descricao": "Celebrante para cerimônia personalizada",
+    "quantidade": 1,
+    "preco_maximo": 2287.81,
+    "observacoes": "Cerimônia laica com textos personalizados"
+  },
+  {
+    "id": 186,
+    "id_demanda": 24,
+    "tipo": "SERVIÇO",
+    "id_categoria": 6,
+    "descricao": "Equipe de beleza: 6 profissionais (maquiagem, penteado, manicure)",
+    "quantidade": 6,
+    "preco_maximo": 3218.97,
+    "observacoes": "Preparação da noiva, madrinhas e mães"
+  },
+  {
+    "id": 187,
+    "id_demanda": 24,
+    "tipo": "SERVIÇO",
+    "id_categoria": 7,
+    "descricao": "Transporte: 4 veículos de luxo",
+    "quantidade": 4,
+    "preco_maximo": 2231.18,
+    "observacoes": "Para noivos, padrinhos e familiares"
+  },
+  {
+    "id": 188,
+    "id_demanda": 24,
+    "tipo": "SERVIÇO",
+    "id_categoria": 1,
+    "descricao": "Filmagem profissional com edição de vídeo",
+    "quantidade": 1,
+    "preco_maximo": 6853.3,
+    "observacoes": "Entrega de vídeo editado e making of"
+  },
+  {
+    "id": 189,
+    "id_demanda": 24,
+    "tipo": "SERVIÇO",
+    "id_categoria": 9,
+    "descricao": "Equipe de segurança discreta para o evento",
+    "quantidade": 4,
+    "preco_maximo": 1694.85,
+    "observacoes": "Profissionais uniformizados e experientes"
+  },
+  {
+    "id": 190,
+    "id_demanda": 24,
+    "tipo": "PRODUTO",
+    "id_categoria": 11,
+    "descricao": "Vestido de noiva sob medida com ajustes",
+    "quantidade": 1,
+    "preco_maximo": 8835.5,
+    "observacoes": "Tecido nobre com bordados e cauda média"
+  },
+  {
+    "id": 191,
+    "id_demanda": 24,
+    "tipo": "PRODUTO",
+    "id_categoria": 12,
+    "descricao": "Par de alianças em ouro 24k com gravação personalizada",
+    "quantidade": 1,
+    "preco_maximo": 3829.61,
+    "observacoes": "Design clássico com acabamento polido"
+  },
+  {
+    "id": 192,
+    "id_demanda": 24,
+    "tipo": "ESPAÇO",
+    "id_categoria": 20,
+    "descricao": "Hospedagem para 24 convidados em hotel próximo",
+    "quantidade": 24,
+    "preco_maximo": 7180.38,
+    "observacoes": "Acomodação para convidados de fora da cidade"
+  },
+  {
+    "id": 193,
+    "id_demanda": 25,
+    "tipo": "ESPAÇO",
+    "id_categoria": 18,
+    "descricao": "Espaço para cerimônia religiosa com capacidade para 97 convidados",
+    "quantidade": 97,
+    "preco_maximo": 6915.62,
+    "observacoes": "Preferência por locais com boa iluminação natural"
+  },
+  {
+    "id": 194,
+    "id_demanda": 25,
+    "tipo": "ESPAÇO",
+    "id_categoria": 19,
+    "descricao": "Espaço para recepção com área coberta e ao ar livre",
+    "quantidade": 125,
+    "preco_maximo": 9058.64,
+    "observacoes": "Necessário estrutura para dança e buffet"
+  },
+  {
+    "id": 195,
+    "id_demanda": 25,
+    "tipo": "SERVIÇO",
+    "id_categoria": 1,
+    "descricao": "Fotografia profissional com álbum premium de 42 páginas",
+    "quantidade": 42,
+    "preco_maximo": 2818.28,
+    "observacoes": "Preferência por fotógrafo com portfólio em casamentos ao ar livre"
+  },
+  {
+    "id": 196,
+    "id_demanda": 25,
+    "tipo": "SERVIÇO",
+    "id_categoria": 3,
+    "descricao": "Buffet completo (entrada, prato principal, sobremesa) para 187 pessoas",
+    "quantidade": 187,
+    "preco_maximo": 11719.1,
+    "observacoes": "Cardápio variado com opções vegetarianas"
+  },
+  {
+    "id": 197,
+    "id_demanda": 25,
+    "tipo": "SERVIÇO",
+    "id_categoria": 8,
+    "descricao": "Decoração floral e ambientação completa",
+    "quantidade": 1,
+    "preco_maximo": 4859.5,
+    "observacoes": "Cores predominantes: branco, verde e dourado"
+  },
+  {
+    "id": 198,
+    "id_demanda": 25,
+    "tipo": "PRODUTO",
+    "id_categoria": 14,
+    "descricao": "Bolo de casamento 3 andares com decoração personalizada",
+    "quantidade": 3,
+    "preco_maximo": 1861.45,
+    "observacoes": "Sabores: chocolate e frutas vermelhas"
+  },
+  {
+    "id": 199,
+    "id_demanda": 25,
+    "tipo": "PRODUTO",
+    "id_categoria": 13,
+    "descricao": "Convites personalizados para 221 convidados",
+    "quantidade": 221,
+    "preco_maximo": 1084.13,
+    "observacoes": "Design elegante com acabamento em relevo"
+  },
+  {
+    "id": 200,
+    "id_demanda": 25,
+    "tipo": "SERVIÇO",
+    "id_categoria": 2,
+    "descricao": "DJ profissional com equipamento de som e iluminação",
+    "quantidade": 1,
+    "preco_maximo": 3292.57,
+    "observacoes": "Playlist variada incluindo músicas românticas e animadas"
+  },
+  {
+    "id": 201,
+    "id_demanda": 26,
+    "tipo": "SERVIÇO",
+    "id_categoria": 8,
+    "descricao": "Projeto completo de decoração temática",
+    "quantidade": 1,
+    "preco_maximo": 11146.86,
+    "observacoes": "Tema: jardim encantado com elementos rústicos"
+  },
+  {
+    "id": 202,
+    "id_demanda": 26,
+    "tipo": "PRODUTO",
+    "id_categoria": 15,
+    "descricao": "Arranjos florais variados: 11 buquês e 24 centros de mesa",
+    "quantidade": 11,
+    "preco_maximo": 4930.75,
+    "observacoes": "Flores: rosas, lírios e folhagens"
+  },
+  {
+    "id": 203,
+    "id_demanda": 26,
+    "tipo": "PRODUTO",
+    "id_categoria": 16,
+    "descricao": "Locação de mobiliário: 132 cadeiras, 37 mesas e lounge",
+    "quantidade": 132,
+    "preco_maximo": 4138.04,
+    "observacoes": "Estilo rústico-chique com madeira e tecidos claros"
+  },
+  {
+    "id": 204,
+    "id_demanda": 26,
+    "tipo": "SERVIÇO",
+    "id_categoria": 2,
+    "descricao": "Iluminação cênica e decorativa",
+    "quantidade": 1,
+    "preco_maximo": 2230.55,
+    "observacoes": "Luzes de LED, velas e spots direcionados"
+  },
+  {
+    "id": 205,
+    "id_demanda": 26,
+    "tipo": "PRODUTO",
+    "id_categoria": 13,
+    "descricao": "Papelaria personalizada: 44 placas, menus e tags",
+    "quantidade": 44,
+    "preco_maximo": 890.38,
+    "observacoes": "Design coordenado com o tema da decoração"
+  },
+  {
+    "id": 206,
+    "id_demanda": 26,
+    "tipo": "SERVIÇO",
+    "id_categoria": 4,
+    "descricao": "Assessoria de cerimonial para coordenação do evento",
+    "quantidade": 1,
+    "preco_maximo": 4292.06,
+    "observacoes": "Acompanhamento desde o ensaio até o final da festa"
+  },
+  {
+    "id": 207,
+    "id_demanda": 26,
+    "tipo": "PRODUTO",
+    "id_categoria": 17,
+    "descricao": "Bebidas premium: 59 garrafas de vinho e espumante",
+    "quantidade": 59,
+    "preco_maximo": 2988.02,
+    "observacoes": "Vinhos nacionais e importados selecionados"
+  },
+  {
+    "id": 208,
+    "id_demanda": 26,
+    "tipo": "PRODUTO",
+    "id_categoria": 14,
+    "descricao": "Mesa de doces finos com 12 tipos de docinhos (100 unidades cada)",
+    "quantidade": 12,
+    "preco_maximo": 1454.75,
+    "observacoes": "Variedade de sabores e decoração refinada"
+  },
+  {
+    "id": 209,
+    "id_demanda": 27,
+    "tipo": "SERVIÇO",
+    "id_categoria": 5,
+    "descricao": "Celebrante para cerimônia personalizada",
+    "quantidade": 1,
+    "preco_maximo": 2430.47,
+    "observacoes": "Cerimônia laica com textos personalizados"
+  },
+  {
+    "id": 210,
+    "id_demanda": 27,
+    "tipo": "SERVIÇO",
+    "id_categoria": 6,
+    "descricao": "Equipe de beleza: 8 profissionais (maquiagem, penteado, manicure)",
+    "quantidade": 8,
+    "preco_maximo": 3013.88,
+    "observacoes": "Preparação da noiva, madrinhas e mães"
+  },
+  {
+    "id": 211,
+    "id_demanda": 27,
+    "tipo": "SERVIÇO",
+    "id_categoria": 7,
+    "descricao": "Transporte: 5 veículos de luxo",
+    "quantidade": 5,
+    "preco_maximo": 3762.64,
+    "observacoes": "Para noivos, padrinhos e familiares"
+  },
+  {
+    "id": 212,
+    "id_demanda": 27,
+    "tipo": "SERVIÇO",
+    "id_categoria": 1,
+    "descricao": "Filmagem profissional com edição de vídeo",
+    "quantidade": 1,
+    "preco_maximo": 5907.97,
+    "observacoes": "Entrega de vídeo editado e making of"
+  },
+  {
+    "id": 213,
+    "id_demanda": 27,
+    "tipo": "SERVIÇO",
+    "id_categoria": 9,
+    "descricao": "Equipe de segurança discreta para o evento",
+    "quantidade": 5,
+    "preco_maximo": 1386.49,
+    "observacoes": "Profissionais uniformizados e experientes"
+  },
+  {
+    "id": 214,
+    "id_demanda": 27,
+    "tipo": "PRODUTO",
+    "id_categoria": 11,
+    "descricao": "Vestido de noiva sob medida com ajustes",
+    "quantidade": 1,
+    "preco_maximo": 10686.48,
+    "observacoes": "Tecido nobre com bordados e cauda média"
+  },
+  {
+    "id": 215,
+    "id_demanda": 27,
+    "tipo": "PRODUTO",
+    "id_categoria": 12,
+    "descricao": "Par de alianças em ouro 24k com gravação personalizada",
+    "quantidade": 1,
+    "preco_maximo": 4319.99,
+    "observacoes": "Design clássico com acabamento polido"
+  },
+  {
+    "id": 216,
+    "id_demanda": 27,
+    "tipo": "ESPAÇO",
+    "id_categoria": 20,
+    "descricao": "Hospedagem para 21 convidados em hotel próximo",
+    "quantidade": 21,
+    "preco_maximo": 6949.26,
+    "observacoes": "Acomodação para convidados de fora da cidade"
+  },
+  {
+    "id": 217,
+    "id_demanda": 28,
+    "tipo": "ESPAÇO",
+    "id_categoria": 18,
+    "descricao": "Espaço para cerimônia religiosa com capacidade para 121 convidados",
+    "quantidade": 121,
+    "preco_maximo": 7109.97,
+    "observacoes": "Preferência por locais com boa iluminação natural"
+  },
+  {
+    "id": 218,
+    "id_demanda": 28,
+    "tipo": "ESPAÇO",
+    "id_categoria": 19,
+    "descricao": "Espaço para recepção com área coberta e ao ar livre",
+    "quantidade": 153,
+    "preco_maximo": 9921.9,
+    "observacoes": "Necessário estrutura para dança e buffet"
+  },
+  {
+    "id": 219,
+    "id_demanda": 28,
+    "tipo": "SERVIÇO",
+    "id_categoria": 1,
+    "descricao": "Fotografia profissional com álbum premium de 61 páginas",
+    "quantidade": 61,
+    "preco_maximo": 4863.28,
+    "observacoes": "Preferência por fotógrafo com portfólio em casamentos ao ar livre"
+  },
+  {
+    "id": 220,
+    "id_demanda": 28,
+    "tipo": "SERVIÇO",
+    "id_categoria": 3,
+    "descricao": "Buffet completo (entrada, prato principal, sobremesa) para 197 pessoas",
+    "quantidade": 197,
+    "preco_maximo": 11449.44,
+    "observacoes": "Cardápio variado com opções vegetarianas"
+  },
+  {
+    "id": 221,
+    "id_demanda": 28,
+    "tipo": "SERVIÇO",
+    "id_categoria": 8,
+    "descricao": "Decoração floral e ambientação completa",
+    "quantidade": 1,
+    "preco_maximo": 7084.5,
+    "observacoes": "Cores predominantes: branco, verde e dourado"
+  },
+  {
+    "id": 222,
+    "id_demanda": 28,
+    "tipo": "PRODUTO",
+    "id_categoria": 14,
+    "descricao": "Bolo de casamento 5 andares com decoração personalizada",
+    "quantidade": 5,
+    "preco_maximo": 960.33,
+    "observacoes": "Sabores: chocolate e frutas vermelhas"
+  },
+  {
+    "id": 223,
+    "id_demanda": 28,
+    "tipo": "PRODUTO",
+    "id_categoria": 13,
+    "descricao": "Convites personalizados para 226 convidados",
+    "quantidade": 226,
+    "preco_maximo": 1434.28,
+    "observacoes": "Design elegante com acabamento em relevo"
+  },
+  {
+    "id": 224,
+    "id_demanda": 28,
+    "tipo": "SERVIÇO",
+    "id_categoria": 2,
+    "descricao": "DJ profissional com equipamento de som e iluminação",
+    "quantidade": 1,
+    "preco_maximo": 1889.94,
+    "observacoes": "Playlist variada incluindo músicas românticas e animadas"
+  },
+  {
+    "id": 225,
+    "id_demanda": 29,
+    "tipo": "SERVIÇO",
+    "id_categoria": 8,
+    "descricao": "Projeto completo de decoração temática",
+    "quantidade": 1,
+    "preco_maximo": 5628.63,
+    "observacoes": "Tema: jardim encantado com elementos rústicos"
+  },
+  {
+    "id": 226,
+    "id_demanda": 29,
+    "tipo": "PRODUTO",
+    "id_categoria": 15,
+    "descricao": "Arranjos florais variados: 9 buquês e 39 centros de mesa",
+    "quantidade": 9,
+    "preco_maximo": 4428.9,
+    "observacoes": "Flores: rosas, lírios e folhagens"
+  },
+  {
+    "id": 227,
+    "id_demanda": 29,
+    "tipo": "PRODUTO",
+    "id_categoria": 16,
+    "descricao": "Locação de mobiliário: 171 cadeiras, 35 mesas e lounge",
+    "quantidade": 171,
+    "preco_maximo": 4364.5,
+    "observacoes": "Estilo rústico-chique com madeira e tecidos claros"
+  },
+  {
+    "id": 228,
+    "id_demanda": 29,
+    "tipo": "SERVIÇO",
+    "id_categoria": 2,
+    "descricao": "Iluminação cênica e decorativa",
+    "quantidade": 1,
+    "preco_maximo": 1528.42,
+    "observacoes": "Luzes de LED, velas e spots direcionados"
+  },
+  {
+    "id": 229,
+    "id_demanda": 29,
+    "tipo": "PRODUTO",
+    "id_categoria": 13,
+    "descricao": "Papelaria personalizada: 59 placas, menus e tags",
+    "quantidade": 59,
+    "preco_maximo": 737.95,
+    "observacoes": "Design coordenado com o tema da decoração"
+  },
+  {
+    "id": 230,
+    "id_demanda": 29,
+    "tipo": "SERVIÇO",
+    "id_categoria": 4,
+    "descricao": "Assessoria de cerimonial para coordenação do evento",
+    "quantidade": 1,
+    "preco_maximo": 3831.6,
+    "observacoes": "Acompanhamento desde o ensaio até o final da festa"
+  },
+  {
+    "id": 231,
+    "id_demanda": 29,
+    "tipo": "PRODUTO",
+    "id_categoria": 17,
+    "descricao": "Bebidas premium: 43 garrafas de vinho e espumante",
+    "quantidade": 43,
+    "preco_maximo": 1775.0,
+    "observacoes": "Vinhos nacionais e importados selecionados"
+  },
+  {
+    "id": 232,
+    "id_demanda": 29,
+    "tipo": "PRODUTO",
+    "id_categoria": 14,
+    "descricao": "Mesa de doces finos com 12 tipos de docinhos (100 unidades cada)",
+    "quantidade": 12,
+    "preco_maximo": 2111.91,
+    "observacoes": "Variedade de sabores e decoração refinada"
+  },
+  {
+    "id": 233,
+    "id_demanda": 30,
+    "tipo": "SERVIÇO",
+    "id_categoria": 5,
+    "descricao": "Celebrante para cerimônia personalizada",
+    "quantidade": 1,
+    "preco_maximo": 1838.64,
+    "observacoes": "Cerimônia laica com textos personalizados"
+  },
+  {
+    "id": 234,
+    "id_demanda": 30,
+    "tipo": "SERVIÇO",
+    "id_categoria": 6,
+    "descricao": "Equipe de beleza: 7 profissionais (maquiagem, penteado, manicure)",
+    "quantidade": 7,
+    "preco_maximo": 1696.8,
+    "observacoes": "Preparação da noiva, madrinhas e mães"
+  },
+  {
+    "id": 235,
+    "id_demanda": 30,
+    "tipo": "SERVIÇO",
+    "id_categoria": 7,
+    "descricao": "Transporte: 5 veículos de luxo",
+    "quantidade": 5,
+    "preco_maximo": 3163.58,
+    "observacoes": "Para noivos, padrinhos e familiares"
+  },
+  {
+    "id": 236,
+    "id_demanda": 30,
+    "tipo": "SERVIÇO",
+    "id_categoria": 1,
+    "descricao": "Filmagem profissional com edição de vídeo",
+    "quantidade": 1,
+    "preco_maximo": 7097.25,
+    "observacoes": "Entrega de vídeo editado e making of"
+  },
+  {
+    "id": 237,
+    "id_demanda": 30,
+    "tipo": "SERVIÇO",
+    "id_categoria": 9,
+    "descricao": "Equipe de segurança discreta para o evento",
+    "quantidade": 5,
+    "preco_maximo": 2471.74,
+    "observacoes": "Profissionais uniformizados e experientes"
+  },
+  {
+    "id": 238,
+    "id_demanda": 30,
+    "tipo": "PRODUTO",
+    "id_categoria": 11,
+    "descricao": "Vestido de noiva sob medida com ajustes",
+    "quantidade": 1,
+    "preco_maximo": 11996.98,
+    "observacoes": "Tecido nobre com bordados e cauda média"
+  },
+  {
+    "id": 239,
+    "id_demanda": 30,
+    "tipo": "PRODUTO",
+    "id_categoria": 12,
+    "descricao": "Par de alianças em ouro 18k com gravação personalizada",
+    "quantidade": 1,
+    "preco_maximo": 5005.32,
+    "observacoes": "Design clássico com acabamento polido"
+  },
+  {
+    "id": 240,
+    "id_demanda": 30,
+    "tipo": "ESPAÇO",
+    "id_categoria": 20,
+    "descricao": "Hospedagem para 37 convidados em hotel próximo",
+    "quantidade": 37,
+    "preco_maximo": 7428.47,
+    "observacoes": "Acomodação para convidados de fora da cidade"
+  }
+]

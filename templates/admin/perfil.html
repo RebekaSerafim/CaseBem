@@ -1,0 +1,279 @@
+{% extends "admin/base.html" %}
+
+{% block title %}Meu Perfil{% endblock %}
+
+{% block conteudo %}
+<div class="container d-flex align-items-center justify-content-center flex-grow-1 py-4">
+    <div class="col-md-8 col-lg-6">
+        <div class="card shadow border-0 auth-card">
+            <div class="card-body p-4">
+                <div class="text-center mb-4">
+                    <h3>Meu Perfil</h3>
+                    <small class="text-muted">Gerencie suas informações administrativas</small>
+                </div>
+
+                <!-- Seção de Avatar -->
+                <div class="text-center mb-4">
+                    <div class="position-relative d-inline-block">
+                        <img id="avatar-atual" src="{{ obter_avatar_ou_padrao(usuario_logado.id) }}"
+                            class="rounded-circle border" style="width: 120px; height: 120px; object-fit: cover;"
+                            alt="Avatar do usuário">
+
+                        <!-- Overlay para upload -->
+                        <div class="position-absolute bottom-0 end-0">
+                            <button type="button" class="btn btn-primary btn-sm rounded-circle" data-bs-toggle="modal"
+                                data-bs-target="#modalAvatar">
+                                <i class="bi bi-camera-fill"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="mt-2">
+                        <small class="text-muted">Clique no ícone da câmera para alterar sua foto</small>
+                    </div>
+                </div>
+                <form method="post">
+                    <div class="mb-3">
+                        <label for="nome" class="form-label">Nome Completo *</label>
+                        <input type="text" class="form-control" id="nome" name="nome"
+                            value="{{ admin.nome if admin else '' }}" required>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="data_nascimento" class="form-label">Data de Nascimento</label>
+                            <input type="date" class="form-control" id="data_nascimento" name="data_nascimento"
+                                value="{{ admin.data_nascimento if admin and admin.data_nascimento else '' }}">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="cpf" class="form-label">CPF</label>
+                            <input type="text" class="form-control" id="cpf" name="cpf"
+                                value="{{ admin.cpf if admin and admin.cpf else '' }}" placeholder="000.000.000-00"
+                                maxlength="14">
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="telefone" class="form-label">Telefone</label>
+                            <input type="tel" class="form-control" id="telefone" name="telefone"
+                                value="{{ admin.telefone if admin else '' }}" placeholder="(00) 00000-0000"
+                                maxlength="15">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="email" class="form-label">E-mail *</label>
+                            <input type="email" class="form-control" id="email" name="email"
+                                value="{{ admin.email if admin else '' }}" required>
+                        </div>
+                    </div>
+
+                    <div class="d-flex justify-content-end gap-4 mt-2">
+                        <a href="/admin/dashboard" class="btn btn-info btn-lg">
+                            <i class="bi bi-x-circle-fill"></i> Cancelar
+                        </a>
+                        <button type="submit" class="btn btn-primary btn-lg">
+                            <i class="bi bi-check-circle-fill"></i> Salvar Alterações
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal para upload de avatar -->
+<div class="modal fade" id="modalAvatar" tabindex="-1" aria-labelledby="modalAvatarLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalAvatarLabel">Alterar Foto de Perfil</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <!-- Preview da nova foto -->
+                <div class="text-center mb-3">
+                    <img id="preview-avatar" src="{{ obter_avatar_ou_padrao(usuario_logado.id) }}"
+                        class="rounded-circle border" style="width: 150px; height: 150px; object-fit: cover;"
+                        alt="Preview do avatar">
+                </div>
+
+                <!-- Upload de nova foto -->
+                <form id="formAvatar" method="post" action="/perfil/alterar-foto" enctype="multipart/form-data">
+                    <div class="mb-3">
+                        <label for="foto" class="form-label">Selecionar Nova Foto</label>
+                        <input type="file" class="form-control" id="foto" name="foto"
+                            accept="image/jpeg,image/png,image/jpg,image/webp" required>
+                        <div class="form-text">
+                            Formatos aceitos: JPG, PNG, WEBP. Máximo 5MB. A imagem será redimensionada automaticamente.
+                        </div>
+                    </div>
+                </form>
+
+                <!-- Remover foto atual -->
+                {% if avatar_existe(usuario_logado.id) %}
+                <div class="text-center mt-3">
+                    <form method="post" action="/perfil/remover-foto" style="display: inline;">
+                        <button type="submit" class="btn btn-outline-danger btn-sm"
+                            onclick="return confirm('Deseja realmente remover sua foto de perfil?')">
+                            <i class="bi bi-trash"></i> Remover Foto Atual
+                        </button>
+                    </form>
+                </div>
+                {% endif %}
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="submit" form="formAvatar" class="btn btn-primary">Salvar Foto</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // Máscara para CPF
+    document.getElementById('cpf').addEventListener('input', function (e) {
+        let value = e.target.value.replace(/\D/g, '');
+        value = value.replace(/(\d{3})(\d)/, '$1.$2');
+        value = value.replace(/(\d{3})(\d)/, '$1.$2');
+        value = value.replace(/(\d{3})(\d{1,2})$/, '$1-$2');
+        e.target.value = value;
+    });
+
+    // Máscara para telefone
+    document.getElementById('telefone').addEventListener('input', function (e) {
+        let value = e.target.value.replace(/\D/g, '');
+
+        // Limita a 11 dígitos (celular com 9 dígitos + DDD)
+        if (value.length > 11) {
+            value = value.substring(0, 11);
+        }
+
+        if (value.length <= 10) {
+            // Telefone fixo: (XX) XXXX-XXXX
+            value = value.replace(/(\d{2})(\d)/, '($1) $2');
+            value = value.replace(/(\d{4})(\d)/, '$1-$2');
+        } else {
+            // Celular: (XX) XXXXX-XXXX
+            value = value.replace(/(\d{2})(\d)/, '($1) $2');
+            value = value.replace(/(\d{5})(\d)/, '$1-$2');
+        }
+        e.target.value = value;
+    });
+
+    // Validação do formulário
+    document.querySelector('form').addEventListener('submit', function (e) {
+        const nome = document.getElementById('nome').value.trim();
+        const email = document.getElementById('email').value.trim();
+
+        if (!nome) {
+            e.preventDefault();
+            alert('Nome é obrigatório!');
+            document.getElementById('nome').focus();
+            return;
+        }
+
+        if (!email) {
+            e.preventDefault();
+            alert('E-mail é obrigatório!');
+            document.getElementById('email').focus();
+            return;
+        }
+
+        // Validação de e-mail simples
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(email)) {
+            e.preventDefault();
+            alert('Por favor, insira um email válido!');
+            document.getElementById('email').focus();
+            return;
+        }
+    });
+
+    // Preview de avatar
+    document.getElementById('foto').addEventListener('change', function (e) {
+        const file = e.target.files[0];
+        if (file) {
+            // Validar tipo de arquivo
+            const tiposPermitidos = ['image/jpeg', 'image/png', 'image/jpg', 'image/webp'];
+            if (!tiposPermitidos.includes(file.type)) {
+                alert('Tipo de arquivo não permitido. Use JPG, PNG ou WEBP.');
+                e.target.value = '';
+                return;
+            }
+
+            // Validar tamanho (5MB)
+            if (file.size > 5 * 1024 * 1024) {
+                alert('Arquivo muito grande. Máximo 5MB.');
+                e.target.value = '';
+                return;
+            }
+
+            // Mostrar preview
+            const reader = new FileReader();
+            reader.onload = function (event) {
+                document.getElementById('preview-avatar').src = event.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
+    });
+
+    // Resetar preview quando modal for fechado
+    document.getElementById('modalAvatar').addEventListener('hidden.bs.modal', function () {
+        document.getElementById('foto').value = '';
+        document.getElementById('preview-avatar').src = document.getElementById('avatar-atual').src;
+    });
+
+    // Tratar mensagens de sucesso/erro via URL params
+    document.addEventListener('DOMContentLoaded', function () {
+        const urlParams = new URLSearchParams(window.location.search);
+
+        if (urlParams.get('foto_sucesso')) {
+            // Recarregar avatar após sucesso
+            const timestamp = new Date().getTime();
+            const avatarAtual = document.getElementById('avatar-atual');
+            const src = avatarAtual.src.split('?')[0]; // Remove timestamp anterior
+            avatarAtual.src = src + '?' + timestamp;
+
+            // Mostrar mensagem
+            alert('Foto de perfil alterada com sucesso!');
+
+            // Limpar URL
+            window.history.replaceState({}, document.title, window.location.pathname);
+        }
+
+        if (urlParams.get('foto_removida')) {
+            // Recarregar avatar após remoção
+            const timestamp = new Date().getTime();
+            document.getElementById('avatar-atual').src = '/static/img/user-default.svg?' + timestamp;
+
+            alert('Foto de perfil removida com sucesso!');
+            window.history.replaceState({}, document.title, window.location.pathname);
+        }
+
+        const erro = urlParams.get('erro');
+        if (erro) {
+            let mensagem = 'Erro desconhecido';
+            switch (erro) {
+                case 'tipo_invalido':
+                    mensagem = 'Tipo de arquivo inválido. Use JPG, PNG ou WEBP.';
+                    break;
+                case 'arquivo_muito_grande':
+                    mensagem = 'Arquivo muito grande. Máximo 5MB.';
+                    break;
+                case 'processamento_falhou':
+                    mensagem = 'Erro ao processar a imagem. Tente novamente.';
+                    break;
+                case 'upload_falhou':
+                    mensagem = 'Erro ao fazer upload. Tente novamente.';
+                    break;
+                case 'remocao_falhou':
+                    mensagem = 'Erro ao remover foto. Tente novamente.';
+                    break;
+            }
+            alert(mensagem);
+            window.history.replaceState({}, document.title, window.location.pathname);
+        }
+    });
+</script>
+{% endblock %}

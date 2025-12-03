@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="/static/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/static/css/styles.css">
+    <link rel="icon" type="image/svg+xml" href="/static/img/logos/logo_icon_bk.svg">
+    <title>CaseBem :: {% block title %}Fornecedor{% endblock %}</title>
+</head>
+
+<body class="d-flex flex-column min-vh-100">
+    <header>
+        <nav class="navbar navbar-expand-lg navbar-light bg-primary py-2">
+            <div class="container-fluid">
+                <a class="navbar-brand mx-4 text-white d-flex align-items-center" href="/">
+                    <img src="/static/img/logos/logo_icon_white.svg" alt="Case Bem" height="35" class="me-3">
+                    <img src="/static/img/logos/logo_text_white.svg" alt="Case Bem" height="22">
+                </a>
+                <a href="/fornecedor/dashboard" class="navbar-brand ms-3 me-4">
+                    <span class="text-info">Fornecedor</span>
+                </a>
+                <div class="navbar-divider"></div>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+                    aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarNav">
+                    <ul class="navbar-nav ms-3 me-auto">
+                        <li class="nav-item">
+                            <a class="nav-link text-white {% if get_active_page_from_url(request) == 'dashboard' %}active{% endif %}"
+                               {% if get_active_page_from_url(request) == 'dashboard' %}aria-current="page"{% endif %} href="/fornecedor/dashboard">Início</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-white {% if get_active_page_from_url(request) == 'itens' %}active{% endif %}"
+                               {% if get_active_page_from_url(request) == 'itens' %}aria-current="page"{% endif %} href="/fornecedor/itens">Meus Itens</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-white {% if get_active_page_from_url(request) == 'demandas' %}active{% endif %}"
+                               {% if get_active_page_from_url(request) == 'demandas' %}aria-current="page"{% endif %} href="/fornecedor/demandas">Demandas</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-white {% if get_active_page_from_url(request) == 'orcamentos' %}active{% endif %}"
+                               {% if get_active_page_from_url(request) == 'orcamentos' %}aria-current="page"{% endif %} href="/fornecedor/orcamentos">Orçamentos</a>
+                        </li>
+                    </ul>
+                    <ul class="navbar-nav">
+                        {% if usuario_logado %}
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle text-white d-flex align-items-center" href="#" id="navbarDropdown" role="button"
+                                data-bs-toggle="dropdown">
+                                <img src="{{ obter_avatar_ou_padrao(usuario_logado.id) }}"
+                                     class="rounded-circle me-2"
+                                     style="width: 32px; height: 32px; object-fit: cover; border: 2px solid rgba(255,255,255,0.3);"
+                                     alt="Avatar">
+                                {{ usuario_logado.nome }}
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-end">
+                                <li><a class="dropdown-item" href="/fornecedor/perfil">Alterar Dados de Perfil</a></li>
+                                <li><a class="dropdown-item" href="/alterar-senha">Alterar Senha</a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item" href="/logout">Sair</a></li>
+                            </ul>
+                        </li>
+                        <li class="nav-item me-3">
+                            <!-- Empty item for consistent spacing -->
+                        </li>
+                        {% endif %}
+                    </ul>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <main class="flex-grow-1">
+        <div class="container py-4">
+            {% block conteudo %}
+            {% endblock %}
+        </div>
+    </main>
+
+    <footer class="bg-primary text-white text-center py-3 mt-auto">
+        <div class="container">
+            <p class="mb-0">&copy; 2025 Case Bem - Área do Fornecedor. Todos os direitos reservados.</p>
+        </div>
+    </footer>
+
+    <script src="/static/js/bootstrap.bundle.min.js"></script>
+    <script src="/static/js/toast-manager.js"></script>
+    {% include 'components/toast-handler.html' %}
+    {% include 'components/modal-confirmacao.html' %}
+
+    <script>
+    // Funções globais para formatação de documentos e telefone
+    function formatarTelefone(telefone) {
+        if (!telefone || telefone === '-' || telefone === 'Não informado') return telefone;
+        let digits = telefone.replace(/\D/g, '');
+        if (digits.length < 10) return telefone;
+        if (digits.length === 10) {
+            return digits.replace(/(\d{2})(\d{4})(\d{4})/, '($1) $2-$3');
+        } else if (digits.length === 11) {
+            return digits.replace(/(\d{2})(\d{5})(\d{4})/, '($1) $2-$3');
+        }
+        if (digits.length > 11) {
+            digits = digits.substring(0, 11);
+            return digits.replace(/(\d{2})(\d{5})(\d{4})/, '($1) $2-$3');
+        }
+        return telefone;
+    }
+
+    function formatarCPF(cpf) {
+        if (!cpf || cpf === '-' || cpf === 'Não informado') return cpf;
+        let digits = cpf.replace(/\D/g, '');
+        if (digits.length !== 11) return cpf;
+        return digits.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, '$1.$2.$3-$4');
+    }
+
+    function formatarCNPJ(cnpj) {
+        if (!cnpj || cnpj === '-' || cnpj === 'Não informado') return cnpj;
+        let digits = cnpj.replace(/\D/g, '');
+        if (digits.length !== 14) return cnpj;
+        return digits.replace(/(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})/, '$1.$2.$3/$4-$5');
+    }
+
+    // Aplica formatações automáticas quando a página carrega
+    document.addEventListener('DOMContentLoaded', function() {
+        document.querySelectorAll('.phone-format').forEach(function(cell) {
+            cell.textContent = formatarTelefone(cell.textContent.trim());
+        });
+        document.querySelectorAll('.cpf-format').forEach(function(cell) {
+            cell.textContent = formatarCPF(cell.textContent.trim());
+        });
+        document.querySelectorAll('.cnpj-format').forEach(function(cell) {
+            cell.textContent = formatarCNPJ(cell.textContent.trim());
+        });
+    });
+    </script>
+
+    {% block scripts %}
+    {% endblock %}
+</body>
+
+</html>

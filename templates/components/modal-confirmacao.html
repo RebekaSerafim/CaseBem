@@ -1,0 +1,145 @@
+<!-- Modal de Confirmação Reutilizável -->
+<div class="modal fade" id="modalConfirmacao" tabindex="-1" aria-labelledby="modalConfirmacaoLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalConfirmacaoLabel">Confirmar Ação</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+            </div>
+            <div class="modal-body">
+                <div class="d-flex align-items-center mb-3">
+                    <i id="modalConfirmacaoIcon" class="bi bi-question-circle-fill fs-1 me-3 text-primary"></i>
+                    <div>
+                        <p id="modalConfirmacaoTexto" class="mb-1">Tem certeza que deseja realizar esta ação?</p>
+                        <small id="modalConfirmacaoSubtexto" class="text-muted"></small>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" id="modalConfirmacaoBotao" class="btn btn-primary">Confirmar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Função global para mostrar modal de confirmação
+function mostrarModalConfirmacao(opcoes) {
+    const {
+        titulo = 'Confirmar Ação',
+        texto = 'Tem certeza que deseja realizar esta ação?',
+        subtexto = '',
+        tipo = 'primary', // primary, success, warning, danger, info
+        textoBotao = 'Confirmar',
+        onConfirmar = () => {}
+    } = opcoes;
+
+    // Configurar conteúdo do modal
+    document.getElementById('modalConfirmacaoLabel').textContent = titulo;
+    document.getElementById('modalConfirmacaoTexto').textContent = texto;
+    document.getElementById('modalConfirmacaoSubtexto').textContent = subtexto;
+
+    // Configurar ícone baseado no tipo
+    const icone = document.getElementById('modalConfirmacaoIcon');
+    const botao = document.getElementById('modalConfirmacaoBotao');
+
+    // Remover classes anteriores
+    icone.className = 'bi fs-1 me-3';
+    botao.className = 'btn';
+
+    // Aplicar classes baseadas no tipo
+    switch(tipo) {
+        case 'danger':
+            icone.classList.add('bi-exclamation-triangle-fill', 'text-danger');
+            botao.classList.add('btn-danger');
+            break;
+        case 'warning':
+            icone.classList.add('bi-exclamation-triangle-fill', 'text-warning');
+            botao.classList.add('btn-warning');
+            break;
+        case 'success':
+            icone.classList.add('bi-check-circle-fill', 'text-success');
+            botao.classList.add('btn-success');
+            break;
+        case 'info':
+            icone.classList.add('bi-info-circle-fill', 'text-info');
+            botao.classList.add('btn-info');
+            break;
+        default: // primary
+            icone.classList.add('bi-question-circle-fill', 'text-primary');
+            botao.classList.add('btn-primary');
+    }
+
+    botao.textContent = textoBotao;
+
+    // Remover event listeners anteriores e adicionar novo
+    const novoBotao = botao.cloneNode(true);
+    botao.parentNode.replaceChild(novoBotao, botao);
+
+    novoBotao.addEventListener('click', function() {
+        const modal = bootstrap.Modal.getInstance(document.getElementById('modalConfirmacao'));
+        modal.hide();
+        onConfirmar();
+    });
+
+    // Mostrar modal
+    new bootstrap.Modal(document.getElementById('modalConfirmacao')).show();
+}
+
+// Funções de conveniência para tipos específicos
+function confirmarExclusao(item, onConfirmar) {
+    mostrarModalConfirmacao({
+        titulo: 'Confirmar Exclusão',
+        texto: `Tem certeza que deseja excluir ${item}?`,
+        subtexto: 'Esta ação não pode ser desfeita.',
+        tipo: 'danger',
+        textoBotao: 'Excluir',
+        onConfirmar: onConfirmar
+    });
+}
+
+function confirmarDesativacao(item, onConfirmar) {
+    mostrarModalConfirmacao({
+        titulo: 'Confirmar Desativação',
+        texto: `Tem certeza que deseja desativar ${item}?`,
+        subtexto: 'O item ficará indisponível mas pode ser reativado posteriormente.',
+        tipo: 'warning',
+        textoBotao: 'Desativar',
+        onConfirmar: onConfirmar
+    });
+}
+
+function confirmarAtivacao(item, onConfirmar) {
+    mostrarModalConfirmacao({
+        titulo: 'Confirmar Ativação',
+        texto: `Tem certeza que deseja ativar ${item}?`,
+        subtexto: 'O item ficará disponível novamente.',
+        tipo: 'success',
+        textoBotao: 'Ativar',
+        onConfirmar: onConfirmar
+    });
+}
+
+function confirmarAprovacao(item, onConfirmar) {
+    mostrarModalConfirmacao({
+        titulo: 'Confirmar Aprovação',
+        texto: `Tem certeza que deseja aprovar ${item}?`,
+        subtexto: 'Após a aprovação, as permissões serão aplicadas.',
+        tipo: 'success',
+        textoBotao: 'Aprovar',
+        onConfirmar: onConfirmar
+    });
+}
+
+function confirmarRejeicao(item, onConfirmar) {
+    mostrarModalConfirmacao({
+        titulo: 'Confirmar Rejeição',
+        texto: `Tem certeza que deseja rejeitar ${item}?`,
+        subtexto: 'O item voltará ao status anterior.',
+        tipo: 'danger',
+        textoBotao: 'Rejeitar',
+        onConfirmar: onConfirmar
+    });
+}
+</script>

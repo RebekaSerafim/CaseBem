@@ -1,0 +1,236 @@
+{% extends "admin/base.html" %}
+
+{% block title %}Categorias{% endblock %}
+
+{% block conteudo %}
+<div class="row">
+    <div class="col-12">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1>Gerenciar Categorias</h1>
+            <a href="/admin/categoria/nova" class="btn btn-primary">
+                <i class="bi bi-plus-circle"></i> Nova Categoria
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- Filtros -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-body">
+                <form method="get" class="row g-3">
+                    <div class="col-md-5">
+                        <label for="search" class="form-label">Buscar</label>
+                        <input type="text" class="form-control" id="search" name="search"
+                               value="{{ request.query_params.get('search', '') }}" placeholder="Nome ou descrição">
+                    </div>
+                    <div class="col-md-2">
+                        <label for="tipo_fornecimento" class="form-label">Tipo</label>
+                        <select class="form-select" id="tipo_fornecimento" name="tipo_fornecimento">
+                            <option value="">Todos</option>
+                            <option value="PRODUTO" {% if request.query_params.get('tipo_fornecimento') == 'PRODUTO' %}selected{% endif %}>Produto</option>
+                            <option value="SERVIÇO" {% if request.query_params.get('tipo_fornecimento') == 'SERVIÇO' %}selected{% endif %}>Serviço</option>
+                            <option value="ESPAÇO" {% if request.query_params.get('tipo_fornecimento') == 'ESPAÇO' %}selected{% endif %}>Espaço</option>
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <label for="status" class="form-label">Status</label>
+                        <select class="form-select" id="status" name="status">
+                            <option value="">Todos</option>
+                            <option value="ativo" {% if request.query_params.get('status') == 'ativo' %}selected{% endif %}>Ativo</option>
+                            <option value="inativo" {% if request.query_params.get('status') == 'inativo' %}selected{% endif %}>Inativo</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3 d-flex align-items-end gap-2">
+                        <button type="submit" class="btn btn-primary flex-fill">Filtrar</button>
+                        <a href="/admin/categorias" class="btn btn-info flex-fill">Limpar</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% if categorias %}
+<div class="card">
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-hover mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th>ID</th>
+                        <th>Nome</th>
+                        <th class="text-center">Tipo</th>
+                        <th>Descrição</th>
+                        <th class="text-center">Status</th>
+                        <th class="text-center">Ações</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for categoria in categorias %}
+                    <tr>
+                        <td>{{ categoria.id }}</td>
+                        <td>
+                            <div class="d-flex align-items-center">
+                                <i class="bi bi-tags me-2" style="font-size: 1.2rem; color: #6c757d;"></i>
+                                <strong>{{ categoria.nome }}</strong>
+                            </div>
+                        </td>
+                        <td class="text-center">
+                            <span class="badge bg-{% if categoria.tipo_fornecimento.value == 'PRODUTO' %}primary{% elif categoria.tipo_fornecimento.value == 'SERVIÇO' %}success{% elif categoria.tipo_fornecimento.value == 'ESPAÇO' %}info{% else %}secondary{% endif %}">
+                                {{ categoria.tipo_fornecimento.value.capitalize() }}
+                            </span>
+                        </td>
+                        <td>
+                            <span class="text-muted">{{ categoria.descricao or 'Sem descrição' }}</span>
+                        </td>
+                        <td class="text-center">
+                            <span class="badge {{ 'bg-success' if categoria.ativo else 'bg-secondary' }}">
+                                {{ "Ativo" if categoria.ativo else "Inativo" }}
+                            </span>
+                        </td>
+                        <td class="text-center">
+                            <div class="btn-group" role="group">
+                                <a href="/admin/categoria/editar/{{ categoria.id }}"
+                                   class="btn btn-primary btn-sm btn-action"
+                                   data-bs-toggle="tooltip"
+                                   data-bs-placement="top"
+                                   title="Editar categoria">
+                                    <i class="bi bi-pencil-fill"></i>
+                                </a>
+
+                                {% if categoria.ativo %}
+                                <a href="/admin/categoria/{{ categoria.id }}/desativar"
+                                   class="btn btn-warning btn-sm btn-action"
+                                   data-bs-toggle="tooltip"
+                                   data-bs-placement="top"
+                                   title="Desativar categoria">
+                                    <i class="bi bi-eye-slash-fill"></i>
+                                </a>
+                                {% else %}
+                                <a href="/admin/categoria/{{ categoria.id }}/ativar"
+                                   class="btn btn-success btn-sm btn-action"
+                                   data-bs-toggle="tooltip"
+                                   data-bs-placement="top"
+                                   title="Ativar categoria">
+                                    <i class="bi bi-eye-fill"></i>
+                                </a>
+                                {% endif %}
+
+                                <button type="button"
+                                        class="btn btn-danger btn-sm btn-action"
+                                        data-bs-toggle="tooltip"
+                                        data-bs-placement="top"
+                                        title="Excluir categoria"
+                                        onclick="confirmarExclusao('a categoria &quot;{{ categoria.nome }}&quot;', function() {
+                                            document.getElementById('formExcluir{{ categoria.id }}').submit();
+                                        })">
+                                    <i class="bi bi-trash-fill"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Paginação -->
+{% if total_paginas > 1 %}
+<div class="row mt-4">
+    <div class="col-12">
+        <nav aria-label="Paginação das categorias">
+            <ul class="pagination justify-content-center">
+                <!-- Página anterior -->
+                {% if pagina_atual > 1 %}
+                <li class="page-item">
+                    <a class="page-link" href="?{% if busca %}search={{ busca }}&{% endif %}{% if tipo_fornecimento %}tipo_fornecimento={{ tipo_fornecimento }}&{% endif %}{% if status_filtro %}status={{ status_filtro }}&{% endif %}pagina={{ pagina_atual - 1 }}">
+                        <i class="bi bi-chevron-left"></i> Anterior
+                    </a>
+                </li>
+                {% endif %}
+
+                <!-- Páginas numeradas -->
+                {% set inicio_pagina = [1, pagina_atual - 2]|max %}
+                {% set fim_pagina = [total_paginas + 1, pagina_atual + 3]|min %}
+                {% for num_pagina in range(inicio_pagina, fim_pagina) %}
+                <li class="page-item {{ 'active' if num_pagina == pagina_atual else '' }}">
+                    <a class="page-link" href="?{% if busca %}search={{ busca }}&{% endif %}{% if tipo_fornecimento %}tipo_fornecimento={{ tipo_fornecimento }}&{% endif %}{% if status_filtro %}status={{ status_filtro }}&{% endif %}pagina={{ num_pagina }}">
+                        {{ num_pagina }}
+                    </a>
+                </li>
+                {% endfor %}
+
+                <!-- Próxima página -->
+                {% if pagina_atual < total_paginas %}
+                <li class="page-item">
+                    <a class="page-link" href="?{% if busca %}search={{ busca }}&{% endif %}{% if tipo_fornecimento %}tipo_fornecimento={{ tipo_fornecimento }}&{% endif %}{% if status_filtro %}status={{ status_filtro }}&{% endif %}pagina={{ pagina_atual + 1 }}">
+                        Próxima <i class="bi bi-chevron-right"></i>
+                    </a>
+                </li>
+                {% endif %}
+            </ul>
+        </nav>
+
+        <!-- Info da paginação -->
+        <div class="text-center text-muted">
+            Página {{ pagina_atual }} de {{ total_paginas }}
+            ({{ (pagina_atual - 1) * 10 + 1 }} a {{ [pagina_atual * 10, total_categorias]|min }} de {{ total_categorias }} categorias)
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<!-- Formulários ocultos para exclusão -->
+{% for categoria in categorias %}
+<form id="formExcluir{{ categoria.id }}" method="post" action="/admin/categoria/excluir/{{ categoria.id }}" style="display: none;"></form>
+{% endfor %}
+
+{% else %}
+<div class="row">
+    <div class="col-12">
+        <div class="card shadow">
+            <div class="card-body text-center py-5">
+                <i class="bi bi-tags" style="font-size: 4rem; color: #6c757d;" class="mb-4"></i>
+                <h4>Nenhuma categoria encontrada</h4>
+                <p class="text-muted">
+                    {% if busca or tipo_fornecimento or status_filtro %}
+                    Não encontramos categorias que correspondam aos filtros aplicados.
+                    Tente ajustar sua busca ou limpar os filtros.
+                    {% else %}
+                    Comece criando a primeira categoria do sistema.
+                    {% endif %}
+                </p>
+                {% if busca or tipo_fornecimento or status_filtro %}
+                <a href="/admin/categorias" class="btn btn-primary">
+                    <i class="bi bi-x"></i> Limpar Filtros
+                </a>
+                {% else %}
+                <a href="/admin/categoria/nova" class="btn btn-primary">
+                    <i class="bi bi-plus-circle"></i> Cadastrar Primeira Categoria
+                </a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+// Inicializar tooltips
+document.addEventListener('DOMContentLoaded', function () {
+    var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+    var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+        return new bootstrap.Tooltip(tooltipTriggerEl);
+    });
+});
+
+</script>
+{% endblock %}

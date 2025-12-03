@@ -1,28 +1,215 @@
 {% extends "publico/base.html" %}
+
+{% block title %}Sobre o Projeto{% endblock %}
+
 {% block conteudo %}
-<!-- Seção Sobre -->
-<section class="about-section py-5">
-    <div class="container">
-        <div class="row align-items-center">
-            <!-- Texto -->
-            <div class="col-md-6 mb-4 mb-md-0">
-                <h2 class="section-title">Sobre Nós</h2>
-                <p class="lead">
-                    Somos uma marca dedicada a trazer elegância e sofisticação para momentos únicos. 
-            Nossa coleção é pensada para unir tradição, modernidade e cuidado em cada detalhe.
-                </p>
-                <p>
-                    Do primeiro esboço ao acabamento final, cada peça é feita para celebrar histórias especiais. 
-            Valorizamos a exclusividade, o conforto e a qualidade, oferecendo uma experiência completa 
-            para quem busca mais que um produto: busca memórias inesquecíveis.
-                </p>
-                <button class="btn btn-dark mt-3">Saiba Mais</button>
-            </div>
-            <!-- Imagem -->
-            <div class="col-md-6 text-center">
-                <img src="img/about.jpg" alt="Sobre nós" class="img-fluid rounded shadow">
+<div class="container py-5">
+    <div class="row">
+        <div class="col-12">
+            <!-- Header da página -->
+            <div class="text-center mb-5">
+                <h1 class="display-4 mb-3">Sobre o CaseBem</h1>
+                <p class="lead text-muted">Projeto Acadêmico - Instituto Federal do Espírito Santo</p>
             </div>
         </div>
     </div>
-</section>
-{% endblock conteudo %}
+
+    <div class="row">
+        <!-- Informações do projeto -->
+        <div class="col-lg-8 mx-auto">
+            <div class="card shadow-sm mb-5">
+                <div class="card-body p-5">
+                    <div class="text-center mb-4">
+                        <i class="fas fa-graduation-cap fa-3x text-primary mb-3"></i>
+                        <h3>Projeto Acadêmico</h3>
+                    </div>
+
+                    <p class="text-muted text-center mb-4">
+                        O <strong>CaseBem</strong> é uma plataforma desenvolvida como projeto acadêmico na disciplina
+                        <strong>Projeto Integrador de Desenvolvimento</strong>, do Instituto Federal do Espírito Santo.
+                    </p>
+
+                    <div class="row text-center">
+                        <div class="col-md-6 mb-3">
+                            <h5><i class="fas fa-chalkboard-teacher text-primary"></i> Professor</h5>
+                            <p class="mb-0"><strong>Prof. Ricardo Maroquio</strong></p>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <h5><i class="fas fa-calendar text-primary"></i> Período</h5>
+                            <p class="mb-0">2025</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Equipe de desenvolvimento -->
+            <div class="card shadow-sm mb-5">
+                <div class="card-body p-5">
+                    <div class="text-center mb-4">
+                        <i class="fas fa-users fa-3x text-success mb-3"></i>
+                        <h3>Equipe de Desenvolvimento</h3>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-4 mb-4">
+                            <div class="text-center">
+                                <div class="bg-light rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 80px; height: 80px;">
+                                    <i class="fas fa-user fa-2x text-primary"></i>
+                                </div>
+                                <h5>Laura Campos Pereira</h5>
+                                <p class="text-muted">Desenvolvedora</p>
+                            </div>
+                        </div>
+                        <div class="col-md-4 mb-4">
+                            <div class="text-center">
+                                <div class="bg-light rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 80px; height: 80px;">
+                                    <i class="fas fa-user fa-2x text-primary"></i>
+                                </div>
+                                <h5>Otavia Monteiro Alves Rabelo Jordão</h5>
+                                <p class="text-muted">Desenvolvedora</p>
+                            </div>
+                        </div>
+                        <div class="col-md-4 mb-4">
+                            <div class="text-center">
+                                <div class="bg-light rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 80px; height: 80px;">
+                                    <i class="fas fa-user fa-2x text-primary"></i>
+                                </div>
+                                <h5>Rebeka Vitória Serafim Lopes</h5>
+                                <p class="text-muted">Desenvolvedora</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sobre a plataforma -->
+            <div class="card shadow-sm mb-5">
+                <div class="card-body p-5">
+                    <div class="text-center mb-4">
+                        <i class="fas fa-heart fa-3x text-danger mb-3"></i>
+                        <h3>Sobre a Plataforma</h3>
+                    </div>
+
+                    <p class="text-muted mb-4">
+                        O CaseBem é uma plataforma digital desenvolvida para conectar casais que estão planejando
+                        seu casamento com fornecedores especializados em produtos e serviços para eventos nupciais.
+                    </p>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <div class="d-flex align-items-start">
+                                <i class="fas fa-check-circle text-success me-3 mt-1"></i>
+                                <div>
+                                    <h6>Para Noivos</h6>
+                                    <p class="text-muted mb-0">Encontre fornecedores, solicite orçamentos e organize seu casamento em um só lugar.</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <div class="d-flex align-items-start">
+                                <i class="fas fa-check-circle text-success me-3 mt-1"></i>
+                                <div>
+                                    <h6>Para Fornecedores</h6>
+                                    <p class="text-muted mb-0">Cadastre seus produtos e serviços, receba solicitações e amplie seus negócios.</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <div class="d-flex align-items-start">
+                                <i class="fas fa-check-circle text-success me-3 mt-1"></i>
+                                <div>
+                                    <h6>Gestão Completa</h6>
+                                    <p class="text-muted mb-0">Sistema de orçamentos, favoritos e acompanhamento de demandas.</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <div class="d-flex align-items-start">
+                                <i class="fas fa-check-circle text-success me-3 mt-1"></i>
+                                <div>
+                                    <h6>Interface Intuitiva</h6>
+                                    <p class="text-muted mb-0">Design responsivo e experiência otimizada para todos os dispositivos.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tecnologias utilizadas -->
+            <div class="card shadow-sm">
+                <div class="card-body p-5">
+                    <div class="text-center mb-4">
+                        <i class="fas fa-code fa-3x text-info mb-3"></i>
+                        <h3>Tecnologias Utilizadas</h3>
+                    </div>
+
+                    <div class="row text-center">
+                        <div class="col-md-3 col-6 mb-3">
+                            <div class="p-3">
+                                <i class="fab fa-python fa-2x text-warning mb-2"></i>
+                                <h6>Python</h6>
+                                <small class="text-muted">Backend</small>
+                            </div>
+                        </div>
+                        <div class="col-md-3 col-6 mb-3">
+                            <div class="p-3">
+                                <i class="fas fa-bolt fa-2x text-success mb-2"></i>
+                                <h6>FastAPI</h6>
+                                <small class="text-muted">Framework Web</small>
+                            </div>
+                        </div>
+                        <div class="col-md-3 col-6 mb-3">
+                            <div class="p-3">
+                                <i class="fab fa-html5 fa-2x text-danger mb-2"></i>
+                                <h6>HTML5/CSS3</h6>
+                                <small class="text-muted">Frontend</small>
+                            </div>
+                        </div>
+                        <div class="col-md-3 col-6 mb-3">
+                            <div class="p-3">
+                                <i class="fab fa-bootstrap fa-2x text-primary mb-2"></i>
+                                <h6>Bootstrap</h6>
+                                <small class="text-muted">UI Framework</small>
+                            </div>
+                        </div>
+                        <div class="col-md-3 col-6 mb-3">
+                            <div class="p-3">
+                                <i class="fas fa-database fa-2x text-secondary mb-2"></i>
+                                <h6>SQLite</h6>
+                                <small class="text-muted">Banco de Dados</small>
+                            </div>
+                        </div>
+                        <div class="col-md-3 col-6 mb-3">
+                            <div class="p-3">
+                                <i class="fab fa-js-square fa-2x text-warning mb-2"></i>
+                                <h6>JavaScript</h6>
+                                <small class="text-muted">Interatividade</small>
+                            </div>
+                        </div>
+                        <div class="col-md-3 col-6 mb-3">
+                            <div class="p-3">
+                                <i class="fas fa-leaf fa-2x text-success mb-2"></i>
+                                <h6>Jinja2</h6>
+                                <small class="text-muted">Templates</small>
+                            </div>
+                        </div>
+                        <div class="col-md-3 col-6 mb-3">
+                            <div class="p-3">
+                                <i class="fas fa-mobile-alt fa-2x text-info mb-2"></i>
+                                <h6>Responsive</h6>
+                                <small class="text-muted">Design</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<!-- FontAwesome para ícones -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+{% endblock %}

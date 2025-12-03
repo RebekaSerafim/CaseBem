@@ -1,276 +1,235 @@
-from datetime import datetime
+"""
+Configurações e fixtures básicas para testes.
+Factories específicas estão em tests/factories.py
+"""
+
 import pytest
 import os
 import sys
 import tempfile
-
-from model.usuario_model import Usuario
+from typing import Dict, Any
 
 # Adiciona o diretório raiz do projeto ao PYTHONPATH
-# Isso permite importar módulos do projeto nos testes
 project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, project_root)
 
-# Fixture para criar um banco de dados temporário para testes
-@pytest.fixture
+from tests.factories import (
+    UsuarioFactory, FornecedorFactory, CategoriaFactory,
+    ItemFactory, CasalFactory, DemandaFactory, OrcamentoFactory,
+    ItemDemandaFactory, ItemOrcamentoFactory, TestDataBuilder
+)
+
+
+@pytest.fixture(scope="function")
 def test_db():
-    # Cria um arquivo temporário para o banco de dados
-    db_fd, db_path = tempfile.mkstemp(suffix='.db')
-    # Configura a variável de ambiente para usar o banco de teste
+    """Cria um banco de dados exclusivo para CADA teste
+
+    Esta fixture garante isolamento completo entre testes, criando
+    um arquivo de banco de dados temporário único para cada execução.
+    O arquivo é automaticamente removido após o teste.
+    """
+    db_fd, db_path = tempfile.mkstemp(suffix='.db', prefix='test_casebem_')
     os.environ['TEST_DATABASE_PATH'] = db_path
-    # Retorna o caminho do banco de dados temporário
-    yield db_path    
-    # Remove o arquivo temporário ao concluir o teste
+
+    yield db_path
+
+    # Cleanup
     os.close(db_fd)
+    os.environ.pop('TEST_DATABASE_PATH', None)
     if os.path.exists(db_path):
         os.unlink(db_path)
 
-@pytest.fixture
-def usuario_exemplo():
-    # Cria um usuário de exemplo para os testes
-    from model.usuario_model import Usuario
-    usuario = Usuario(0, "Usuário Teste", "(28) 99999-0000", "usuario@email.com", "123456", "ADMIN", "123.456.789-00")
-    return usuario
+
+@pytest.fixture(scope="function")
+def test_db_with_tables(test_db):
+    """Banco de dados de teste com todas as tabelas já criadas
+
+    Esta fixture cria um banco de dados isolado E já cria todas as
+    tabelas do sistema, evitando que cada teste precise criar manualmente.
+    Útil para testes que precisam apenas inserir dados.
+    """
+    from core.repositories.usuario_repo import usuario_repo
+    from core.repositories.fornecedor_repo import fornecedor_repo
+    from core.repositories.casal_repo import casal_repo
+    from core.repositories.categoria_repo import categoria_repo
+    from core.repositories.item_repo import item_repo
+    from core.repositories.demanda_repo import demanda_repo
+    from core.repositories.item_demanda_repo import item_demanda_repo
+    from core.repositories.orcamento_repo import orcamento_repo
+    from core.repositories.item_orcamento_repo import item_orcamento_repo
+
+    # Criar todas as tabelas na ordem correta (respeitando FKs)
+    usuario_repo.criar_tabela()
+    fornecedor_repo.criar_tabela()
+    casal_repo.criar_tabela()
+    categoria_repo.criar_tabela()
+    demanda_repo.criar_tabela()
+    item_repo.criar_tabela()
+    item_demanda_repo.criar_tabela()
+    orcamento_repo.criar_tabela()
+    item_orcamento_repo.criar_tabela()
+
+    yield test_db
+
 
 @pytest.fixture
-def lista_usuarios_exemplo():
-    # Cria uma lista de 10 usuários de exemplo para os testes
-    tipos = ["ADMIN", "NOIVO", "PRESTADOR", "FORNECEDOR"]
-    from model.usuario_model import Usuario
-    usuarios = []
-    for i in range(1, 11):
-        usuario = Usuario(0, f"Usuário {i:02d}", f"(28) 99999-00{i:02d}", f"usuario{i:02d}@email.com", "123456", tipos[i % 4])
-        usuarios.append(usuario)
-    return usuarios
+def usuario_factory():
+    """Factory para criar usuários nos testes"""
+    return UsuarioFactory
+
 
 @pytest.fixture
-def noivo_exemplo():
-    # Cria um noivo de exemplo para os testes
-    from model.usuario_model import Usuario
-    noivo = Usuario(0, "Noivo Teste", "(28) 99999-0000", "noivo@email.com", "123456", "NOIVO", "123.456.789-00")
-    return noivo
+def fornecedor_factory():
+    """Factory para criar fornecedores nos testes"""
+    return FornecedorFactory
+
 
 @pytest.fixture
-def lista_noivos_exemplo():
-    # Cria uma lista de 10 noivos de exemplo para os testes
-    from model.usuario_model import Usuario
-    usuarios = []
-    for i in range(1, 11):
-        usuario = Usuario(0, f"Noivo {i:02d}", f"(28) 99999-00{i:02d}", f"usuario{i:02d}@email.com", "123456", "NOIVO", f"123.456.789-{i:02d}")
-        usuarios.append(usuario)
-    return usuarios
+def categoria_factory():
+    """Factory para criar categorias nos testes"""
+    return CategoriaFactory
+
 
 @pytest.fixture
-def prestador_exemplo():
-    # Cria um prestador de exemplo para os testes
-    from model.usuario_model import Usuario
-    prestador = Usuario(0, "Prestador Teste", "(28) 99999-2000", "prestador@email.com", "123456", "PRESTADOR", "223.456.789-00")
-    return prestador
+def item_factory():
+    """Factory para criar itens nos testes"""
+    return ItemFactory
+
 
 @pytest.fixture
-def lista_prestadores_exemplo():
-    # Cria uma lista de 10 prestadores de exemplo para os testes
-    from model.usuario_model import Usuario
-    usuarios = []
-    for i in range(1, 11):
-        usuario = Usuario(0, f"Prestador {i:02d}", f"(28) 99999-20{i:02d}", f"prestador{i:02d}@email.com", "123456", "PRESTADOR", f"223.456.789-{i:02d}")
-        usuarios.append(usuario)
-    return usuarios
+def casal_factory():
+    """Factory para criar casais nos testes"""
+    return CasalFactory
+
 
 @pytest.fixture
-def fornecedor_exemplo():
-    # Cria um fornecedor de exemplo para os testes
-    from model.usuario_model import Usuario
-    fornecedor = Usuario(0, "Fornecedor Teste", "(28) 99999-3000", "fornecedor@email.com", "123456", "FORNECEDOR", "323.456.789-00")
-    return fornecedor
+def test_data_builder():
+    """Builder para criar conjuntos completos de dados"""
+    return TestDataBuilder
+
 
 @pytest.fixture
-def lista_fornecedores_exemplo():
-    # Cria uma lista de 10 fornecedores de exemplo para os testes
-    from model.usuario_model import Usuario
-    usuarios = []
-    for i in range(1, 11):
-        usuario = Usuario(0, f"Fornecedor {i:02d}", f"(28) 99999-30{i:02d}", f"fornecedor{i:02d}@email.com", "123456", "FORNECEDOR", f"323.456.789-{i:02d}")
-        usuarios.append(usuario)
-    return usuarios
+def dados_completos_teste(test_data_builder):
+    """Conjunto completo de dados para testes de integração"""
+    return test_data_builder.com_usuarios(5).com_fornecedores(3).com_categorias(5).com_itens(10).construir()
+
+
+# Fixtures de conveniência (para compatibilidade com testes existentes)
+@pytest.fixture
+def usuario_exemplo(usuario_factory):
+    """Usuário exemplo para compatibilidade"""
+    return usuario_factory.criar()
+
 
 @pytest.fixture
-def administrador_exemplo():
-    # Cria um administrador de exemplo para os testes
-    from model.usuario_model import Usuario
-    administrador = Usuario(0, "Administrador Teste", "(28) 99999-4000", "admin@email.com", "123456", "ADMIN", "423.456.789-00")
-    return administrador
+def admin_exemplo(usuario_factory):
+    """Admin exemplo para compatibilidade"""
+    return usuario_factory.criar_admin()
+
 
 @pytest.fixture
-def lista_administradores_exemplo():
-    # Cria uma lista de 10 administradores de exemplo para os testes
-    from model.usuario_model import Usuario
-    usuarios = []
-    for i in range(1, 11):
-        usuario = Usuario(0, f"Administrador {i:02d}", f"(28) 99999-40{i:02d}", f"admin{i:02d}@email.com", "123456", "ADMIN", f"423.456.789-{i:02d}")
-        usuarios.append(usuario)
-    return usuarios
+def lista_usuarios_exemplo(usuario_factory):
+    """Lista de usuários para compatibilidade"""
+    return usuario_factory.criar_lista(10)
+
 
 @pytest.fixture
-def casal_exemplo():
-    # Cria um casal de exemplo para os testes    
-    from model.casal_model import Casal
-    casal = Casal(0, 1, 2, 10000.0)
-    return casal
+def lista_noivos_exemplo(usuario_factory):
+    """Lista de noivos para compatibilidade"""
+    return usuario_factory.criar_lista(10, perfil='NOIVO')
+
 
 @pytest.fixture
-def lista_casais_exemplo():
-    # Cria uma lista de 10 casais de exemplo para os testes    
-    from model.casal_model import Casal
-    casais = []
-    for i in range(1, 11, 2):
-        casal = Casal(0, i, i + 1, 10000.0 + (i * 100))
-        casais.append(casal)
-    return casais
+def fornecedor_exemplo(fornecedor_factory):
+    """Fornecedor exemplo para compatibilidade"""
+    return fornecedor_factory.criar()
+
 
 @pytest.fixture
-def servico_exemplo():
-    # Cria um serviço de exemplo para os testes
-    from model.servico_model import Servico
-    servico = Servico(0, "Serviço Teste", 100.0, "Descrição do serviço")
-    return servico
+def lista_fornecedores_exemplo(fornecedor_factory):
+    """Lista de fornecedores para compatibilidade"""
+    return fornecedor_factory.criar_lista(5)
+
 
 @pytest.fixture
-def lista_servicos_exemplo():
-    # Cria uma lista de 10 serviços de exemplo para os testes
-    from model.servico_model import Servico
-    servicos = []
-    for i in range(1, 11):
-        servico = Servico(0, f"Serviço {i:02d}", 100.0 * i, f"Descrição do serviço {i:02d}")
-        servicos.append(servico)
-    return servicos
+def categoria_exemplo(categoria_factory):
+    """Categoria exemplo para compatibilidade"""
+    return categoria_factory.criar()
+
 
 @pytest.fixture
-def produto_exemplo():
-    # Cria um produto de exemplo para os testes
-    from model.produto_model import Produto
-    produto = Produto(0, "Produto Teste", 19.99, "Descrição do produto teste")
-    return produto
+def lista_categorias_exemplo(categoria_factory):
+    """Lista de categorias para compatibilidade"""
+    return categoria_factory.criar_lista(5)
+
 
 @pytest.fixture
-def lista_produtos_exemplo():  
-    # Cria uma lista de 10 produtos de exemplo para os testes
-    from model.produto_model import Produto
-    produtos = []
-    for i in range(1, 11):
-        produto = Produto(0, f"Produto {i:02d}", 19.99 + i, f"Descrição do produto {i:02d}")
-        produtos.append(produto)
-    return produtos    
+def item_exemplo(item_factory):
+    """Item exemplo para compatibilidade"""
+    return item_factory.criar()
+
 
 @pytest.fixture
-def demanda_exemplo():
-    # Cria um demanda de exemplo para os testes
-    from model.demanda_model import Demanda
-    demanda = Demanda(0, 1, datetime.now())
-    return demanda
+def lista_itens_exemplo(item_factory):
+    """Lista de itens para compatibilidade"""
+    return item_factory.criar_lista(10)
+
 
 @pytest.fixture
-def lista_demandas_exemplo():
-    # Cria uma lista de 10 demandas de exemplo para os testes
-    from model.demanda_model import Demanda
-    demandas = []
-    for i in range(1, 11):
-        demanda = Demanda(0, i, datetime.now())
-        demandas.append(demanda)
-    return demandas
+def casal_exemplo(casal_factory):
+    """Casal exemplo para compatibilidade"""
+    return casal_factory.criar()
+
 
 @pytest.fixture
-def chat_exemplo():
-    # Cria um chat de exemplo para os testes
-    from model.chat_model import Chat
-    chat = Chat(1, 2, datetime.now(), "Mensagem de teste", None)
-    return chat
+def lista_casais_exemplo(casal_factory):
+    """Lista de casais para compatibilidade"""
+    return casal_factory.criar_lista(3)
+
 
 @pytest.fixture
-def fornecedor_produto_exemplo():
-    # Cria uma relação fornecedor-produto de exemplo para os testes
-    from model.fornecedor_model import Fornecedor
-    fp = Fornecedor(1, 1, "Observações teste", 50.0)
-    return fp
+def demanda_factory():
+    """Factory para criar demandas nos testes"""
+    return DemandaFactory
+
 
 @pytest.fixture
-def prestador_servico_exemplo():
-    # Cria uma relação prestador-serviço de exemplo para os testes
-    from model.prestador_servico_model import Prestador
-    ps = Prestador(1, 1, "Observações teste", 100.0)
-    return ps
+def orcamento_factory():
+    """Factory para criar orçamentos nos testes"""
+    return OrcamentoFactory
+
 
 @pytest.fixture
-def item_demanda_produto_exemplo():
-    # Cria um item demanda produto de exemplo para os testes
-    from model.item_demanda_produto_model import ItemDemandaProduto
-    item = ItemDemandaProduto(1, 1, 2, "Observações do item")
-    return item
+def item_demanda_factory():
+    """Factory para criar associações item-demanda nos testes"""
+    return ItemDemandaFactory
+
 
 @pytest.fixture
-def item_demanda_servico_exemplo():
-    # Cria um item demanda serviço de exemplo para os testes
-    from model.item_demanda_servico_model import ItemDemandaServico
-    item = ItemDemandaServico(1, 1, 1, "Observações do serviço")
-    return item
+def item_orcamento_factory():
+    """Factory para criar associações item-orçamento nos testes"""
+    return ItemOrcamentoFactory
+
 
 @pytest.fixture
-def orcamento_exemplo():
-    # Cria um orçamento de exemplo para os testes
-    from model.orcamento_model import Orcamento
-    orcamento = Orcamento(
-        id=0,
-        id_demanda=1,
-        id_fornecedor_prestador=1,
-        data_hora_cadastro=datetime.now(),
-        data_hora_validade=None,
-        status="PENDENTE",
-        observacoes="Orçamento de teste",
-        valor_total=1000.00
-    )
-    return orcamento
+def demanda_exemplo(demanda_factory):
+    """Demanda exemplo para compatibilidade"""
+    return demanda_factory.criar()
+
 
 @pytest.fixture
-def lista_orcamentos_exemplo():
-    # Cria uma lista de 10 orçamentos de exemplo para os testes
-    from model.orcamento_model import Orcamento
-    orcamentos = []
-    for i in range(1, 11):
-        orcamento = Orcamento(
-            id=0,
-            id_demanda=1,
-            id_fornecedor_prestador=i,
-            data_hora_cadastro=datetime.now(),
-            data_hora_validade=None,
-            status="PENDENTE",
-            observacoes=f"Orçamento {i:02d}",
-            valor_total=1000.00 * i
-        )
-        orcamentos.append(orcamento)
-    return orcamentos
+def lista_demandas_exemplo(demanda_factory):
+    """Lista de demandas para compatibilidade"""
+    return demanda_factory.criar_lista(5)
+
 
 @pytest.fixture
-def item_orcamento_produto_exemplo():
-    # Cria um item orçamento produto de exemplo para os testes
-    from model.item_orcamento_produto_model import ItemOrcamentoProduto
-    item = ItemOrcamentoProduto(
-        id_orcamento=1,
-        id_produto=1,
-        preco_unitario=50.00,
-        quantidade=2,
-        observacoes="Item de produto de teste"
-    )
-    return item
+def orcamento_exemplo(orcamento_factory):
+    """Orçamento exemplo para compatibilidade"""
+    return orcamento_factory.criar()
+
 
 @pytest.fixture
-def item_orcamento_servico_exemplo():
-    # Cria um item orçamento serviço de exemplo para os testes
-    from model.item_orcamento_servico_model import ItemOrcamentoServico
-    item = ItemOrcamentoServico(
-        id_orcamento=1,
-        id_servico=1,
-        preco_unitario=200.00,
-        quantidade=1,
-        observacoes="Item de serviço de teste"
-    )
-    return item
+def lista_orcamentos_exemplo(orcamento_factory):
+    """Lista de orçamentos para compatibilidade"""
+    return orcamento_factory.criar_lista(5)

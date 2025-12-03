@@ -1,0 +1,250 @@
+{% extends "admin/base.html" %}
+
+{% block title %}Verificação de Fornecedores{% endblock %}
+
+{% block conteudo %}
+<div class="container d-flex align-items-center justify-content-center flex-grow-1 py-4">
+    <div class="col-md-10 col-lg-8">
+        <div class="card shadow border-0 auth-card">
+            <div class="card-body p-4">
+                <div class="text-center mb-4">
+                    <h3>Verificação de Fornecedores</h3>
+                    <small class="text-muted">
+                        <i class="bi bi-patch-check"></i>
+                        Analise e aprove fornecedores pendentes
+                    </small>
+                </div>
+
+                {% if fornecedor %}
+                <!-- Exibição de fornecedor específico -->
+                <div class="row mb-4">
+                    <div class="col-12">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h4>{{ fornecedor.nome }}</h4>
+                            <span class="badge bg-warning fs-6">Pendente de Verificação</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <small class="text-muted">E-mail:</small>
+                            <div>{{ fornecedor.email }}</div>
+                        </div>
+
+                        {% if fornecedor.nome_empresa %}
+                        <div class="mb-3">
+                            <small class="text-muted">Empresa:</small>
+                            <div class="fw-bold">{{ fornecedor.nome_empresa }}</div>
+                        </div>
+                        {% endif %}
+
+                        {% if fornecedor.cnpj %}
+                        <div class="mb-3">
+                            <small class="text-muted">CNPJ:</small>
+                            <div class="cnpj-format">{{ fornecedor.cnpj }}</div>
+                        </div>
+                        {% endif %}
+
+                        {% if fornecedor.telefone %}
+                        <div class="mb-3">
+                            <small class="text-muted">Telefone:</small>
+                            <div class="phone-format">{{ fornecedor.telefone }}</div>
+                        </div>
+                        {% endif %}
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <small class="text-muted">Tipos de Fornecimento:</small>
+                            <div class="mt-1">
+                                {% if fornecedor.prestador %}
+                                <span class="badge bg-info me-1">Serviços</span>
+                                {% endif %}
+                                {% if fornecedor.vendedor %}
+                                <span class="badge bg-success me-1">Produtos</span>
+                                {% endif %}
+                                {% if fornecedor.locador %}
+                                <span class="badge bg-warning me-1">Espaços</span>
+                                {% endif %}
+                                {% if not fornecedor.prestador and not fornecedor.vendedor and not fornecedor.locador %}
+                                <span class="text-muted">Nenhum tipo selecionado</span>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        {% if fornecedor.descricao %}
+                        <div class="mb-3">
+                            <small class="text-muted">Descrição:</small>
+                            <div class="small">{{ fornecedor.descricao }}</div>
+                        </div>
+                        {% endif %}
+
+                        <div class="mb-3">
+                            <small class="text-muted">Data de Cadastro:</small>
+                            <div>{{ fornecedor.data_cadastro | formatar_data }}</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row mt-4">
+                    <div class="col-12">
+                        <div class="d-flex justify-content-center gap-3">
+                            <button type="button" class="btn btn-success" data-bs-toggle="tooltip"
+                                data-bs-placement="top" title="Aprovar fornecedor" onclick="confirmarAprovacao('o fornecedor &quot;{{ fornecedor.nome }}&quot;', function() {
+                                        document.getElementById('formAprovar{{ fornecedor.id }}').submit();
+                                    })">
+                                <i class="bi bi-check-circle-fill me-2"></i>Aprovar Fornecedor
+                            </button>
+                            <button type="button" class="btn btn-danger" data-bs-toggle="tooltip"
+                                data-bs-placement="top" title="Rejeitar fornecedor" onclick="confirmarRejeicao('o fornecedor &quot;{{ fornecedor.nome }}&quot;', function() {
+                                        document.getElementById('formRejeitar{{ fornecedor.id }}').submit();
+                                    })">
+                                <i class="bi bi-x-circle-fill me-2"></i>Rejeitar Fornecedor
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                {% elif fornecedores_pendentes %}
+                <!-- Listagem de todos os fornecedores pendentes -->
+                <div class="row">
+                    {% for fornecedor_item in fornecedores_pendentes %}
+                    <div class="col-md-6 mb-4">
+                        <div class="card border-0 shadow-sm h-100">
+                            <div class="card-header bg-light d-flex justify-content-between align-items-center">
+                                <h6 class="mb-0">{{ fornecedor_item.nome }}</h6>
+                                <span class="badge bg-warning">Pendente</span>
+                            </div>
+                            <div class="card-body">
+                                <div class="mb-3">
+                                    <small class="text-muted">E-mail:</small>
+                                    <div>{{ fornecedor_item.email }}</div>
+                                </div>
+
+                                {% if fornecedor_item.nome_empresa %}
+                                <div class="mb-3">
+                                    <small class="text-muted">Empresa:</small>
+                                    <div class="fw-bold">{{ fornecedor_item.nome_empresa }}</div>
+                                </div>
+                                {% endif %}
+
+                                {% if fornecedor_item.cnpj %}
+                                <div class="mb-3">
+                                    <small class="text-muted">CNPJ:</small>
+                                    <div class="cnpj-format">{{ fornecedor_item.cnpj }}</div>
+                                </div>
+                                {% endif %}
+
+                                {% if fornecedor_item.telefone %}
+                                <div class="mb-3">
+                                    <small class="text-muted">Telefone:</small>
+                                    <div class="phone-format">{{ fornecedor_item.telefone }}</div>
+                                </div>
+                                {% endif %}
+
+                                <div class="mb-3">
+                                    <small class="text-muted">Tipos de Serviço:</small>
+                                    <div class="mt-1">
+                                        {% if fornecedor_item.prestador %}
+                                        <span class="badge bg-info me-1">Prestador de Serviços</span>
+                                        {% endif %}
+                                        {% if fornecedor_item.vendedor %}
+                                        <span class="badge bg-success me-1">Vendedor de Produtos</span>
+                                        {% endif %}
+                                        {% if fornecedor_item.locador %}
+                                        <span class="badge bg-warning me-1">Locador de Espaços</span>
+                                        {% endif %}
+                                        {% if not fornecedor_item.prestador and not fornecedor_item.vendedor and not
+                                        fornecedor_item.locador %}
+                                        <span class="text-muted">Nenhum tipo selecionado</span>
+                                        {% endif %}
+                                    </div>
+                                </div>
+
+                                {% if fornecedor_item.descricao %}
+                                <div class="mb-3">
+                                    <small class="text-muted">Descrição:</small>
+                                    <div class="small">{{ fornecedor_item.descricao }}</div>
+                                </div>
+                                {% endif %}
+
+                                <div class="mb-3">
+                                    <small class="text-muted">Data de Cadastro:</small>
+                                    <div>{{ fornecedor_item.data_cadastro | formatar_data }}</div>
+                                </div>
+                            </div>
+                            <div class="card-footer bg-white border-top-0">
+                                <div class="d-flex justify-content-center gap-2">
+                                    <button type="button" class="btn btn-success btn-sm btn-action"
+                                        data-bs-toggle="tooltip" data-bs-placement="top" title="Aprovar fornecedor"
+                                        onclick="confirmarAprovacao('o fornecedor &quot;{{ fornecedor_item.nome }}&quot;', function() {
+                                                document.getElementById('formAprovar{{ fornecedor_item.id }}').submit();
+                                            })">
+                                        <i class="bi bi-check-circle-fill"></i>
+                                    </button>
+                                    <button type="button" class="btn btn-danger btn-sm btn-action"
+                                        data-bs-toggle="tooltip" data-bs-placement="top" title="Rejeitar fornecedor"
+                                        onclick="confirmarRejeicao('o fornecedor &quot;{{ fornecedor_item.nome }}&quot;', function() {
+                                                document.getElementById('formRejeitar{{ fornecedor_item.id }}').submit();
+                                            })">
+                                        <i class="bi bi-x-circle-fill "></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+
+                {% else %}
+                <div class="text-center py-5">
+                    <i class="bi bi-check-circle-fill" style="font-size: 4rem; color: #28a745;" class="mb-4"></i>
+                    <h4>Nenhum fornecedor pendente</h4>
+                    <p class="text-muted">Todos os fornecedores foram verificados ou não há novos cadastros para
+                        análise.</p>
+                </div>
+                {% endif %}
+
+                <div class="d-flex justify-content-center mt-4">
+                    <a href="/admin/usuarios" class="btn btn-secondary btn-lg">
+                        <i class="bi bi-arrow-left"></i> Voltar para Usuários
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Formulários ocultos para aprovação e rejeição -->
+{% if fornecedor %}
+<form id="formAprovar{{ fornecedor.id }}" method="post" action="/admin/verificacao/{{ fornecedor.id }}/aprovar"
+    style="display: none;"></form>
+<form id="formRejeitar{{ fornecedor.id }}" method="post" action="/admin/verificacao/{{ fornecedor.id }}/rejeitar"
+    style="display: none;"></form>
+{% endif %}
+
+{% if fornecedores_pendentes %}
+{% for fornecedor_item in fornecedores_pendentes %}
+<form id="formAprovar{{ fornecedor_item.id }}" method="post"
+    action="/admin/verificacao/{{ fornecedor_item.id }}/aprovar" style="display: none;"></form>
+<form id="formRejeitar{{ fornecedor_item.id }}" method="post"
+    action="/admin/verificacao/{{ fornecedor_item.id }}/rejeitar" style="display: none;"></form>
+{% endfor %}
+{% endif %}
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // Inicializar tooltips
+    document.addEventListener('DOMContentLoaded', function () {
+        var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+        var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+            return new bootstrap.Tooltip(tooltipTriggerEl);
+        });
+    });
+
+</script>
+{% endblock %}

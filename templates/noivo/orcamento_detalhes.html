@@ -1,0 +1,396 @@
+{% extends "noivo/base.html" %}
+
+{% block title %}Detalhes do Orçamento{% endblock %}
+
+{% block conteudo %}
+<div class="row">
+    <div class="col-12">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1>Detalhes do Orçamento</h1>
+            <div>
+                <a href="/noivo/orcamentos" class="btn btn-outline-secondary me-2">
+                    <i class="fas fa-arrow-left"></i> Voltar
+                </a>
+                {% if orcamento.status == 'APROVADO' %}
+                <a href="/noivo/fornecedor/{{ orcamento.id_fornecedor }}" class="btn btn-primary">
+                    <i class="fas fa-user"></i> Ver Fornecedor
+                </a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Status do Orçamento -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="alert
+            {% if orcamento.status == 'PENDENTE' %}alert-warning
+            {% elif orcamento.status == 'APROVADO' %}alert-success
+            {% elif orcamento.status == 'REJEITADO' %}alert-danger
+            {% else %}alert-secondary{% endif %}" role="alert">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h5 class="alert-heading">
+                        {% if orcamento.status == 'PENDENTE' %}Aguardando sua decisão
+                        {% elif orcamento.status == 'APROVADO' %}Orçamento Aprovado
+                        {% elif orcamento.status == 'REJEITADO' %}Orçamento Rejeitado
+                        {% else %}{{ orcamento.status }}{% endif %}
+                    </h5>
+                    <p class="mb-0">
+                        {% if orcamento.status == 'PENDENTE' %}
+                        Analise os detalhes e decida se deseja aceitar ou rejeitar esta proposta.
+                        {% elif orcamento.status == 'APROVADO' %}
+                        Você aceitou este orçamento. Entre em contato com o fornecedor para finalizar os detalhes.
+                        {% elif orcamento.status == 'REJEITADO' %}
+                        Este orçamento foi rejeitado por você.
+                        {% endif %}
+                    </p>
+                </div>
+                <div>
+                    {% if orcamento.data_resposta %}
+                    <small class="text-muted">
+                        {% if orcamento.status == 'APROVADO' %}Aprovado em:
+                        {% elif orcamento.status == 'REJEITADO' %}Rejeitado em:{% endif %}
+                        {{ orcamento.data_resposta | formatar_data_hora }}
+                    </small>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Informações do Fornecedor -->
+    <div class="col-lg-6 mb-4">
+        <div class="card h-100 shadow">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">Informações do Fornecedor</h6>
+            </div>
+            <div class="card-body">
+                <div class="d-flex align-items-center mb-3">
+                    <div class="avatar-circle bg-primary text-white me-3">
+                        {{ fornecedor.nome[0].upper() }}
+                    </div>
+                    <div>
+                        <h5 class="mb-0">{{ fornecedor.nome }}</h5>
+                        {% if fornecedor.nome_empresa %}
+                        <small class="text-muted">{{ fornecedor.nome_empresa }}</small>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="row mb-3">
+                    <div class="col-12">
+                        <small class="text-muted">E-mail:</small>
+                        <div>{{ fornecedor.email }}</div>
+                    </div>
+                </div>
+
+                {% if fornecedor.telefone %}
+                <div class="row mb-3">
+                    <div class="col-12">
+                        <small class="text-muted">Telefone:</small>
+                        <div class="phone-format">{{ fornecedor.telefone }}</div>
+                    </div>
+                </div>
+                {% endif %}
+
+                {% if fornecedor.descricao %}
+                <div class="row">
+                    <div class="col-12">
+                        <small class="text-muted">Sobre:</small>
+                        <div>{{ fornecedor.descricao }}</div>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Informações da Demanda -->
+    <div class="col-lg-6 mb-4">
+        <div class="card h-100 shadow">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">Informações da Demanda</h6>
+            </div>
+            <div class="card-body">
+                <p class="mb-3">{{ demanda.descricao }}</p>
+
+                <div class="row mb-3">
+                    <div class="col-6">
+                        <small class="text-muted">Data da Demanda:</small>
+                        <div class="fw-bold">{{ demanda.data_criacao | formatar_data }}</div>
+                    </div>
+                    <div class="col-6">
+                        <small class="text-muted">Status:</small>
+                        <div>
+                            <span class="badge bg-success">{{ demanda.status.value }}</span>
+                        </div>
+                    </div>
+                </div>
+
+                {% if demanda.orcamento_min and demanda.orcamento_max %}
+                <div class="alert alert-info py-2 mb-3">
+                    <small>
+                        <strong>Sua Faixa de Orçamento:</strong><br>
+                        {{ demanda.orcamento_min|moeda }} - {{ demanda.orcamento_max|moeda }}
+                    </small>
+                </div>
+                {% endif %}
+
+                <div class="text-start">
+                    <a href="/noivo/demandas/{{ demanda.id }}" class="btn btn-sm btn-outline-success">
+                        Ver Demanda Completa
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Resumo do Orçamento -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h6 class="mb-0">Resumo da Proposta</h6>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-4">
+                        <small class="text-muted">Data de Envio:</small>
+                        <div class="fw-bold">{{ orcamento.data_envio | formatar_data_hora }}</div>
+                    </div>
+                    <div class="col-md-4">
+                        {% if orcamento.desconto > 0 %}
+                        <small class="text-muted">Desconto Oferecido:</small>
+                        <div class="fw-bold text-success">{{ orcamento.desconto }}%</div>
+                        {% endif %}
+                    </div>
+                    <div class="col-md-4">
+                        <small class="text-muted">Valor Total:</small>
+                        <div class="h4 text-success mb-0">{{ orcamento.valor_total|moeda }}</div>
+                    </div>
+                </div>
+
+                {% if orcamento.observacoes %}
+                <div class="row mt-3">
+                    <div class="col-12">
+                        <div class="alert alert-light">
+                            <small class="text-muted">Observações do Fornecedor:</small>
+                            <p class="mb-0">{{ orcamento.observacoes }}</p>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Itens do Orçamento -->
+<div class="row">
+    <div class="col-12">
+        <div class="card shadow">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">Itens da Proposta</h6>
+            </div>
+            <div class="card-body">
+                {% if orcamento.itens %}
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Item</th>
+                                <th>Quantidade</th>
+                                <th>Preço Unit.</th>
+                                <th>Desconto</th>
+                                <th>Total</th>
+                                <th>Status</th>
+                                <th>Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for item in orcamento.itens %}
+                            <tr>
+                                <td>
+                                    <div>
+                                        <strong>{{ item.nome_item }}</strong>
+                                        <br>
+                                        <small class="text-muted">{{ item.descricao_item or 'Sem descrição' }}</small>
+                                        <br>
+                                        <span class="badge bg-outline-secondary">{{ item.tipo_item }}</span>
+                                    </div>
+                                </td>
+                                <td>{{ item.quantidade }}</td>
+                                <td>{{ item.preco_unitario|moeda }}</td>
+                                <td>
+                                    {% if item.desconto > 0 %}
+                                    {{ item.desconto|moeda }}
+                                    {% else %}
+                                    -
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <strong class="text-success">
+                                        {{ item.preco_total|moeda }}
+                                    </strong>
+                                </td>
+                                <td>
+                                    <span class="badge
+                                        {% if item.status == 'PENDENTE' %}bg-warning text-dark
+                                        {% elif item.status == 'APROVADO' %}bg-success
+                                        {% elif item.status == 'REJEITADO' %}bg-danger
+                                        {% else %}bg-secondary{% endif %}">
+                                        {{ item.status }}
+                                    </span>
+                                </td>
+                                <td>
+                                    {% if item.status == 'PENDENTE' %}
+                                    <div class="btn-group" role="group">
+                                        <button type="button" class="btn btn-sm btn-success"
+                                            onclick="aceitarItem({{ orcamento.id }}, {{ item.id_item_orcamento }})"
+                                            title="Aceitar este item">
+                                            <i class="fas fa-check"></i>
+                                        </button>
+                                        <button type="button" class="btn btn-sm btn-danger"
+                                            onclick="rejeitarItem({{ orcamento.id }}, {{ item.id_item_orcamento }})"
+                                            title="Rejeitar este item">
+                                            <i class="fas fa-times"></i>
+                                        </button>
+                                    </div>
+                                    {% elif item.status == 'APROVADO' %}
+                                    <span class="text-success"><i class="fas fa-check-circle"></i> Aceito</span>
+                                    {% elif item.status == 'REJEITADO' %}
+                                    <span class="text-danger"><i class="fas fa-times-circle"></i> Rejeitado</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                        <tfoot>
+                            <tr class="table-success">
+                                <th colspan="4">Total Geral (Itens Aceitos)</th>
+                                <th class="text-success">{{ orcamento.valor_total|moeda }}</th>
+                                <th colspan="2"></th>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+                {% else %}
+                <div class="text-center py-4">
+                    <i class="fas fa-box fa-3x text-gray-300 mb-3"></i>
+                    <h6>Nenhum item encontrado</h6>
+                    <p class="text-muted">Este orçamento não possui itens detalhados.</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Ações -->
+{% if orcamento.status == 'APROVADO' or orcamento.status == 'PARCIALMENTE_ACEITO' %}
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="card border-success shadow">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="text-success">Orçamento Aprovado!</h6>
+                        <p class="text-muted mb-0">Entre em contato com o fornecedor para combinar os detalhes.</p>
+                    </div>
+                    <div>
+                        <a href="mailto:{{ fornecedor.email }}" class="btn btn-primary me-2">
+                            <i class="fas fa-envelope"></i> Enviar E-mail
+                        </a>
+                        {% if fornecedor.telefone %}
+                        <a href="tel:{{ fornecedor.telefone }}" class="btn btn-outline-primary">
+                            <i class="fas fa-phone"></i> Ligar
+                        </a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+{% endblock %}
+
+{% block scripts %}
+<style>
+    .avatar-circle {
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.2rem;
+        font-weight: bold;
+    }
+</style>
+
+<script>
+    function aceitarItem(idOrcamento, idItemOrcamento) {
+        mostrarModalConfirmacao({
+            titulo: 'Aceitar Item',
+            texto: 'Tem certeza que deseja aceitar este item?',
+            subtexto: 'Você não poderá aceitar outro orçamento para este mesmo item da demanda.',
+            tipo: 'success',
+            textoBotao: 'Aceitar Item',
+            onConfirmar: function () {
+                // Criar formulário POST para segurança CSRF
+                const form = document.createElement('form');
+                form.method = 'POST';
+                form.action = `/noivo/orcamentos/${idOrcamento}/item/${idItemOrcamento}/aceitar`;
+                document.body.appendChild(form);
+                form.submit();
+            }
+        });
+    }
+
+    function rejeitarItem(idOrcamento, idItemOrcamento) {
+        // Criar formulário dinamicamente
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = `/noivo/orcamentos/${idOrcamento}/item/${idItemOrcamento}/rejeitar`;
+
+        const motivoHtml = `
+        <div class="mb-3">
+            <label for="motivo_rejeicao" class="form-label">Motivo da rejeição (opcional):</label>
+            <textarea
+                class="form-control"
+                id="motivo_rejeicao"
+                name="motivo_rejeicao"
+                rows="3"
+                placeholder="Informe o motivo da rejeição para feedback ao fornecedor..."
+            ></textarea>
+            <small class="text-muted">Este motivo será enviado ao fornecedor para melhorar futuras propostas.</small>
+        </div>
+    `;
+
+        mostrarModalConfirmacao({
+            titulo: 'Rejeitar Item',
+            texto: 'Tem certeza que deseja rejeitar este item?',
+            subtexto: motivoHtml,
+            tipo: 'danger',
+            textoBotao: 'Rejeitar Item',
+            onConfirmar: function () {
+                const motivo = document.getElementById('motivo_rejeicao').value;
+                const input = document.createElement('input');
+                input.type = 'hidden';
+                input.name = 'motivo_rejeicao';
+                input.value = motivo;
+                form.appendChild(input);
+                document.body.appendChild(form);
+                form.submit();
+            }
+        });
+    }
+</script>
+{% endblock %}

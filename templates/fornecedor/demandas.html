@@ -1,0 +1,215 @@
+{% extends "fornecedor/base.html" %}
+
+{% block title %}Demandas Disponíveis{% endblock %}
+
+{% block conteudo %}
+<div class="row">
+    <div class="col-12">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1>Demandas Disponíveis</h1>
+            <a href="/fornecedor/orcamentos" class="btn btn-primary">
+                <i class="fas fa-file-invoice-dollar"></i> Meus Orçamentos
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- Filtros -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-body">
+                <form method="get" class="row g-3">
+                    <div class="col-md-4">
+                        <label for="categoria" class="form-label">Filtrar por Categoria</label>
+                        <select class="form-select" id="categoria" name="categoria">
+                            <option value="">Todas as Categorias</option>
+                            {% for categoria in categorias %}
+                            <option value="{{ categoria.id }}" {% if request.query_params.get('categoria') == categoria.id|string %}selected{% endif %}>
+                                {{ categoria.nome }} ({{ categoria.tipo_fornecimento.value }})
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-md-8 d-flex align-items-end gap-2">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-filter"></i> Filtrar
+                        </button>
+                        <a href="/fornecedor/demandas" class="btn btn-outline-secondary">
+                            <i class="fas fa-times"></i> Limpar
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% if mensagem %}
+<div class="row">
+    <div class="col-12">
+        <div class="alert alert-info">
+            <i class="fas fa-info-circle"></i> {{ mensagem }}
+        </div>
+    </div>
+</div>
+{% endif %}
+
+{% if demandas %}
+<div class="row">
+    {% for item in demandas %}
+    {% set demanda = item.demanda %}
+    {% set casal = item.casal %}
+    {% set noivo = item.noivo %}
+    <div class="col-lg-6 col-xl-4 mb-4">
+        <div class="card h-100 shadow-sm">
+            <div class="card-header bg-light">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                        <h6 class="mb-1">Demanda #{{ demanda.id }}</h6>
+                        <small class="text-muted">
+                            <i class="fas fa-user"></i> {{ noivo.nome if noivo else 'Noivo' }}
+                        </small>
+                    </div>
+                    <span class="badge bg-success">{{ demanda.status.value }}</span>
+                </div>
+            </div>
+            <div class="card-body">
+                <!-- Descrição Geral -->
+                <p class="mb-3">
+                    <strong>Descrição:</strong><br>
+                    <small>{{ demanda.descricao[:120] }}{% if demanda.descricao|length > 120 %}...{% endif %}</small>
+                </p>
+
+                <!-- Informações do Casamento -->
+                <div class="row mb-3">
+                    <div class="col-6">
+                        <small class="text-muted d-block">Orçamento Total</small>
+                        {% if demanda.orcamento_total %}
+                            <strong class="text-success">R$ {{ "%.2f"|format(demanda.orcamento_total) }}</strong>
+                        {% else %}
+                            <span class="text-muted">Não informado</span>
+                        {% endif %}
+                    </div>
+                    <div class="col-6">
+                        <small class="text-muted d-block">Data Casamento</small>
+                        <strong>{{ demanda.data_casamento|formatar_data if demanda.data_casamento else 'N/A' }}</strong>
+                    </div>
+                </div>
+
+                <div class="row mb-3">
+                    <div class="col-6">
+                        <small class="text-muted d-block">Local</small>
+                        <strong>{{ demanda.cidade_casamento or 'N/A' }}</strong>
+                    </div>
+                    <div class="col-6">
+                        <small class="text-muted d-block">Prazo</small>
+                        <strong>{{ demanda.prazo_entrega|formatar_data if demanda.prazo_entrega else 'N/A' }}</strong>
+                    </div>
+                </div>
+
+                <!-- Estatísticas de Itens -->
+                <div class="row mb-3 g-2">
+                    <div class="col-6">
+                        <div class="card bg-primary text-white text-center py-2">
+                            <div class="card-body p-2">
+                                <small class="d-block opacity-75">Itens Totais</small>
+                                <div class="h3 mb-0 fw-bold">{{ item.total_itens }}</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="card bg-success text-white text-center py-2">
+                            <div class="card-body p-2">
+                                <small class="d-block opacity-75">Você Pode Fornecer</small>
+                                <div class="h3 mb-0 fw-bold">{{ item.itens_compativeis|length }}</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Itens Compatíveis -->
+                {% if item.itens_compativeis %}
+                <div class="alert alert-success py-2 mb-3">
+                    <strong class="d-block mb-1">
+                        <i class="fas fa-check-circle"></i> Itens que você pode fornecer:
+                    </strong>
+                    <small>
+                        {% for item_comp in item.itens_compativeis[:3] %}
+                        <div class="mb-1">
+                            <span class="badge
+                                {% if item_comp.tipo == 'PRODUTO' %}bg-primary
+                                {% elif item_comp.tipo == 'SERVIÇO' %}bg-success
+                                {% elif item_comp.tipo == 'ESPAÇO' %}bg-info
+                                {% else %}bg-secondary{% endif %}">
+                                {{ item_comp.tipo }}
+                            </span>
+                            <strong>{{ item_comp.categoria_nome or 'Categoria' }}:</strong>
+                            {{ item_comp.descricao[:60] }}{% if item_comp.descricao|length > 60 %}...{% endif %}
+                        </div>
+                        {% endfor %}
+                        {% if item.itens_compativeis|length > 3 %}
+                        <em class="text-muted">+ {{ item.itens_compativeis|length - 3 }} outro(s) item(ns)</em>
+                        {% endif %}
+                    </small>
+                </div>
+                {% endif %}
+
+                <!-- Observações -->
+                {% if demanda.observacoes %}
+                <div class="mb-3">
+                    <small class="text-muted d-block">Observações:</small>
+                    <small>{{ demanda.observacoes[:100] }}{% if demanda.observacoes|length > 100 %}...{% endif %}</small>
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- Ações -->
+            <div class="card-footer bg-white border-top">
+                {% if item.ja_tem_orcamento %}
+                <div class="alert alert-info mb-0 py-2">
+                    <small><i class="fas fa-info-circle"></i> Você já enviou um orçamento para esta demanda</small>
+                </div>
+                {% else %}
+                <a href="/fornecedor/demandas/{{ demanda.id }}/orcamento/novo" class="btn btn-primary w-100">
+                    <i class="fas fa-plus"></i> Fazer Orçamento
+                </a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+<!-- Paginação (se necessário) -->
+{% if demandas|length > 12 %}
+<div class="row">
+    <div class="col-12 text-center">
+        <small class="text-muted">Mostrando {{ demandas|length }} demandas compatíveis</small>
+    </div>
+</div>
+{% endif %}
+
+{% else %}
+<div class="row">
+    <div class="col-12">
+        <div class="card shadow-sm">
+            <div class="card-body text-center py-5">
+                <i class="fas fa-inbox fa-3x text-gray-300 mb-3"></i>
+                <h5>Nenhuma demanda compatível encontrada</h5>
+                <p class="text-muted">
+                    {% if mensagem %}
+                        {{ mensagem }}
+                    {% else %}
+                        Não há demandas disponíveis que correspondam aos seus itens cadastrados no momento.
+                    {% endif %}
+                </p>
+                <a href="/fornecedor/itens" class="btn btn-primary mt-2">
+                    <i class="fas fa-box"></i> Gerenciar Meus Itens
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endblock %}

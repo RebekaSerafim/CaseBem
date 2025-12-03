@@ -1,34 +1,48 @@
 {% extends "publico/base.html" %}
 {% block conteudo %}
-<div class="container mt-5">
-    <div class="row justify-content-center">
-        <div class="col-md-6">
-            <center><h2>Login</h2></center>
-            
-            {% if erro %}
-            <div class="alert alert-danger">{{ erro }}</div>
-            {% endif %}
-            
-            <form method="post" action="/login">
-                {% if redirect %}
-                <input type="hidden" name="redirect" value="{{ redirect }}">
+<div class="container d-flex align-items-center justify-content-center flex-grow-1 py-4">
+    <div class="col-md-6 col-lg-4">
+        <div class="card shadow border-0 auth-card">
+            <div class="card-body p-4">
+                <div class="text-center mb-4">
+                    <h3>Login</h3>
+                    <small class="text-muted">Entre com suas credenciais</small>
+                </div>
+
+                {% if erro %}
+                <div class="alert alert-danger">{{ erro }}</div>
                 {% endif %}
-                
-                <div class="mb-3">
-                    <label for="email" class="form-label">E-mail</label>
-                    <input type="email" class="form-control" id="email" 
-                           name="email" required>
-                </div>
-                
-                <div class="mb-3">
-                    <label for="senha" class="form-label">Senha</label>
-                    <input type="password" class="form-control" id="senha" 
-                           name="senha" required>
-                </div>
-                
-               <center><button type="submit" class="btn btn-primary">Entrar</button></center> 
-                <center><a href="/esqueci-senha" class="btn btn-link">Esqueci minha senha</a><center>
-            </form>
+
+                <form method="post" action="/login">
+                    {% if redirect %}
+                    <input type="hidden" name="redirect" value="{{ redirect }}">
+                    {% endif %}
+
+                    <div class="mb-3">
+                        <label for="email" class="form-label">E-mail</label>
+                        <input type="email" class="form-control" id="email"
+                               name="email" value="{{ email or '' }}" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="senha" class="form-label">Senha</label>
+                        <input type="password" class="form-control" id="senha"
+                               name="senha" required>
+                    </div>
+
+                    <div class="d-grid mb-3">
+                        <button type="submit" class="btn btn-primary btn-lg">Entrar</button>
+                    </div>
+
+                    <div class="text-center mb-3">
+                        <a href="/esqueci-senha" class="text-decoration-none">Esqueci minha senha</a>
+                    </div>
+
+                    <div class="text-center">
+                        <small>Não tem uma conta? <a href="/cadastro" class="text-decoration-none">Cadastre-se</a></small>
+                    </div>
+                </form>
+            </div>
         </div>
     </div>
 </div>

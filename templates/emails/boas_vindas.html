@@ -1,0 +1,30 @@
+{% extends "base_layout.html" %}
+
+{% set header_title = "Bem-vindo ao Case Bem!" %}
+{% set header_class = "success" %}
+
+{% block content %}
+    <p>Olá, <strong>{{ nome_destinatario }}</strong>!</p>
+
+    <p>É com grande alegria que damos as boas-vindas ao <strong>Case Bem</strong>,
+       a plataforma que conecta casais aos melhores fornecedores para seu casamento dos sonhos.</p>
+
+    <p>Agora você pode:</p>
+    <ul>
+        <li>Navegar por diversos fornecedores especializados</li>
+        <li>Solicitar orçamentos personalizados</li>
+        <li>Organizar todos os detalhes do seu casamento em um só lugar</li>
+        <li>Acompanhar o progresso da organização do seu evento</li>
+    </ul>
+
+    <div class="email-button-container">
+        <a href="{{ dashboard_url }}" class="email-button success">
+           Começar Agora
+        </a>
+    </div>
+
+    <p>Se tiver alguma dúvida, nossa equipe está sempre pronta para ajudar!</p>
+
+    <p>Com carinho,<br>
+       <strong>Equipe Case Bem</strong></p>
+{% endblock %}

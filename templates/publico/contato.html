@@ -1,0 +1,263 @@
+{% extends "publico/base.html" %}
+
+{% block title %}Contato{% endblock %}
+
+{% block conteudo %}
+<div class="container py-5">
+    <div class="row">
+        <div class="col-12">
+            <!-- Header da página -->
+            <div class="text-center mb-5">
+                <h1 class="display-4 mb-3">Entre em Contato</h1>
+                <p class="lead text-muted">Estamos aqui para ajudar com suas dúvidas sobre a plataforma</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Formulário de contato -->
+        <div class="col-lg-8 mx-auto">
+            <div class="card shadow-sm mb-5">
+                <div class="card-body p-5">
+                    <div class="text-center mb-4">
+                        <i class="fas fa-envelope fa-3x text-primary mb-3"></i>
+                        <h3>Envie sua Mensagem</h3>
+                        <p class="text-muted">Preencha o formulário abaixo e entraremos em contato o mais breve possível</p>
+                    </div>
+
+                    <form>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="nome" class="form-label">Nome Completo *</label>
+                                <input type="text" class="form-control" id="nome" name="nome" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="email" class="form-label">E-mail *</label>
+                                <input type="email" class="form-control" id="email" name="email" required>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="telefone" class="form-label">Telefone</label>
+                                <input type="tel" class="form-control" id="telefone" name="telefone" placeholder="(xx) xxxxx-xxxx">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="tipo_usuario" class="form-label">Você é:</label>
+                                <select class="form-select" id="tipo_usuario" name="tipo_usuario">
+                                    <option value="">Selecione...</option>
+                                    <option value="noivo">Noivo(a) - Planejando casamento</option>
+                                    <option value="fornecedor">Fornecedor - Ofereço produtos/serviços</option>
+                                    <option value="visitante">Visitante - Apenas conhecendo a plataforma</option>
+                                    <option value="outro">Outro</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="assunto" class="form-label">Assunto *</label>
+                            <select class="form-select" id="assunto" name="assunto" required>
+                                <option value="">Selecione o assunto...</option>
+                                <option value="duvida_geral">Dúvida Geral</option>
+                                <option value="como_usar">Como usar a plataforma</option>
+                                <option value="problema_tecnico">Problema Técnico</option>
+                                <option value="sugestao">Sugestão de Melhoria</option>
+                                <option value="parcerias">Parcerias</option>
+                                <option value="projeto_academico">Sobre o Projeto Acadêmico</option>
+                                <option value="outro">Outro</option>
+                            </select>
+                        </div>
+
+                        <div class="mb-4">
+                            <label for="mensagem" class="form-label">Mensagem *</label>
+                            <textarea class="form-control" id="mensagem" name="mensagem" rows="6"
+                                      placeholder="Descreva sua dúvida, sugestão ou problema..." required></textarea>
+                        </div>
+
+                        <div class="text-center">
+                            <button type="submit" class="btn btn-primary btn-lg px-5">
+                                <i class="fas fa-paper-plane"></i> Enviar Mensagem
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Informações de contato -->
+            <div class="row">
+                <div class="col-md-4 mb-4">
+                    <div class="card h-100 text-center">
+                        <div class="card-body p-4">
+                            <div class="bg-primary rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 60px; height: 60px;">
+                                <i class="fas fa-university fa-lg text-white"></i>
+                            </div>
+                            <h5>Instituição</h5>
+                            <p class="text-muted mb-0">Instituto Federal do Espírito Santo</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4 mb-4">
+                    <div class="card h-100 text-center">
+                        <div class="card-body p-4">
+                            <div class="bg-success rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 60px; height: 60px;">
+                                <i class="fas fa-chalkboard-teacher fa-lg text-white"></i>
+                            </div>
+                            <h5>Professor Orientador</h5>
+                            <p class="text-muted mb-0">Prof. Ricardo Maroquio</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4 mb-4">
+                    <div class="card h-100 text-center">
+                        <div class="card-body p-4">
+                            <div class="bg-info rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 60px; height: 60px;">
+                                <i class="fas fa-graduation-cap fa-lg text-white"></i>
+                            </div>
+                            <h5>Disciplina</h5>
+                            <p class="text-muted mb-0">Projeto Integrador de Desenvolvimento</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Aviso sobre projeto acadêmico -->
+            <div class="alert alert-info mt-4">
+                <div class="d-flex align-items-start">
+                    <i class="fas fa-info-circle fa-lg me-3 mt-1"></i>
+                    <div>
+                        <h6 class="alert-heading">Projeto Acadêmico</h6>
+                        <p class="mb-0">
+                            O CaseBem é um projeto desenvolvido para fins acadêmicos. As funcionalidades de contato
+                            são demonstrativas e fazem parte do escopo educacional do projeto.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- FAQ Rápido -->
+            <div class="card shadow-sm mt-4">
+                <div class="card-body p-5">
+                    <div class="text-center mb-4">
+                        <i class="fas fa-question-circle fa-3x text-warning mb-3"></i>
+                        <h3>Perguntas Frequentes</h3>
+                    </div>
+
+                    <div class="accordion" id="faqAccordion">
+                        <div class="accordion-item">
+                            <h2 class="accordion-header" id="faq1">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse1">
+                                    Como me cadastro na plataforma?
+                                </button>
+                            </h2>
+                            <div id="collapse1" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                                <div class="accordion-body">
+                                    Clique em "Cadastro" no menu superior e escolha se você é um casal planejando o casamento
+                                    ou um fornecedor que deseja oferecer produtos/serviços.
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="accordion-item">
+                            <h2 class="accordion-header" id="faq2">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse2">
+                                    Como solicito orçamentos?
+                                </button>
+                            </h2>
+                            <div id="collapse2" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                                <div class="accordion-body">
+                                    Após fazer login como noivo(a), navegue pelos produtos/serviços e clique em "Solicitar Orçamento"
+                                    nos itens de seu interesse. Você também pode criar demandas específicas.
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="accordion-item">
+                            <h2 class="accordion-header" id="faq3">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse3">
+                                    Como cadastro meus produtos como fornecedor?
+                                </button>
+                            </h2>
+                            <div id="collapse3" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                                <div class="accordion-body">
+                                    Faça login como fornecedor e acesse sua área restrita. Lá você encontrará a opção
+                                    "Meus Itens" onde pode cadastrar produtos, serviços ou espaços.
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="accordion-item">
+                            <h2 class="accordion-header" id="faq4">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse4">
+                                    Este é um sistema real de casamentos?
+                                </button>
+                            </h2>
+                            <div id="collapse4" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                                <div class="accordion-body">
+                                    O CaseBem é um projeto acadêmico desenvolvido para fins educacionais no IFES.
+                                    Embora seja funcional, foi criado como parte de uma disciplina de desenvolvimento de sistemas.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<!-- FontAwesome para ícones -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+<script>
+// Máscara para telefone
+document.getElementById('telefone').addEventListener('input', function(e) {
+    let value = e.target.value.replace(/\D/g, '');
+
+    if (value.length <= 11) {
+        if (value.length <= 10) {
+            value = value.replace(/(\d{2})(\d{4})(\d{4})/, '($1) $2-$3');
+        } else {
+            value = value.replace(/(\d{2})(\d{5})(\d{4})/, '($1) $2-$3');
+        }
+    }
+
+    e.target.value = value;
+});
+
+// Simulação de envio do formulário
+document.querySelector('form').addEventListener('submit', function(e) {
+    e.preventDefault();
+
+    // Validação básica
+    const nome = document.getElementById('nome').value;
+    const email = document.getElementById('email').value;
+    const assunto = document.getElementById('assunto').value;
+    const mensagem = document.getElementById('mensagem').value;
+
+    if (!nome || !email || !assunto || !mensagem) {
+        alert('Por favor, preencha todos os campos obrigatórios.');
+        return;
+    }
+
+    // Simular envio
+    const button = document.querySelector('button[type="submit"]');
+    const originalText = button.innerHTML;
+
+    button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Enviando...';
+    button.disabled = true;
+
+    setTimeout(() => {
+        alert('Mensagem enviada com sucesso! Este é um projeto acadêmico, então a mensagem não será processada realmente.');
+
+        // Resetar formulário
+        document.querySelector('form').reset();
+
+        // Restaurar botão
+        button.innerHTML = originalText;
+        button.disabled = false;
+    }, 2000);
+});
+</script>
+{% endblock %}

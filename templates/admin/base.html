@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/svg+xml" href="/static/img/logos/logo_icon_bk.svg">
+    <link href="/static/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+    <link rel="stylesheet" href="/static/css/styles.css">
+    <link rel="stylesheet" href="/static/css/btn-actions.css">
+    <title>CaseBem :: {% block title %}Admin{% endblock %}</title>
+</head>
+
+<body class="d-flex flex-column min-vh-100">
+    <header>
+        <nav class="navbar navbar-expand-lg navbar-light bg-danger py-2">
+            <div class="container-fluid">
+                <a class="navbar-brand mx-4 text-white d-flex align-items-center" href="/">
+                    <img src="/static/img/logos/logo_icon_white.svg" alt="Case Bem" height="35" class="me-3">
+                    <img src="/static/img/logos/logo_text_white.svg" alt="Case Bem" height="22">
+                </a>
+                <a href="/admin/dashboard" class="navbar-brand ms-3 me-4">
+                    <span class="text-white">Administrador</span>
+                </a>
+                <div class="navbar-divider"></div>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+                    aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarNav">
+                    <ul class="navbar-nav ms-3 me-auto">
+                        <li class="nav-item">
+                            <a class="nav-link text-white {% if get_active_page_from_url(request) == 'dashboard' %}active{% endif %}"
+                               {% if get_active_page_from_url(request) == 'dashboard' %}aria-current="page"{% endif %} href="/admin/dashboard">Início</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-white {% if get_active_page_from_url(request) == 'usuarios' %}active{% endif %}"
+                               {% if get_active_page_from_url(request) == 'usuarios' %}aria-current="page"{% endif %} href="/admin/usuarios">Usuários</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-white {% if get_active_page_from_url(request) == 'categorias' %}active{% endif %}"
+                               {% if get_active_page_from_url(request) == 'categorias' %}aria-current="page"{% endif %} href="/admin/categorias">Categorias</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-white {% if get_active_page_from_url(request) == 'itens' %}active{% endif %}"
+                               {% if get_active_page_from_url(request) == 'itens' %}aria-current="page"{% endif %} href="/admin/itens">Itens</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-white {% if get_active_page_from_url(request) == 'relatorios' %}active{% endif %}"
+                               {% if get_active_page_from_url(request) == 'relatorios' %}aria-current="page"{% endif %} href="/admin/relatorios">Relatórios</a>
+                        </li>
+                    </ul>
+                    <ul class="navbar-nav">
+                        {% if usuario_logado %}
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle text-white d-flex align-items-center" href="#" id="navbarDropdownAdmin"
+                                role="button" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">
+                                <img src="{{ obter_avatar_ou_padrao(usuario_logado.id) }}"
+                                     class="rounded-circle me-2"
+                                     style="width: 32px; height: 32px; object-fit: cover; border: 2px solid rgba(255,255,255,0.3);"
+                                     alt="Avatar">
+                                {{ usuario_logado.nome }}
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-end">
+                                <li><a class="dropdown-item" href="/admin/perfil">Alterar Dados de Perfil</a></li>
+                                <li><a class="dropdown-item" href="/alterar-senha">Alterar Senha</a></li>
+                                <li>
+                                    <hr class="dropdown-divider">
+                                </li>
+                                <li><a class="dropdown-item" href="/logout">Sair</a></li>
+                            </ul>
+                        </li>
+                        <li class="nav-item me-3">
+                            <!-- Empty item for consistent spacing -->
+                        </li>
+                        {% endif %}
+                    </ul>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <main class="flex-grow-1">
+        <div class="container py-4">
+            {% block conteudo %}
+            {% endblock %}
+        </div>
+    </main>
+
+    <footer class="bg-danger text-white text-center py-3 mt-auto">
+        <div class="container">
+            <p class="mb-0">&copy; 2025 Case Bem - Painel Administrativo. Todos os direitos reservados.</p>
+        </div>
+    </footer>
+
+    <script src="/static/js/bootstrap.bundle.min.js"></script>
+    <script src="/static/js/toast-manager.js"></script>
+    {% include 'components/toast-handler.html' %}
+    {% include 'components/modal-confirmacao.html' %}
+
+    <script>
+    // Funções globais para formatação de documentos e telefone
+    function formatarTelefone(telefone) {
+        if (!telefone || telefone === '-' || telefone === 'Não informado') return telefone;
+
+        // Remove tudo que não é dígito
+        let digits = telefone.replace(/\D/g, '');
+
+        // Se não tem dígitos suficientes, retorna como está
+        if (digits.length < 10) return telefone;
+
+        // Formata baseado na quantidade de dígitos
+        if (digits.length === 10) {
+            // Telefone fixo: (XX) XXXX-XXXX
+            return digits.replace(/(\d{2})(\d{4})(\d{4})/, '($1) $2-$3');
+        } else if (digits.length === 11) {
+            // Celular: (XX) XXXXX-XXXX
+            return digits.replace(/(\d{2})(\d{5})(\d{4})/, '($1) $2-$3');
+        }
+
+        // Se tem mais de 11 dígitos, pega apenas os primeiros 11
+        if (digits.length > 11) {
+            digits = digits.substring(0, 11);
+            return digits.replace(/(\d{2})(\d{5})(\d{4})/, '($1) $2-$3');
+        }
+
+        return telefone;
+    }
+
+    function formatarCPF(cpf) {
+        if (!cpf || cpf === '-' || cpf === 'Não informado') return cpf;
+
+        // Remove tudo que não é dígito
+        let digits = cpf.replace(/\D/g, '');
+
+        // Se não tem 11 dígitos, retorna como está
+        if (digits.length !== 11) return cpf;
+
+        // Formata CPF: XXX.XXX.XXX-XX
+        return digits.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, '$1.$2.$3-$4');
+    }
+
+    function formatarCNPJ(cnpj) {
+        if (!cnpj || cnpj === '-' || cnpj === 'Não informado') return cnpj;
+
+        // Remove tudo que não é dígito
+        let digits = cnpj.replace(/\D/g, '');
+
+        // Se não tem 14 dígitos, retorna como está
+        if (digits.length !== 14) return cnpj;
+
+        // Formata CNPJ: XX.XXX.XXX/XXXX-XX
+        return digits.replace(/(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})/, '$1.$2.$3/$4-$5');
+    }
+
+    // Aplica formatações automáticas quando a página carrega
+    document.addEventListener('DOMContentLoaded', function() {
+        // Formatar telefones
+        const phoneCells = document.querySelectorAll('.phone-format');
+        phoneCells.forEach(function(cell) {
+            const originalText = cell.textContent.trim();
+            cell.textContent = formatarTelefone(originalText);
+        });
+
+        // Formatar CPFs
+        const cpfCells = document.querySelectorAll('.cpf-format');
+        cpfCells.forEach(function(cell) {
+            const originalText = cell.textContent.trim();
+            cell.textContent = formatarCPF(originalText);
+        });
+
+        // Formatar CNPJs
+        const cnpjCells = document.querySelectorAll('.cnpj-format');
+        cnpjCells.forEach(function(cell) {
+            const originalText = cell.textContent.trim();
+            cell.textContent = formatarCNPJ(originalText);
+        });
+    });
+    </script>
+
+    {% block scripts %}
+    {% endblock %}
+</body>
+
+</html>

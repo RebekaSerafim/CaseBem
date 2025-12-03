@@ -1,0 +1,28 @@
+{% extends "base_layout.html" %}
+
+{% set header_title = "Recuperação de Senha" %}
+{% set header_class = "warning" %}
+
+{% block content %}
+    <p>Olá, <strong>{{ nome_destinatario }}</strong>!</p>
+
+    <p>Recebemos uma solicitação para redefinir a senha da sua conta no Case Bem.</p>
+
+    <p>Se você fez esta solicitação, clique no botão abaixo para criar uma nova senha:</p>
+
+    <div class="email-button-container">
+        <a href="{{ link_reset }}" class="email-button warning">
+           Redefinir Senha
+        </a>
+    </div>
+
+    <p><strong>Importante:</strong> Este link é válido por apenas 1 hora por questões de segurança.</p>
+
+    <p>Se você não solicitou a redefinição de senha, pode ignorar este e-mail.
+       Sua senha permanecerá inalterada.</p>
+
+    <p>Em caso de dúvidas, entre em contato conosco.</p>
+
+    <p>Atenciosamente,<br>
+       <strong>Equipe Case Bem</strong></p>
+{% endblock %}

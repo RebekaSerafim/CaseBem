@@ -1,0 +1,207 @@
+{% extends "noivo/base.html" %}
+
+{% block title %}Detalhes da Demanda{% endblock %}
+
+{% block conteudo %}
+<div class="row">
+    <div class="col-12">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1>Detalhes da Demanda</h1>
+            <div>
+                <a href="/noivo/demandas" class="btn btn-outline-secondary">
+                    <i class="fas fa-arrow-left"></i> Voltar
+                </a>
+                {% if demanda.status.value == 'ATIVA' %}
+                <a href="/noivo/demandas/editar/{{ demanda.id }}" class="btn btn-primary">
+                    <i class="fas fa-edit"></i> Editar
+                </a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Informações da Demanda -->
+<div class="row mb-4">
+    <div class="col-lg-8">
+        <div class="card shadow">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">Demanda #{{ demanda.id }}</h5>
+                <span class="badge
+                    {% if demanda.status.value == 'ATIVA' %}bg-success
+                    {% elif demanda.status.value == 'FINALIZADA' %}bg-primary
+                    {% elif demanda.status.value == 'CANCELADA' %}bg-danger
+                    {% else %}bg-secondary{% endif %}">
+                    {{ demanda.status.value }}
+                </span>
+            </div>
+            <div class="card-body">
+                <div class="row mb-3">
+                    <div class="col-12">
+                        <h6><i class="fas fa-align-left"></i> Descrição Geral</h6>
+                        <p>{{ demanda.descricao }}</p>
+                    </div>
+                </div>
+
+                <div class="row mb-3">
+                    <div class="col-md-4">
+                        <h6><i class="fas fa-dollar-sign"></i> Orçamento Total</h6>
+                        <p>
+                            {% if demanda.orcamento_total %}
+                                R$ {{ "%.2f"|format(demanda.orcamento_total) }}
+                            {% else %}
+                                <span class="text-muted">Não informado</span>
+                            {% endif %}
+                        </p>
+                    </div>
+                    <div class="col-md-4">
+                        <h6><i class="fas fa-calendar"></i> Data do Casamento</h6>
+                        <p>{{ (demanda.data_casamento | formatar_data) or 'Não informada' }}</p>
+                    </div>
+                    <div class="col-md-4">
+                        <h6><i class="fas fa-map-marker-alt"></i> Local</h6>
+                        <p>{{ demanda.cidade_casamento or 'Não informada' }}</p>
+                    </div>
+                </div>
+
+                {% if demanda.prazo_entrega %}
+                <div class="row mb-3">
+                    <div class="col-12">
+                        <h6><i class="fas fa-clock"></i> Prazo Desejado</h6>
+                        <p>{{ demanda.prazo_entrega }}</p>
+                    </div>
+                </div>
+                {% endif %}
+
+                {% if demanda.observacoes %}
+                <div class="row mb-3">
+                    <div class="col-12">
+                        <h6><i class="fas fa-sticky-note"></i> Observações</h6>
+                        <p>{{ demanda.observacoes }}</p>
+                    </div>
+                </div>
+                {% endif %}
+
+                <div class="row">
+                    <div class="col-12">
+                        <small class="text-muted">
+                            <i class="fas fa-info-circle"></i> Criada em: {{ (demanda.data_criacao | formatar_data) or 'N/A' }}
+                        </small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-4">
+        <div class="card shadow">
+            <div class="card-header">
+                <h6 class="mb-0"><i class="fas fa-chart-pie"></i> Resumo</h6>
+            </div>
+            <div class="card-body">
+                <div class="row text-center">
+                    <div class="col-6 mb-3">
+                        <small class="text-muted">Itens Solicitados</small>
+                        <div class="h4 mb-0 text-primary">{{ itens|length }}</div>
+                    </div>
+                    <div class="col-6 mb-3">
+                        <small class="text-muted">Orçamentos Recebidos</small>
+                        <div class="h4 mb-0 text-success">{{ orcamentos|length }}</div>
+                    </div>
+                </div>
+                {% if orcamentos|length == 0 %}
+                <div class="alert alert-info mb-0">
+                    <small><i class="fas fa-info-circle"></i> Nenhum orçamento recebido ainda</small>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Itens Solicitados -->
+<div class="row">
+    <div class="col-12">
+        <div class="card shadow">
+            <div class="card-header">
+                <h6 class="mb-0"><i class="fas fa-list"></i> Itens Solicitados ({{ itens|length }})</h6>
+            </div>
+            <div class="card-body">
+                {% if itens %}
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th style="width: 12%;">Tipo/Categoria</th>
+                                <th style="width: 35%;">Descrição do Item</th>
+                                <th style="width: 8%;">Qtd</th>
+                                <th style="width: 12%;">Preço Máximo</th>
+                                <th style="width: 10%;">Orçamentos</th>
+                                <th style="width: 10%;">Situação</th>
+                                <th style="width: 13%;">Observações</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for item in itens %}
+                            <tr>
+                                <td>
+                                    <span class="badge bg-{% if item.tipo == 'PRODUTO' %}primary{% elif item.tipo == 'SERVIÇO' %}success{% elif item.tipo == 'ESPAÇO' %}info{% else %}secondary{% endif %}">
+                                        {{ item.tipo }}
+                                    </span>
+                                    <br>
+                                    <small class="text-muted">{{ item.categoria_nome or 'N/A' }}</small>
+                                </td>
+                                <td>
+                                    <strong>{{ item.descricao }}</strong>
+                                </td>
+                                <td class="text-center">{{ item.quantidade }}</td>
+                                <td>
+                                    {% if item.preco_maximo %}
+                                        <strong class="text-success">R$ {{ "%.2f"|format(item.preco_maximo) }}</strong>
+                                    {% else %}
+                                        <span class="text-muted">-</span>
+                                    {% endif %}
+                                </td>
+                                <td class="text-center">
+                                    {% if item.total_orcamentos > 0 %}
+                                        <span class="badge bg-info">{{ item.total_orcamentos }}</span>
+                                    {% else %}
+                                        <span class="text-muted">0</span>
+                                    {% endif %}
+                                </td>
+                                <td class="text-center">
+                                    {% if item.esta_atendido %}
+                                        <span class="badge bg-success">Atendido</span>
+                                    {% else %}
+                                        <span class="badge bg-warning text-dark">Pendente</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if item.observacoes %}
+                                        <small>{{ item.observacoes }}</small>
+                                    {% else %}
+                                        <small class="text-muted">-</small>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="text-center py-5">
+                    <i class="fas fa-box fa-3x text-gray-300 mb-3"></i>
+                    <h6>Nenhum item solicitado</h6>
+                    <p class="text-muted">Esta demanda não possui itens cadastrados.</p>
+                    {% if demanda.status.value == 'ATIVA' %}
+                    <a href="/noivo/demandas/editar/{{ demanda.id }}" class="btn btn-primary">
+                        <i class="fas fa-plus"></i> Adicionar Itens
+                    </a>
+                    {% endif %}
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

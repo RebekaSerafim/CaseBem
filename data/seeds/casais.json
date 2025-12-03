@@ -1,0 +1,102 @@
+[
+    {
+        "id": 1,
+        "id_noivo1": 12,
+        "id_noivo2": 13,
+        "data_casamento": "2024-12-15",
+        "local_previsto": "Igreja São João Batista - Salão Jardim das Rosas",
+        "orcamento_estimado": "R$ 35.000,00",
+        "numero_convidados": 120,
+        "data_cadastro": "2025-09-24 14:42:14"
+    },
+    {
+        "id": 2,
+        "id_noivo1": 14,
+        "id_noivo2": 15,
+        "data_casamento": "2025-02-22",
+        "local_previsto": "Praia de Copacabana - Hotel Copacabana Palace",
+        "orcamento_estimado": "R$ 85.000,00",
+        "numero_convidados": 200,
+        "data_cadastro": "2025-09-24 14:42:14"
+    },
+    {
+        "id": 3,
+        "id_noivo1": 16,
+        "id_noivo2": 17,
+        "data_casamento": "2024-11-30",
+        "local_previsto": "Fazenda Vista Alegre - Tiradentes/MG",
+        "orcamento_estimado": "R$ 45.000,00",
+        "numero_convidados": 80,
+        "data_cadastro": "2025-09-24 14:42:15"
+    },
+    {
+        "id": 4,
+        "id_noivo1": 18,
+        "id_noivo2": 19,
+        "data_casamento": "2025-03-15",
+        "local_previsto": "Jardim Botânico de Curitiba",
+        "orcamento_estimado": "R$ 28.000,00",
+        "numero_convidados": 95,
+        "data_cadastro": "2025-09-24 14:42:15"
+    },
+    {
+        "id": 5,
+        "id_noivo1": 20,
+        "id_noivo2": 21,
+        "data_casamento": "2025-01-18",
+        "local_previsto": "Vinícola Casa Valduga - Bento Gonçalves/RS",
+        "orcamento_estimado": "R$ 55.000,00",
+        "numero_convidados": 140,
+        "data_cadastro": "2025-09-24 14:42:15"
+    },
+    {
+        "id": 6,
+        "id_noivo1": 22,
+        "id_noivo2": 23,
+        "data_casamento": "2024-10-25",
+        "local_previsto": "Espaço Villa Regia - Brasília/DF",
+        "orcamento_estimado": "R$ 40.000,00",
+        "numero_convidados": 110,
+        "data_cadastro": "2025-09-24 14:42:15"
+    },
+    {
+        "id": 7,
+        "id_noivo1": 24,
+        "id_noivo2": 25,
+        "data_casamento": "2025-05-10",
+        "local_previsto": "Beach Park Resort - Fortaleza/CE",
+        "orcamento_estimado": "R$ 60.000,00",
+        "numero_convidados": 160,
+        "data_cadastro": "2025-09-24 14:42:16"
+    },
+    {
+        "id": 8,
+        "id_noivo1": 26,
+        "id_noivo2": 27,
+        "data_casamento": "2025-04-05",
+        "local_previsto": "Pelourinho - Salvador/BA",
+        "orcamento_estimado": "R$ 38.000,00",
+        "numero_convidados": 85,
+        "data_cadastro": "2025-09-24 14:42:16"
+    },
+    {
+        "id": 9,
+        "id_noivo1": 28,
+        "id_noivo2": 29,
+        "data_casamento": "2024-12-28",
+        "local_previsto": "Clube Jaó - Goiânia/GO",
+        "orcamento_estimado": "R$ 32.000,00",
+        "numero_convidados": 75,
+        "data_cadastro": "2025-09-24 14:42:16"
+    },
+    {
+        "id": 10,
+        "id_noivo1": 30,
+        "id_noivo2": 31,
+        "data_casamento": "2025-06-20",
+        "local_previsto": "Vila Germânica - Blumenau/SC",
+        "orcamento_estimado": "R$ 42.000,00",
+        "numero_convidados": 130,
+        "data_cadastro": "2025-09-24 14:42:16"
+    }
+]
